@@ -1,6 +1,7 @@
 # SJOCA Website Overhaul — Project Plan
 
-**Status:** Draft outline, v0.3 — 2026-09-14
+**Parish:** St John the Baptist Orthodox Church - Rochester NY (OCA) — abbreviated **SJOCA** throughout.
+**Status:** Draft outline, v0.4 — 2026-09-14
 **Purpose of this document:** name every step between today and a launched website, in
 order, so that any contributor can see where we are and what comes next. This is an
 outline of *steps*, not a design, a specification, or a technology choice. Each step

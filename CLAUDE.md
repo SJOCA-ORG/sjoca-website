@@ -9,8 +9,9 @@ committed so it travels with the repo; it is the handoff, not a scratchpad.
 
 ## What this project is
 
-Replacing the parish website at www.sjoca.org, currently on Google Sites and maintained
-by parish members. Development is donated by parishioners. Driven by a parish survey that
+Replacing the parish website at www.sjoca.org for **St John the Baptist Orthodox Church - Rochester NY (OCA)** — abbreviated **SJOCA**
+throughout this repo. The current site is on Google Sites and maintained by parish
+members. Development is donated by parishioners. Driven by a parish survey that
 found real gaps between what members say matters and how well the current site delivers.
 
 Read [`PROJECT-PLAN.md`](PROJECT-PLAN.md) first — 14 steps in 5 phases. Everything else
@@ -114,5 +115,4 @@ the sensible place to start.
   stewardship campaign?
 
 **Housekeeping:**
-- Confirm the parish's full formal name (there's a TODO in `README.md`).
 - Who controls the `sjoca.org` domain and the Google Sites account? (Step 3.)

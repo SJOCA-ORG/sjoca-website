@@ -1,8 +1,8 @@
-# SJOCA Website Overhaul
+# St John the Baptist Orthodox Church - Rochester NY (OCA) — Website Overhaul
 
 Rebuilding the parish website — **www.sjoca.org**.
 
-<!-- TODO: confirm the parish's full formal name and put it here. -->
+Throughout this repository the parish is abbreviated **SJOCA**.
 
 This repository holds the planning, research, design decisions, and eventually the site
 itself. All development work is donated by members of the parish.
@@ -30,6 +30,7 @@ approval gate on each. Read it first. It is the source of truth for what happens
 | `data/survey/` | Parish survey results (anonymized). See the note below. |
 | `docs/` | Working documents, one per step, created as we reach each step. |
 | `deck/` | The Parish Council proposal slides (Step 1). |
+| `.claude/` | Shared Claude Code settings, so we all work the same way. Your personal overrides go in the gitignored `settings.local.json`. |
 
 Empty directories mean we haven't reached that step yet, not that something is missing.
 
