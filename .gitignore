@@ -1,0 +1,17 @@
+# Raw survey exports contain respondent email addresses — never commit these.
+# The anonymized version (data/survey/responses-anonymized.csv) is the committed copy.
+# Raw data can be re-exported from the original Google Form if ever needed.
+Church Website Overhaul Feedback.csv
+Church Website Overhaul Feedback.csv.zip
+data/survey/raw/
+*-raw.csv
+
+# Claude Code local overrides (machine-specific; shared settings ARE committed)
+.claude/settings.local.json
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
