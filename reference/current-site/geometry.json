@@ -1,0 +1,2503 @@
+{
+ "home": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 340,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Saint John the Baptist",
+     "x": 151,
+     "y": 87,
+     "w": 1138,
+     "h": 70
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Orthodox Church",
+     "x": 151,
+     "y": 183,
+     "w": 1138,
+     "h": 70
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 244,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Welcome to Saint John The Baptist Orthodox Church!",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Our Mission: To be a community of Orthodox Christians faithful to the doctrines, teachings, and traditions of the Holy Orthodox Church under the ecclesiastical ",
+     "x": 151,
+     "y": 87,
+     "w": 1138,
+     "h": 106
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 205,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "A Message from our Priest, Father David Mezynski",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "We welcome you to join us in the celebration of the Divine Services! If you are interested in learning more about Orthodoxy, we welcome you to \"come and see\" th",
+     "x": 151,
+     "y": 79,
+     "w": 1138,
+     "h": 93
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "width": 1440,
+   "height": 947,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uJ0wr38vFf5vKmQEVTqfGWncI-P5LAEdWpMMwtpmylszW1op-RNIAXV1Hyk3ZTAYo4N8EjY73RGPiyx7RYXWS63mBxsFS73JJAYU5EAmpIGEBVRNQ7f8YwR334XHtHw151zqeI5C5FW3PVrVAJVdTuqiKpIZ8y8cPkz8lyuowWj8qB69hJa9JcxnDL0Nz3VV1SBTGt4j-aWSZgr2ih-VTCrX6cvjk6QXcSp0--8LU=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 340
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72spLJZQRqwwNSjCGoZHZjo4aedbb-J6Mf4O9N8A_XD64KF3BdPRhWhqIvbf97VzNDtOrvDn-yN5wcCTkQRyK4gVbl9g36qhv8cgiOJK_X3N7xlWyyuYaZQtWK7x9qlthivAtcxmZNHVJr6lw11AO87JYnMbkxdF4RtKT0op0bJo1N7Tqohq1b0hmwRnY6K97STZ9xIzRlg2d-_qKAict1RwLnz0PPejzA5u6MU5BbI=w1280",
+     "text": "",
+     "x": 143,
+     "y": 391,
+     "w": 464,
+     "h": 531
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tuyVDDdaO6vclGQYpjNyt7bdYt33E39qHTLCpGUQEcsCkLLL014Bwq7dvlxQ2rcJlHlziqK9w62C5sUxrsxvFNHo0qUmwDHmiuYSUiitplroLJv1K15BFKg-zBrV85RrnYxNRomoRHpu23MsAiSQFwV7SrxN9aCn-rJdzehMGLiz-4zo3a5AwUb4T3LDmp80HeR1LOH8T9fLxbfK1hAnAyaKnoYpyPX9_bmsTsGJk=w1280",
+     "text": "",
+     "x": 636,
+     "y": 24,
+     "w": 661,
+     "h": 466
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "We are a parish of The Orthodox Church of America (OCA), in the Diocese of New York and New Jersey.",
+     "x": 644,
+     "y": 504,
+     "w": 645,
+     "h": 80
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Our services are entirely in English!",
+     "x": 644,
+     "y": 614,
+     "w": 645,
+     "h": 40
+    }
+   ]
+  }
+ ],
+ "about-us": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 520,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "About Us",
+     "x": 151,
+     "y": 213,
+     "w": 1138,
+     "h": 94
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 234,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "What is the Orthodox Faith?",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "The Orthodox Church is the original Christian Church, the Church founded by the Lord Jesus Christ and described in the pages of the New Testament. Her history c",
+     "x": 151,
+     "y": 79,
+     "w": 1138,
+     "h": 122
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 614,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "HISTORY OF OUR PARISH",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 82
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Saint John the Baptist Christian Orthodox Church was founded in Rochester, New York on the Sunday of the Myrrh-bearing Women (May 17) in 1964.",
+     "x": 151,
+     "y": 132,
+     "w": 1138,
+     "h": 29
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "That year, a group of Orthodox faithful joined together with the desire to establish a Christian Orthodox parish where the Divine Services would be conducted en",
+     "x": 151,
+     "y": 160,
+     "w": 1138,
+     "h": 144
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Parishioners represent a wide diversity of backgrounds — “cradle-born” Christian Orthodox, converts from a multitude of religious traditions, and those seeking ",
+     "x": 151,
+     "y": 304,
+     "w": 1138,
+     "h": 173
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "In this holy house, the fullness of the Christian Orthodox Faith is opened to us. We hope and pray that the Holy Spirit will lead others into the fullness of Ch",
+     "x": 151,
+     "y": 477,
+     "w": 1138,
+     "h": 86
+    }
+   ]
+  }
+ ],
+ "about-us/our-story": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 340,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Our Story",
+     "x": 151,
+     "y": 135,
+     "w": 1138,
+     "h": 70
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 234,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "What is the Orthodox Faith?",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "The Orthodox Church is the original Christian Church, the Church founded by the Lord Jesus Christ and described in the pages of the New Testament. Her history c",
+     "x": 151,
+     "y": 79,
+     "w": 1138,
+     "h": 122
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 66,
+   "items": []
+  },
+  {
+   "index": 3,
+   "width": 1440,
+   "height": 668,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "HISTORY OF OUR PARISH",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 82
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Saint John the Baptist Christian Orthodox Church was founded in Rochester, New York on the Sunday of the Myrrh-bearing Women (May 17) in 1964.",
+     "x": 151,
+     "y": 132,
+     "w": 1138,
+     "h": 29
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "That year, a group of Orthodox faithful joined together with the desire to establish a Christian Orthodox parish where the Divine Services would be conducted en",
+     "x": 151,
+     "y": 178,
+     "w": 1138,
+     "h": 144
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Parishioners represent a wide diversity of backgrounds — “cradle-born” Christian Orthodox, converts from a multitude of religious traditions, and those seeking ",
+     "x": 151,
+     "y": 340,
+     "w": 1138,
+     "h": 173
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "In this holy house, the fullness of the Christian Orthodox Faith is opened to us. We hope and pray that the Holy Spirit will lead others into the fullness of Ch",
+     "x": 151,
+     "y": 531,
+     "w": 1138,
+     "h": 86
+    }
+   ]
+  }
+ ],
+ "about-us/leadership": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 2400,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Leadership",
+     "x": 348,
+     "y": 1157,
+     "w": 744,
+     "h": 85
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 495,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uqnLlEu9ricWZFZn2lZ7s2Otr7unhCuXu5e3qYwGx4EA-VDnYqMA2shrPRQLIx4xWjF3ZvPQhJs9YU_SeDpXlpvJIFcpijNDn_YkGF-nTKtoqaQSF13PkU4iriy9GrKbJBwMQWYrrFCJ6_QNJXBuvURJ-rZJNRvSkYoTrkcpksf-uGsM2m7J6GWvN9QcU8j4DpPjEKSyOlNf5t7m9BnDyLruZQWUcqxGVcoR_IfdY=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 447
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "His Eminence, Michael",
+     "x": 644,
+     "y": 32,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Archbishop of New York & the Diocese of New York & New Jersey",
+     "x": 644,
+     "y": 106,
+     "w": 645,
+     "h": 71
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 456,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sbWPAcUNECISvZxV9HjrlIcxmpNDYEQdkVJf4ROOOy7QUvodhI7DXDDVG_3JEuhSxhH6OiyiEcjITF2TiwLT2WjqMnElRDk6bb-R6BK6HGTUWUP2E0q87GL5TwEdZxLw48No8QmrF5p6am7Q684H1Qrt119d_DRwGpIyF5Q_guhoNazctvpU3NE-Z1k49VdGi06aASd4UhAYV76FtvrsRNCdjieXXD6yByEq7bJ14=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 408
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Very Reverend, Archpriest",
+     "x": 644,
+     "y": 32,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "David Mezynski",
+     "x": 644,
+     "y": 106,
+     "w": 645,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "frdavid@sjoca.org",
+     "x": 644,
+     "y": 154,
+     "w": 645,
+     "h": 27
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "width": 1440,
+   "height": 399,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tlQVztY_2cvbLDVlIZIJbC9r9UmgmlZm3RoQvkAM_ET89-PAU_9RD9hy9OQ23UAzLJQ3Dhbpm7QWieNU8ZTBGsZF8rfFAxLYAqLnqyBI7aCHEjqou_20TSJPzhnJYrIH5ZPCXshvQek_hWWdg0BKc0-DTkvhvHd-a8kolfhLsZnpchyChVuE05TUHvTB5ub6hWHyQoA4zW38FNXnjmABoAoYQyxci5CkeULZt3=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 351
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Proto-Deacon",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Stephen S.",
+     "x": 644,
+     "y": 112,
+     "w": 645,
+     "h": 35
+    }
+   ]
+  },
+  {
+   "index": 4,
+   "width": 1440,
+   "height": 333,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72s_p9TpHNh-n9k0S9NbdWwEJ-G8FFQ8Qt2EhBdvoQ-Qh4LDmJjDeEZlwgE8qc_MZSg_e1iiK-_s7GC-itz81aprS3yNySbJ7k-PoWnuSlHeo8yOUoqfiMzlUGrweTYi8_MZAzCedw9DM0dv__hmFxBTO9-U2Ci0wf2hoIONu5w5kGbNb0k5uQB6pXkeOOlD0cBTG4wDy7b9jqvL-P9kXFV-hnBglsJnSGmXS2wKqA8=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 285
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Reverend Deacon",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Sean M.",
+     "x": 644,
+     "y": 112,
+     "w": 645,
+     "h": 35
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "deacon@stjohnthebaptistorthodox.org",
+     "x": 644,
+     "y": 168,
+     "w": 645,
+     "h": 35
+    }
+   ]
+  },
+  {
+   "index": 5,
+   "width": 1440,
+   "height": 469,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72t-PnO17-C2gULC1thZHshe_lycYLx26mCrACVw4OKpxpD-NSeTR6NU8wbRB1yXq4p2fO3SIJrfoAr1zDpYEf2tNhFsmC5v-HI4UZk1x32u7kwIzwUFfI6fsktGYNQblDiXRB-KJ9HSSSLihNCYIWBBm2eVRpUWAK3asqtiEn73pquJAwxRxBTHtcLCWLT0zkIpXI743wPFNibjXXCQW0cNUIl-EVwNze5Hx1IyRRE=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 421
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "President",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Steve F.",
+     "x": 644,
+     "y": 112,
+     "w": 645,
+     "h": 35
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "warden@sjoca.org",
+     "x": 644,
+     "y": 168,
+     "w": 645,
+     "h": 35
+    }
+   ]
+  },
+  {
+   "index": 6,
+   "width": 1440,
+   "height": 447,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72v-VUVv-Hn-KCMAsFtTeYuKeFdpHX6csdTFXGFFW6bK_dP5U2R6S4hH8uUpIoWtjLzaU8rdxz-s3zGEyXeQtAhOjHEvn4gnwZM46oyG7ErpiNH3EzjyYxvHJg_jZQ7tZJ3T9wM1l6tW04IhyG7wedY8rLitRVu06DlJxcXeV3_6ALnMOSOGDI8K6n7Wl2CpfYLwXiCs9v8RrX-9YQ27wyKiiLRCAQ6BYtn9x8i1r5I=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 399
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Vice President",
+     "x": 684,
+     "y": 38,
+     "w": 605,
+     "h": 54
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Matushka Heather",
+     "x": 684,
+     "y": 120,
+     "w": 605,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "asstwarden@sjoca.org",
+     "x": 684,
+     "y": 186,
+     "w": 605,
+     "h": 27
+    }
+   ]
+  },
+  {
+   "index": 7,
+   "width": 1440,
+   "height": 388,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tVE_WgGYS2Cwrhi5RmtIyCvLznLJcj8erRpJ8wz036FR9Ndng7UBo6W9uKAYCZcWoS0fDsF_NV7LKSbOUbu74spK4IZfU5RhoTkO8GKR43oTfXMsn7hPG291FA2lz0a2oWnRi0mNmLiPWIajO-ZzrpzHZInx6OiuM6Srx0msn5PGemjTsFdO7q1eibpdHF6Ws8iOmK9fGOP8pig8w3kVSaph8qi4NJXumueBuuGiE=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 340
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Secretary",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Ryan C.",
+     "x": 644,
+     "y": 120,
+     "w": 645,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "secretary@sjoca.org",
+     "x": 644,
+     "y": 168,
+     "w": 645,
+     "h": 27
+    }
+   ]
+  },
+  {
+   "index": 8,
+   "width": 1440,
+   "height": 354,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uapgP35NE3yKL_IWm-Asv4hIAO0T3T2RNCKTjDOhme4EYpFjl9aDXAjZuISMymx94X2MLWEOcIQbdkZ_fN6GVNX0SF9cI0TCb74sl3QP7IYE8SxAKLpBr1NVtEKVNKAwnDffka8YcC8S0_HFLZQJOH81_6Z5zObCJF0S7zy3NEY5EVAAa5Iatd7HTunL6MuswMnO1Z_k_y4opUnZjOrSWlSuHoN0Q_GJXBKvJ4Pd4=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 306
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Treasurer",
+     "x": 644,
+     "y": 32,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Janet V.",
+     "x": 644,
+     "y": 106,
+     "w": 645,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "treasurer@stjohnthebaptistorthodox.org",
+     "x": 644,
+     "y": 154,
+     "w": 645,
+     "h": 27
+    }
+   ]
+  },
+  {
+   "index": 9,
+   "width": 1440,
+   "height": 397,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72un-OvYCfqRd_wxxxrCpV3o8prAnAy_AASkiHhKqJUVfHhgCbmsan8OqERQQ-eMY6BX3ka5iqTH2EO5xoqrleE5dTXH5QA2uNap9GngF4-CTCL51N1Fk7Bu36qnXC6WLsMWsA57hXonK1ZAPRCdAs7BkQ-ogA2st_YimXpcBacrGKtP-t7amTW_KHFDu6bgWOHC6UBJ2a22nEQxrxTgsJaBSBgoSdCuLc8cn-Dl-j8=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 349
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Buildings & Grounds",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Steve M. Jr. & Charlie A.",
+     "x": 644,
+     "y": 120,
+     "w": 645,
+     "h": 35
+    }
+   ]
+  },
+  {
+   "index": 10,
+   "width": 1440,
+   "height": 266,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Readers: Douglas S., Robert Mitchell V., Bobby Victor M., Ryan C.",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Youth Altar Servers- Teddy K., Noah M.",
+     "x": 151,
+     "y": 87,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Senior Altar Servers- Mitch V., Ryan C., Will C., Joe K.",
+     "x": 151,
+     "y": 143,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Church School Teachers- Sophie H., Malcolm W.",
+     "x": 151,
+     "y": 198,
+     "w": 1138,
+     "h": 35
+    }
+   ]
+  }
+ ],
+ "about-us/choir": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 520,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Choir",
+     "x": 348,
+     "y": 217,
+     "w": 744,
+     "h": 85
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 859,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72t6zfws7kCz86X_UMn52Ws6DkF2EdH73UAKuvpFhkS-aYKxVbPvQ9ya4JvdN_0zYmsU7mApaQikEhczj0QNFlA_o6LeOB4K6qaW3hM6jdADZEV9UmFmXo0zJa5xqiZhPZClk2M69gaySBzrw_Q0OgF3lO1CCAytUuCrBDMn7nJqVGhIFWUiiKS7HQPgqxehQFQ_tErWNS-oRcCy4DHE8KDzq4JskT7A4RZDrf_P1D8=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 562,
+     "h": 651
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Choir Director",
+     "x": 151,
+     "y": 689,
+     "w": 546,
+     "h": 56
+    },
+    {
+     "tag": "h3",
+     "src": null,
+     "text": "Jan V.",
+     "x": 151,
+     "y": 761,
+     "w": 546,
+     "h": 32
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 148,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Choir Members: Cindy H., Jeremy H., Ellie H., Morgan S., Bonnie M., Andrea F., Andrew W., Randall P., Jan V., Jessica R., Sophie H., Joy V., Doug S., Connor D.,",
+     "x": 151,
+     "y": 38,
+     "w": 1098,
+     "h": 71
+    }
+   ]
+  }
+ ],
+ "events-services": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 520,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Events & Services",
+     "x": 348,
+     "y": 217,
+     "w": 744,
+     "h": 85
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 251,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Regular Services:",
+     "x": 151,
+     "y": 32,
+     "w": 842,
+     "h": 35
+    },
+    {
+     "tag": "h3",
+     "src": null,
+     "text": "Compline: Wednesdays @6pm",
+     "x": 151,
+     "y": 83,
+     "w": 842,
+     "h": 25
+    },
+    {
+     "tag": "h3",
+     "src": null,
+     "text": "Great Vespers: Saturday @6pm",
+     "x": 151,
+     "y": 124,
+     "w": 842,
+     "h": 25
+    },
+    {
+     "tag": "h3",
+     "src": null,
+     "text": "Divine Liturgy: Sunday @10am",
+     "x": 151,
+     "y": 165,
+     "w": 842,
+     "h": 25
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tNewMTj0SmRNCZWlrBv4i1LNjmost4xs8BCQqOS1DQjmfsjnIhj9nW--u8OZ0i-Ibl_VEfs9Ssnw-HFRfwYzl7pqf9aEk_6Ygm0kffzDtr8ExPcrCq51ge0BIqQ1JKXyKk1W5iS_YXie7e_XCMYlrCgWF4ZkBIXX3LC3GWHxk3pxGPOZfC14feo2Ah-qhuzF8lS8Z1O41d_ZEQl5rIjYf2xjZya2N1q_0H-nn8BPg=w1280",
+     "text": "",
+     "x": 1031,
+     "y": 24,
+     "w": 168,
+     "h": 139
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Live Streaming!",
+     "x": 1039,
+     "y": 177,
+     "w": 152,
+     "h": 35
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 725,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Upcoming Events and Services:",
+     "x": 151,
+     "y": 32,
+     "w": 448,
+     "h": 35
+    },
+    {
+     "tag": "div",
+     "src": "https://www.churchtrac.com/public_calendar?ui=AE8E0B4D&view=listMonth",
+     "text": "",
+     "x": 636,
+     "y": 24,
+     "w": 661,
+     "h": 0
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "width": 1440,
+   "height": 608,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tOnkk7Gd0nGnOuKKRxss-Fs3EZ6y3Pmcu2hXSa0HzGnxkbgAQBuVGl5J5ZmsBbJKDnnh5ZZpIxvekK-BruuDyOrVWid2qca0tK3loLLSa6b0QoQ0eiw3nqoVy7Yw05l-iG-SKuOaiWmLO_Gp5s0XPSfIk8WAtXtPa0mm-3y67OvSHAm8gIXrGeE7wAcNlJigyL4tn7xTe8ednf7Pb1_GHuKupruYLCprzKypSl=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 562,
+     "h": 560
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "St. Nicholas Day 2023",
+     "x": 743,
+     "y": 38,
+     "w": 546,
+     "h": 54
+    }
+   ]
+  },
+  {
+   "index": 4,
+   "width": 1440,
+   "height": 314,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sm1cLAeUs4QVZUPFwrhJQZByJQPqk_YXnXibvZ_fynwxnudq_kJfBDZQe0CZS-HdMy_hR7TKSCmtNGU-wwb--0zdJ72YSjvraPmv439sXoTbEjJLRIV-w1uZr201IZVvU4FcVDTVZbrRpNjPdufYZygl2NaYYgmjwUsaosAMyYEvRkXoyTTWHPbWwVwaV3cYUIG1VBoCOvN-Cx9ojsqdbaQyusY4x8Gs-HC56j=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72ucjF_VuC4CmNf6ZHzWe2b4Sr3LS3-I5_3z95kgh_0Mz55nEg7u9uE_wH8hg1y2eqUd3Z0CCroPoDbFxEcFfv9QgXttvOywNtvniZeoZ_ynHtPg2-WUkAVhtxUzTn8dWE55VkOAgEfe9onGOLFW1GSe3X0_33dinZitsjMdIsx9PKT68fnkYo8LNwvN5hYhesPTl35ruzkeWy7SxQKYZ66t5qtKlYYb4ks93g6GKC8=w1280",
+     "text": "",
+     "x": 439,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vvBrEugO2nrde3lOn8w4IwkCs2Ul4OG_kI2IETl_jrvuhBiwvI-jWDzunO7p3OMS3iRBHmJsRj3wjGVeJ6Ae4R6tNHaFTTUK_FEKMeWP_OkenX9-VaKwAfEDX5YrxFE81V9fjKG2D2zPLn8EpGAIK6RYuLMm--HJTA7Fr-wO_1D1T-_Lcz-epmwtJzXxdNynw5RCYX6UAYdv1XO4D3UqgLEZopNfBUxqCaFuoN=w1280",
+     "text": "",
+     "x": 735,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tsGiUuIs8nvsk_6PsdGiAUbtjR_7N-k-C8dIERG4yfmCPln10_-oL34MlhFe48mdHR_mRt8Vzca2vBFwuJquJFbPsH0gR5RL2GDY5Ywms-gv17ctHzt-SGTqkCdc-f9MwM18W7WfSewspxAiFU4C7mUw3FbWWdyuI7_WC_UbbrNejH2yv4gXByMGHQcEwaKYkyqMeKxGVfKMqkyv3OFfrzJSSj64sfvj8CLeZxVr4=w1280",
+     "text": "",
+     "x": 1031,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    }
+   ]
+  },
+  {
+   "index": 5,
+   "width": 1440,
+   "height": 709,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72u13jUQuIKWhCPqv4urePWfwkJsQwVAB7GMS4beebNBX46rM62SfsvV42LVbt3E3CKAKd08S_M1UtVI-fandaxRsMA-wKNyHoMZti2gt90X9kp99jUbk1bple9gu_VD4tCuNBXAm3zokqWOXNQvBK3qfKFmJ_g5IznGlqD6OZEDo8UD455HfifH_uFKM4QX3fpUJGfuZuJ78YI8otSGJMb-2EcsOPT2Ai9ao381LQI=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 345
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tzkm9NGNqqZnczfFdURAzE-YpETWXi2dFK2LpfyysJpv2QvAJPQVDMjaNa4jYaXvA0Ay2TN8jvnKgwTPrxmFM70eUsg8q6x6NOnqt9U7uljm1JX09COPLZrst7u-GKKm2T-qwv8TvdpesIpe3aGbENP1zJ_M7G3eILQSQsWwJrlZZ4bTatMbykWYUKBMe4W3mUamRTxI-LAe2YedGyDsttrbs27ea6w7CiCoCHRBE=w1280",
+     "text": "",
+     "x": 143,
+     "y": 396,
+     "w": 365,
+     "h": 275
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sQbGCrO7aTwUfnfnHg-8j-jJ_Ehfz0rBkwpcoteLx0WrtYTNwaa_K5UU6Huubde9nJgFLAzNBhg2OATRHQzyQG1Z9v-bkXYW7u4_ZDuSVyzTmlVss1Q3yT3hlLV0JjhopWtqfD-s_COnqiB0mUl8evygaPLRwViLvo4oO5mih5AfUnhxp1jC554lGLoPcnUBxIyAWrncWBB8mrBNhVClVZ89wJcxd9o4RWmGs2h2c=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 760,
+     "h": 661
+    }
+   ]
+  },
+  {
+   "index": 6,
+   "width": 1440,
+   "height": 547,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sJNe7rE44SEyH39D1Rc5ImSKvT3BQV0-zvUzMWCNewq7Ur6ySRnTL7jQXSal4NTmCsfF7clNXKsaWNy3IL9-68vOA3s3hR6t5jFb23Rrv9QKff_m5ISU8t7cyOS18ejBOPn_ZA84qZHggcnHcsOKUbSYcIrCZknwPwFI1RAJHiHM8xnbrLQH-o59XgzyQDKi46h4HV2hxCNk76OZI7QQm-E7HU5FcEGF5k-LRpS4Q=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 499
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uFhSsm27yVBSoFV3S4pZDfLokKZq1z-XWxvC2Hd61wQYzFq0lmGL1tx-VblVUAAfvENCG9nWV5q8IfF1LiCO0BpeIQV6ElfNq8UQgomqgdmcyTRUujbmIXP4-fTigUz6waglWNK2Ly0NIiqwfq2yx9taYklmdIpryEI5YLuwaWnnk7c0W83Exr4FqsrK2i1_wbMiHyPXjTq_1VeGWHXbUIwfE2OLJN0ARpzYgML0E=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 365,
+     "h": 499
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72ssjybouiN6RVLYLhNOMewmjvaPNE9oBLmmdzIo6gVRENpPEGtC9AyW4Y9ZVeic9WwWdky85zgorbxQz9g5fF-7mBtaF9_sMH9z3vSgOThagSeuNtOHqrcpWiznngGGLIft0XvMcRDW0stNePgNmUHfoXQWrkmQx2vkuOlQw85s3WJ3IfyOlgX_oBUqUg-o3m0MfFDVYqTlCvYVMCEp15lOPSZX7q3HBfMgfsflHsA=w1280",
+     "text": "",
+     "x": 932,
+     "y": 24,
+     "w": 365,
+     "h": 499
+    }
+   ]
+  },
+  {
+   "index": 7,
+   "width": 1440,
+   "height": 400,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uvp4g26VGnhXTiq0f5De9o_VJ8SGQP2nx1AoteBwpwS4Bl_oR8iSqurvLRgPuE63m8n4IqHmhQWsaDyg6RdIE0pEfm3ZmQbtQ394bbXEXd1i9ywTx1-H8Ynk2qT93WZhLRCC374pSDf-A8hGkHGz4Q-cr5RbLil4bS4eiQtPnSaaP-wYoarriQSkY1omuWE6Cu6NRhT9MwwxijZpyVsBd-DABFSmNTd57n8FnA-WI=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 352
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vBWRhBONWTvlw2W_Dj4Z2cYXtGqjDFdf1NgeXQtKv21nCJP3seQRsndgUQniSgG0CBWfsnz3ZR2ZBsOapvqoggvmZd5sP8I9Gju7z27TNP9H_eh6IRJuWCijfMZb7eYjAq1RTZNxHlAKaTZE-u9QQf5_u7W4iglKenVmVhtplqhdkgJToXkX6HiNwy8hvUdltoZhDNZUhAJYoNFh8aBBJnbxCQQzRsSit9PhXO=w1280",
+     "text": "",
+     "x": 439,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sq1YhICJzjpvMfHgd2NAyK7P7V_Kji1MkrwRZ1JAqIErsx_qmm9SWC041C3zqR5cnnE8jdMwjS0dEGUwuCLkMp3268fL1-KdAf9LUHudgrA38_rtsXj0A5F9P-a6TLJW4dsPyd-ZrvKFMPSV4eYPm6aIwOeR1GBQOzN-R-HdEoJhwz3SSy3KzYGP8jQMf-zPz2BUCHdV2vAS8IDhZ3LZQFxOi7GT78JyDDYUZqEME=w1280",
+     "text": "",
+     "x": 735,
+     "y": 24,
+     "w": 266,
+     "h": 351
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vFxJC4u31F_DkYsyAwy9CWS3rz5i2SM95T_WPDYYJp8jg61zpFXo8ofMjG8E7kiSmbVYpa6C2vsn6mcEAlD0EUa6YktWJdKbi45TFzywQ-han2PbxpVqOhELiqbscpeOjxZ_nrP3fEppjgdxhDWlEenOmxXKHxHlEbZVFX7n5wNw3PiB4c3j1IXrZVHVrYuW3hNkMS5o4_T7d03oJE5xgOoj3keUeUDPWyqGlL2bw=w1280",
+     "text": "",
+     "x": 1031,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    }
+   ]
+  },
+  {
+   "index": 8,
+   "width": 1440,
+   "height": 512,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72ubIenZlVB_Milvzj9cPU-6zYmVGGt-N5fAAIjITjXcyiYpoNko1NluJbany-vtvkV156Q7IPJXhB6KGw3mi2rtmbeHNKZ474rk6N09tzdO4de9IcCP1v_rL7KxJQt3BKDL5A9i82qtaMrYu4YIJJNkAyx81u4nLqgHHkd5JprpzPWeaLFZprlewzDT8bjESgbMLkAWE8b51b_1BKNQdmUOlrjZwc6Yg4Sx8jz3uqQ=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 661,
+     "h": 464
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72utBTWDWZ31AqQrtj2UVIZQRO8AB0NBketMZ4Hq0MSCcPLVWyhh-2OMJ4HiVCluptqzaH9pBW73fqLgihDsyCGshsUgasQn6SVdjFe_Ak8umfhDnkGp_YTnwLf61j9OJRRpoo_q8ywXQmOLDEyDAF0Yk33ZMWlYpwPnxcrycIQjfX0MryyPW9qPTTGSO1phJ4LAJt0X7qiBVCdH7t0Rg3Mmnsdk_GtDh7vEii8YcG0=w1280",
+     "text": "",
+     "x": 932,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    }
+   ]
+  },
+  {
+   "index": 9,
+   "width": 1440,
+   "height": 625,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vwV-UXyUuvyqMwNrnjVQF3xl2tS5nkeTEB7rEwTRycU1AvADwaMxZ3cM2qpdBLdfieyMq3Ypy03EWpTTvc0Powzipg_rPcIDjaD9XwCcDVkhBy4Xuvclfbe_npwJUuSzPb8mlikJ6JxqqvVwnqvCgk5zbK8-5X6YPcSm5Fhu7CWcxjl8y8YUP2wo4TMm6WMcHdpRrmzHon8E2WUZ5UfgP9gDqmQl1QoMgx9qvBwFE=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 275
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72v-a7k87_TUVd9o_3frhSBl1f5lz9FRsgVYlOBgeNviIuAO0ShccCMVHeOfaYgcabqpArGHoNkx996x1ARRmHF3HfSW5FAKrfWsvBUxsqU45Yx-hXupqNVeEOJekgj-CcpydeoFOVc3spfEWAzcgqob1BEgw4-GMd3aVrqhvgUnaYlCin2amZH2w_Ge8XDNPZ5s_WEm5Jn3PaD7Qc8MsQbX7RgzZ_hHcviyeZaOfz4=w1280",
+     "text": "",
+     "x": 143,
+     "y": 326,
+     "w": 365,
+     "h": 275
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tMJ1HteDepG44zSjOdZPmC2MsGScp-Mry-sLw33_hv0MXSpvkIxO5UlQ8r6sAxn04lFWzVqqFAzQZgA61Z_JyH51QRdhJDDJd6sl7QCPDBzXWQQcD3cEY_Zl3Q44FY0c-W-sXBY5Ee-qlMyq-2MaFZuXiWO0VdxjZKAJHhc0JjilULSuzx0O7RzwON1uMp7jlIU1VXKHxvyeXLmoCzo9fjeHjsINc1UVI0rOLF=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 760,
+     "h": 572
+    }
+   ]
+  },
+  {
+   "index": 10,
+   "width": 1440,
+   "height": 535,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uV8ZYSNuZY6F9IUlLW_t7VfvSICxwwuPqYxjMifzaX_4No5Vid2h8umIeOjUYv71OFdjaVRVl1EXClJ_xY50z6ibMtFJZJOMDNYDrgKQJ3y9Q0-w6fv2chrJv66yPUa22hD5JnSQ15Flr3LmF00DgQmBgA8R_C4wGU7hDwWbkRN_4N7tiRDh7uTt-m7K7feBZCBPzSMKUPvXGlksW6MFOX1Edmf070h7PvhKc1Eq0=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 562,
+     "h": 468
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tjcHNpVujxiWXI8WuewFItrUSrKcfbtto3eFPGRfg9naF9llJ2jlp9bOjvkypQlRX2FlKm_uQ5-j7YeDU6xhxgT_GPYUNynTvKrXtyeCp3LLtNa5ZDOsLPVLhUvhY2tJbyFUPxmZqclyMCz9kBxM1HYaOj2024MaZuqgy-nzGSvx6DSCbvrZqvGq9C=w1280",
+     "text": "",
+     "x": 932,
+     "y": 24,
+     "w": 365,
+     "h": 487
+    }
+   ]
+  },
+  {
+   "index": 11,
+   "width": 1440,
+   "height": 368,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72ugfaQ4YO9Xy5C2Vrx84b_WNISLWqvV41wOZnN6OZIDqrhTwF6AGOHAgc34V-KK4SuMHQ6EbnngH2Hpg6hRDsAxgKqbwGd4aUIloe5Jb_g9VE5T3h_nbnjGTFyIIpMtC-UgTiEQPZbV_EFp6j7aCNqRXOeUIgWD649ChJcQqg1CnBAJKsz7e2ya2BOFOyEEvZ97L4dfkE-c-WMicANu7vsGDKpLh8uvA5CJ04D4=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uIEEDpJ37PYWdeKeBXWibRmXFYyPakt2azWWY1PqQ9CgADNmJnPszTg7JNOVNkG6WYLb093lBIrtiVeRA9zt1fzkrw7ia0HI07bHIcvRpsMGapUBM-o8lQ-D6wkDgz1ABxGQhyyEXKAT3bvXHNCIqtLc3WpkT-C_hZOxWBO3ggOb_HZD53TOJpX08uI5GuqG6_2z440ruMiKbCRT6GcPibOLmNAnPqmBZc8rfC574=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 365,
+     "h": 319
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uRSVEqRh_kfKZo_qYTQVKIZ2koUBfCnTNzcs8cPgJY8qMmkJDXVyuxB7OytLDMmMJYrAggyOgbO8sYSNwdEbZuKpf7GR9o2hdEqXcQ7mHa15p4PidJ7o3ahfKqWDl5UujI5p0w9IDlyA5ZQr-ZhDR5MfsaXqKW7E-MDvVNnqaZDllgOeI8MznNBU6cctKBwlDFlNB9RoU63XnbZbAJbRkDO4dCKtsYgQ59P0MlB5M=w1280",
+     "text": "",
+     "x": 1031,
+     "y": 24,
+     "w": 266,
+     "h": 320
+    }
+   ]
+  },
+  {
+   "index": 12,
+   "width": 1440,
+   "height": 418,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uQFidx5yOqdQ9AksTLiKmb97eKA86aOCcrWhrNP50G0xiJlHYAZg7-oJxjdBhquP8aHEO_B5-TqmNNr30uHdFFEJDvOAFk9nNstK1MYtohWnXnSvQ1M1K5mvUP6O7knUAOhV0xHWMuIYBE5SV74QmPANKlGH3MhebPjFZS5cjnFuW7P0quLG-9BoPgcIIPj0CwU_o3ojCw3-TzBYBDpUjONHIth46719-5REGXOOM=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 370
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tPzlc5NCrrVssMkvAfmRm2eF94f77JRlLyUOnLQvc8QgrhQmQZh2nRw3wpQpAltKwliRD3YCBL5wZS0SmgqPaQ1cmYfCFavFtASClzq59wr0QOenz6YPXd-CpvzyPaOnlX104229Z1zmm4eDVoYcgCHTceOT8W3myZyn4eZZ_4Hu8vT4FLVE9XUs__PJov1vTYT9J80BKAVM3xm6prtGZu745WrAzCmqaAaPAk=w1280",
+     "text": "",
+     "x": 439,
+     "y": 24,
+     "w": 266,
+     "h": 331
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vTANzXCoR946vM52G5d8BfeM7M9RI8g1Ci30d-C9szQ3XdRydzatymtKaQxYep1_4336GUprS2RfcAGuKQcpyk1tVcC7eQSaL99UuFBGmYQAv-kYF1PfFCOuSJyFxeo3WGcrmKfgGlUOns_kUWP1hhPP496jO3Nws5EpWxVhp_f3mGO-Cx21wxzMfQSArusok2PAkdHPUSuGFoIST9w4j6tnkEcb_ws6_XiAbnev8=w1280",
+     "text": "",
+     "x": 735,
+     "y": 24,
+     "w": 266,
+     "h": 370
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tMHJSR4c-VfGsm8aamMvmU2DJWovwj8ji0uLqaKA5TjSu4XvZ_M8eodbRSCGEMlUs0qpwS8WUVh_KCjBH_C6LQdgLPJC0dc3ysWyQsoecNigkTAzNCEvfOdNP6-iplAXwlP3MmekysTkMsgZZkYNATJ3cHNjkE-rhdKso7e5tsXEkrqGC93KLMb1FORivlVA95Vkjp3L6QRZrDy3M9sdxHSPQpYy04ycUiA2_2hek=w1280",
+     "text": "",
+     "x": 1031,
+     "y": 24,
+     "w": 266,
+     "h": 370
+    }
+   ]
+  },
+  {
+   "index": 13,
+   "width": 1440,
+   "height": 413,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sqgrh-syFbuBQC_QSNG7vU3b4Ya84saQ7T6TBX2Epc4YY_KPTZfKp_douLgk4vhoFJqRIAkpfgEvN_ViWg3t51sF-247Nz5XvLYbnDyEVmLtzdXcrLsu2kUJbbm86iG8WKX4DmCTg-lQimqiXzhtcSVlm_33zf1DDax89y_Jt8-CD6XMmPCj6ELXnk0khOieAHOM6OnrV1OIUp3lQZuWA4JuE1PWsgd9cdhHAR=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72slQNoNVp50VU4VH1-2pFWhlO4WuKm7rVZVVRr8zFjUlYoEKoFawI7Agt5ky45QsLjhie5j3idjqQCAqczpUXdi38yZ9GmKNChmOjrHcPOXb3lyDtBLFIKCbLC3hcPJgvUkeOUMk3CXjfkh-Qnc40dtu6oHfpBWpbzsM1INTaskG9G9L3Yoj0Smq_dH6uOYyeNAJ_5S1_hsWw8S40KOKDqAisjFM9HO3JWv7FE=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tLusxtQv2iAbj8Q1fIX21NrjNXmM6DDhWFwfGXJhVupgtLnphIn9R-vQpewI0645eGgpCzVhv6AfV1Mb1eBPs0MiHbPYZWpfDlXyOqQHb0m4ItJdH6CgKPKFADDv8t-cnHxe6s_jvtHpWrSIzbnCDrLDP8QRzQSM6rC0GpXn4VzSfYly7m5XAsjrkraspweBI4Rvqxp9tMOQdv05qIEPvHAxOcDNXBZEVp3FYA=w1280",
+     "text": "",
+     "x": 932,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    }
+   ]
+  },
+  {
+   "index": 14,
+   "width": 1440,
+   "height": 624,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sp6MHplPPy93AQ88KlQPAUzfn59oWczYBXnXkUbBvWHQ5Dr2G8BKvi7R7lZfzGVGUc2DDgVDQhCNQSd4sTj49gteMei5BqSh96R1dzLfKhzETRUyon8X9PpXBPHG6_SdgbIC-0QQzj_KJ5yzIwRnNXqd1ArgirA5ryM1pxDq67HbAMokVre5NDwHWptOqn0FL761OE9HTGJJDHzOzUkU_6WbOw-UDRqj9xVhcdJDE=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 275
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72unhCCG8b6Ua_ll276jTM6U8PKM9f5-sJfIt9t8um4TSDdEcjiIRnWdO3LYwjXJwXwWUz9FLuifa99YCeVeNzBRprQDfvQTCmZB8R9Jo2u_djea92-eT-fAHtnfVkTQk-bBD5IrxO0l0Ym9je7bMYBQcVBFJPnw-B18HbLhMI1h_ZvkA0GKxyAiCMBqv9csP2KDk_3_nwpCz5vzEjGd72OcKXXa18gbLZdXSbXGl_w=w1280",
+     "text": "",
+     "x": 143,
+     "y": 326,
+     "w": 365,
+     "h": 274
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72s6vuOr25zVbuJ8PYDz4U_9wuEpEX07x_3lRl5_z_GahS571P834Q4LMOcGxj92eoxH3kTSU8QFcymOytXT8PAXRQA7KwkiKwLfibruSjevKkV3O9r0oUs5EoBe9fqNFqvS7lQsJ7ZnCwlRdDcMRjMwCC9x_d1zbGeXhDR3g4XTNP6d50RrdADQScM9LMkcW7MPzO7SWDHsoGbaemwrxQEhb0ZiiIkQ-1t5vhGaiU0=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 760,
+     "h": 572
+    }
+   ]
+  },
+  {
+   "index": 15,
+   "width": 1440,
+   "height": 314,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tvoadQV5bqMY3XM41W7ilSYK6L5t37Pw_H3tlKlqfgsfe1wMg5f-vuS3XmQpPAy48_fN8DIH0aDQpZqaGu6IsO_XWXsDv-EAkC8KMN8Ea-SwY_BBS-HNcUlrlfrh32xMPDodPIMfYEsbMgDBy4ddiTjNQo0QICY4MT1yUHmK3vkA6KnfHIpfXQgt8VGwf7l53k7ilrrsGDGte4LMZBPTlVC36Q8zLkvADete4TOJI=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72swxyVGdfnLQKuMH7jB23DWMWC7Qf2OxibmYRABVyOzSc3gPZLjD8BEZ6JIboxeEbtSQAdSJ8Wct5kiSSNwGy87XlvX62vfrbF7MnH5lwCFGG5NNEQwNh9MltAN5ndPe7CDyamXmdEQ7xfz0SfXH-C5RNz_KnIGVzRAmsO5RS2trjh3kjhof_XITaQUkHp5b9iqxY-TDf0VYGIEtEf44LdMDlVY5j3Qxhm8zvs2=w1280",
+     "text": "",
+     "x": 439,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uQ4lso2iBNlTjx8HuT_zv7Xs_s-iNW9xkMOSIlh4UbxQ_D1X09JZOJ94DaJ-9SSd6UeUaOweHZN39ozehtmj01z18VDElqG7sfYUNp45IFK4CMOcvW4M4u0zcNWGR23X6Oaqveqc4GNFoKSY9VUMA5AY6KYA0-fC4WHMKXSFwjl1rG7HNuTdOunhT_8VNNuxH6V4_6NvwOdqZ1wsKnlsJphF5496VxhK-9_xty=w1280",
+     "text": "",
+     "x": 735,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vIIyMmIKCQ055cogBHAYAYhQ4SYAs6fcKehhy8kVb3cWgxfyTY3j7f_SsAWYONAc-oB4s5E2ZGubk1T5iMTRIWGE9KHLc9xL6OJeWxwIRGS8olW6yAbdZCqnJ17_HFTSQ4dtF6ZUFk7NNRIXegluVffzgipFMUEvW-ULZa8okNIqN0MXYpJTGRLYj_jcBK_jMEhwzYGdGy9KraffWMwUeNkxD48if9grLoPhlK=w1280",
+     "text": "",
+     "x": 1031,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    }
+   ]
+  },
+  {
+   "index": 16,
+   "width": 1440,
+   "height": 483,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tQ3qr3cikQVEi_FOjF0nzDyGZNmnbR2Sd5lZCeSgJh4Newfmoy8drf_dGxyQYLldKgSQT0wlW3gKi0OEukGS_92vmUXhuV8EWxo5vk3FpEFbPvMR8osOdV14z4BFBKOT829bSM3pZLXSr8qhrDaVsC6dcJya1TuaLzcWv1RAicgbjPi17L60jBOP6Si41DAz4P3Wj2P-LkdIn3bHNLfcwVato1SOcrrhUZSqA0n5A=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 562,
+     "h": 435
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Youth Day at Seabreeze!",
+     "x": 743,
+     "y": 80,
+     "w": 546,
+     "h": 54
+    }
+   ]
+  },
+  {
+   "index": 17,
+   "width": 1440,
+   "height": 441,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uo_i3QvhlUh08zp-Rd7bpvo2aL-PsjtHSuo5XyWF1tn_6Kufsgbh9MJqJC1fHlm3WrV1pRB1HETO5R47p9CK4smqQc2S-GTxSr3UGYV9xGBscYazgU4ikFyN1hwTlb5aXxkfmJKrY9lA5r-7e9dibexziBBhhsMaJHP5bGM6b7MPPdPzC7GAkeisWSb8FuAJ8FNwl5Vd8XYnw79ZLv6fDHhEEURP2DyjYQs5hy=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 365
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uxGQkHLSgnezy9m8aHdqQ0lJA-iWzImEaypiGOBo6DSTrD-K_ambiu6KvkHgI0GLTkNzI_-t6orKgds78O7cttENk5kxLrp0W8Zb_JiGMI7HIck3Ub2Px79H2Rzs6dVHFgpNjOn-TdmgMgKLMS5VEvl_MH_e4SthIeXIvlhsB1W3x7nO5B7YpCtwHZeDz8TfFLwVUBBvH_Gv0ddwql9HUHwaKKUlYVGaQXxLAzgVI=w1280",
+     "text": "",
+     "x": 636,
+     "y": 24,
+     "w": 365,
+     "h": 344
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72urx_WmTh_wZltD8firCZ1IyIE1EA7Gj_wBbPJJ07-ihjHkhCxWnIQfgtPkLPjrZs1BNZIwYvcXLWEHw8W09I0-m7vtQcpp_2qVeXnnRMxLf8hXGm2Y_AwRk6XUGw94e1SjmNFq-FqwqYzNpnmMZhJhjrKkHooouIxlBvOzePOWKetBIopDI6_89CkjiA-tZ24XwN_p92VQYwao7LPdHapRQVRf4qBkrFSy3YsU=w1280",
+     "text": "",
+     "x": 1031,
+     "y": 24,
+     "w": 266,
+     "h": 389
+    }
+   ]
+  },
+  {
+   "index": 18,
+   "width": 1440,
+   "height": 538,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tbAEILdL57Y3OAJnXvi5jswwc7HTWMImtmIeNygjwm-RJDhirCYW_Z3AhPHYaLVum7E4VvhGChxtsWqtGfR9q5wlnwq55pOc6gktEm_uWr3JAJqPG269no_0DtaWd55ydrfTU3wBrBHvtLZrhOMF_5IIZPiH9K-UI_akYJ9Zz1pBP00w26dcvot-YdPz80oslOVnVJSI75g7TzZJcc5IJN4XMQAFVupEejIjvC=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 562,
+     "h": 434
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vesiCrCoGcmasxz1Lyhnd6Ge5C3uEzQ60RcLAIHsAJCq6SYDl0SmBRfJim7dtxysWsuU-smOWGEwQv_AmReIgROKT_W--LFCjQwYsD1y78Hhwn90ApPhOEvN7gnTgYVX8GdwMvbKc6rGGawSKdX9b96EchkxUxf5uX1z9cz1f7b_9Jq3meLONovfTlIWzl_3Q9-IxOn_njZnvMCPJreMR-Xe9syb7gEIT_vm-Q=w1280",
+     "text": "",
+     "x": 735,
+     "y": 24,
+     "w": 562,
+     "h": 432
+    }
+   ]
+  },
+  {
+   "index": 19,
+   "width": 1440,
+   "height": 421,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72ursAuelXDJiDzW0MzMxlcSrRrWXu4D1VCCw82J3ka71Pu9o3hkk7VhRaxdUCRb4462B1cF4hN-21HZU_Q4_4urJUXWvK3S4oUemS2pyasayAGOLoqBnNx0i1tqSkOCsag3zlepglenH2WHs_qkOU7cNOdWgpM0wzkg77rAX0P-wBrymNNR6Uf7WZ-B-H9tB_EH5AxIGB9OPvRTjVVHvVyMx7cAsVvQJErren2r=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 345
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72twnEWPwcCB21j6wAqY3bkwCHtIRuuJEd9PJxCPQwor0mvaxAdOZiS6MpO1y3dtzI6OTHbTBtFsY8jitta51vwsuo_ZEtIWDB9tWR4YHdH_jTq0b2ugrqchSOlEjTFs_6p_w8iEresuyRVj50i1wtjyvz6y1k4fqoU3QS-s9MU040E8jBTUgaP-cLDVc6RJBPLIBC8xqcW5iOPH5qgtvp0BrwbVsozF_w8CTMpJg_Y=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 365,
+     "h": 335
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vPlMqU4951VHMpdpcvyt5v1P9lHmh7UMKBNRBeEbN6i3u-swV6RmNwS4aO8aUdDzRolqweJdTMMCzjzRR0ftibQcgHtSYYHBT56uoRmpBh_77ZzoMoVft0PvV8rv7mEs0LFo0Of5UfDKcQzN-gqNdnpm2M8MPUC3vKbTWbXq10c9cwjpfKKQ5tSNGEX_3tf2ry0YANJeiGwcriXV9fABBsd59vKTW8IyQAUPCK=w1280",
+     "text": "",
+     "x": 932,
+     "y": 24,
+     "w": 365,
+     "h": 347
+    }
+   ]
+  },
+  {
+   "index": 20,
+   "width": 1440,
+   "height": 469,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tsAY7KU8eWbezxVhDBjH3N8mi6NCstXDFqO_iepYwpLUEBh58a9Y7rL_PKlvbWUBlvXXcfjksdp1KA09CQCK0mQMfSn9_ANSe_gyR2rFdt-vvAK1Pij4vUjmdHswSkmKeSZAUpeMIvyn7k83evjgl13zek0oHy3YMyCHpH33nl_4J4NPy3WotoHY0s7XwJdVvW4mAVb7O9i3EKPY7ADyp02XRoof8ZWWlzkt-8Cvg=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uoqaQkLLM87JEFYmizKZDYJOZZzSYWTHDrCpoRQmswBqhvRHtnGvPlgCuv0iptgRsi_D1GaAOM6cT4bKyalr7uKNhvEpOHBZ73mmY9lA2nxT20L7rcnISvAxKt7p4PJ41D3Oc_vIf0u5t5Z-bAleJAmrlFbUBzaZejru2kcZ0rvebZtq3OMhzRWrms6hpMFC5u7jd1LVm4i-fAJcew4suXu68ENaciH5Hn0_e3fhA=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72v9il_U0bDz6YXTK-9tN2HQ-byYrFvMKW3DcvUPc301EVRupvBXBccZcjFYn_Uk0QH2drjPZVf7gbpVmlWB3Rls_or8_2PJ1ciaTFU9xkOYOJl2v1ySZNxP1qaPlZ-RdDMLmxq2hyk44zZRi5NqstFTW4LiVhaACzqn4PICL9L7DlqiuJMkcAznnZr3pRdVhGa0JfM8GtqeoPFNeIywOnY3GTUWkQfk_hESn0Rx-9Y=w1280",
+     "text": "",
+     "x": 932,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    }
+   ]
+  },
+  {
+   "index": 21,
+   "width": 1440,
+   "height": 531,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tVjKVJu0xzYhe4iyyZsJJeVfFRmimKtEoiWIBGgSIlE7cXhJb4RAxZqiEwiT6kwwLdgfeIl4CGRr0EQ58OEh65Wizxe2K5u-p-oGjiqS4iNHxlR4wOtnKbpvOCztabiVNVLkWvHdz_3vX9E0NPaeEUcia-H-fcDeYKYhG1O0_Ra1dar3FI9N4BNA-8y-qvNlqa-9ktEplzfmTZVbJM7ajuqvgG5Vf8rTq7EatbZyc=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 483
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Volunteer Weekends",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Open Door Mission PB&J Factory! Each month, our goal is to give back to the community in faith, kind acts and love.",
+     "x": 644,
+     "y": 120,
+     "w": 645,
+     "h": 49
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Thank you so much to all of those who help and contribute!!",
+     "x": 644,
+     "y": 199,
+     "w": 645,
+     "h": 24
+    }
+   ]
+  },
+  {
+   "index": 22,
+   "width": 1440,
+   "height": 696,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72v5p56lVaDQncpZsDAFs78r8wSViw1x7O6Mg0TzwteawhkJoz0mR4Xq1bs1urO5K4tkf0TBCPiXxS2CVSqjemcuyvki1LEMjNF_Oozu66LkfkYCZpy55rS6AOnL5M4FGXOyMZY-HOswtwf0bKXNQzlDnCqqnUF9QQ6c_apZV8jlTde1NNSXtploIEur-JpoVMLfJDcyfqyASE4qdGACj9GFCy51uOOlZWVtiLbxPz8=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 275
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72t6Hco-Sd3DYKdXZn4rzO-R9_QjJlCFzKMAG9bwNFbC3JVwknHndf5k9nVIVrwnu1PV48AIuMNqMJTqEm4_RVDAQjqDXTXUHzyNDWWllUGUICNNW7rN6-On4zpchSQKo4oeZ2FjaNrOHrT6oSjlcQ4L2WxF4MlfgdWCLU42aOLIiUiTY0NO4dzzuFuWaf9o9rAv-3xvpc0sZvVogLHtjo1bUpx5EF2H6mr7qJ4-=w1280",
+     "text": "",
+     "x": 143,
+     "y": 326,
+     "w": 365,
+     "h": 333
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sRAzk2xIQV1Vvq962KoTvueJSWTfGTx9MwFjhJfZsWjy0ApOn6MK9AOsNA-PQ5CwCYo-GTF9BbpPeHixF9q9Pyo0KXyz0XaAFFdIS9qc0G9vez1Oylj7n8toKdYbLKlwBlHEhdMFg3zSEwWSSzojcrxPStEEgSv-HEMa_YuO7aYbGGQkm6BIHK_zmZ5Qm8JzTNCrbLpVS9_tUxsFHeW0vWJen3C29-x71d-LLvsS8=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 760,
+     "h": 648
+    }
+   ]
+  }
+ ],
+ "events-services/weekly-bulletin": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 520,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Weekly Bulletin",
+     "x": 348,
+     "y": 217,
+     "w": 744,
+     "h": 85
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 722,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72v5YQGjEDIBrIxG6RF0GxYDLft0cFMG3KQl2R7VJT4aO25mkqZVl40Fq7ilphLM6dPJipRTlda0384-FbEVaweDBNNoxtEM51QTtzZ06LYp3-RSHFjoe8Q0qC0dwVUPa1DtY6lZXx7QeHYIFegvHA_SKx5hbI2tLuG0sHJae4oIFsonTAwlOyHu38rqWktv-p4aGqjsL_-a4sWk69iW0BBMoQBg5tw3ty1l5fBh=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 674
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "October 11th: Fathers of the 7th Ecumenical Council",
+     "x": 743,
+     "y": 32,
+     "w": 546,
+     "h": 109
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 451,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Fathers of the 7th Ecumenical Council",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 54
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Most feast days celebrated in the Orthodox Church focus on the remembrance of Jesus Christ, the Mother of God, or other saintly persons. Celebrated as well are ",
+     "x": 151,
+     "y": 163,
+     "w": 1138,
+     "h": 202
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "width": 1440,
+   "height": 225,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Weekly Services:",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Wednesday, October 7th Akathist @6pm",
+     "x": 151,
+     "y": 85,
+     "w": 1138,
+     "h": 36
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Saturday, October 10th Vespers @6pm",
+     "x": 151,
+     "y": 121,
+     "w": 1138,
+     "h": 36
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Sunday, October 11th Sunday Liturgy @10am",
+     "x": 151,
+     "y": 157,
+     "w": 1138,
+     "h": 36
+    }
+   ]
+  },
+  {
+   "index": 4,
+   "width": 1440,
+   "height": 316,
+   "items": [
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Anniversaries: None",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 33
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Birthdays: Sonya T. (10/16)",
+     "x": 151,
+     "y": 101,
+     "w": 1138,
+     "h": 33
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Grant, O Lord, a prosperous and peaceful life, health, salvation, and furtherance in all good things unto Thy servants Sonya who is celebrating her birthday and",
+     "x": 151,
+     "y": 191,
+     "w": 1138,
+     "h": 58
+    }
+   ]
+  },
+  {
+   "index": 5,
+   "width": 1440,
+   "height": 694,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Epistle Reading: 2 Corinthians 11:31-12:9",
+     "x": 151,
+     "y": 50,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "31 The God and Father of the Lord Jesus, the who is blessed forever, knows that I am not lying. 32 At Damascus, the governor under King Aretas was guarding the ",
+     "x": 151,
+     "y": 146,
+     "w": 1138,
+     "h": 232
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Gospel Reading: Luke 7:11-16",
+     "x": 151,
+     "y": 378,
+     "w": 1138,
+     "h": 36
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Soon afterward Jesus went with his disciples to the village of Nain, and a large crowd followed him. A funeral procession was coming out as he approached the vi",
+     "x": 151,
+     "y": 486,
+     "w": 1138,
+     "h": 122
+    }
+   ]
+  },
+  {
+   "index": 6,
+   "width": 1440,
+   "height": 631,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72unaY7j3yD4f9CUwbg-FtnKGoPhjhYIfH3TJzl1XvmVZ1y_J2EiwdB7m8vUe7uSeLykeudBQvJzww6eRr3I77bPNrfAPSQLKsne7Gdn-d_2iuBGTHK1Us8zDXwAUJHBp9Ei2-8viBINnfu4nV30jabaKyg2abMI5MVpnogkt_V2Oh8voBStEhLTudRAW37kJAX-CX8cVZ5UAAviBykJhraWgWhPqqbR01ZJHQnKFdQ=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 1154,
+     "h": 583
+    }
+   ]
+  },
+  {
+   "index": 7,
+   "width": 1440,
+   "height": 275,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "On-Going Reminders:",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "House Blessings: Please contact Fr. David to arrange a time for your house to be blessed.",
+     "x": 151,
+     "y": 78,
+     "w": 1138,
+     "h": 21
+    },
+    {
+     "tag": "h3",
+     "src": null,
+     "text": "Volunteering:",
+     "x": 151,
+     "y": 116,
+     "w": 1138,
+     "h": 28
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "1.) The Food Cupboard: We are still collecting personal hygiene items for this organization, to include: toothpaste, toothbrushes, deodorant, mouthwash, shampoo",
+     "x": 151,
+     "y": 162,
+     "w": 1138,
+     "h": 42
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "2.) Open Door Mission: This organization is looking for donations of men's socks. If you are able to donate, there will be a bin in the foyer.",
+     "x": 151,
+     "y": 222,
+     "w": 1138,
+     "h": 21
+    }
+   ]
+  }
+ ],
+ "events-services/miter-ceremony": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 520,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Miter Ceremony",
+     "x": 348,
+     "y": 217,
+     "w": 744,
+     "h": 85
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 99,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "CONGRATULATIONS Father Ken Stavrevsky!!",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 984,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uYkOTzE12fZHO7wB4yB8h_w_rP2Jzns1MCR81c0UyKC3BkPr3dfeWh8lgnIbBK5niABaKAytQJMhjfTy5H5qgAkXBJ-ECtrKlz2Yi-wv4rwLQQ4mInKD8mDRpyc11zLZ0tR_Um3o0yajPtu-Yic16Fq0xupLFJZeT1uc9fJXeNWiB9C3IsXdzYq2h5Pkv1fMXI9k3Jbr9EANCr0uSRyVYJEges_Npr-yxEl_8l=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 563
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Father Ken James Stavrevsky Archpriest, Orthodox Church of America, Lieutenant Colonel, USAF (Retired)",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 218
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Very Reverend Ken James Stavrevsky and Natalie Eskoff were joined in Holy Matrimony on 17 August 1975. They are the proud parents of Victoria Stavrevsky. He was",
+     "x": 644,
+     "y": 284,
+     "w": 645,
+     "h": 662
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "width": 1440,
+   "height": 580,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uDQ_3ChXokToFAts73-4REb91efRZZdVpro-BpdkuP6H81SNs3iV9m4rCy4eBmlIfRhbGzSKuMDzS4v3DGt4dHgYoqfH3AUMSicyt_MB_RGs-PFvZCrBc4UZWIRQHj_PZz57enDeP68XwjqhmCDL6HDJPDbq_vgJ3mmPJjpzHV0uufyRqR_kijyED7yWVcTpmcpiydkJrnyEY4a0rggWEuVd3nl9sfQk1aN_7_=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 532
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "What is a Miter?",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "The miter, also spelled mitre, in Orthodox Christian usage is a type of head-covering worn by certain clergy of the Orthodox Church as a part of their ceremonia",
+     "x": 644,
+     "y": 127,
+     "w": 645,
+     "h": 61
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "A head-covering, as a mark of position of certain religious and secular officials, has a long history. In ancient Israel the Jewish high priest (Kohen Gadol) wo",
+     "x": 644,
+     "y": 195,
+     "w": 645,
+     "h": 142
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "The present day miter is made in the shape of a bulbous crown and may be constructed of number of materials such as brocade, damask, or cloth of gold. Embroider",
+     "x": 644,
+     "y": 343,
+     "w": 645,
+     "h": 122
+    }
+   ]
+  },
+  {
+   "index": 4,
+   "width": 1440,
+   "height": 308,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tdp3Xki-VtwsEq7WZQpOay8NV6veTAk0eUQCD3GJ_K5rvsE--QhJG-A2c6xrqFXHCfRvHf2_b_w6-agKBmJ5JhBEhknQdM4hRxyU6wC-PLIWb06qK9u8-BY8W20zU8TxT315EIPO3NizCZ_6mtqKCgMZWPyqBpYualZMZDJsTwVjYDvw8y6rPeGAwex4ZORJe5uGXc_WSLvZC9sYDj7_J8MLoxP5wYV38dE8PZzb0=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 260
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Miter Ceremony",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "His Eminence, Archbishop Michael presented the Miter to Father Ken during Divine Liturgy on Sunday, April 30th. This is a once in a lifetime achievement!",
+     "x": 644,
+     "y": 120,
+     "w": 645,
+     "h": 49
+    }
+   ]
+  },
+  {
+   "index": 5,
+   "width": 1440,
+   "height": 418,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72t9RHF4Ko8-bqtbEXoILVcvj0PJKONAxsavicnosir4ZePhBfbBcOGxXQRy3NMoOUs8YjltSGnSgNAOe7GbGXF6ghaOXOKUe0bGono9qAzhLsV7vhYg21bmVqkjeeQUastQjGuPv5zu64wBAG0TFDOs9g0bcT_RdOd7Ll9qsRESZSvuH5GESMmi4f4ULUvuuNFcCNqAguCbmoGk1De3AMuyF68=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 370
+    },
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Memory Book",
+     "x": 644,
+     "y": 38,
+     "w": 645,
+     "h": 54
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Thank you to all who contributed! It turned out BEAUTIFUL and Father was overwhelmed with gratitude! We will have a copy of the book that all can see soon! Stay",
+     "x": 644,
+     "y": 120,
+     "w": 645,
+     "h": 49
+    }
+   ]
+  },
+  {
+   "index": 6,
+   "width": 1440,
+   "height": 342,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72v8gZdfTlEiQgVrzazJB5Cdoe6XjRY5A4QzSJwNzseETxnX252DAGXswpThN0bFx8ZlXn3IxB2sqbLwPMnJR-eKNUou_OcjddtxIE4mVkCzJJfynEcgr62HC3U9sQWcNQ43BJWbXUirBXuJTRwZkkKxN5PQH7HqbIWn8xQYt3RTKT0rjBG6g0b2ZMA_6nUvSvnHHvZ3JWApk359ZwdZgZVSnv960LXtI8NqTuPGysg=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uKBUsjDyNTJ0VdcnqAETAtfaLTnV_GfTMIEVoxByO4yB4qawv1BwLrFmbKiO0itOrOwaV62gvW7Kaq44OAM58dHiFja5daRLF4vHpim-DL5gD1h5vv_nIebjPBNJEYKVQieWA9X3HqMpROLwWxxIVkEORforCWH2mbkiytLF2DDCCRFxeD9z60kyBC7cxjaXdTMS9juiiLzRhywR0Amt6K4Tcyd720l73-f-Yb6GU=w1280",
+     "text": "",
+     "x": 439,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72ukg0gzyngNbl0eJvHlGOlHtCnqOxupHNk_fO1GKa9TOXrBwQP539aA1teo1HYIX29df6zajE8X9KI7lGHRkMbnqOt0yNeLFkT10Kd5r1hlZaT6n2pawlLV-3mqI4uG4o8u5JDHbYA__mImYTTcl4KXk8IflinBwM3d7ldvPrieoC0HufuKDyw0fBnmURxbPJ2CXpDKNKgfGUUjK4D4C0_E0NfboC6nxIFem54xaSQ=w1280",
+     "text": "",
+     "x": 735,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vcLCfNm4f7G-MTTvjAEyOhK-n9VKRCOQyrxiLQEQpqkW8fLalJBuMtH9jLGhTMKV4SRp-JTNdh3OZ5pcTRPHkmRx4qT-IYiWwzKO6kQ3NFZajJKIdtxcLMh38HxFyTi-x1xB2sKbhdIugZqSIlBSP2GjCO9wJN66Jorlew955CwMSMNd57iSyXBZGPFy5Y1y10hJtRc9_w0kpqmlwLVxH8Cr8KBBBvDl-c6EVc=w1280",
+     "text": "",
+     "x": 1031,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    }
+   ]
+  },
+  {
+   "index": 7,
+   "width": 1440,
+   "height": 625,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72usGLtvIZtc1q_akrSwAT5rwz_ExxWwtibKSPtiYKzfkzTh5k0n-VYW_Rxl1Itv3q9mzFNTiNHUpEgIxuv0gCNJNQtP84KDVj6BO61P0zv6RaNGwx1xoKyOO3KU1RmO-1I8ZELVsdFDH2-xl32o_7jbx29gC2JOTRjMFlNfIw29HMXCcTkqlnU8ZyftFqUGrMzp58lpR14Iq1w9y1FG7O20M6BmfED3C78MV75SXJc=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 275
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72viT-rs7Ay71fA5vRDRBaEQSATHkumNjOsVrO_NDPUvv0LqUZ6LujUzi8FX9_tXLolEfRvsJz7VLMaDAjZTy7IyDRGVCfju-E4SkFIeqW6Ut-XjrfdfW-MuqVS_4OJGlda6ddxtCLTW6NUGfHrXoEKJUGEBZ_cELKVfomFg0UDDLipBQvL-_5ixQMrHp-jSMYT6C1qG6Wxp8E4fQ_rKSBcY-7Q_eKqc3uubnk6IKuw=w1280",
+     "text": "",
+     "x": 143,
+     "y": 326,
+     "w": 365,
+     "h": 275
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tiNP_2plxPW25vJ1h9VLLB7V4hsDtfCx7WniIgSuS5sz1SIAl7VEWS4I9-XxLhjs-LmfW3OmKNvJq2fbM1ap6Ttnl1w1a4CFupkq5re5kWDHQTNsbLxEZqpV9GymItvExvSRVaUvwt1G-wExVIZYBI7KCsfp-LC9jZ-ay6JRCvh7usgKfhvycdjjJZ5ZgdePdeonynAQb6aFTZcDprICMgDeu3lcPtlz59ePxitZk=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 760,
+     "h": 572
+    }
+   ]
+  },
+  {
+   "index": 8,
+   "width": 1440,
+   "height": 469,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72s-ndM9fTBxbelk4eBBHBGd9354bcdT8bENvKWUGmsh4quRFVXHacLhpL2Wf53gWbpWiyHsTLllQ3YJeiy9v_o3SEs2KGPumyBEbJ4favu7sn4sR5ahLJAPewX5Ff6CTL2at6f2FrmQ82oIMW62_IHKfrt9KCHsNiKlqzyUKpXXlQB0Ow8z2k0_7mTiOrbserzdwwCowaaGYutc2Z-NRAZeNNMWsBTfjs-iYozV8wc=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72u9b-lxj8YCZzdDdh9doyIzf1L4UKLFU7757Y0YfflrIdZfSKsDjQrIoc5OKCzXt68RzAto8kwRtS1wCEJ4NMTk1oeGPKMJExx-l6XqkucD_eL5k4CICYjEvrUjDnPL8SI8z00zfS8mvQ023_9Dmp6ya60FhWToBMKTpaUy-OEuUpsLYFvSoByCrvTvON5m0YXnq5K__1wf7bTXPsEEr9CEvQH39GKGdLsUWxrc=w1280",
+     "text": "",
+     "x": 537,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tuzsRtzJcGXsfAfnYfNPZ7XX1eMS85zUN2g2IPrPJcaAdnIpSTIPwjPE7mbjm9GxYXXbYO6nYRnZjw_fnmu0-vqHp-LdwgDgTAb7axetFr9r6rqFlMFH1isBuJ-ryeJ8a76YJtLbdXGpcsOG2JkpWeiSykqCwt09oR6zml2lvyRs7ESleDv8S92td_Sz39TbpvKJk0hTn4NRjfhN0Oq99Qyn-9YdXW7ETxRUcSchE=w1280",
+     "text": "",
+     "x": 932,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    }
+   ]
+  },
+  {
+   "index": 9,
+   "width": 1440,
+   "height": 469,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tU6MHHlDe4E7S7sjC35OnLstSzUpU7oKWEg15SQGwIINhnaJaI91LoiqQgzspY_ADGvDT9oE3F6S2ncWF27ZbG6VwnlxBtj6qHK1_GzzgskDkuzy6rMIhZ1V92QzWzThcdFf2fyvAgeHv0k0CpZpiJ0qLkzmvQiyn5AhKjRsCoqEKjK3bv-c6MIFvEXYlrCtEtGBbvCfZxjdimflYw6CCpKlZz1tCebJBvFf-C9bI=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 464,
+     "h": 365
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72u2dkHj6SP6Yyi7uCWTQ1J2v8UaQnyu9SqLUQnEtNmA3EnruhcLWmejFkvNW98lipyzjSNd5FR5HVGcJi6IxEP9kX6qRCioNGxHxGaxhWl0i8SHIhrw7WNQXDP-6KIjuBEBCvm-s8cKKgEJ9rIAuSibFhoX-VFMHJe-bKA4bfjXBX09JB0oINP5od-gKXXC5_m0AYiCevQqpjUl6dFNIJfo3aHIklt4TxG4ZfUa=w1280",
+     "text": "",
+     "x": 636,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sxnSAZ1JAtePNvmARFs7MqYuKlo57CgwQYaSOWsS5b8AxHqAmosbSTHba8-ZvVe5rYA5w8PzHl_Dsm00l7zuEZF4A6ygcve7hZXPxEAGM0fsuqFqMfD1l0HTNs6McVZqunmgjj_KDIQ9yeBP8ZAyuMZVtdmMSklwzp-Dgmuca5XyTH4B1FNb856daO8HOgnHTiLDNPMz5eCRrQQ2TXb_taRZZJ2hf8iA-qR2MW=w1280",
+     "text": "",
+     "x": 932,
+     "y": 24,
+     "w": 365,
+     "h": 365
+    }
+   ]
+  },
+  {
+   "index": 10,
+   "width": 1440,
+   "height": 420,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72t47-c91uHH99xNvhFQCCDnewssXoueBnZMPjKi0qWrVJA7iSK7gcwr2w_yuTsPXe-PEdFbPD3KSh-qKiWP4A8UXv2vCUvNWVrhr2SqJQkEkAIF0WqKxDn20yegyNc0GJWj9zqtr_ONoejfmb2d3hcm4tvL06H6STrYsBTwAhT0-k3oTbiCOkCKgKiCexZhjhhze1LkQ2HTrf4UWgjdZpc5Ys-oObp4QmK2HM5WqCg=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 562,
+     "h": 316
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72tV0yVOxINkppipnqwm-p589pIMtdrFGTv_EsYEoNLc7wJjtFtkVf9mqmx1aBy5YNTvK9eIhGNxlU0o0V_M8p2SRlNyuSZSFFW_l5OuIZ-WqMpMwgeajy70McZWKqXhSTfJ3_wG-qdBCbMFLzNGv2nf9_xO5iIckeVR7ZzePZf1B7eBpZhUMbsa7-ij65D_gw784oFctPHhPabCWpMXoyOyoVIHxnJWv4nP01X9j2M=w1280",
+     "text": "",
+     "x": 735,
+     "y": 24,
+     "w": 562,
+     "h": 316
+    }
+   ]
+  },
+  {
+   "index": 11,
+   "width": 1440,
+   "height": 342,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uEJmsCvpmXstplX1Yy0mIZn_JmVa1Q7F7WpkCptG7LACQW_bq7SCSlaPA3KRaSZdJKpIPH12ZqJtesrF1-aztXefRgK4RMq7gXA9Qo7PM_sXH8z51w7AzCE7iz9nc1e-9IFvT7OTtPYqv-VbIMWhERpOGykSSCrbPwIu3ie78HdHr7nDP9lFDfIMZpZfkOsbpIc5S8rqq_EU6EWC71XoppRwge2b-6rtlF0Z_y=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72v0ivUkYKIW1z_3mrhSD4CURYkGT-GIVTEIG9SpC2cJ9AhJXj88GOEbh5RFw5qvTk1D26VLv7Gtze2wuNGOcba9UGrousRBAwWALe9LvOL6PVwEqnJoFcL62QjbpORX_z6m9ElvY_EcUHB6wI0gyEbQ-aJJGp_t-RlX7VUP1mRt_ahxppvuwgg1X1F77yjNzkNkxY8TB9EDtpfhMXFeN72U2aRX20oVoOJQDB9y=w1280",
+     "text": "",
+     "x": 439,
+     "y": 24,
+     "w": 266,
+     "h": 266
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72s6QigRs2qmgxkz5DZsbWZC-V_8oLxUyy9EpYiktAoocVIv54u_j8g1ou81_Ncig0xQIV59G1nQY47HRwH4r0QOOR8ApVSgXwRMPgkEhRqrz8zvi4QB0CR3__brByfDOEu-5-mYWlcaqOHmfNKTy3QzXJe5AX74dUjttg2Uo2jaooyMFHvBbQh0o9vQLukY8fmrMV_za6Qlp9MtkEnlLGWFHyeunwY5N1zm7Q=w1280",
+     "text": "",
+     "x": 735,
+     "y": 24,
+     "w": 365,
+     "h": 266
+    }
+   ]
+  }
+ ],
+ "donate": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 520,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Donate",
+     "x": 348,
+     "y": 217,
+     "w": 744,
+     "h": 85
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 249,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Contribute today to the church’s general fund.",
+     "x": 151,
+     "y": 56,
+     "w": 1138,
+     "h": 39
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "This fund goes toward the parish’s monthly general needs. We rely 100% on the generosity of those who donate in order to continue to minister to this beautiful ",
+     "x": 151,
+     "y": 111,
+     "w": 1138,
+     "h": 53
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Thank you!",
+     "x": 151,
+     "y": 181,
+     "w": 1138,
+     "h": 36
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 206,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vktvzijeBh8QU2zjH3Jf4QDhxBanvM6H1H1fX4ntS75nSulErUa1Y8SAqmyeGQLhZ8JB48TwJc4ZNjrlpEIT6hjKYv9o_Cdwfn3M4ZXUnr89t9MZ-FMb3h1iBcyY7fnrJgzkzO3fB3678gYm_43UGhZY9XK0J3b0ejy_xuHcP8Xqs2V_EXisvrKYUmaejjG-Ci09lIWG3zWIp_SoBfbzlozP-QM-2bwnHzsRXHyGc=w1280",
+     "text": "",
+     "x": 636,
+     "y": 24,
+     "w": 168,
+     "h": 158
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "width": 1440,
+   "height": 99,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "DONATE",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    }
+   ]
+  }
+ ],
+ "community-outreach": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 520,
+   "items": []
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 530,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72s9WtE8R7BMdA9fIpalE_QEiTXAVImZ6EuCOGylx8YWguo-a2oGQnk26_B-3BCnCXoTtFzBNsc6fLxOKJH2G_tfjsAC5Z7kYTBETUuWdajOAbD3MM8OkNpDpuwd7hn5cfDFaNitRJ-N9F0NWIPDQmu4RoSz3WdiccPFKKgDgLTZEz2siXIz2sBjRaVCLcNRBYaD4hvWOdJJBPoAmWQpmXiBITrloECMbAo2oJtnoLU=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 1154,
+     "h": 261
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "The South Wedge Food Program serves those in our community who are hungry. The program began as a ministry of the former Calvary St. Andrew's and is now its own",
+     "x": 151,
+     "y": 299,
+     "w": 1138,
+     "h": 44
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "We really depend on the help of our volunteers, and we greatly appreciate the donations of help, food, and financial support received from churches, businesses,",
+     "x": 151,
+     "y": 371,
+     "w": 1138,
+     "h": 44
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "South Wedge Food Program - All About the South Wedge Food Program (Click to learn more!)",
+     "x": 151,
+     "y": 444,
+     "w": 1138,
+     "h": 20
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 420,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72sl-s8z4mJWYUMfNE4TZCGFvotENOu401-uy9saG0B7P3m4dLV9jfu8FyKIgrnwTeihvSZnkYBHD40YYr5mlIM8UQj_NnqrexnPMA4L2qNsP_Aj31nXmlUMpcpIhxTk3Az1C8ygRqwGOA_-u3RgCWj5SYsaW5DL--eAExzDZIr0xj4wOOjL-Z7DGKzcdviiKoeC_35E4PZJYCyRY7y3OQGAUgbfS93XleMj_BEobAI=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 562,
+     "h": 316
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72urt6hB47xSIWi0Oy7RVrlUg8Y4JLnRrYx5zq1dDZxm48D-iyAkzTrxLRET75U_BHS7mjQ2PfdptF9-DVWDum2QBj2SyZU4leR6a_HG8xZVif3ZQa5PzYW94GVGO1zRCEzBKfGeJsa3g2y76N7c3WUgtB9udceOu4GAMaCYoZXe84uZnt4gCC7wplv3n6Wn1rGYxxfOywOEUDqNLilC8sajSmO2K5O7rtm-C2v2VDA=w1280",
+     "text": "",
+     "x": 735,
+     "y": 24,
+     "w": 562,
+     "h": 316
+    }
+   ]
+  }
+ ],
+ "contact": [
+  {
+   "index": 0,
+   "width": 1440,
+   "height": 520,
+   "items": [
+    {
+     "tag": "h1",
+     "src": null,
+     "text": "Contact",
+     "x": 348,
+     "y": 217,
+     "w": 744,
+     "h": 85
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "width": 1440,
+   "height": 172,
+   "items": [
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Feel free to contact us with any questions!",
+     "x": 151,
+     "y": 32,
+     "w": 1138,
+     "h": 35
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Email: fr.david@sjoca.org",
+     "x": 151,
+     "y": 79,
+     "w": 1138,
+     "h": 24
+    },
+    {
+     "tag": "p",
+     "src": null,
+     "text": "Address: 855 S. Goodman St. Rochester, NY 14620",
+     "x": 151,
+     "y": 116,
+     "w": 1138,
+     "h": 24
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "width": 1440,
+   "height": 320,
+   "items": [
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72vXEsC1kR2DEnyM3timfxwZjpN0L2Hpn4ZiA0LNXnr45Vh8sh4OqYKqx2C_zfhxGK9pKXkM-rppkPwZ9Yx5Twr-XtQiYo83r7Pz_2XWsFWFvXiR99IqEFCHvAUj1jxVblclavAWwFDljdE0QDa3xozCpfQ1S4Tgafurm7LOMVXk9KWNEA8Ur_ZUOfHM5w_s6-bkGki4Vw77SWVvygFzj9IaS7koEN8crNRN=w1280",
+     "text": "",
+     "x": 143,
+     "y": 24,
+     "w": 365,
+     "h": 195
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Map & Directions",
+     "x": 151,
+     "y": 233,
+     "w": 349,
+     "h": 35
+    },
+    {
+     "tag": "h2",
+     "src": null,
+     "text": "Live Streaming",
+     "x": 841,
+     "y": 38,
+     "w": 250,
+     "h": 35
+    },
+    {
+     "tag": "img",
+     "src": "https://lh7-us.googleusercontent.com/sitesv-images-rt/AMxu72uMPPEjhmiUtQuYKQGYgIJP2OovxPUngzalzB8hkXF-10BbNJEY2mr594N9W-hDYRU_SGMAzkqg65ZtcrEqHMwrlpvaoWCKRSFc8ifijU1qij8VX8-qpuNDiR_GO_Rj_ZVJyJ602vZqe6XORabJg1SWPBCGt428HfqWUAYaK47fBkma1pmY7CqvLYV1Vu2IfRwi81yZEyazp-d3Wa_8T3m_bJTkOYkeXoF6ITMG=w1280",
+     "text": "",
+     "x": 833,
+     "y": 87,
+     "w": 266,
+     "h": 209
+    }
+   ]
+  }
+ ]
+}

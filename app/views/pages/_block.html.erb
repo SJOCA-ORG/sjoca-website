@@ -1,0 +1,37 @@
+<% case block.kind
+   when "heading" %>
+  <h2 class="b b-heading b--<%= block.align %>"><%= sanitize_inline(block.content) %></h2>
+
+<% when "subheading" %>
+  <p class="b b-subheading b--<%= block.align %>"><%= sanitize_inline(block.content) %></p>
+
+<% when "text" %>
+  <p class="b b-text b--<%= block.align %>"><%= sanitize_inline(block.content) %></p>
+
+<% when "image" %>
+  <% if (asset = block.asset) %>
+    <%# Measured width from the current site, so images keep their original
+        size rather than stretching to fill the column. %>
+    <figure class="b b-image b--<%= block.align %>"
+            <%= %(style=max-width:#{block.width}px).html_safe if block.width %>>
+      <% if block.url.present? %>
+        <a href="<%= block.url %>">
+          <%= image_tag legacy_asset_path(asset.human_name), alt: asset.alt_text.to_s, loading: "lazy" %>
+        </a>
+      <% else %>
+        <%= image_tag legacy_asset_path(asset.human_name), alt: asset.alt_text.to_s, loading: "lazy" %>
+      <% end %>
+    </figure>
+  <% end %>
+
+<% when "embed" %>
+  <div class="b b-embed">
+    <iframe src="<%= block.url %>" title="Parish calendar"
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+
+<% when "button" %>
+  <p class="b b--<%= block.align %>">
+    <a class="button" href="<%= block.url %>"><%= sanitize_inline(block.content) %></a>
+  </p>
+<% end %>

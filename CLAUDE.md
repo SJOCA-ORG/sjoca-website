@@ -3,7 +3,7 @@
 Context for anyone (person or Claude session) picking this project up. This file is
 committed so it travels with the repo; it is the handoff, not a scratchpad.
 
-**Last updated:** 2026-09-14, end of the first working session.
+**Last updated:** 2026-10-09 — Phase 1 Rails clone standing up and rendering.
 
 ---
 
@@ -21,24 +21,70 @@ is detail hanging off that.
 
 ## Where we are
 
-**Phase A, Step 1 — proposal to the Parish Council. Not yet started.**
+**Phase 1 — Rails clone of the current site. Rendering, not yet deployed.**
 
-Nothing has been proposed, designed, or built. The plan itself is the only completed work.
+The council already approved the project and the Rails approach; see
+[`IMPLEMENTATION-PLAN.md`](IMPLEMENTATION-PLAN.md), which supersedes Phase A of the
+original plan. **The AGM is 15 November 2026.**
 
-### Next actions, in order
+### What exists
 
-1. **Analyze the survey** — importance-vs-satisfaction gap per topic, themes from the
-   free text, quotable lines, and the one chart that carries the case.
-   → produces `docs/survey-findings.md`
-2. **Get the two open numbers from Mitch:**
-   - the annual hosting cost, and what it buys
-   - who the initial contributors are, and what each is taking on
-3. **Draft the council deck** → `deck/`
+- Rails 8.1 / Ruby 3.4 / Postgres. No Active Storage, no Solid — asset bytes live in
+  the database (see below), so there was nothing for them to do.
+- All **11 pages** render at their original paths, with the current site's colours,
+  fonts, section banding and measured column proportions.
+- The **ChurchTrac calendar iframe works** in the Rails app.
+- `legacy_assets` holds **110 images** (~32MB) as bytes in the table.
 
-The deck can't be finished without item 2, but the analysis in item 1 is unblocked and is
-the sensible place to start.
+### Run it
 
----
+```bash
+bin/rails db:create db:migrate
+node reference/current-site/capture.mjs     # needs Chrome; ~2 minutes
+bin/rails runner script/extract_current_site.rb
+bin/rails db:seed
+bin/rails server
+```
+
+The capture step is required: photos are not in git (see below), so a fresh clone has
+no image bytes until you run it.
+
+### How the content pipeline fits together
+
+```
+Google Sites ──capture.mjs──> dom/ + geometry.json + images/   (not committed)
+                     │
+       extract_current_site.rb
+                     │
+                     v
+          db/seeds/content.yml + assets.yml   (committed — readable, diffable)
+                     │
+                 db:seed
+                     v
+          pages / sections / blocks / legacy_assets
+```
+
+Content is both things at once: **in git as YAML** (reviewable in a pull request, which
+was the appeal of static pages) and **in the database** (which is what Phase 2's editor
+will write to).
+
+### Three traps, all of which cost time once
+
+- **Capture must be a single browser pass.** Google's image URLs are signed, rotate
+  between browser sessions and expire in ~20 minutes. Capturing DOM and geometry in
+  separate runs yields two disjoint URL sets with nothing to join on.
+- **Document order is not visual order.** Sites places grid cells explicitly; the home
+  page reads as two rows of two in the DOM and renders as two columns of stacked items.
+  Layout therefore comes from measured bounding boxes, never from markup order.
+- **Reset the viewport after a mobile screenshot.** The 390px device override persists
+  across navigations, and every later page gets measured as one mobile-width column.
+
+### Next
+
+1. Visual comparison pass, page by page, desktop and phone.
+2. Choose a host; get it deployed and seeded (see the seed note on running the first
+   production seed from a developer machine).
+3. Phase 2: the CMS with draft → review → publish, and the photo consent table.
 
 ## Things that are settled — don't reopen without asking
 
@@ -53,9 +99,19 @@ the sensible place to start.
   but sufficient. The proposal commits to *at least* that level. Everything else
   ChurchTrac could offer (member list, email/text, accounting) is TBD and conditional on
   being practical. Do not promise it.
-- **No technology has been chosen.** That happens at Step 8, after we know who maintains
-  the site and what it must do. Resist the urge to jump ahead — the maintenance question
-  drives the answer more than any technical consideration.
+- **Rails was chosen and approved**, with a deliberate sequence: clone the current site
+  exactly (Phase 1, no visible changes), then add a minimum CMS (Phase 2), then present
+  at the AGM. The fallback if the volunteer team ever evaporates is Orthodox Web
+  Solutions, so nothing is lost by trying.
+- **Asset bytes live in the `legacy_assets` table**, not on disk or in object storage.
+  A `pg_dump` is then a complete copy — pulling production down for local work brings
+  the photos with it, with no blob syncing to get wrong. Rows are append-only and keyed
+  by a semantic `human_name` ("home-hero"), newest published row wins, so a photo can be
+  replaced without touching any page.
+- **Parish photos are not in git.** The repo is public and the photos include
+  identifiable children. They are seeded from a local capture; after cutover the
+  production database is their only copy, which makes backups a parish-archive concern
+  and not just a site concern.
 
 ---
 

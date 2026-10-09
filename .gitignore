@@ -1,3 +1,4 @@
+# ---- Survey data ----
 # Raw survey exports contain respondent email addresses — never commit these.
 # The anonymized version (data/survey/responses-anonymized.csv) is the committed copy.
 # Raw data can be re-exported from the original Google Form if ever needed.
@@ -6,12 +7,73 @@ Church Website Overhaul Feedback.csv.zip
 data/survey/raw/
 *-raw.csv
 
-# Claude Code local overrides (machine-specific; shared settings ARE committed)
+# ---- Captured reference material ----
+# None of the capture output is committed. It is all regenerated in one command:
+#
+#     node reference/current-site/capture.mjs
+#
+# Two reasons. It is bulky (~90MB of photos and full-page screenshots), and it
+# contains parish photographs — including identifiable children — which do not
+# belong in a public repository. Photos reach the app through the
+# legacy_assets table instead (db/seeds/legacy_assets.rb).
+#
+# What IS committed: the capture tool, and the extracted structure it produces
+# (geometry.json, db/seeds/content.yml, db/seeds/assets.yml) — small, text,
+# diffable in a pull request.
+reference/current-site/images/
+reference/current-site/dom/
+reference/current-site/shots-desktop/
+reference/current-site/shots-mobile/
+
+# ---- Database dumps ----
+# Production dumps contain admin accounts and parish photos. Keep them local.
+*.dump
+*.sql.gz
+db/dumps/
+
+# ---- Secrets ----
+# NEVER commit these. The master key decrypts config/credentials.yml.enc.
+#
+# This block exists because `rails new` ships a .gitignore containing exactly
+# these lines, and merging the generated app into this repo replaced it with a
+# hand-written one that left them out. config/master.key was committed and
+# pushed public as a result, and had to be rotated. Do not drop these lines.
+/config/master.key
+/config/credentials/*.key
+/config/*.key
+
+# ---- Rails ----
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/.keep
+/tmp/storage/*
+!/tmp/storage/.keep
+/public/assets
+/app/assets/builds/*
+!/app/assets/builds/.keep
+/node_modules
+.env
+.env.*
+!.env.example
+
+# ---- Claude Code ----
+# Shared settings ARE committed; machine-specific overrides are not.
 .claude/settings.local.json
 
-# OS / editor cruft
+# ---- OS / editor ----
 .DS_Store
 Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+# Screenshots of our own rebuild, for comparison. Regenerated on demand.
+reference/rebuild-shots/
+
+# Ignore key files for decrypting credentials and more.
+/config/*.key
+

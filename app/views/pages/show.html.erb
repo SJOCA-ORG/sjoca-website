@@ -1,0 +1,31 @@
+<% content_for :title, "#{@page.title} — Saint John the Baptist Orthodox Church" %>
+
+<% if @page.hero_heading.present? || @page.hero_asset.present? %>
+  <section class="hero <%= "hero--tall" if @page.tall_hero? %>"
+           <% if (hero = @page.hero_asset) %>
+             style="background-image:url(<%= legacy_asset_path(hero.human_name) %>)"
+           <% end %>>
+    <div class="hero__inner">
+      <% if @page.hero_heading.present? %>
+        <h1 class="hero__title"><%= sanitize_inline(@page.hero_heading) %></h1>
+      <% end %>
+      <% if @page.hero_subheading.present? %>
+        <p class="hero__subtitle"><%= sanitize_inline(@page.hero_subheading) %></p>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<% @page.sections.each do |section| %>
+  <section class="band band--<%= section.style %>">
+    <div class="band__inner">
+      <div class="cols" style="--tracks: <%= section.grid_template %>">
+        <% section.columns.each do |column| %>
+          <div class="col">
+            <%= render partial: "pages/block", collection: column, as: :block %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+<% end %>

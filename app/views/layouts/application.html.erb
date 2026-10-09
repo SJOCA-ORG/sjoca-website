@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "Saint John the Baptist Orthodox Church" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= content_for(:description) ||
+      "Saint John the Baptist Orthodox Church, Rochester NY — a parish of the Orthodox Church in America (OCA), Diocese of New York and New Jersey. Services entirely in English." %>">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <%= stylesheet_link_tag "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Quicksand:wght@400;500;600&family=Lobster&display=swap" %>
+    <%= stylesheet_link_tag :application, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <%= render "shared/header" %>
+    <main id="main"><%= yield %></main>
+    <%= render "shared/footer" %>
+  </body>
+</html>
