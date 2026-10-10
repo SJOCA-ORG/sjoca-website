@@ -1,7 +1,7 @@
 # SJOCA Website — Implementation Plan
 
 **Parish:** St John the Baptist Orthodox Church - Rochester NY (OCA) — **SJOCA**
-**Status:** Draft for review, v0.1 — 2026-10-09
+**Status:** Draft for review, v0.2 — 2026-10-10
 **Supersedes:** Phase A of [`PROJECT-PLAN.md`](PROJECT-PLAN.md). See *Relationship to the
 original plan* at the end.
 
@@ -200,6 +200,34 @@ November deadline it may well be — that's worth something.
 **Suggested resolution:** spend **one day** evaluating Alchemy against this list before
 committing either way. A day spent now is cheap; discovering in week three that you're
 fighting a framework is not.
+
+### Idea parked for Phase 2: content with a release date
+
+Content should be able to carry a **release date** — prepared in advance, approved now,
+and published automatically when that date arrives.
+
+Worth recording because it falls out of the design we already have rather than fighting
+it. The approval flow is "newest *approved* version wins"; adding a date makes it
+"newest approved version whose release date has passed". The same change serves both
+page content and `legacy_assets`, so a photo can be swapped on a date too.
+
+What it buys the parish is sequencing, which is most of what a church calendar is:
+a Nativity message written in November and appearing on the day, a Pascha banner that
+puts itself up, a new leadership page that goes live the morning after the annual
+meeting rather than whenever someone remembers. Approval and timing stop being the same
+decision — Fr. David can approve something once, in advance, without having to be
+available at the moment it should appear.
+
+Two things to decide when we build it:
+
+- **Does anything retire?** A release date implies an end date for seasonal content.
+  Easy to add later; awkward to retrofit if the model assumes content is forever.
+- **What does the editor see?** Something scheduled is neither draft nor live, and if the
+  queue does not show that clearly, people will assume their change failed and submit it
+  again.
+
+Not in the AGM scope — but worth demonstrating as "what comes next" if the build goes
+well, because it is the clearest answer to *how does the site stay fresh*.
 
 ### Scope discipline
 
