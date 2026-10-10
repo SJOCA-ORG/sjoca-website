@@ -218,12 +218,33 @@ meeting rather than whenever someone remembers. Approval and timing stop being t
 decision — Fr. David can approve something once, in advance, without having to be
 available at the moment it should appear.
 
-Two things to decide when we build it:
+**Decided: both dates optional, and each absence means something useful.**
 
-- **Does anything retire?** A release date implies an end date for seasonal content.
-  Easy to add later; awkward to retrofit if the model assumes content is forever.
-- **What does the editor see?** Something scheduled is neither draft nor live, and if the
-  queue does not show that clearly, people will assume their change failed and submit it
+| | |
+|---|---|
+| No start date | Goes up as soon as it is approved — today's behaviour, unchanged |
+| No end date | Stays up until somebody takes it down |
+| Start only | Appears on the day, then stays |
+| Both | A window: seasonal content that puts itself up and takes itself down |
+
+So a version is visible when it is approved, **and** the start is absent or past, **and**
+the end is absent or still ahead. Nothing has to be dated, which matters: the parish
+should never be forced to think about scheduling to make an ordinary correction.
+
+This gives a nice property for free. A version with no dates is *evergreen*, and dated
+versions sit on top of it for their window — put up a Nativity greeting with a start and
+an end, and the ordinary welcome message returns on its own afterwards, with nobody
+needing to remember. Among versions whose window is currently open, newest-created still
+wins, so scheduling an override is just creating it after the evergreen one.
+
+Two things to get right when we build it:
+
+- **An expiring item can leave a hole.** If something ends and no evergreen version sits
+  underneath it, that block simply vanishes from the page. The editor should say so at
+  the point an end date is set — "nothing will show here after 7 January" — rather than
+  letting the parish discover it.
+- **What does the editor see?** Scheduled content is neither draft nor live. If the queue
+  does not show that state clearly, people will assume their change failed and submit it
   again.
 
 Not in the AGM scope — but worth demonstrating as "what comes next" if the build goes
