@@ -39,7 +39,7 @@
   hero_asset_name: about-us-choir-hero
   hero_heading: Choir
   hero_subheading: null
-  hero_size: tall
+  hero_size: standard
 - slug: about-us/leadership
   sections:
   - style: light
@@ -517,7 +517,7 @@
   hero_asset_name: about-us-hero
   hero_heading: About Us
   hero_subheading: null
-  hero_size: tall
+  hero_size: standard
 - slug: community-outreach
   sections:
   - style: plain
@@ -579,7 +579,7 @@
   hero_asset_name: community-outreach-hero
   hero_heading: null
   hero_subheading: null
-  hero_size: tall
+  hero_size: standard
 - slug: contact
   sections:
   - style: light
@@ -628,7 +628,7 @@
   hero_asset_name: contact-hero
   hero_heading: Contact
   hero_subheading: null
-  hero_size: tall
+  hero_size: standard
 - slug: donate
   sections:
   - style: light
@@ -680,7 +680,7 @@
   hero_asset_name: donate-hero
   hero_heading: Donate
   hero_subheading: null
-  hero_size: tall
+  hero_size: standard
 - slug: events-services/miter-ceremony
   sections:
   - style: plain
@@ -1019,7 +1019,7 @@
   hero_asset_name: events-services-miter-ceremony-hero
   hero_heading: Miter Ceremony
   hero_subheading: null
-  hero_size: tall
+  hero_size: standard
 - slug: events-services/weekly-bulletin
   sections:
   - style: plain
@@ -1231,7 +1231,7 @@
   hero_asset_name: events-services-weekly-bulletin-hero
   hero_heading: Weekly Bulletin
   hero_subheading: null
-  hero_size: tall
+  hero_size: standard
 - slug: events-services
   sections:
   - style: maroon
@@ -1787,7 +1787,7 @@
   hero_asset_name: events-services-hero
   hero_heading: Events &amp; Services
   hero_subheading: null
-  hero_size: tall
+  hero_size: standard
   hero_detail: Great Vespers Saturday 6pm · Reading of the Hours Sunday 9:30am · Divine Liturgy Sunday
     10am · Compline Wednesdays 6pm
 - slug: home
