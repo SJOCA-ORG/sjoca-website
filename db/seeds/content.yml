@@ -1922,7 +1922,7 @@
       width: 661
       row: 0
       column: 1
-      position: 0
+      position: 6
     - kind: text
       content: We are a parish of The Orthodox Church of America (OCA), in the Diocese of New York and
         New Jersey.
@@ -1930,53 +1930,53 @@
       width: 645
       row: 0
       column: 1
-      position: 1
+      position: 7
     - kind: text
       content: Our services are entirely in English!
       align: center
       width: 645
       row: 0
       column: 1
-      position: 2
+      position: 8
     - kind: heading
       content: Service Times
       align: center
       column: 1
       row: 0
-      position: 3
+      position: 0
       width: 661
     - kind: subheading
       content: 'Compline: Wednesdays @6pm'
       align: center
       column: 1
       row: 0
-      position: 7
+      position: 4
       width: 661
     - kind: subheading
       content: 'Great Vespers: Saturday @6pm'
       align: center
       column: 1
       row: 0
-      position: 4
+      position: 1
       width: 661
     - kind: subheading
       content: 'Reading of the Hours: Sunday @9:30am'
       align: center
       column: 1
       row: 0
-      position: 5
+      position: 2
       width: 661
     - kind: subheading
       content: 'Divine Liturgy: Sunday @10:00am'
       align: center
       column: 1
       row: 0
-      position: 6
+      position: 3
       width: 661
     - kind: upcoming
       column: 1
       row: 0
-      position: 8
+      position: 5
       align: left
       width: 661
   hero_asset_name: home-hero
