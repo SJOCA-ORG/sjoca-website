@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_09_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_11_210000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -29,6 +29,41 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_150000) do
     t.integer "width"
     t.index ["section_id", "row", "column", "position"], name: "index_blocks_on_section_id_and_row_and_column_and_position"
     t.index ["section_id"], name: "index_blocks_on_section_id"
+  end
+
+  create_table "calendar_events", force: :cascade do |t|
+    t.string "churchtrac_id"
+    t.string "uid"
+    t.datetime "starts_at", null: false
+    t.datetime "ends_at"
+    t.string "title", null: false
+    t.boolean "all_day", default: false, null: false
+    t.boolean "recurring", default: false, null: false
+    t.string "location"
+    t.text "notes"
+    t.string "calendar_name"
+    t.datetime "synced_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "source", default: "churchtrac", null: false
+    t.index ["churchtrac_id", "starts_at"], name: "index_calendar_events_on_churchtrac_id_and_starts_at", unique: true
+    t.index ["source"], name: "index_calendar_events_on_source"
+    t.index ["starts_at"], name: "index_calendar_events_on_starts_at"
+  end
+
+  create_table "calendar_syncs", force: :cascade do |t|
+    t.string "status", null: false
+    t.datetime "window_start"
+    t.datetime "window_end"
+    t.integer "fetched", default: 0, null: false
+    t.integer "created", default: 0, null: false
+    t.integer "updated", default: 0, null: false
+    t.integer "removed", default: 0, null: false
+    t.text "message"
+    t.float "duration"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_calendar_syncs_on_created_at"
   end
 
   create_table "legacy_assets", force: :cascade do |t|
