@@ -31,8 +31,8 @@
   <div class="b b-upcoming"><%= render "pages/upcoming" %></div>
 
 <% when "embed" %>
-  <div class="b b-embed">
-    <iframe src="<%= block.url %>" title="Parish calendar"
+  <div class="b b-embed" data-controller="embed" data-action="click->embed#activate">
+    <iframe src="<%= block.url %>" title="Map of the parish"
             loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
   </div>
 

@@ -248,8 +248,13 @@ a:hover    { color: var(--maroon); }
 
 .b-embed { width: 100%; }
 .b-embed iframe {
-  width: 100%; min-height: 600px; border: 0; background: var(--white);
+  width: 100%; min-height: 420px; border: 0; background: var(--white);
+  /* An embedded map swallows the page scroll on a phone, which is maddening.
+     Ignore pointer events until it is deliberately clicked. */
+  pointer-events: none;
 }
+.b-embed:focus-within iframe,
+.b-embed.is-active iframe { pointer-events: auto; }
 
 /* ---------- footer ------------------------------------------------------ */
 
@@ -307,6 +312,16 @@ a:hover    { color: var(--maroon); }
   .site-footer__inner { flex-direction: column; align-items: flex-start; }
   .site-footer__contact { text-align: left; }
 }
+
+/* A map is only useful if you can actually use it, so one click arms it. */
+.b-embed { position: relative; }
+.b-embed::after {
+  content: "Click the map to interact"; position: absolute; inset: auto 0 0 0;
+  padding: .45rem; text-align: center;
+  font-family: var(--font-content); font-size: 10.5pt;
+  background: rgba(33,33,33,.72); color: #fff;
+}
+.b-embed.is-active::after { content: none; }
 
 /* ---------- parish calendar --------------------------------------------
    Rendered from our own mirror of ChurchTrac rather than their iframe, so it

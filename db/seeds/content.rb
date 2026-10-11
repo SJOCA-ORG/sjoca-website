@@ -19,7 +19,6 @@ NAV = [
   ["about-us/choir",                  "Choir",              "about-us",        3],
   ["events-services",                 "Events & Services",  nil,               3],
   ["events-services/weekly-bulletin", "Weekly Bulletin",    "events-services", 1],
-  ["events-services/miter-ceremony",  "Miter Ceremony",     "events-services", 2],
   ["donate",                          "Donate",             nil,               4],
   ["community-outreach",              "Community Outreach", nil,               5],
   ["contact",                         "Contact",            nil,               6]
