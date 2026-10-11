@@ -1303,22 +1303,19 @@
       content: 'Reading of the Hours: Sunday @9:30am'
       width: 842
   - style: maroon
-    column_widths: 448,661
+    column_widths: null
     blocks:
     - kind: heading
       content: 'Upcoming Events and Services:'
       align: left
-      width: 448
       row: 0
       column: 0
       position: 0
-    - kind: embed
-      url: https://www.churchtrac.com/public_calendar?ui=AE8E0B4D&view=listMonth
-      align: center
-      width: 661
+    - kind: calendar
+      align: left
       row: 0
-      column: 1
-      position: 0
+      column: 0
+      position: 1
   - style: plain
     column_widths: 562,546
     blocks:
@@ -1975,6 +1972,12 @@
       column: 1
       row: 0
       position: 6
+      width: 661
+    - kind: upcoming
+      column: 1
+      row: 0
+      position: 8
+      align: left
       width: 661
   hero_asset_name: home-hero
   hero_heading: Saint John the Baptist<br>Orthodox Church

@@ -24,6 +24,12 @@
     </figure>
   <% end %>
 
+<% when "calendar" %>
+  <div class="b b-calendar"><%= render "pages/calendar" %></div>
+
+<% when "upcoming" %>
+  <div class="b b-upcoming"><%= render "pages/upcoming" %></div>
+
 <% when "embed" %>
   <div class="b b-embed">
     <iframe src="<%= block.url %>" title="Parish calendar"

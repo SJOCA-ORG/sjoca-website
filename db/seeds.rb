@@ -8,3 +8,4 @@
 load Rails.root.join("db/seeds/legacy_assets.rb")
 load Rails.root.join("db/seeds/content.rb")
 load Rails.root.join("db/seeds/curated_assets.rb")
+load Rails.root.join("db/seeds/demo_calendar.rb")

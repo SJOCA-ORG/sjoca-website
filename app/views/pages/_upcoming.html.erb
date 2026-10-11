@@ -1,0 +1,23 @@
+<%# What is different about the coming week: one-off events, and anything
+    cancelled. The regular round is deliberately left out — nobody needs
+    telling that Vespers is on Saturday again. Renders nothing when there is
+    nothing to say, rather than an empty box. %>
+<% events = CalendarEvent.noteworthy_within(7) %>
+<% if events.any? %>
+  <div class="upcoming">
+    <h2 class="upcoming__head">This coming week</h2>
+    <ul class="upcoming__list">
+      <% events.each do |event| %>
+        <li class="upcoming__item <%= 'is-cancelled' if event.cancellation? %>">
+          <span class="upcoming__when">
+            <%= event.starts_at.strftime("%A") %><%= ", #{event.time_text}" if event.time_text %>
+          </span>
+          <span class="upcoming__title"><%= event.title %></span>
+          <% if event.notes.present? %>
+            <span class="upcoming__note"><%= event.notes %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
