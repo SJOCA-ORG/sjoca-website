@@ -30,9 +30,9 @@ HEADING_KIND  = { "duRjpb" => "heading", "JYVBee" => "heading", "OmQG5e" => "sub
 # Readable names for assets worth saying out loud. Everything else gets a
 # positional name. Verified by eye against the images, not guessed.
 ASSET_OVERRIDES = {
-  "home:exterior"     => "home-exterior",
-  "home:iconostasis"  => "home-iconostasis",
-  "home:icon"         => "home-icon-st-john"
+  "home-01" => "home-exterior",
+  "home-02" => "home-icon-st-john",
+  "home-03" => "home-iconostasis"
 }.freeze
 
 def slug_for(file) = File.basename(file, ".html").gsub("--", "/")
@@ -177,7 +177,8 @@ Dir[ROOT.join("dom/*.html")].sort.each do |file|
           url  = found[:key]
           name = img_seen[url] ||= begin
             idx = img_seen.size + 1
-            format("%s-%02d", slug.tr("/", "-"), idx)
+            positional = format("%s-%02d", slug.tr("/", "-"), idx)
+            ASSET_OVERRIDES.fetch(positional, positional)
           end
           assets << { "human_name" => name, "source_url" => url,
                       "alt_text" => found[:alt].to_s, "page" => slug }

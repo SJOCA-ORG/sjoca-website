@@ -1943,7 +1943,7 @@
     - kind: image
       align: center
       url:
-      asset_name: home-01
+      asset_name: home-exterior
       width: 464
       row: 0
       column: 0
@@ -1951,7 +1951,7 @@
     - kind: image
       align: center
       url:
-      asset_name: home-02
+      asset_name: home-icon-st-john
       width: 464
       row: 0
       column: 0
@@ -1959,7 +1959,7 @@
     - kind: image
       align: center
       url:
-      asset_name: home-03
+      asset_name: home-iconostasis
       width: 661
       row: 0
       column: 1

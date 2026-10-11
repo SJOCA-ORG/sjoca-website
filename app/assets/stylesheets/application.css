@@ -17,8 +17,12 @@
 
   --font-body:    "Lato", "Helvetica Neue", Arial, sans-serif;
   --font-content: "Quicksand", "Lato", "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Corsiva", "Monotype Corsiva", "Apple Chancery",
-                  "URW Chancery L", "Segoe Script", cursive;
+  /* The old site asked for Corsiva, which is a Microsoft/Apple system font and
+     not a webfont — so most machines fell back to something else, and on macOS
+     Apple Chancery's hairline strokes broke up against the hero photograph.
+     Cormorant Garamond italic keeps the calligraphic character with an even
+     stroke weight, and renders identically everywhere. */
+  --font-display: "Cormorant Garamond", "Apple Chancery", Georgia, serif;
   --font-footer:  "Lobster", Georgia, serif;
 
   --measure: 1160px;   /* content column width */
@@ -53,6 +57,10 @@ a:hover    { color: var(--maroon); }
   position: sticky; top: 0; z-index: 100;
   background: var(--ink);
   font-family: var(--font-body);
+  /* Light text on a dark bar: antialiased smoothing thins strokes until they
+     look washed out and broken. Subpixel rendering keeps them solid. */
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 .site-header__inner {
   max-width: var(--measure); margin: 0 auto;
@@ -61,7 +69,7 @@ a:hover    { color: var(--maroon); }
 }
 .site-header__brand {
   color: var(--white); text-decoration: none;
-  font-size: 15pt; font-weight: 300; letter-spacing: .3px;
+  font-size: 15pt; font-weight: 400; letter-spacing: .5px;
 }
 .site-header__brand:visited { color: var(--white); }
 
@@ -78,14 +86,25 @@ a:hover    { color: var(--maroon); }
   display: flex; align-items: center; gap: .25rem;
 }
 .site-nav__item { position: relative; }
+/* Lato Light at 12pt is too fine to hold up as white on near-black — it reads
+   as faded and broken rather than quiet. Regular weight at near-full opacity
+   stays legible; the current page is marked by weight, not by brightness, so
+   the other items do not look switched off. */
 .site-nav__link {
-  display: block; padding: 1rem .7rem; text-decoration: none;
-  color: rgba(255,255,255,.87); font-size: 12pt; font-weight: 300;
-  white-space: nowrap;
+  display: block; padding: 1rem .7rem .85rem; text-decoration: none;
+  color: rgba(255,255,255,.92); font-size: 12pt; font-weight: 400;
+  white-space: nowrap; border-bottom: 2px solid transparent;
 }
-.site-nav__link:visited { color: rgba(255,255,255,.87); }
+.site-nav__link:visited { color: rgba(255,255,255,.92); }
 .site-nav__link:hover   { color: var(--white); }
-.site-nav__link.is-current { color: var(--white); font-weight: 400; }
+
+/* Mark the current page with a rule rather than extra weight. Weight made one
+   item shout and left the rest looking switched off; a rule reads clearly while
+   the bar stays even. */
+.site-nav__link.is-current {
+  color: var(--white);
+  border-bottom-color: rgba(255,255,255,.85);
+}
 
 .site-nav__caret {
   display: inline-block; margin-left: .35rem;
@@ -102,7 +121,7 @@ a:hover    { color: var(--maroon); }
 .site-nav__item:focus-within > .site-nav__sub { display: block; }
 .site-nav__sub a {
   display: block; padding: .6rem 1.1rem; text-decoration: none;
-  color: rgba(255,255,255,.87); font-size: 12pt; font-weight: 300;
+  color: rgba(255,255,255,.94); font-size: 12pt; font-weight: 400;
 }
 .site-nav__sub a:hover,
 .site-nav__sub a.is-current { color: var(--white); }
@@ -115,20 +134,30 @@ a:hover    { color: var(--maroon); }
   background: var(--maroon) center/cover no-repeat;
 }
 .hero--tall { height: 520px; }
+/* A band of shade behind the words rather than a flat wash over the whole
+   picture: the title stays legible while the candles and the church behind it
+   still read. */
 .hero::before {
   content: ""; position: absolute; inset: 0;
-  background: var(--ink); opacity: .6;   /* site overrides the theme's .4 here */
+  background: linear-gradient(to bottom,
+    rgba(33,33,33,.30) 0%,
+    rgba(33,33,33,.82) 38%,
+    rgba(33,33,33,.82) 62%,
+    rgba(33,33,33,.30) 100%);
 }
 .hero__inner { position: relative; max-width: var(--measure); }
 .hero__title {
   margin: 0; color: var(--white);
   font-family: var(--font-display);
-  font-size: 48pt; font-weight: 400; line-height: 1.15; letter-spacing: .5px;
+  font-style: italic; font-size: 48pt; font-weight: 500;
+  line-height: 1.15; letter-spacing: .5px;
+  text-shadow: 0 2px 14px rgba(0,0,0,.75), 0 0 3px rgba(0,0,0,.5);
 }
 .hero__subtitle {
   margin: .6rem 0 0; color: var(--white);
   font-family: var(--font-content);
   font-size: 25pt; font-weight: 300; line-height: 1.1;
+  text-shadow: 0 2px 12px rgba(0,0,0,.7);
 }
 
 /* ---------- content bands ---------------------------------------------- */
