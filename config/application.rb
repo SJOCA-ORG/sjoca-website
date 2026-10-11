@@ -33,7 +33,10 @@ module Sjoca
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # The parish is in Rochester, NY, and ChurchTrac returns service times with
+    # no timezone attached — they are local times. Parsing them as UTC would put
+    # the Divine Liturgy at 6am.
+    config.time_zone = "America/New_York"
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end
