@@ -12,6 +12,9 @@
       <% if @page.hero_subheading.present? %>
         <p class="hero__subtitle"><%= sanitize_inline(@page.hero_subheading) %></p>
       <% end %>
+      <% if @page.hero_detail.present? %>
+        <p class="hero__detail"><%= sanitize_inline(@page.hero_detail) %></p>
+      <% end %>
     </div>
   </section>
 <% end %>

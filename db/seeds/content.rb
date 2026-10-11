@@ -54,6 +54,7 @@ NAV.each do |slug, nav_title, parent, position|
     hero_asset_name: data["hero_asset_name"],
     hero_heading:    data["hero_heading"],
     hero_subheading: data["hero_subheading"],
+    hero_detail:     data["hero_detail"],
     hero_size:       data["hero_size"] || "standard"
   )
   page.save!

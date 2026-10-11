@@ -625,21 +625,6 @@
       row: 0
       column: 0
       position: 1
-    - kind: heading
-      content: <a href="https://www.youtube.com/channel/UCW7y8zQlbDEocn8N2pJwf9g">Live Streaming</a>
-      align: left
-      width: 250
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url: https://www.youtube.com/channel/UCW7y8zQlbDEocn8N2pJwf9g
-      asset_name: contact-02
-      width: 266
-      row: 0
-      column: 1
-      position: 1
   hero_asset_name: contact-hero
   hero_heading: Contact
   hero_subheading: null
@@ -1249,59 +1234,6 @@
   hero_size: tall
 - slug: events-services
   sections:
-  - style: plain
-    column_widths: 842,168
-    blocks:
-    - kind: heading
-      content: 'Regular Services:'
-      align: left
-      width: 842
-      row: 0
-      column: 0
-      position: 0
-    - kind: subheading
-      content: 'Compline: Wednesdays @6pm'
-      align: left
-      width: 842
-      row: 0
-      column: 0
-      position: 4
-    - kind: subheading
-      content: 'Great Vespers: Saturday @6pm'
-      align: left
-      width: 842
-      row: 0
-      column: 0
-      position: 1
-    - kind: subheading
-      content: 'Divine Liturgy: Sunday @10:00am'
-      align: left
-      width: 842
-      row: 0
-      column: 0
-      position: 3
-    - kind: image
-      align: center
-      url: https://www.youtube.com/channel/UCW7y8zQlbDEocn8N2pJwf9g
-      asset_name: events-services-01
-      width: 168
-      row: 0
-      column: 1
-      position: 0
-    - kind: heading
-      content: <a href="https://www.youtube.com/channel/UCW7y8zQlbDEocn8N2pJwf9g">Live Streaming!</a>
-      align: left
-      width: 152
-      row: 0
-      column: 1
-      position: 1
-    - kind: subheading
-      align: left
-      column: 0
-      row: 0
-      position: 2
-      content: 'Reading of the Hours: Sunday @9:30am'
-      width: 842
   - style: maroon
     column_widths: null
     blocks:
@@ -1856,6 +1788,8 @@
   hero_heading: Events &amp; Services
   hero_subheading: null
   hero_size: tall
+  hero_detail: Great Vespers Saturday 6pm · Reading of the Hours Sunday 9:30am · Divine Liturgy Sunday
+    10am · Compline Wednesdays 6pm
 - slug: home
   sections:
   - style: light
@@ -1922,7 +1856,7 @@
       width: 661
       row: 0
       column: 1
-      position: 6
+      position: 5
     - kind: text
       content: We are a parish of The Orthodox Church of America (OCA), in the Diocese of New York and
         New Jersey.
@@ -1930,14 +1864,14 @@
       width: 645
       row: 0
       column: 1
-      position: 7
+      position: 6
     - kind: text
       content: Our services are entirely in English!
       align: center
       width: 645
       row: 0
       column: 1
-      position: 8
+      position: 7
     - kind: heading
       content: Service Times
       align: center
@@ -1976,7 +1910,7 @@
     - kind: upcoming
       column: 1
       row: 0
-      position: 5
+      position: 8
       align: left
       width: 661
   hero_asset_name: home-hero
