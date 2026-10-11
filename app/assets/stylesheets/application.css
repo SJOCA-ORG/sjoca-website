@@ -191,6 +191,10 @@ a:hover    { color: var(--maroon); }
   color: var(--maroon);
   font-size: 19pt; font-weight: 500; line-height: 1.4; margin-top: 0;
 }
+
+/* A heading that follows other content starts a new idea, so give it room —
+   roughly one line. A heading at the top of a column needs none. */
+.col > .b-heading:not(:first-child) { margin-top: 1.5em; }
 .band--maroon .b-heading { color: var(--white); }
 
 .b-subheading {
@@ -200,6 +204,30 @@ a:hover    { color: var(--maroon); }
 .band--maroon .b-subheading { color: var(--white); }
 
 .b-text { font-size: 14pt; font-weight: 500; line-height: 1.55; }
+
+/* Photographs sitting directly on the maroon band are softened at the edges so
+   they settle into the colour instead of being cut out of it. Done with a mask
+   rather than baked into the files, so it costs nothing and applies to any
+   photo the parish uploads later.
+
+   Two linear gradients, intersected: one feathers left/right, the other
+   top/bottom, giving a soft rectangle rather than the oval a single radial
+   gradient would produce. */
+.band--maroon .b-image img {
+  --feather: 7%;
+  -webkit-mask-image:
+    linear-gradient(to right,  transparent 0, #000 var(--feather),
+                               #000 calc(100% - var(--feather)), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 var(--feather),
+                               #000 calc(100% - var(--feather)), transparent 100%);
+          mask-image:
+    linear-gradient(to right,  transparent 0, #000 var(--feather),
+                               #000 calc(100% - var(--feather)), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 var(--feather),
+                               #000 calc(100% - var(--feather)), transparent 100%);
+  -webkit-mask-composite: source-in;
+          mask-composite: intersect;
+}
 
 /* A figure may carry a measured max-width; the image fills whatever it gets.
    Centred figures keep their centring via auto margins. */

@@ -1,0 +1,17 @@
+# Assets that did NOT come from the old Google Sites capture — photographs the
+# parish owns, processed for the site. Each entry adds a new version under its
+# human_name, so dropping one in here replaces what the page shows without
+# touching the page.
+#
+# `file` is relative to the photo library root. That library is not in git
+# (parish photos, public repo), so set the root if yours is elsewhere:
+#
+#   SJOCA_PHOTO_LIBRARY=/path/to/library bin/rails db:seed
+#
+# Default: ~/sjoca-photo-library
+- human_name: home-icon-st-john
+  file: derived/icon-st-john-the-baptist-square.jpg
+  alt_text: >-
+    Icon of St John the Baptist, the Forerunner, shown winged as the Angel of
+    the Desert and holding a scroll reading "Repent, for the kingdom of heaven
+    is at hand". The parish's patronal icon, photographed in the church.
