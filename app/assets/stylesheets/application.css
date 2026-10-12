@@ -552,9 +552,8 @@ a:hover    { color: var(--maroon); }
 .lectionary.show-verse-numbers .reading__numbered { display: block; }
 .lectionary.show-verse-numbers .reading__prose    { display: none; }
 
-.reading__prose p {
-  margin: 0; font-size: 13.5pt; line-height: 1.8;
-}
+.reading__prose p { margin: 0 0 1rem; font-size: 13.5pt; line-height: 1.8; }
+.reading__prose p:last-child { margin-bottom: 0; }
 
 .lectionary__controls { margin: 0 0 1.75rem; }
 .verse-toggle {

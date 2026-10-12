@@ -20,6 +20,14 @@
             </a>
             <% if kids.any? %>
               <ul class="site-nav__sub">
+                <%# A parent with its own content lists itself first, so the
+                    submenu does not imply the parent is only a heading. %>
+                <% if item.self_nav_title.present? %>
+                  <li>
+                    <a href="<%= item.path %>"
+                       class="<%= "is-current" if item.slug == @page&.slug %>"><%= item.self_nav_title %></a>
+                  </li>
+                <% end %>
                 <% kids.each do |kid| %>
                   <li>
                     <a href="<%= kid.path %>"

@@ -641,7 +641,7 @@
       row: 0
       position: 0
       align: center
-      content: Contribute to the parish
+      content: Giving to the parish
     - kind: text
       column: 0
       row: 0
@@ -665,7 +665,7 @@
       content: This opens our secure giving page at ChurchTrac, which the parish already uses for its
         records. You can give once or set up a regular gift.
   hero_asset_name: donate-hero
-  hero_heading: Donate
+  hero_heading: Giving
   hero_subheading: null
   hero_size: standard
 - slug: events-services/weekly-bulletin

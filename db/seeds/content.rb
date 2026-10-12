@@ -10,6 +10,13 @@
 #
 # Think of this as the import of the old site, not as a content migration tool.
 
+# The fourth column, where present, is the label the parent takes as the first
+# item in its own submenu — so a visitor can tell the parent has a page too.
+SELF_NAV = {
+  "events-services" => "Calendar",
+  "education"       => "Adult Education"
+}.freeze
+
 NAV = [
   # slug,                             nav label,            parent,            pos
   ["home",                            "Home",               nil,               1],
@@ -22,7 +29,7 @@ NAV = [
   ["education",                       "Education & Resources", nil,            4],
   ["education/daily-lectionary",      "Daily Lectionary",   "education",       1],
   ["education/orthodox-resources",    "Orthodox Resources", "education",       2],
-  ["donate",                          "Donate",             nil,               5],
+  ["donate",                          "Giving",             nil,               5],
   ["community-outreach",              "Community Outreach", nil,               6],
   ["contact",                         "Contact",            nil,               7]
 ].freeze
@@ -57,7 +64,8 @@ NAV.each do |slug, nav_title, parent, position|
     hero_heading:    data["hero_heading"],
     hero_subheading: data["hero_subheading"],
     hero_detail:     data["hero_detail"],
-    hero_size:       data["hero_size"] || "standard"
+    hero_size:       data["hero_size"] || "standard",
+    self_nav_title:  SELF_NAV[slug]
   )
   page.save!
   page.sections.destroy_all

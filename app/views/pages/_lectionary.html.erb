@@ -44,13 +44,14 @@
               is continuous prose, which is how scripture is meant to be read. %>
           <div class="reading__body">
             <div class="reading__numbered">
-              <% reading.body.split("\n").each do |line| %>
-                <% num, text = line.split(" ", 2) %>
+              <% reading.verses.each do |num, text| %>
                 <p class="verse"><span class="verse__n"><%= num %></span><%= text %></p>
               <% end %>
             </div>
             <div class="reading__prose">
-              <p><%= reading.body.split("\n").map { |l| l.split(" ", 2).last }.compact.join(" ") %></p>
+              <% reading.paragraphs.each do |para| %>
+                <p><%= para %></p>
+              <% end %>
             </div>
           </div>
         <% end %>
