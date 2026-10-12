@@ -10,7 +10,7 @@ managed Postgres, and the three sync jobs. Render reads it and builds all four.
 ## First time
 
 **1. Create the Blueprint.** In Render: New → Blueprint, connect
-`catmando/sjoca-website`, pick the `demo-content-refresh` branch. Render finds
+`catmando/sjoca-website`, pick the `main` branch. Render finds
 `render.yaml` and proposes the services. Apply.
 
 **2. Set `RAILS_MASTER_KEY`** on the web service *and* each of the three cron
@@ -58,7 +58,7 @@ nothing should until the parish has said yes.
 
 ## Afterwards
 
-**Deploys happen on push** to `demo-content-refresh`. Migrations run in the
+**Deploys happen on push** to `main`. Migrations run in the
 build; seeds do not.
 
 **Content changes** are a push plus a reseed:

@@ -18,7 +18,7 @@ services:
     name: sjoca
     runtime: ruby
     plan: starter            # free sleeps after inactivity; a church site should not
-    branch: demo-content-refresh
+    branch: main
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
     healthCheckPath: /up
@@ -41,7 +41,7 @@ services:
     name: sjoca-calendar-sync
     runtime: ruby
     plan: starter
-    branch: demo-content-refresh
+    branch: main
     schedule: "17 */6 * * *"
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec rake churchtrac:sync"
@@ -58,7 +58,7 @@ services:
     name: sjoca-lectionary-sync
     runtime: ruby
     plan: starter
-    branch: demo-content-refresh
+    branch: main
     schedule: "40 5 * * *"
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec rake lectionary:sync"
@@ -75,7 +75,7 @@ services:
     name: sjoca-classes-sync
     runtime: ruby
     plan: starter
-    branch: demo-content-refresh
+    branch: main
     schedule: "55 5 * * *"
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec rake classes:sync"
