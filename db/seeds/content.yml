@@ -606,7 +606,14 @@
       width: 1138
       row: 0
       column: 0
+      position: 3
+    - kind: text
+      column: 0
+      row: 0
       position: 2
+      align: left
+      width: 1138
+      content: A minute from I-490 at the Goodman Street exit<br>— just south of the Highland Park Diner
   - style: plain
     column_widths: null
     blocks:

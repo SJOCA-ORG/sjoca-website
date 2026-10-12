@@ -1,0 +1,79 @@
+# Open items
+
+Running list of things deferred, with enough context to pick up cold.
+Newest decisions at the top of each section.
+
+---
+
+## Before the AGM (15 November 2026)
+
+- [ ] **Deploy to a server at a private URL.** Not sjoca.org — that switch comes
+      only if the parish approves at the AGM.
+- [ ] **Seed the photos into production from a developer machine.** The image
+      bytes live in `reference/current-site/images/`, which is gitignored, so a
+      fresh clone on the server has the manifest but no pixels:
+      `DATABASE_URL=<production> bin/rails db:seed`. After that production holds
+      them and ordinary deploys skip the step.
+- [ ] **Schedule the ChurchTrac sync** — `bin/rails churchtrac:sync`, a few times
+      a day. See `docs/churchtrac-integration.md`.
+- [ ] **Bulletin builder.** The only work non-technical volunteers do today, so
+      it is the parity milestone and the heart of the AGM demonstration.
+      *Waiting on:* how the bulletin is produced now, who makes it, whether it
+      goes out by email through ChurchTrac, and whether past issues are kept.
+- [ ] **Page-by-page visual comparison** against the old site, desktop and phone.
+- [ ] **Rehearse the AGM demo** against the real deployment.
+
+## Known gaps
+
+- [ ] **Site search.** Google Sites gives the parish a search box today and the
+      rebuild does not. A regression, not a missing feature — nobody will notice
+      until after cutover, when they cannot find the bulletin.
+- [ ] **Redirects.** `/events-services/miter-ceremony` now 404s. No redirect
+      mechanism exists yet; it is a Layer 1 requirement in
+      `docs/cms-capabilities.md`. Moving a page must leave a redirect behind, or
+      every inbound link breaks invisibly — and this parish prints QR codes.
+- [ ] **Image dimensions.** `<img>` tags carry no width/height, so the browser
+      cannot reserve space. Causes layout shift, and with lazy loading can stop
+      images loading at all on long pages.
+- [ ] **Service times are duplicated** — home page, Events & Services hero, and
+      the footer's address. Exactly the duplication the Settings resource is
+      meant to end. One place, rendered everywhere.
+
+## Worth doing, not urgent
+
+- [ ] **Photo archive page.** 81 photos sit in the database unreferenced.
+      `db/seeds/photo_archive.yml` groups 76 of them by the event they belonged
+      to — St Nicholas Day 2023, Youth Day at Seabreeze, Volunteer Weekends, the
+      Miter Ceremony. Without that file their names say nothing.
+- [ ] **iCal feed**, so people can subscribe to parish services in their own
+      phone calendars. Nearly free now the events are rows in our database.
+- [ ] **"Next service" on the home page**, drawn from the calendar rather than
+      typed.
+- [ ] **Recent event photographs** to replace the 2023 ones. The parish is
+      looking.
+- [ ] **Photo rotators** — agreed, but never auto-advancing.
+- [ ] Apply the outstanding edits to `IMPLEMENTATION-PLAN.md`: the 15 November
+      date, the consent table design, and removing the staging section.
+
+---
+
+## Parish archive — not a website concern
+
+A distinction worth keeping: **the website is for someone deciding whether to
+visit this Sunday. The archive is for whoever writes the centenary history.**
+Different audiences, different lifetimes, different storage. Material does not
+belong on the site merely because it is important.
+
+- [ ] **Miter Ceremony document.** The page we retired was not a photo album. It
+      carried a biography of Fr Ken James Stavrevsky including his marriage to
+      Natalie Eskoff, an explanation of what a miter is and its history, and an
+      account of Archbishop Michael presenting it during Divine Liturgy.
+      Produce a document from that content and the 23 photographs, store it in
+      Google Docs, and print a copy. This is the sort of thing that is
+      impossible to find in forty years when somebody is assembling the
+      hundred-year anniversary.
+      *Source:* `db/seeds/photo_archive.yml`, and the full text in git at
+      `git show 0b9ce70^:db/seeds/content.yml`.
+
+Candidates for the same treatment as they come up: anything retired from the
+site that records who was here and what happened.
