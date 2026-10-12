@@ -16,7 +16,10 @@
                class="site-nav__link <%= "is-current" if item.slug == @page&.slug %>"
                <%= "aria-current=page".html_safe if item.slug == @page&.slug %>>
               <%= item.nav_title %>
-              <% if kids.any? %><span class="site-nav__caret" aria-hidden="true"></span><% end %>
+              <% if kids.any? %>
+                <span class="site-nav__caret" aria-hidden="true"
+                      data-action="click->nav#expand"></span>
+              <% end %>
             </a>
             <% if kids.any? %>
               <ul class="site-nav__sub">
