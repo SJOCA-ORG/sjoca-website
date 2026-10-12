@@ -215,14 +215,28 @@ a:hover    { color: var(--maroon); }
 
 .b-text { font-size: 14pt; font-weight: 500; line-height: 1.55; }
 
-/* Photographs sitting directly on the maroon band are softened at the edges so
-   they settle into the colour instead of being cut out of it. Done with a mask
-   rather than baked into the files, so it costs nothing and applies to any
-   photo the parish uploads later.
+/* Photographs get one of two treatments, each where it works.
+ *
+ * On the pale bands they are framed: a white mount, a hairline rule and a soft
+ * shadow, so a photograph sits ON the page. Portraits need that definition —
+ * softened edges leave a face looking unfinished.
+ *
+ * On the maroon band they are feathered instead, dissolving into the colour.
+ * A white mount there would cut a hole in the band, and the images there are
+ * decorative rather than of people.
+ */
+.band--plain .b-image,
+.band--light .b-image {
+  padding: 6px; background: #fff;
+  border: 1px solid rgba(33,33,33,.14); border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(33,33,33,.18), 0 8px 20px rgba(33,33,33,.10);
+}
+.band--plain .b-image img,
+.band--light .b-image img { display: block; }
 
-   Two linear gradients, intersected: one feathers left/right, the other
-   top/bottom, giving a soft rectangle rather than the oval a single radial
-   gradient would produce. */
+/* Two linear gradients, intersected: one feathers left/right, the other top and
+   bottom, giving a soft rectangle rather than the oval a single radial gradient
+   would produce. */
 .band--maroon .b-image img {
   --feather: 7%;
   -webkit-mask-image:

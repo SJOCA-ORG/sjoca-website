@@ -43,13 +43,13 @@
 - slug: about-us/leadership
   sections:
   - style: light
-    column_widths: 365,645
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
       url: null
       asset_name: leadership-bishop-michael
-      width: 365
+      width: 265
       row: 0
       column: 0
       position: 0
@@ -68,13 +68,13 @@
       column: 1
       position: 1
   - style: plain
-    column_widths: 365,645
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
       url: null
       asset_name: leadership-fr-david
-      width: 365
+      width: 265
       row: 0
       column: 0
       position: 0
@@ -100,13 +100,13 @@
       column: 1
       position: 2
   - style: plain
-    column_widths: 365,645
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
       url: null
       asset_name: leadership-dn-sean
-      width: 365
+      width: 265
       row: 0
       column: 0
       position: 0
@@ -132,7 +132,7 @@
       column: 1
       position: 2
   - style: plain
-    column_widths: 365,645
+    column_widths: 265,745
     blocks:
     - kind: image
       column: 0
@@ -140,7 +140,7 @@
       position: 0
       align: center
       asset_name: leadership-dn-mitch
-      width: 365
+      width: 265
     - kind: heading
       column: 1
       row: 0
@@ -156,7 +156,7 @@
       content: Mitch VanDuyn
       width: 645
   - style: plain
-    column_widths: 266,645
+    column_widths: 265,745
     blocks:
     - kind: image
       column: 0
@@ -164,7 +164,7 @@
       position: 0
       align: center
       asset_name: about-us-leadership-06
-      width: 266
+      width: 265
     - kind: heading
       column: 1
       row: 0
@@ -187,7 +187,7 @@
       width: 645
       content: <a href="mailto:warden@sjoca.org">warden@sjoca.org</a>
   - style: plain
-    column_widths: 464,605
+    column_widths: 265,745
     blocks:
     - kind: image
       column: 0
@@ -195,7 +195,7 @@
       position: 0
       align: center
       asset_name: about-us-leadership-07
-      width: 266
+      width: 265
     - kind: heading
       column: 1
       row: 0
@@ -218,7 +218,7 @@
       width: 645
       content: <a href="mailto:asstwarden@sjoca.org">asstwarden@sjoca.org</a>
   - style: plain
-    column_widths: 266,645
+    column_widths: 265,745
     blocks:
     - kind: heading
       column: 1
@@ -242,13 +242,13 @@
       width: 645
       content: <a href="mailto:secretary@sjoca.org">secretary@sjoca.org</a>
   - style: plain
-    column_widths: 266,645
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
       url: null
       asset_name: leadership-jan-vanduyn
-      width: 266
+      width: 265
       row: 0
       column: 0
       position: 0
@@ -274,13 +274,13 @@
       column: 1
       position: 2
   - style: light
-    column_widths: 266,645
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
       url: null
       asset_name: about-us-leadership-09
-      width: 266
+      width: 265
       row: 0
       column: 0
       position: 0
