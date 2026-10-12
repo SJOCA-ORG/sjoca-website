@@ -648,7 +648,8 @@
       position: 1
       align: center
       content: This fund goes toward the parish’s monthly general needs. We rely 100% on the generosity
-        of those who donate in order to continue to minister to this beautiful parish community.
+        of those who donate in order to continue to minister to this beautiful parish community. In addition
+        we support our local homeless community, and our daughter mission parish.
     - kind: button
       column: 0
       row: 0
@@ -663,17 +664,6 @@
       align: center
       content: This opens our secure giving page at ChurchTrac, which the parish already uses for its
         records. You can give once or set up a regular gift.
-  - style: plain
-    column_widths: null
-    blocks:
-    - kind: image
-      align: center
-      url: https://www.google.com/url?q=https%3A%2F%2Fsjoca.churchtrac.com%2Fgive&sa=D&sntz=1&usg=AOvVaw0etxng7Cu_Ohv34Ug_28-h
-      asset_name: donate-01
-      width: 168
-      row: 0
-      column: 0
-      position: 0
   hero_asset_name: donate-hero
   hero_heading: Donate
   hero_subheading: null
