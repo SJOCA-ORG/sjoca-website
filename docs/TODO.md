@@ -50,6 +50,13 @@ Newest decisions at the top of each section.
 
 ## Worth doing, not urgent
 
+- [ ] **Schedule `bin/rails classes:sync`** alongside the calendar sync, so new
+      classes appear without anyone touching the site.
+- [ ] **Class thumbnails are Zoom stills of named parishioners in their homes.**
+      Already public on YouTube, so this is not new exposure — but the parish
+      website gives them far more prominence than a playlist does. Worth a
+      glance from Fr David, and the same question the photo consent work asks.
+
 - [ ] **Photo archive page.** 81 photos sit in the database unreferenced.
       `db/seeds/photo_archive.yml` groups 76 of them by the event they belonged
       to — St Nicholas Day 2023, Youth Day at Seabreeze, Volunteer Weekends, the

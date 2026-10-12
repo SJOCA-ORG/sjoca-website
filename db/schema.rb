@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_11_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_11_230000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -64,6 +64,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_11_220000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_calendar_syncs_on_created_at"
+  end
+
+  create_table "class_recordings", force: :cascade do |t|
+    t.string "youtube_id", null: false
+    t.string "title", null: false
+    t.integer "number"
+    t.date "held_on"
+    t.integer "position", default: 0, null: false
+    t.datetime "synced_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["held_on"], name: "index_class_recordings_on_held_on"
+    t.index ["youtube_id"], name: "index_class_recordings_on_youtube_id", unique: true
   end
 
   create_table "legacy_assets", force: :cascade do |t|

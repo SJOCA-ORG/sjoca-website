@@ -26,3 +26,15 @@ namespace :churchtrac do
     CalendarEvent.next_services(5).each { |e| puts "   #{e.when_text} — #{e.title}" }
   end
 end
+
+namespace :classes do
+  desc "Mirror the adult education playlist into class_recordings"
+  task sync: :environment do
+    result = YouTube::RecordingImporter.new.call
+    puts "status:  #{result.status}"
+    puts "fetched: #{result.fetched}"
+    puts "created: #{result.created}, updated: #{result.updated}, removed: #{result.removed}"
+    puts "message: #{result.message}" if result.message
+    abort("class recording sync did not succeed") unless result.status == "ok"
+  end
+end

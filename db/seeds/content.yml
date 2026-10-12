@@ -1146,10 +1146,8 @@
       position: 1
       align: left
       content: Every class is recorded, so nothing is missed by starting late.
-    - kind: button
+    - kind: classes
       column: 0
       row: 0
       position: 2
       align: left
-      url: https://www.youtube.com/playlist?list=PLQsSPU5CSGtY
-      content: Watch the classes on YouTube
