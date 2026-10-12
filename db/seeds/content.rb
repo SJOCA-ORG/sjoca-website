@@ -19,7 +19,9 @@ NAV = [
   ["about-us/choir",                  "Choir",              "about-us",        3],
   ["events-services",                 "Events & Services",  nil,               3],
   ["events-services/weekly-bulletin", "Weekly Bulletin",    "events-services", 1],
-  ["adult-education",                 "Adult Education",    nil,               4],
+  ["education",                       "Education & Resources", nil,            4],
+  ["education/daily-lectionary",      "Daily Lectionary",   "education",       1],
+  ["education/orthodox-resources",    "Orthodox Resources", "education",       2],
   ["donate",                          "Donate",             nil,               5],
   ["community-outreach",              "Community Outreach", nil,               6],
   ["contact",                         "Contact",            nil,               7]

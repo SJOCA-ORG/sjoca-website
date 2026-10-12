@@ -1069,7 +1069,7 @@
   hero_heading: Saint John the Baptist<br>Orthodox Church
   hero_subheading: null
   hero_size: standard
-- slug: adult-education
+- slug: education
   hero_asset_name: adult-education-hero
   hero_heading: Adult Education
   hero_detail: Wednesdays at 8:00pm, on Zoom
@@ -1112,3 +1112,39 @@
       row: 0
       position: 1
       align: left
+- slug: education/daily-lectionary
+  hero_asset_name: null
+  hero_heading: Daily Lectionary
+  hero_detail: The scripture appointed for each day, from the Orthodox Church in America
+  hero_size: standard
+  sections:
+  - style: plain
+    column_widths: null
+    blocks:
+    - kind: lectionary
+      column: 0
+      row: 0
+      position: 0
+      align: left
+- slug: education/orthodox-resources
+  hero_asset_name: null
+  hero_heading: Orthodox Resources
+  hero_detail: Places to read further
+  hero_size: standard
+  sections:
+  - style: light
+    column_widths: null
+    blocks:
+    - kind: heading
+      column: 0
+      row: 0
+      position: 0
+      align: center
+      content: Coming soon
+    - kind: text
+      column: 0
+      row: 0
+      position: 1
+      align: center
+      content: A collection of trustworthy places to read and listen further. If you have a site that
+        has helped you, <a href="mailto:fr.david@sjoca.org">tell Fr. David</a>.
