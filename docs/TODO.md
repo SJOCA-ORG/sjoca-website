@@ -102,12 +102,11 @@ project, and must be right at cutover.
 
 ### Getting live on a temporary URL
 
-- [ ] **Choose a host and deploy.** Needs Rails 8 and Postgres. Render is the
-      suggestion for a volunteer team: deploys on git push, managed Postgres, a
-      dashboard a non-specialist can read, and a free `*.onrender.com` address —
-      which is exactly the temporary URL wanted for the AGM. Roughly $14/month
-      for web plus database once off the free tier; that is the figure the
-      council is being asked to approve.
+- [x] ~~Choose a host~~ — **Render**, decided 12 October 2026.
+- [ ] **Deploy it.** Blueprint is written (`render.yaml`) and the steps are in
+      `docs/deployment.md`. Needs a Render account, the repo connected, and
+      `RAILS_MASTER_KEY` set by hand. Roughly $14/month for web plus database —
+      the figure the council is being asked to approve.
 - [ ] **Seed production from a machine that has the photo library.** The image
       bytes are not in git, so the server cannot do this itself:
       `DATABASE_URL=<production> bin/rails db:seed`.
