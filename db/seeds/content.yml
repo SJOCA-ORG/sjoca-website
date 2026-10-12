@@ -257,20 +257,20 @@
     - kind: image
       align: center
       url: null
-      asset_name: about-us-leadership-08
+      asset_name: leadership-jan-vanduyn
       width: 266
       row: 0
       column: 0
       position: 0
     - kind: heading
-      content: Treasurer
+      content: Treasurer &amp; Choir Director
       align: left
       width: 645
       row: 0
       column: 1
       position: 0
     - kind: heading
-      content: Janet V.
+      content: Jan VanDuyn
       align: left
       width: 645
       row: 0
