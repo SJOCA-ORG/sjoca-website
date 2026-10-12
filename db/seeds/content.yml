@@ -48,7 +48,7 @@
     - kind: image
       align: center
       url: null
-      asset_name: about-us-leadership-01
+      asset_name: leadership-bishop-michael
       width: 365
       row: 0
       column: 0
@@ -73,7 +73,7 @@
     - kind: image
       align: center
       url: null
-      asset_name: about-us-leadership-02
+      asset_name: leadership-fr-david
       width: 365
       row: 0
       column: 0
@@ -99,31 +99,6 @@
       row: 0
       column: 1
       position: 2
-  - style: light
-    column_widths: 365,645
-    blocks:
-    - kind: image
-      align: center
-      url: null
-      asset_name: about-us-leadership-03
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: heading
-      content: Proto-Deacon
-      align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 0
-    - kind: heading
-      content: Stephen S.
-      align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 1
   - style: plain
     column_widths: 365,645
     blocks:
@@ -156,6 +131,30 @@
       row: 0
       column: 1
       position: 2
+  - style: plain
+    column_widths: 365,645
+    blocks:
+    - kind: image
+      column: 0
+      row: 0
+      position: 0
+      align: center
+      asset_name: leadership-dn-mitch
+      width: 365
+    - kind: heading
+      column: 1
+      row: 0
+      position: 0
+      align: left
+      content: Reverend Deacon
+      width: 645
+    - kind: heading
+      column: 1
+      row: 0
+      position: 1
+      align: left
+      content: Mitch VanDuyn
+      width: 645
   - style: plain
     column_widths: 266,645
     blocks:
@@ -327,7 +326,7 @@
       column: 0
       position: 1
     - kind: heading
-      content: Senior Altar Servers- Mitch V., Ryan C., Will C., Joe K.
+      content: Senior Altar Servers- Ryan C., Will C., Joe K.
       align: left
       width: 1138
       row: 0
