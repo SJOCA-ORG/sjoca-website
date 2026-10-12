@@ -1004,7 +1004,7 @@
       width: 464
       row: 0
       column: 0
-      position: 2
+      position: 3
     - kind: image
       align: center
       url: null
@@ -1072,11 +1072,18 @@
     - kind: text
       column: 0
       row: 0
-      position: 1
+      position: 2
       align: center
       width: 464
       content: <a href="https://www.google.com/maps/search/?api=1&amp;query=855+S.+Goodman+St%2C+Rochester%2C+NY+14620">855
         S. Goodman St. Rochester, NY 14620</a>
+    - kind: text
+      column: 0
+      row: 0
+      position: 1
+      align: center
+      width: 464
+      content: A minute from I-490 at the Goodman Street exit<br>— just south of the Highland Park Diner
   hero_asset_name: home-hero
   hero_heading: Saint John the Baptist<br>Orthodox Church
   hero_subheading: null
