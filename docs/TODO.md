@@ -95,5 +95,13 @@ belong on the site merely because it is important.
       *Source:* `db/seeds/photo_archive.yml`, and the full text in git at
       `git show 0b9ce70^:db/seeds/content.yml`.
 
+- [ ] **Proto-Deacon Stephen.** Removed from the Leadership roster, having
+      died, and so currently leaves no trace on the site. The parish clearly
+      felt his loss — the photo library holds three photographs from his funeral
+      and one captioned "in memory of". Whether he is commemorated on the site,
+      in the archive, or both is for Fr David to say; the point is that a
+      deletion should not be the whole answer.
+      *Source:* `~/sjoca-photo-library/historical/historical-*-dn-steven*.jpg`
+
 Candidates for the same treatment as they come up: anything retired from the
 site that records who was here and what happened.
