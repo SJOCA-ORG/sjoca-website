@@ -57,6 +57,10 @@ Newest decisions at the top of each section.
       website gives them far more prominence than a playlist does. Worth a
       glance from Fr David, and the same question the photo consent work asks.
 
+- [ ] **Consistency checks** — page copy against the calendar, duplicated facts,
+      dead links, orphaned assets, sync freshness. Designed in
+      `docs/cms-capabilities.md`; every check corresponds to something that
+      actually went wrong while building this.
 - [ ] **Photo archive page.** 81 photos sit in the database unreferenced.
       `db/seeds/photo_archive.yml` groups 76 of them by the event they belonged
       to — St Nicholas Day 2023, Youth Day at Seabreeze, Volunteer Weekends, the
