@@ -344,6 +344,9 @@ a:hover    { color: var(--maroon); }
 .band--maroon .button:visited { color: var(--maroon); }
 .band--maroon .button:hover   { background: rgba(255,255,255,.88); }
 
+/* The giving button is the one action on its page, so it is sized like it. */
+.b-button-give .button, .band--light .b-image + .b-button .button { }
+
 /* A map is only useful if you can actually use it, so one click arms it. */
 .b-embed { position: relative; }
 .b-embed--map::after {

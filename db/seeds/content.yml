@@ -634,48 +634,43 @@
 - slug: donate
   sections:
   - style: light
-    column_widths: '1138'
+    column_widths: null
     blocks:
     - kind: heading
-      content: Contribute today to the church’s general fund.
-      align: center
-      width: 1138
-      row: 0
       column: 0
+      row: 0
       position: 0
+      align: center
+      content: Contribute to the parish
     - kind: text
+      column: 0
+      row: 0
+      position: 1
+      align: center
       content: This fund goes toward the parish’s monthly general needs. We rely 100% on the generosity
         of those who donate in order to continue to minister to this beautiful parish community.
-      align: center
-      width: 1138
-      row: 0
+    - kind: button
       column: 0
-      position: 1
-    - kind: heading
-      content: <a href="https://sjoca.churchtrac.com/give">Thank you!</a>
-      align: center
-      width: 1138
       row: 0
-      column: 0
       position: 2
-  - style: light
-    column_widths: '168'
+      align: center
+      url: https://sjoca.churchtrac.com/give
+      content: Give online
+    - kind: text
+      column: 0
+      row: 0
+      position: 3
+      align: center
+      content: This opens our secure giving page at ChurchTrac, which the parish already uses for its
+        records. You can give once or set up a regular gift.
+  - style: plain
+    column_widths: null
     blocks:
     - kind: image
       align: center
       url: https://www.google.com/url?q=https%3A%2F%2Fsjoca.churchtrac.com%2Fgive&sa=D&sntz=1&usg=AOvVaw0etxng7Cu_Ohv34Ug_28-h
       asset_name: donate-01
       width: 168
-      row: 0
-      column: 0
-      position: 0
-  - style: light
-    column_widths: '1138'
-    blocks:
-    - kind: heading
-      content: <a href="https://sjoca.churchtrac.com/give">DONATE</a>
-      align: center
-      width: 1138
       row: 0
       column: 0
       position: 0

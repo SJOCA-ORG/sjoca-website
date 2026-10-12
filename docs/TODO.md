@@ -89,6 +89,13 @@ Council changed over and the page is updated as far as it can be. Still needed:
 
 ## Worth doing, not urgent
 
+- [ ] **Decide where the daily readings go.** The mechanism is built and
+      syncing (`bin/rails lectionary:sync`) — today plus three weeks, with full
+      verse text and the day's commemorations. Nothing displays them yet. The
+      obvious homes are the home page, a page of their own, and the weekly
+      bulletin, whose readings section this fills in automatically.
+- [ ] **Schedule `lectionary:sync`** with the other two syncs.
+
 - [ ] **Schedule `bin/rails classes:sync`** alongside the calendar sync, so new
       classes appear without anyone touching the site.
 - [ ] **Class thumbnails are Zoom stills of named parishioners in their homes.**
