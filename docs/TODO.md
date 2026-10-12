@@ -48,6 +48,13 @@ Council changed over and the page is updated as far as it can be. Still needed:
 
 ## Known gaps
 
+- [ ] **The jurisdiction appears only on the home page.** "A parish of the
+      Orthodox Church in America (OCA), Diocese of New York and New Jersey" is
+      in the mission statement and the maroon band, and nowhere else — so
+      anyone landing on Contact, Adult Education or Leadership sees no
+      jurisdiction at all. The footer is the obvious home for it, since it
+      appears on every page and already carries the address.
+
 - [ ] **Move the photo library to shared storage** (Google Drive), and point
       `SJOCA_PHOTO_LIBRARY` at it. Today it exists on one laptop, is not backed
       up, and a second developer cloning the repo gets "missing" for every
