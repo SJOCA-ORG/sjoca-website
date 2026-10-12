@@ -1098,7 +1098,7 @@
 - slug: adult-education
   hero_asset_name: adult-education-hero
   hero_heading: Adult Education
-  hero_detail: Wednesdays at 8:00pm, after the Akathist — in person and on Zoom
+  hero_detail: Wednesdays at 8:00pm, on Zoom
   hero_size: standard
   sections:
   - style: light
@@ -1116,18 +1116,11 @@
       position: 1
       align: center
       content: Inquirers, catechumens, and anyone wishing to understand the Orthodox faith more deeply
-        are welcome. No preparation is needed, and no one will ask you to introduce yourself.
-    - kind: text
-      column: 0
-      row: 0
-      position: 2
-      align: center
-      content: We meet in the church after the Akathist, and the same conversation runs on Zoom for anyone
-        who cannot be there in person.
+        are welcome. No preparation is needed.
     - kind: button
       column: 0
       row: 0
-      position: 3
+      position: 2
       align: center
       url: https://us06web.zoom.us/j/4021035288?pwd=UVAxYVdwZ0FTVVBMNG9tNWpTT2d4dz09
       content: Join on Zoom
