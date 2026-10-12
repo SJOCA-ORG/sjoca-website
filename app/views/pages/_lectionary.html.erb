@@ -9,13 +9,27 @@
     <a href="https://www.oca.org/readings" rel="noopener">oca.org</a>.
   </p>
 <% else %>
-  <div class="lectionary">
+  <div class="lectionary" data-controller="lectionary">
+    <% icon = icon_of_the_day(today.on) %>
+    <% if icon %>
+      <figure class="lectionary__icon">
+        <%= image_tag legacy_asset_path(icon.human_name), alt: icon.alt_text.to_s, loading: "lazy" %>
+      </figure>
+    <% end %>
+
     <header class="lectionary__today">
       <p class="lectionary__date"><%= today.date_text %></p>
       <% if today.commemorations.present? %>
         <p class="lectionary__saints"><%= today.commemorations %></p>
       <% end %>
     </header>
+
+    <div class="lectionary__controls">
+      <button type="button" class="verse-toggle" data-action="lectionary#toggle"
+              data-lectionary-target="button" aria-pressed="false">
+        Show verse numbers
+      </button>
+    </div>
 
     <% today.appointed.each do |reading| %>
       <section class="reading">
@@ -24,11 +38,20 @@
           <span class="reading__citation"><%= reading.citation %></span>
         </h2>
         <% if reading.body.present? %>
+          <%# Both renderings are in the markup and CSS chooses between them, so
+              toggling is instant and works without JavaScript having to rebuild
+              anything. Numbered verses are one paragraph each; the plain reading
+              is continuous prose, which is how scripture is meant to be read. %>
           <div class="reading__body">
-            <% reading.body.split("\n").each do |line| %>
-              <% num, text = line.split(" ", 2) %>
-              <p class="verse"><span class="verse__n"><%= num %></span><%= text %></p>
-            <% end %>
+            <div class="reading__numbered">
+              <% reading.body.split("\n").each do |line| %>
+                <% num, text = line.split(" ", 2) %>
+                <p class="verse"><span class="verse__n"><%= num %></span><%= text %></p>
+              <% end %>
+            </div>
+            <div class="reading__prose">
+              <p><%= reading.body.split("\n").map { |l| l.split(" ", 2).last }.compact.join(" ") %></p>
+            </div>
           </div>
         <% end %>
       </section>

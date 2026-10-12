@@ -47,3 +47,28 @@
   alt_text: >-
     Jan VanDuyn holding a candle and service book, standing as sponsor at a
     baptism.
+
+# PLACEHOLDERS ONLY. Public-domain icons from Wikimedia Commons, each checked
+# individually for licence, standing in until the parish's own icons are
+# photographed — a photographer is booked. Credits in the photo library at
+# icons-of-the-day/CREDITS.tsv. Replace these; do not add more.
+
+- human_name: icon-of-the-day-01
+  file: icons-of-the-day/placeholder-01.jpg
+  alt_text: >-
+    Christ Pantocrator, Saint Catherine's Monastery, Sinai (6th century)
+
+- human_name: icon-of-the-day-02
+  file: icons-of-the-day/placeholder-02.jpg
+  alt_text: >-
+    The Theotokos of Vladimir (12th century)
+
+- human_name: icon-of-the-day-03
+  file: icons-of-the-day/placeholder-03.jpg
+  alt_text: >-
+    The Hospitality of Abraham, Andrei Rublev (c. 1410)
+
+- human_name: icon-of-the-day-04
+  file: icons-of-the-day/placeholder-04.jpg
+  alt_text: >-
+    The Transfiguration

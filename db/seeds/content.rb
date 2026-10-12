@@ -81,6 +81,26 @@ NAV.each do |slug, nav_title, parent, position|
   end
 end
 
+# A page removed from NAV lingers in the database otherwise: renaming a slug
+# leaves the old row behind, still in the navigation, still reachable. That
+# happened twice -- Miter Ceremony and adult-education -- and both had to be
+# deleted by hand.
+#
+# Only prune on an explicit re-import. Once the Phase 2 CMS can create pages,
+# deleting anything not in this list would be destructive, so this needs
+# revisiting then.
+orphans = Page.where.not(slug: NAV.map(&:first))
+if orphans.any?
+  if force
+    orphans.each { |p| puts "   removing #{p.slug} (no longer in NAV)" }
+    orphans.destroy_all
+  else
+    puts "   !! #{orphans.count} page(s) in the database but not in NAV: " \
+         "#{orphans.pluck(:slug).join(', ')}"
+    puts "   !! FORCE_CONTENT_RESEED=1 to remove them"
+  end
+end
+
 puts "pages: #{created} created, #{rebuilt} rebuilt, #{untouched} left alone" \
      "#{untouched.positive? && !force ? ' (FORCE_CONTENT_RESEED=1 to rebuild)' : ''}"
 puts "        #{Section.count} sections, #{Block.count} blocks"

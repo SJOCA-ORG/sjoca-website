@@ -107,6 +107,14 @@ Council changed over and the page is updated as far as it can be. Still needed:
       dead links, orphaned assets, sync freshness. Designed in
       `docs/cms-capabilities.md`; every check corresponds to something that
       actually went wrong while building this.
+- [ ] **Replace the placeholder icons.** The Daily Lectionary rotates a
+      different icon each day, currently four public-domain images from
+      Wikimedia Commons (each licence checked individually; credits in the
+      photo library at `icons-of-the-day/CREDITS.tsv`). A photographer is
+      booked to shoot the parish's own icons — drop those into
+      `icons-of-the-day/` as `icon-of-the-day-NN` and the rotation lengthens on
+      its own. These are placeholders: replace them rather than adding more.
+- [ ] **"Our Icons" page under About Us**, once those photographs exist.
 - [ ] **Photo archive page.** 81 photos sit in the database unreferenced.
       `db/seeds/photo_archive.yml` groups 76 of them by the event they belonged
       to — St Nicholas Day 2023, Youth Day at Seabreeze, Volunteer Weekends, the
