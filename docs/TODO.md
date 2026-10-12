@@ -27,6 +27,12 @@ Newest decisions at the top of each section.
 
 Council changed over and the page is updated as far as it can be. Still needed:
 
+- [ ] **Parish email addresses for everyone who needs one.** Volunteering
+      enquiries currently go to `mitch@catprint.com`, a work address on a public
+      parish page: it ties parish business to an employer's mail system, breaks
+      if he changes jobs, and gets scraped alongside the parish ones. The
+      pattern already exists — Dn Sean has `deacon@`. Role addresses that
+      outlive the people holding them, for Dn Mitch and anyone else listed.
 - [ ] **Alec's surname.** Listed as "Alec" alone, which is the only entry on the
       page without a full name.
 - [ ] **Confirm the email addresses follow the office, not the person.**
@@ -45,6 +51,64 @@ Council changed over and the page is updated as far as it can be. Still needed:
       cannot be cropped usefully), Alec (none at all), and eventually the
       Buildings & Grounds pair. Ten minutes at coffee hour would settle all of
       them.
+
+## The domain, and getting live
+
+Established by inspection on 2026-10-12 — no account access needed:
+
+| | |
+|---|---|
+| Registrar | **Amazon Registrar** (registrar.amazon.com) |
+| DNS | **AWS Route 53** (ns-118.awsdns-14.com and three others) |
+| Registered | 21 January 2021 |
+| **Expires** | **21 January 2027** |
+| Web | `www.sjoca.org` → CNAME → `ghs.googlehosted.com` (Google Sites) |
+| Mail | Google Workspace (`aspmx.l.google.com`) |
+
+So somebody holds an **AWS account** containing the domain and Route 53, and a
+**Google Workspace** account for @sjoca.org mail. Both are needed before
+cutover, and neither is in our hands yet.
+
+- [ ] **Find who holds the AWS account.** Repointing the domain is a two-minute
+      Route 53 edit *if* someone can log in, and a protracted recovery if not.
+      This is the single thing most likely to delay cutover.
+- [ ] **Find who holds Google Workspace admin.** Mail must keep working through
+      and after the move; it is independent of the website, but only if nobody
+      edits the MX records by accident.
+- [ ] **Renewal is 21 January 2027**, roughly two months after the AGM. Confirm
+      it is on auto-renew with a card that has not expired. Parishes lose
+      domains this way.
+
+### sjoca.org does not resolve without the www
+
+A live fault on the current site, not something we introduced:
+
+```
+http://sjoca.org        no response
+https://sjoca.org       no response
+http://www.sjoca.org    301 → https://www.sjoca.org/   ✓
+```
+
+There is a CNAME on `www` and nothing on the apex. Anyone who types
+`sjoca.org` — which is how it is said aloud, and probably how it is printed —
+reaches nothing at all. Worth fixing in Route 53 now, independent of this
+project, and must be right at cutover.
+
+- [ ] **Make the bare domain work**, redirecting to www (or the other way).
+
+### Getting live on a temporary URL
+
+- [ ] **Choose a host and deploy.** Needs Rails 8 and Postgres. Render is the
+      suggestion for a volunteer team: deploys on git push, managed Postgres, a
+      dashboard a non-specialist can read, and a free `*.onrender.com` address —
+      which is exactly the temporary URL wanted for the AGM. Roughly $14/month
+      for web plus database once off the free tier; that is the figure the
+      council is being asked to approve.
+- [ ] **Seed production from a machine that has the photo library.** The image
+      bytes are not in git, so the server cannot do this itself:
+      `DATABASE_URL=<production> bin/rails db:seed`.
+- [ ] **Schedule the three syncs** once deployed: `churchtrac:sync`,
+      `classes:sync`, `lectionary:sync`.
 
 ## Known gaps
 
