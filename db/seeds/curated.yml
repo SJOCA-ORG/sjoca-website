@@ -1,0 +1,80 @@
+# Assets that did NOT come from the old Google Sites capture — photographs the
+# parish owns, processed for the site. Each entry adds a new version under its
+# human_name, so dropping one in here replaces what the page shows without
+# touching the page.
+#
+# `file` is relative to the photo library root. That library is not in git
+# (parish photos, public repo), so set the root if yours is elsewhere:
+#
+#   SJOCA_PHOTO_LIBRARY=/path/to/library bin/rails db:seed
+#
+# Default: ~/sjoca-photo-library
+- human_name: home-icon-st-john
+  file: derived/icon-st-john-the-baptist-square.jpg
+  alt_text: >-
+    Icon of St John the Baptist, the Forerunner, shown winged as the Angel of
+    the Desert and holding a scroll reading "Repent, for the kingdom of heaven
+    is at hand". The parish's patronal icon, photographed in the church.
+
+- human_name: adult-education-hero
+  file: derived/hero-adult-education.jpg
+  alt_text: >-
+    Father David Mezynski teaching in the church, vested in purple, with the
+    iconostasis behind him.
+
+- human_name: leadership-bishop-michael
+  file: derived/leader-bishop-michael.jpg
+  alt_text: >-
+    His Eminence Archbishop Michael, mitred and vested, in the church.
+
+- human_name: leadership-fr-david
+  file: derived/leader-fr-david.jpg
+  alt_text: >-
+    Father David Mezynski in purple vestments, standing in the nave.
+
+- human_name: leadership-dn-mitch
+  file: derived/leader-dn-mitch.jpg
+  alt_text: >-
+    Deacon Mitch VanDuyn being vested at his ordination.
+
+- human_name: leadership-dn-sean
+  file: derived/leader-dn-sean.jpg
+  alt_text: >-
+    Deacon Sean McNulty censing during the Divine Liturgy.
+
+- human_name: leadership-jan-vanduyn
+  file: derived/leader-jan-vanduyn.jpg
+  alt_text: >-
+    Jan VanDuyn holding a candle and service book, standing as sponsor at a
+    baptism.
+
+# PLACEHOLDERS ONLY. Public-domain icons from Wikimedia Commons, each checked
+# individually for licence, standing in until the parish's own icons are
+# photographed — a photographer is booked. Credits in the photo library at
+# icons-of-the-day/CREDITS.tsv. Replace these; do not add more.
+
+- human_name: icon-of-the-day-01
+  file: icons-of-the-day/placeholder-01.jpg
+  alt_text: >-
+    Christ Pantocrator, Saint Catherine's Monastery, Sinai (6th century)
+
+- human_name: icon-of-the-day-02
+  file: icons-of-the-day/placeholder-02.jpg
+  alt_text: >-
+    The Theotokos of Vladimir (12th century)
+
+- human_name: icon-of-the-day-03
+  file: icons-of-the-day/placeholder-03.jpg
+  alt_text: >-
+    The Hospitality of Abraham, Andrei Rublev (c. 1410)
+
+- human_name: icon-of-the-day-04
+  file: icons-of-the-day/placeholder-04.jpg
+  alt_text: >-
+    The Transfiguration
+
+- human_name: choir-singing
+  file: derived/choir-singing.jpg
+  alt_text: >-
+    The parish choir singing at their lit music stands during the Divine
+    Liturgy, with Jan VanDuyn, the choir director, in white.

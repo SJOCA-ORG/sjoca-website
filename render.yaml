@@ -1,0 +1,96 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Creates everything in one go: the web service, a managed Postgres, and the
+# three sync jobs. Deploys on push.
+#
+# Set up in Render once, then nothing here needs touching except to change the
+# schedule or add a job.
+#
+# Two things are NOT handled automatically and must be done by hand once:
+#
+#   1. RAILS_MASTER_KEY — copy from config/master.key, which is gitignored.
+#   2. The photo seed — the image bytes are not in git, so this must be run
+#      from a machine holding the photo library:
+#        DATABASE_URL=<render external url> bin/rails db:seed
+#
+services:
+  - type: web
+    name: sjoca
+    runtime: ruby
+    plan: starter            # free sleeps after inactivity; a church site should not
+    branch: demo-content-refresh
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    healthCheckPath: /up
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sjoca-db
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false          # set by hand in the dashboard; never in git
+      - key: RAILS_ENV
+        value: production
+      - key: WEB_CONCURRENCY
+        value: 2
+      - key: RAILS_LOG_LEVEL
+        value: info
+
+  # ChurchTrac calendar: a few times a day is plenty, and it is a light call.
+  - type: cron
+    name: sjoca-calendar-sync
+    runtime: ruby
+    plan: starter
+    branch: demo-content-refresh
+    schedule: "17 */6 * * *"
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec rake churchtrac:sync"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: sjoca-db, property: connectionString }
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: RAILS_ENV
+        value: production
+
+  # Scripture readings: each date is fetched once ever, so daily is ample.
+  - type: cron
+    name: sjoca-lectionary-sync
+    runtime: ruby
+    plan: starter
+    branch: demo-content-refresh
+    schedule: "40 5 * * *"
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec rake lectionary:sync"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: sjoca-db, property: connectionString }
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: RAILS_ENV
+        value: production
+
+  # Class recordings: Fr David posts one a week, so once a day is generous.
+  - type: cron
+    name: sjoca-classes-sync
+    runtime: ruby
+    plan: starter
+    branch: demo-content-refresh
+    schedule: "55 5 * * *"
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec rake classes:sync"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: sjoca-db, property: connectionString }
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: RAILS_ENV
+        value: production
+
+databases:
+  - name: sjoca-db
+    plan: basic-256mb
+    databaseName: sjoca
+    user: sjoca
+    # The photographs live in this database, so after cutover it is the parish's
+    # only copy of them. Check the backup retention on whatever plan is chosen.

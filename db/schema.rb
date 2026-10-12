@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_11_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_11_210000) do
     t.index ["created_at"], name: "index_calendar_syncs_on_created_at"
   end
 
+  create_table "class_recordings", force: :cascade do |t|
+    t.string "youtube_id", null: false
+    t.string "title", null: false
+    t.integer "number"
+    t.date "held_on"
+    t.integer "position", default: 0, null: false
+    t.datetime "synced_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["held_on"], name: "index_class_recordings_on_held_on"
+    t.index ["youtube_id"], name: "index_class_recordings_on_youtube_id", unique: true
+  end
+
+  create_table "lectionary_days", force: :cascade do |t|
+    t.date "on", null: false
+    t.string "title"
+    t.text "commemorations"
+    t.datetime "synced_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["on"], name: "index_lectionary_days_on_on", unique: true
+  end
+
+  create_table "lectionary_readings", force: :cascade do |t|
+    t.bigint "lectionary_day_id", null: false
+    t.integer "position", null: false
+    t.string "citation", null: false
+    t.string "kind"
+    t.text "body"
+    t.string "source_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lectionary_day_id", "position"], name: "index_lectionary_readings_on_lectionary_day_id_and_position", unique: true
+    t.index ["lectionary_day_id"], name: "index_lectionary_readings_on_lectionary_day_id"
+  end
+
   create_table "legacy_assets", force: :cascade do |t|
     t.string "human_name", null: false
     t.binary "data", null: false
@@ -94,6 +130,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_11_210000) do
     t.string "hero_size", default: "standard", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "hero_detail"
+    t.string "self_nav_title"
     t.index ["parent_slug", "position"], name: "index_pages_on_parent_slug_and_position"
     t.index ["slug"], name: "index_pages_on_slug", unique: true
   end
@@ -110,5 +148,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_11_210000) do
   end
 
   add_foreign_key "blocks", "sections"
+  add_foreign_key "lectionary_readings", "lectionary_days"
   add_foreign_key "sections", "pages"
 end

@@ -76,10 +76,23 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
+
+  # Rails 8 blocks requests whose Host header it does not recognise, which on a
+  # fresh deploy looks like the site is broken rather than like a setting.
+  #
+  # RENDER_EXTERNAL_HOSTNAME is supplied by Render; the rest are where this will
+  # live once the domain is pointed at it. Both sjoca.org and www: the bare
+  # domain does not resolve today, which is a fault to be fixed at cutover.
+  config.hosts = [
+    "sjoca.org",
+    "www.sjoca.org",
+    /.*\.onrender\.com\z/
+  ]
+  config.hosts << ENV["RENDER_EXTERNAL_HOSTNAME"] if ENV["RENDER_EXTERNAL_HOSTNAME"].present?
+
+  # The health check must answer regardless of Host, or Render marks a perfectly
+  # good deploy as failed.
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }

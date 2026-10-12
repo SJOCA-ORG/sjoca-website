@@ -160,6 +160,16 @@ a:hover    { color: var(--maroon); }
   text-shadow: 0 2px 12px rgba(0,0,0,.7);
 }
 
+/* Practical detail under the hero title — the service times, so the thing most
+   visitors came for is the first thing on the page. Separators collapse on
+   narrow screens, where the list stacks instead. */
+.hero__detail {
+  position: relative; margin: 1.1rem 0 0; color: rgba(255,255,255,.95);
+  font-family: var(--font-content);
+  font-size: 13pt; font-weight: 500; line-height: 1.7; letter-spacing: .01em;
+  text-shadow: 0 2px 10px rgba(0,0,0,.75);
+}
+
 /* ---------- content bands ---------------------------------------------- */
 
 .band { padding: 2.5rem 1.25rem; }
@@ -191,6 +201,10 @@ a:hover    { color: var(--maroon); }
   color: var(--maroon);
   font-size: 19pt; font-weight: 500; line-height: 1.4; margin-top: 0;
 }
+
+/* A heading that follows other content starts a new idea, so give it room —
+   roughly one line. A heading at the top of a column needs none. */
+.col > .b-heading:not(:first-child) { margin-top: 1.5em; }
 .band--maroon .b-heading { color: var(--white); }
 
 .b-subheading {
@@ -201,6 +215,44 @@ a:hover    { color: var(--maroon); }
 
 .b-text { font-size: 14pt; font-weight: 500; line-height: 1.55; }
 
+/* Photographs get one of two treatments, each where it works.
+ *
+ * On the pale bands they are framed: a white mount, a hairline rule and a soft
+ * shadow, so a photograph sits ON the page. Portraits need that definition —
+ * softened edges leave a face looking unfinished.
+ *
+ * On the maroon band they are feathered instead, dissolving into the colour.
+ * A white mount there would cut a hole in the band, and the images there are
+ * decorative rather than of people.
+ */
+.band--plain .b-image,
+.band--light .b-image {
+  padding: 6px; background: #fff;
+  border: 1px solid rgba(33,33,33,.14); border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(33,33,33,.18), 0 8px 20px rgba(33,33,33,.10);
+}
+.band--plain .b-image img,
+.band--light .b-image img { display: block; }
+
+/* Two linear gradients, intersected: one feathers left/right, the other top and
+   bottom, giving a soft rectangle rather than the oval a single radial gradient
+   would produce. */
+.band--maroon .b-image img {
+  --feather: 7%;
+  -webkit-mask-image:
+    linear-gradient(to right,  transparent 0, #000 var(--feather),
+                               #000 calc(100% - var(--feather)), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 var(--feather),
+                               #000 calc(100% - var(--feather)), transparent 100%);
+          mask-image:
+    linear-gradient(to right,  transparent 0, #000 var(--feather),
+                               #000 calc(100% - var(--feather)), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 var(--feather),
+                               #000 calc(100% - var(--feather)), transparent 100%);
+  -webkit-mask-composite: source-in;
+          mask-composite: intersect;
+}
+
 /* A figure may carry a measured max-width; the image fills whatever it gets.
    Centred figures keep their centring via auto margins. */
 .b-image     { max-width: 100%; }
@@ -210,8 +262,14 @@ a:hover    { color: var(--maroon); }
 
 .b-embed { width: 100%; }
 .b-embed iframe {
-  width: 100%; min-height: 600px; border: 0; background: var(--white);
+  width: 100%; min-height: 420px; aspect-ratio: 16 / 9; border: 0;
+  background: var(--white);
 }
+/* An embedded map swallows the page scroll on a phone, which is maddening, so
+   it stays inert until clicked. A video player has no such problem. */
+.b-embed--map iframe { pointer-events: none; }
+.b-embed:focus-within iframe,
+.b-embed.is-active iframe { pointer-events: auto; }
 
 /* ---------- footer ------------------------------------------------------ */
 
@@ -238,21 +296,55 @@ a:hover    { color: var(--maroon); }
   .site-header__toggle { display: block; }
   .site-nav {
     display: none; position: absolute; left: 0; right: 0; top: 100%;
-    background: var(--ink); padding: .5rem 0;
+    background: var(--ink); padding: .35rem 0;
   }
-  .site-nav.is-open { display: block; }
+  /* The open menu hangs below a sticky header, so it must be told how tall it
+     may be — otherwise it runs off the bottom of the screen and the items down
+     there cannot be reached at all. With every submenu expanded this list is
+     fifteen items, which overflows a phone easily.
+
+     dvh rather than vh: on mobile browsers vh is the height *without* the
+     address bar, so vh-based maths leaves the last item under the chrome. */
+  .site-nav.is-open {
+    display: block;
+    max-height: calc(100vh - 56px);
+    max-height: calc(100dvh - 56px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;   /* don't scroll the page behind the menu */
+  }
   .site-nav__list { flex-direction: column; align-items: stretch; gap: 0; }
-  .site-nav__link { padding: .85rem 1.5rem; }
+
+  /* Tighter than the desktop bar, but still a comfortable thumb target —
+     about 40px tall, which is close to the 44px both Apple and Google
+     recommend and far better than a menu you have to scroll. */
+  .site-nav__link { padding: .55rem 1.25rem; font-size: 12.5pt; }
+  .site-nav__sub a { padding-top: .45rem; padding-bottom: .45rem; font-size: 11.5pt; }
+  /* Submenus start closed on a phone, so the menu is seven items rather than
+     fifteen and fits without scrolling. The caret opens one; the parent link
+     still navigates, because a parent here has a page of its own. */
   .site-nav__sub {
-    display: block; position: static; box-shadow: none; padding: 0 0 .35rem;
+    display: none; position: static; box-shadow: none; padding: 0 0 .2rem;
   }
+  .site-nav__item.is-expanded > .site-nav__sub { display: block; }
   .site-nav__sub a { padding-left: 2.75rem; }
-  .site-nav__caret { display: none; }
+
+  /* The caret becomes a real tap target, separate from the link. */
+  .site-nav__item.has-children > .site-nav__link { padding-right: 3.25rem; position: relative; }
+  .site-nav__caret {
+    display: block; position: absolute; right: 1.1rem; top: 50%;
+    margin: 0; padding: 7px; transform: translateY(-60%) rotate(45deg);
+    transition: transform .15s ease;
+  }
+  .site-nav__item.is-expanded > .site-nav__link .site-nav__caret {
+    transform: translateY(-20%) rotate(-135deg);
+  }
   .cols { grid-template-columns: minmax(0, 1fr) !important; }
 }
 
 @media (max-width: 767px) {
-  .hero       { height: 280px; padding: 40px 1.25rem; }
+  .hero__detail { font-size: 11.5pt; }
+  .hero       { height: auto; min-height: 280px; padding: 40px 1.25rem; }
   .hero--tall { height: 420px; }
   .hero__title    { font-size: 41pt; }
   .hero__subtitle { font-size: 22pt; }
@@ -268,3 +360,288 @@ a:hover    { color: var(--maroon); }
   .site-footer__inner { flex-direction: column; align-items: flex-start; }
   .site-footer__contact { text-align: left; }
 }
+
+/* Call to action — the Zoom link, chiefly. Sized for a thumb. */
+.button {
+  display: inline-block; padding: .75rem 1.6rem; margin-top: .4rem;
+  border: 1px solid currentColor; border-radius: 3px;
+  font-family: var(--font-content); font-size: 13pt; font-weight: 600;
+  text-decoration: none; letter-spacing: .01em;
+}
+.band--plain .button, .band--light .button {
+  background: var(--maroon); border-color: var(--maroon); color: #fff;
+}
+.band--plain .button:visited, .band--light .button:visited { color: #fff; }
+.band--plain .button:hover,   .band--light .button:hover   { background: var(--maroon-hover); border-color: var(--maroon-hover); }
+.band--maroon .button { background: #fff; border-color: #fff; color: var(--maroon); text-decoration: none; }
+.band--maroon .button:visited { color: var(--maroon); }
+.band--maroon .button:hover   { background: rgba(255,255,255,.88); }
+
+/* The giving button is the one action on its page, so it is sized like it. */
+.b-button-give .button, .band--light .b-image + .b-button .button { }
+
+/* A map is only useful if you can actually use it, so one click arms it. */
+.b-embed { position: relative; }
+.b-embed--map::after {
+  content: "Click the map to interact"; position: absolute; inset: auto 0 0 0;
+  padding: .45rem; text-align: center;
+  font-family: var(--font-content); font-size: 10.5pt;
+  background: rgba(33,33,33,.72); color: #fff;
+}
+.b-embed--map.is-active::after { content: none; }
+
+/* ---------- parish calendar --------------------------------------------
+   Rendered from our own mirror of ChurchTrac rather than their iframe, so it
+   can take the site's typography and colours. Grouped by week: a flat list
+   would show Vespers fifty times and say nothing about the shape of a week. */
+
+.calendar { width: 100%; }
+.calendar__empty { font-family: var(--font-content); font-size: 14pt; }
+
+.calendar__week + .calendar__week { margin-top: 1.75rem; }
+
+.calendar__weekhead {
+  margin: 0 0 .6rem;
+  font-family: var(--font-content); font-size: 12pt; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase; opacity: .72;
+}
+
+.calendar__list { list-style: none; margin: 0; padding: 0; }
+
+.calendar__item {
+  display: flex; gap: 1rem; align-items: baseline;
+  padding: .6rem 0 .6rem .7rem;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid currentColor;
+}
+.calendar__item:last-child { border-bottom: 0; }
+
+/* Hairline rules: full-strength borders would stripe the page. */
+.band--maroon .calendar__item { border-bottom-color: rgba(255,255,255,.16); }
+.band--plain  .calendar__item,
+.band--light  .calendar__item { border-bottom-color: rgba(33,33,33,.13); }
+
+.calendar__when {
+  flex: 0 0 3.4rem; display: flex; flex-direction: column; align-items: center;
+  font-family: var(--font-content); line-height: 1.1;
+}
+.calendar__day  { font-size: 9.5pt; text-transform: uppercase; letter-spacing: .05em; opacity: .7; }
+.calendar__date { font-size: 17pt; font-weight: 600; }
+
+.calendar__what { display: flex; flex-direction: column; gap: .15rem; font-family: var(--font-content); }
+.calendar__title { font-size: 13.5pt; font-weight: 500; }
+.calendar__time  { font-size: 11.5pt; opacity: .85; }
+.calendar__place,
+.calendar__note  { font-size: 11pt; opacity: .72; font-style: italic; }
+
+/* A one-off or a feast: marked, because it is the thing worth noticing. */
+.calendar__item.is-special { border-left-color: currentColor; }
+.calendar__item.is-today   { border-left-color: currentColor; font-weight: 500; }
+
+/* A cancellation has to read as a cancellation at a glance. */
+.calendar__item.is-cancelled .calendar__title { text-decoration: line-through; opacity: .75; }
+.calendar__item.is-cancelled .calendar__note  { font-style: normal; opacity: .95; }
+
+/* ---------- "this coming week" on the home page ------------------------
+   Only what differs from the normal round, and nothing at all when there is
+   nothing to say — an empty "upcoming events" box is worse than none. */
+
+.upcoming {
+  font-family: var(--font-content);
+  border: 1px solid currentColor; border-radius: 2px;
+  padding: 1.1rem 1.3rem;
+}
+.band--maroon .upcoming { border-color: rgba(255,255,255,.3); }
+
+.upcoming__head {
+  margin: 0 0 .7rem; font-size: 14pt; font-weight: 600;
+  letter-spacing: .02em;
+}
+.upcoming__list { list-style: none; margin: 0; padding: 0; }
+.upcoming__item { display: flex; flex-direction: column; gap: .1rem; }
+.upcoming__item + .upcoming__item { margin-top: .75rem; }
+
+.upcoming__when  { font-size: 11pt; text-transform: uppercase; letter-spacing: .05em; opacity: .75; }
+.upcoming__title { font-size: 13.5pt; font-weight: 500; }
+.upcoming__note  { font-size: 11pt; opacity: .78; }
+
+.upcoming__item.is-cancelled .upcoming__title { text-decoration: line-through; opacity: .8; }
+
+@media (max-width: 767px) {
+  .calendar__when { flex-basis: 2.9rem; }
+  .calendar__date { font-size: 15pt; }
+  .calendar__title, .upcoming__title { font-size: 12.5pt; }
+}
+
+/* ---------- adult education recordings ---------------------------------
+   The latest few classes, with a button through to the whole playlist. The
+   list is mirrored from YouTube, so it never needs updating by hand — which
+   is the only way a page like this stays current. */
+
+.classes__list { list-style: none; margin: 0 0 1.4rem; padding: 0; display: grid; gap: 1.1rem; }
+@media (min-width: 768px) { .classes__list { grid-template-columns: repeat(3, 1fr); } }
+
+.classes__item { margin: 0; }
+
+.classes__link {
+  display: flex; flex-direction: column; gap: .6rem;
+  text-decoration: none; color: inherit;
+}
+.classes__link:visited { color: inherit; }
+.classes__link:hover .classes__title { text-decoration: underline; }
+.classes__link:hover .classes__play  { transform: scale(1.08); }
+
+.classes__thumb { position: relative; display: block; overflow: hidden; border-radius: 3px; }
+/* YouTube's hqdefault is 4:3, so a 16:9 recording arrives letterboxed with
+   black bars. Crop to the real aspect rather than showing the padding. */
+.classes__thumb img {
+  width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: cover;
+}
+
+/* Without a play marker a thumbnail reads as a photograph, not a video. */
+.classes__play {
+  position: absolute; left: 50%; top: 50%; width: 54px; height: 38px;
+  transform: translate(-50%, -50%); transition: transform .15s ease;
+  background: rgba(33,33,33,.78); border-radius: 8px;
+}
+.classes__play::after {
+  content: ""; position: absolute; left: 52%; top: 50%;
+  transform: translate(-50%, -50%);
+  border-style: solid; border-width: 8px 0 8px 13px;
+  border-color: transparent transparent transparent #fff;
+}
+
+.classes__meta { display: flex; flex-direction: column; gap: .1rem; font-family: var(--font-content); }
+.classes__number {
+  font-size: 10pt; text-transform: uppercase; letter-spacing: .06em;
+  font-weight: 600; opacity: .68;
+}
+.classes__title { font-size: 13pt; font-weight: 500; }
+.classes__date  { font-size: 11pt; opacity: .72; }
+
+.classes__all { margin: 0; }
+
+/* ---------- daily lectionary -------------------------------------------
+   Scripture wants to be read, not scanned, so this is set narrower and
+   looser than the rest of the site. */
+
+.lectionary { font-family: var(--font-content); max-width: 46rem; }
+
+.lectionary__today { margin-bottom: 2rem; }
+.lectionary__date {
+  margin: 0 0 .5rem; font-size: 17pt; font-weight: 600; color: var(--maroon);
+}
+.lectionary__saints { margin: 0; font-size: 11.5pt; line-height: 1.6; opacity: .78; }
+
+.reading + .reading { margin-top: 2.25rem; }
+.reading__head {
+  margin: 0 0 .9rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem;
+  font-size: 15pt; font-weight: 600; color: var(--maroon);
+}
+.reading__kind {
+  font-size: 9.5pt; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--white); background: var(--maroon);
+  padding: .2rem .5rem; border-radius: 2px;
+}
+
+/* Verse numbers sit in the margin, as they do in a printed bible: present for
+   reference, out of the way of reading. */
+.reading__body { font-size: 13.5pt; line-height: 1.75; }
+.verse { margin: 0 0 .5rem; padding-left: 2.4rem; text-indent: -2.4rem; }
+.verse__n {
+  display: inline-block; width: 2.4rem; text-indent: 0;
+  font-size: 9.5pt; font-weight: 700; color: var(--maroon); opacity: .65;
+  vertical-align: 2px;
+}
+
+.lectionary__ahead { margin-top: 2.75rem; padding-top: 1.5rem;
+                     border-top: 1px solid rgba(33,33,33,.14); }
+.lectionary__aheadhead {
+  margin: 0 0 .8rem; font-size: 11pt; font-weight: 600;
+  letter-spacing: .07em; text-transform: uppercase; opacity: .7;
+}
+.lectionary__list { list-style: none; margin: 0; padding: 0; }
+.lectionary__list li {
+  display: flex; gap: 1rem; padding: .45rem 0;
+  border-bottom: 1px solid rgba(33,33,33,.08); font-size: 12pt;
+}
+.lectionary__list li:last-child { border-bottom: 0; }
+.lectionary__day  { flex: 0 0 7.5rem; font-weight: 600; }
+.lectionary__refs { opacity: .82; }
+
+.lectionary__source { margin-top: 2rem; font-size: 10.5pt; opacity: .65; }
+.lectionary__empty  { font-size: 13pt; }
+
+@media (max-width: 600px) {
+  .lectionary__list li { flex-direction: column; gap: .1rem; }
+  .lectionary__day { flex: none; }
+}
+
+/* Verse numbers are off unless asked for: scripture reads better as prose, and
+   the numbers are reference apparatus rather than part of the text. Both
+   renderings are in the page and CSS picks one, so the toggle is instant. */
+.lectionary .reading__numbered { display: none; }
+.lectionary .reading__prose    { display: block; }
+.lectionary.show-verse-numbers .reading__numbered { display: block; }
+.lectionary.show-verse-numbers .reading__prose    { display: none; }
+
+.reading__prose p { margin: 0 0 1rem; font-size: 13.5pt; line-height: 1.8; }
+.reading__prose p:last-child { margin-bottom: 0; }
+
+.lectionary__controls { margin: 0 0 1.75rem; }
+.verse-toggle {
+  font-family: var(--font-content); font-size: 10.5pt; font-weight: 600;
+  letter-spacing: .05em; text-transform: uppercase;
+  color: var(--maroon); background: none; cursor: pointer;
+  border: 1px solid rgba(109,6,6,.35); border-radius: 2px;
+  padding: .4rem .8rem;
+}
+.verse-toggle:hover { background: rgba(109,6,6,.07); }
+.verse-toggle[aria-pressed="true"] { background: var(--maroon); color: #fff; border-color: var(--maroon); }
+
+/* The icon of the day sits beside the reading on a wide screen and above it on
+   a narrow one, so it is seen first either way. */
+.lectionary { position: relative; }
+.lectionary__icon {
+  margin: 0 0 1.5rem; max-width: 260px;
+  padding: 6px; background: #fff;
+  border: 1px solid rgba(33,33,33,.14); border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(33,33,33,.18), 0 8px 20px rgba(33,33,33,.10);
+}
+.lectionary__icon img { display: block; width: 100%; }
+
+@media (min-width: 900px) {
+  .lectionary { max-width: 62rem; display: grid; gap: 2.5rem;
+                grid-template-columns: 260px minmax(0, 1fr);
+                grid-template-areas: "icon today" "icon body"; align-items: start; }
+  .lectionary__icon    { grid-area: icon; position: sticky; top: 5rem; margin-bottom: 0; }
+  .lectionary__today   { grid-area: today; margin-bottom: 0; }
+  .lectionary__controls, .reading, .lectionary__ahead, .lectionary__source,
+  .lectionary__empty   { grid-column: 2; }
+  .lectionary__today   { margin-bottom: 1.5rem; }
+}
+
+/* ---------- lists and quotations ---------------------------------------- */
+
+.b-list {
+  margin: 0 0 .9rem; padding: 0; list-style: none;
+  font-family: var(--font-content); font-size: 13pt; line-height: 1.5;
+}
+.b-list li { padding: .32rem 0 .32rem 1.25rem; position: relative; }
+.b-list li::before {
+  content: ""; position: absolute; left: 0; top: .95em;
+  width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .5;
+}
+.band--maroon .b-list li::before { background: #fff; }
+
+.b-quote {
+  margin: 0 0 1.1rem; padding: 0 0 0 1.1rem;
+  border-left: 3px solid var(--maroon);
+  font-family: var(--font-content); font-size: 12.5pt; font-style: italic;
+  line-height: 1.65; opacity: .9;
+}
+.band--maroon .b-quote { border-left-color: rgba(255,255,255,.55); }
+
+/* Two equal columns need a little air between them when they carry different
+   kinds of appeal. */
+@media (min-width: 900px) { .cols { gap: 3rem; } }

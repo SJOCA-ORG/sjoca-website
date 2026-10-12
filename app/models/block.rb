@@ -1,5 +1,7 @@
 class Block < ApplicationRecord
-  KINDS = %w[heading subheading text image embed button].freeze
+  # "calendar" renders the parish calendar from our own mirrored data.
+  # "embed" remains for genuine third-party iframes.
+  KINDS = %w[heading subheading text image embed button calendar upcoming classes lectionary list quote].freeze
 
   belongs_to :section
 

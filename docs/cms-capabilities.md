@@ -92,6 +92,49 @@ to be built for *any* of the specialised pages below to be worth having.
 
 ---
 
+## Consistency checks
+
+A feature that emerged from building the site rather than from planning it.
+
+The site now has **external sources of truth** — ChurchTrac for the calendar,
+YouTube for the class recordings — and **internal duplicates**, the same fact
+written in several places. Both drift. The difference is that drift between a
+page and a source of truth is *detectable automatically*, and nobody has to
+notice it first.
+
+Every check below corresponds to something that actually went wrong while
+building this. None are hypothetical.
+
+| Check | What it would have caught |
+|---|---|
+| Page copy against the calendar | "Compline: Wednesdays @6pm" after Fr David replaced Compline with the Akathist. The calendar knew for weeks. |
+| Page copy against the calendar | The Adult Education page saying the class met in church after the Akathist, while the ChurchTrac event was titled "Adult Ed **Zoom** Class". |
+| Duplicated facts across pages | Service times live in three places — home, the Events hero, and `SERVICE_TITLES` in the model. All three needed editing by hand for one change. |
+| External links still alive | Four live-streaming links to a YouTube channel dormant since COVID. |
+| External capability | Class recordings that refuse embedding. The page was built to play them inline and silently could not. |
+| Content age | An Events page advertising St Nicholas Day 2023. |
+| Orphaned assets | 81 photographs in the database that no page references. |
+| Missing alt text, missing consent answer | Accessibility and the photo policy, enforced rather than hoped for. |
+| Sync freshness | A calendar importer that has stopped working looks exactly like a parish with nothing scheduled. |
+
+**The design principle:** a check reports what is wrong *and what to do about
+it*. "Service times differ from the calendar" is a nag; "the home page says
+Compline at 6pm, the calendar says Akathist — update the page, or fix the
+calendar" is a job someone can finish.
+
+**Where it surfaces:** the same admin dashboard as the staleness report. A
+parish volunteer should see a short list of things that need attention, not a
+log. If the list is usually empty, people will look at it; if it is a wall of
+warnings, they will not.
+
+**Worth building early.** This is what lets a volunteer-maintained site stay
+honest between the rare moments when somebody reads it carefully. It is also
+the most persuasive thing to show at the AGM after the approval workflow
+itself — a site that notices its own mistakes is a different proposition from
+one that waits to be corrected.
+
+---
+
 ## Layer 2 — Specialised resources
 
 Each is a model, an admin form, and a template: **developer work once, parish-managed

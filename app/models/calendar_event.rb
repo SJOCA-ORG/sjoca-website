@@ -7,13 +7,23 @@
 class CalendarEvent < ApplicationRecord
   SOURCES = %w[churchtrac local].freeze
 
-  # The weekly round. Everything else is worth drawing attention to, which is
-  # what the home page and the calendar's "what's different" section rely on:
-  # a parish does not need telling that Vespers is on Saturday again.
-  REGULAR_TITLES = [
+  # The services spelled out in the published schedule, and nothing else.
+  #
+  # A visitor arrives wanting to know when the services are; that is what the
+  # Service Times block answers. Anything else — a class, a meeting, a
+  # collection — is secondary to them and therefore worth announcing, even when
+  # it happens every week. So the Wednesday adult education class belongs in
+  # upcoming events despite being as regular as the Akathist before it.
+  #
+  # This list must stay in step with the Service Times block on the home page.
+  # Two copies of the same fact: the duplication the Settings resource is meant
+  # to end (see docs/cms-capabilities.md).
+  SERVICE_TITLES = [
     /\A(great\s+)?vespers\z/i,
     /\Adivine\s+liturgy\z/i,
     /\Aakathist\z/i,
+    # Compline was the Wednesday service until Fr David replaced it with the
+    # Akathist. Kept so older entries still classify correctly.
     /\Acompline\z/i,
     /\A(reading\s+of\s+the\s+)?hours\z/i
   ].freeze
@@ -36,13 +46,15 @@ class CalendarEvent < ApplicationRecord
 
   def self.next_services(limit = 3) = upcoming.limit(limit)
 
-  # Anything the parish would not already assume: a one-off, or a cancellation
-  # of something they would.
+  # Everything on that is not one of the published services.
   def self.noteworthy_within(days) = within(days).select(&:noteworthy?)
 
-  def regular?     = REGULAR_TITLES.any? { |p| p.match?(title.to_s.strip) }
+  # One of the published services, in its usual weekly slot. The recurring
+  # check matters: an extra Vespers added for a feast is not the ordinary
+  # Saturday one, and a visitor would want to hear about it.
+  def scheduled_service? = recurring? && SERVICE_TITLES.any? { |p| p.match?(title.to_s.strip) }
   def cancellation? = CANCELLATION.match?(title.to_s.strip)
-  def noteworthy?  = cancellation? || !regular?
+  def noteworthy? = cancellation? || !scheduled_service?
 
   def all_day_or_timeless? = all_day? || starts_at.strftime("%H:%M") == "00:00"
 

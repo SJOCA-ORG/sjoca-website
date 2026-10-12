@@ -1,0 +1,82 @@
+<%# Today's appointed scripture, then the days ahead.
+    Mirrored from oca.org — see docs and lib/tasks. %>
+<% today = LectionaryDay.today %>
+<% ahead = LectionaryDay.where(on: Date.current.tomorrow..(Date.current + 6)).order(:on) %>
+
+<% if today.nil? %>
+  <p class="lectionary__empty">
+    The readings are being updated. They are always available at
+    <a href="https://www.oca.org/readings" rel="noopener">oca.org</a>.
+  </p>
+<% else %>
+  <div class="lectionary" data-controller="lectionary">
+    <% icon = icon_of_the_day(today.on) %>
+    <% if icon %>
+      <figure class="lectionary__icon">
+        <%= image_tag legacy_asset_path(icon.human_name), alt: icon.alt_text.to_s, loading: "lazy" %>
+      </figure>
+    <% end %>
+
+    <header class="lectionary__today">
+      <p class="lectionary__date"><%= today.date_text %></p>
+      <% if today.commemorations.present? %>
+        <p class="lectionary__saints"><%= today.commemorations %></p>
+      <% end %>
+    </header>
+
+    <div class="lectionary__controls">
+      <button type="button" class="verse-toggle" data-action="lectionary#toggle"
+              data-lectionary-target="button" aria-pressed="false">
+        Show verse numbers
+      </button>
+    </div>
+
+    <% today.appointed.each do |reading| %>
+      <section class="reading">
+        <h2 class="reading__head">
+          <% if reading.kind.present? %><span class="reading__kind"><%= reading.kind %></span><% end %>
+          <span class="reading__citation"><%= reading.citation %></span>
+        </h2>
+        <% if reading.body.present? %>
+          <%# Both renderings are in the markup and CSS chooses between them, so
+              toggling is instant and works without JavaScript having to rebuild
+              anything. Numbered verses are one paragraph each; the plain reading
+              is continuous prose, which is how scripture is meant to be read. %>
+          <div class="reading__body">
+            <div class="reading__numbered">
+              <% reading.verses.each do |num, text| %>
+                <p class="verse"><span class="verse__n"><%= num %></span><%= text %></p>
+              <% end %>
+            </div>
+            <div class="reading__prose">
+              <% reading.paragraphs.each do |para| %>
+                <p><%= para %></p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </section>
+    <% end %>
+
+    <% if ahead.any? %>
+      <section class="lectionary__ahead">
+        <h2 class="lectionary__aheadhead">The week ahead</h2>
+        <ol class="lectionary__list">
+          <% ahead.each do |day| %>
+            <li>
+              <span class="lectionary__day"><%= day.on.strftime("%A") %></span>
+              <span class="lectionary__refs">
+                <%= day.appointed.map(&:citation).join(" · ") %>
+              </span>
+            </li>
+          <% end %>
+        </ol>
+      </section>
+    <% end %>
+
+    <p class="lectionary__source">
+      Readings from the <a href="https://www.oca.org/readings" rel="noopener">Orthodox
+      Church in America</a>.
+    </p>
+  </div>
+<% end %>

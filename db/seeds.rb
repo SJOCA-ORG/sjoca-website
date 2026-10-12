@@ -7,3 +7,5 @@
 # are not in git and how the first production seed is run.
 load Rails.root.join("db/seeds/legacy_assets.rb")
 load Rails.root.join("db/seeds/content.rb")
+load Rails.root.join("db/seeds/curated_assets.rb")
+load Rails.root.join("db/seeds/demo_calendar.rb")

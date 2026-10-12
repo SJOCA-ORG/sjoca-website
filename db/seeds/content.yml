@@ -1,4 +1,3 @@
----
 - slug: about-us/choir
   sections:
   - style: light
@@ -6,8 +5,8 @@
     blocks:
     - kind: image
       align: center
-      url:
-      asset_name: about-us-choir-01
+      url: null
+      asset_name: choir-singing
       width: 562
       row: 0
       column: 0
@@ -20,7 +19,7 @@
       column: 0
       position: 1
     - kind: subheading
-      content: Jan V.
+      content: Jan VanDuyn
       align: center
       width: 546
       row: 0
@@ -30,9 +29,8 @@
     column_widths: '1098'
     blocks:
     - kind: heading
-      content: 'Choir Members: Cindy H., Jeremy H., Ellie H., Morgan S., Bonnie M.,
-        Andrea F., Andrew W., Randall P., Jan V., Jessica R., Sophie H., Joy V., Doug
-        S., Connor D., Will, Kelly K.'
+      content: 'Choir Members: Cindy H., Jeremy H., Ellie H., Morgan S., Bonnie M., Andrea F., Andrew
+        W., Randall P., Jan V., Jessica R., Sophie H., Joy V., Doug S., Connor D., Will, Kelly K.'
       align: left
       width: 1098
       row: 0
@@ -40,18 +38,18 @@
       position: 0
   hero_asset_name: about-us-choir-hero
   hero_heading: Choir
-  hero_subheading:
-  hero_size: tall
+  hero_subheading: null
+  hero_size: standard
 - slug: about-us/leadership
   sections:
   - style: light
-    column_widths: '365,645'
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
-      url:
-      asset_name: about-us-leadership-01
-      width: 365
+      url: null
+      asset_name: leadership-bishop-michael
+      width: 265
       row: 0
       column: 0
       position: 0
@@ -70,13 +68,13 @@
       column: 1
       position: 1
   - style: plain
-    column_widths: '365,645'
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
-      url:
-      asset_name: about-us-leadership-02
-      width: 365
+      url: null
+      asset_name: leadership-fr-david
+      width: 265
       row: 0
       column: 0
       position: 0
@@ -101,39 +99,14 @@
       row: 0
       column: 1
       position: 2
-  - style: light
-    column_widths: '365,645'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: about-us-leadership-03
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: heading
-      content: Proto-Deacon
-      align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 0
-    - kind: heading
-      content: Stephen S.
-      align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 1
   - style: plain
-    column_widths: '365,645'
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
-      url:
-      asset_name: about-us-leadership-04
-      width: 365
+      url: null
+      asset_name: leadership-dn-sean
+      width: 265
       row: 0
       column: 0
       position: 0
@@ -159,121 +132,135 @@
       column: 1
       position: 2
   - style: plain
-    column_widths: '266,645'
+    column_widths: 265,745
     blocks:
     - kind: image
-      align: center
-      url:
-      asset_name: about-us-leadership-05
-      width: 266
-      row: 0
       column: 0
-      position: 0
-    - kind: heading
-      content: President
-      align: left
-      width: 645
       row: 0
-      column: 1
       position: 0
+      align: center
+      asset_name: leadership-dn-mitch
+      width: 265
     - kind: heading
-      content: Steve F.
-      align: left
-      width: 645
-      row: 0
       column: 1
+      row: 0
+      position: 0
+      align: left
+      content: Reverend Deacon
+      width: 645
+    - kind: heading
+      column: 1
+      row: 0
       position: 1
-    - kind: heading
-      content: warden@sjoca.org
       align: left
+      content: Mitch VanDuyn
       width: 645
-      row: 0
-      column: 1
-      position: 2
   - style: plain
-    column_widths: '464,605'
+    column_widths: 265,745
     blocks:
     - kind: image
+      column: 0
+      row: 0
+      position: 0
       align: center
-      url:
       asset_name: about-us-leadership-06
-      width: 464
-      row: 0
-      column: 0
-      position: 0
+      width: 265
     - kind: heading
-      content: Vice President
-      align: left
-      width: 605
-      row: 0
       column: 1
+      row: 0
       position: 0
-    - kind: heading
-      content: Matushka Heather
       align: left
-      width: 605
-      row: 0
+      content: President
+      width: 645
+    - kind: heading
       column: 1
+      row: 0
       position: 1
-    - kind: text
-      content: asstwarden@sjoca.org
       align: left
-      width: 605
-      row: 0
+      content: Matushka Heather McNulty
+      width: 645
+    - kind: text
       column: 1
+      row: 0
       position: 2
+      align: left
+      width: 645
+      content: <a href="mailto:warden@sjoca.org">warden@sjoca.org</a>
   - style: plain
-    column_widths: '266,645'
+    column_widths: 265,745
     blocks:
     - kind: image
+      column: 0
+      row: 0
+      position: 0
       align: center
-      url:
       asset_name: about-us-leadership-07
-      width: 266
-      row: 0
-      column: 0
-      position: 0
+      width: 265
     - kind: heading
-      content: Secretary
-      align: left
-      width: 645
-      row: 0
       column: 1
+      row: 0
       position: 0
-    - kind: heading
-      content: Ryan C.
       align: left
+      content: Vice President
       width: 645
-      row: 0
+    - kind: heading
       column: 1
+      row: 0
       position: 1
+      align: left
+      content: Ryan Chacinski
+      width: 645
     - kind: text
-      content: secretary@sjoca.org
+      column: 1
+      row: 0
+      position: 2
       align: left
       width: 645
-      row: 0
-      column: 1
-      position: 2
+      content: <a href="mailto:asstwarden@sjoca.org">asstwarden@sjoca.org</a>
   - style: plain
-    column_widths: '266,645'
+    column_widths: 265,745
+    blocks:
+    - kind: heading
+      column: 1
+      row: 0
+      position: 0
+      align: left
+      content: Secretary
+      width: 645
+    - kind: heading
+      column: 1
+      row: 0
+      position: 1
+      align: left
+      content: Alec
+      width: 645
+    - kind: text
+      column: 1
+      row: 0
+      position: 2
+      align: left
+      width: 645
+      content: <a href="mailto:secretary@sjoca.org">secretary@sjoca.org</a>
+  - style: plain
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
-      url:
-      asset_name: about-us-leadership-08
-      width: 266
+      url: null
+      asset_name: leadership-jan-vanduyn
+      width: 265
       row: 0
       column: 0
       position: 0
     - kind: heading
-      content: Treasurer
+      content: Treasurer &amp; Choir Director
       align: left
       width: 645
       row: 0
       column: 1
       position: 0
     - kind: heading
-      content: Janet V.
+      content: Jan VanDuyn
       align: left
       width: 645
       row: 0
@@ -287,13 +274,13 @@
       column: 1
       position: 2
   - style: light
-    column_widths: '266,645'
+    column_widths: 265,745
     blocks:
     - kind: image
       align: center
-      url:
+      url: null
       asset_name: about-us-leadership-09
-      width: 266
+      width: 265
       row: 0
       column: 0
       position: 0
@@ -329,7 +316,7 @@
       column: 0
       position: 1
     - kind: heading
-      content: Senior Altar Servers- Mitch V., Ryan C., Will C., Joe K.
+      content: Senior Altar Servers- Ryan C., Will C., Joe K.
       align: left
       width: 1138
       row: 0
@@ -344,7 +331,7 @@
       position: 3
   hero_asset_name: about-us-leadership-hero
   hero_heading: Leadership
-  hero_subheading:
+  hero_subheading: null
   hero_size: standard
 - slug: about-us/our-story
   sections:
@@ -359,15 +346,14 @@
       column: 0
       position: 0
     - kind: text
-      content: The Orthodox Church is the original Christian Church, the Church founded
-        by the Lord Jesus Christ and described in the pages of the New Testament.
-        Her history can be traced in unbroken continuity all the way back to Christ
-        and His Twelve Apostles, empowered and sent forth on the day of Holy Pentecost.
-        Incredible as it seems, for over twenty centuries, she has continued in her
-        undiminished and unaltered faith and practice. Today her apostolic doctrine,
-        worship, and structure remain intact. The Orthodox Church maintains that the
-        Church is the living Body of Jesus Christ. Many of us are surprised to learn
-        that for the first 1000 years of Christian history, there was just one Church.
+      content: The Orthodox Church is the original Christian Church, the Church founded by the Lord Jesus
+        Christ and described in the pages of the New Testament. Her history can be traced in unbroken
+        continuity all the way back to Christ and His Twelve Apostles, empowered and sent forth on the
+        day of Holy Pentecost. Incredible as it seems, for over twenty centuries, she has continued in
+        her undiminished and unaltered faith and practice. Today her apostolic doctrine, worship, and
+        structure remain intact. The Orthodox Church maintains that the Church is the living Body of Jesus
+        Christ. Many of us are surprised to learn that for the first 1000 years of Christian history,
+        there was just one Church.
       align: left
       width: 1138
       row: 0
@@ -384,52 +370,47 @@
       column: 0
       position: 0
     - kind: text
-      content: Saint John the Baptist Christian Orthodox Church was founded in Rochester,
-        New York on the Sunday of the Myrrh-bearing Women (May 17) in 1964.
+      content: Saint John the Baptist Christian Orthodox Church was founded in Rochester, New York on
+        the Sunday of the Myrrh-bearing Women (May 17) in 1964.
       align: center
       width: 1138
       row: 0
       column: 0
       position: 1
     - kind: text
-      content: That year, a group of Orthodox faithful joined together with the desire
-        to establish a Christian Orthodox parish where the Divine Services would be
-        conducted entirely in the English language. Faithfully enduring many difficulties
-        and overcoming obstacles, the parish grew and found a home at its current
-        location—a truly inviting and lovely place of worship, centrally located and
-        easily accessible from the entire greater Rochester area. The parish has become
-        an icon of Christian Orthodox unity, where people from diverse ethnic heritages
-        and cultural roots gather together as the “One, Holy, Catholic, and Apostolic
-        Church.”
+      content: That year, a group of Orthodox faithful joined together with the desire to establish a
+        Christian Orthodox parish where the Divine Services would be conducted entirely in the English
+        language. Faithfully enduring many difficulties and overcoming obstacles, the parish grew and
+        found a home at its current location—a truly inviting and lovely place of worship, centrally located
+        and easily accessible from the entire greater Rochester area. The parish has become an icon of
+        Christian Orthodox unity, where people from diverse ethnic heritages and cultural roots gather
+        together as the “One, Holy, Catholic, and Apostolic Church.”
       align: left
       width: 1138
       row: 0
       column: 0
       position: 2
     - kind: text
-      content: 'Parishioners represent a wide diversity of backgrounds — “cradle-born”
-        Christian Orthodox, converts from a multitude of religious traditions, and
-        those seeking Christ and His Church. Many faithful have been added to the
-        Body of Christ through the faithful witness of St. John’s parish, and for
-        this great blessing and joy we offer thanks to God. At St. John’s, we celebrate
-        the uniquely precious gift that each woman, man, and child is within our family
-        of faith. We strive to be a community of love: for God and for one another.
-        By the grace of God, we work to faithfully be “the Church” in the midst of
-        our unworthiness. We know that we are sinners. We know, also, that our parish
-        is the haven of those who repent and the salvation of those who contritely
-        seek God’s forgiveness. God has been merciful, gracious and good to us, for
-        in this holy house, we have seen the True Light!'
+      content: 'Parishioners represent a wide diversity of backgrounds — “cradle-born” Christian Orthodox,
+        converts from a multitude of religious traditions, and those seeking Christ and His Church. Many
+        faithful have been added to the Body of Christ through the faithful witness of St. John’s parish,
+        and for this great blessing and joy we offer thanks to God. At St. John’s, we celebrate the uniquely
+        precious gift that each woman, man, and child is within our family of faith. We strive to be a
+        community of love: for God and for one another. By the grace of God, we work to faithfully be
+        “the Church” in the midst of our unworthiness. We know that we are sinners. We know, also, that
+        our parish is the haven of those who repent and the salvation of those who contritely seek God’s
+        forgiveness. God has been merciful, gracious and good to us, for in this holy house, we have seen
+        the True Light!'
       align: left
       width: 1138
       row: 0
       column: 0
       position: 3
     - kind: text
-      content: In this holy house, the fullness of the Christian Orthodox Faith is
-        opened to us. We hope and pray that the Holy Spirit will lead others into
-        the fullness of Christ and His Holy Church through an encounter with Orthodox
-        Christianity at Saint John’s parish. We welcome all—Orthodox Christians and
-        seekers—to journey with us.
+      content: In this holy house, the fullness of the Christian Orthodox Faith is opened to us. We hope
+        and pray that the Holy Spirit will lead others into the fullness of Christ and His Holy Church
+        through an encounter with Orthodox Christianity at Saint John’s parish. We welcome all—Orthodox
+        Christians and seekers—to journey with us.
       align: left
       width: 1138
       row: 0
@@ -437,7 +418,7 @@
       position: 4
   hero_asset_name: about-us-our-story-hero
   hero_heading: Our Story
-  hero_subheading:
+  hero_subheading: null
   hero_size: standard
 - slug: about-us
   sections:
@@ -452,15 +433,14 @@
       column: 0
       position: 0
     - kind: text
-      content: The Orthodox Church is the original Christian Church, the Church founded
-        by the Lord Jesus Christ and described in the pages of the New Testament.
-        Her history can be traced in unbroken continuity all the way back to Christ
-        and His Twelve Apostles, empowered and sent forth on the day of Holy Pentecost.
-        Incredible as it seems, for over twenty centuries, she has continued in her
-        undiminished and unaltered faith and practice. Today her apostolic doctrine,
-        worship, and structure remain intact. The Orthodox Church maintains that the
-        Church is the living Body of Jesus Christ. Many of us are surprised to learn
-        that for the first 1000 years of Christian history, there was just one Church.
+      content: The Orthodox Church is the original Christian Church, the Church founded by the Lord Jesus
+        Christ and described in the pages of the New Testament. Her history can be traced in unbroken
+        continuity all the way back to Christ and His Twelve Apostles, empowered and sent forth on the
+        day of Holy Pentecost. Incredible as it seems, for over twenty centuries, she has continued in
+        her undiminished and unaltered faith and practice. Today her apostolic doctrine, worship, and
+        structure remain intact. The Orthodox Church maintains that the Church is the living Body of Jesus
+        Christ. Many of us are surprised to learn that for the first 1000 years of Christian history,
+        there was just one Church.
       align: left
       width: 1138
       row: 0
@@ -477,52 +457,47 @@
       column: 0
       position: 0
     - kind: text
-      content: Saint John the Baptist Christian Orthodox Church was founded in Rochester,
-        New York on the Sunday of the Myrrh-bearing Women (May 17) in 1964.
+      content: Saint John the Baptist Christian Orthodox Church was founded in Rochester, New York on
+        the Sunday of the Myrrh-bearing Women (May 17) in 1964.
       align: center
       width: 1138
       row: 0
       column: 0
       position: 1
     - kind: text
-      content: That year, a group of Orthodox faithful joined together with the desire
-        to establish a Christian Orthodox parish where the Divine Services would be
-        conducted entirely in the English language. Faithfully enduring many difficulties
-        and overcoming obstacles, the parish grew and found a home at its current
-        location—a truly inviting and lovely place of worship, centrally located and
-        easily accessible from the entire greater Rochester area. The parish has become
-        an icon of Christian Orthodox unity, where people from diverse ethnic heritages
-        and cultural roots gather together as the “One, Holy, Catholic, and Apostolic
-        Church.”
+      content: That year, a group of Orthodox faithful joined together with the desire to establish a
+        Christian Orthodox parish where the Divine Services would be conducted entirely in the English
+        language. Faithfully enduring many difficulties and overcoming obstacles, the parish grew and
+        found a home at its current location—a truly inviting and lovely place of worship, centrally located
+        and easily accessible from the entire greater Rochester area. The parish has become an icon of
+        Christian Orthodox unity, where people from diverse ethnic heritages and cultural roots gather
+        together as the “One, Holy, Catholic, and Apostolic Church.”
       align: left
       width: 1138
       row: 0
       column: 0
       position: 2
     - kind: text
-      content: 'Parishioners represent a wide diversity of backgrounds — “cradle-born”
-        Christian Orthodox, converts from a multitude of religious traditions, and
-        those seeking Christ and His Church. Many faithful have been added to the
-        Body of Christ through the faithful witness of St. John’s parish, and for
-        this great blessing and joy we offer thanks to God. At St. John’s, we celebrate
-        the uniquely precious gift that each woman, man, and child is within our family
-        of faith. We strive to be a community of love: for God and for one another.
-        By the grace of God, we work to faithfully be “the Church” in the midst of
-        our unworthiness. We know that we are sinners. We know, also, that our parish
-        is the haven of those who repent and the salvation of those who contritely
-        seek God’s forgiveness. God has been merciful, gracious and good to us, for
-        in this holy house, we have seen the True Light!'
+      content: 'Parishioners represent a wide diversity of backgrounds — “cradle-born” Christian Orthodox,
+        converts from a multitude of religious traditions, and those seeking Christ and His Church. Many
+        faithful have been added to the Body of Christ through the faithful witness of St. John’s parish,
+        and for this great blessing and joy we offer thanks to God. At St. John’s, we celebrate the uniquely
+        precious gift that each woman, man, and child is within our family of faith. We strive to be a
+        community of love: for God and for one another. By the grace of God, we work to faithfully be
+        “the Church” in the midst of our unworthiness. We know that we are sinners. We know, also, that
+        our parish is the haven of those who repent and the salvation of those who contritely seek God’s
+        forgiveness. God has been merciful, gracious and good to us, for in this holy house, we have seen
+        the True Light!'
       align: left
       width: 1138
       row: 0
       column: 0
       position: 3
     - kind: text
-      content: In this holy house, the fullness of the Christian Orthodox Faith is
-        opened to us. We hope and pray that the Holy Spirit will lead others into
-        the fullness of Christ and His Holy Church through an encounter with Orthodox
-        Christianity at Saint John’s parish. We welcome all—Orthodox Christians and
-        seekers—to journey with us.
+      content: In this holy house, the fullness of the Christian Orthodox Faith is opened to us. We hope
+        and pray that the Holy Spirit will lead others into the fullness of Christ and His Holy Church
+        through an encounter with Orthodox Christianity at Saint John’s parish. We welcome all—Orthodox
+        Christians and seekers—to journey with us.
       align: left
       width: 1138
       row: 0
@@ -530,8 +505,8 @@
       position: 4
   hero_asset_name: about-us-hero
   hero_heading: About Us
-  hero_subheading:
-  hero_size: tall
+  hero_subheading: null
+  hero_size: standard
 - slug: community-outreach
   sections:
   - style: plain
@@ -546,38 +521,37 @@
       column: 0
       position: 0
     - kind: text
-      content: The South Wedge Food Program serves those in our community who are
-        hungry. The program began as a ministry of the former Calvary St. Andrew&#39;s
-        and is now its own non-profit organization. We are tax exempt thanks to the
-        <a href="https://pbygenval.org/">Presbytery of Genesee Valley</a>.
+      content: The South Wedge Food Program serves those in our community who are hungry. The program
+        began as a ministry of the former Calvary St. Andrew&#39;s and is now its own non-profit organization.
+        We are tax exempt thanks to the <a href="https://pbygenval.org/">Presbytery of Genesee Valley</a>.
       align: left
       width: 1138
       row: 0
       column: 0
       position: 1
     - kind: text
-      content: We really depend on the help of our volunteers, and we greatly appreciate
-        the donations of help, food, and financial support received from churches,
-        businesses, and other agencies in the South Wedge and beyond.
+      content: We really depend on the help of our volunteers, and we greatly appreciate the donations
+        of help, food, and financial support received from churches, businesses, and other agencies in
+        the South Wedge and beyond.
       align: left
       width: 1138
       row: 0
       column: 0
       position: 2
     - kind: text
-      content: <a href="https://www.southwedgefood.org/">South Wedge Food Program
-        - All About the South Wedge Food Program</a> (Click to learn more!)
+      content: <a href="https://www.southwedgefood.org/">South Wedge Food Program - All About the South
+        Wedge Food Program</a> (Click to learn more!)
       align: left
       width: 1138
       row: 0
       column: 0
       position: 3
   - style: plain
-    column_widths: '562,562'
+    column_widths: 562,562
     blocks:
     - kind: image
       align: center
-      url:
+      url: null
       asset_name: community-outreach-02
       width: 562
       row: 0
@@ -585,16 +559,16 @@
       position: 0
     - kind: image
       align: center
-      url:
+      url: null
       asset_name: community-outreach-03
       width: 562
       row: 0
       column: 1
       position: 0
   hero_asset_name: community-outreach-hero
-  hero_heading:
-  hero_subheading:
-  hero_size: tall
+  hero_heading: null
+  hero_subheading: null
+  hero_size: standard
 - slug: contact
   sections:
   - style: light
@@ -608,30 +582,43 @@
       column: 0
       position: 0
     - kind: text
-      content: 'Email: fr.david@sjoca.org'
+      content: 'Email: <a href="mailto:fr.david@sjoca.org">fr.david@sjoca.org</a>'
       align: left
       width: 1138
       row: 0
       column: 0
       position: 1
     - kind: text
-      content: 'Address: 855 S. Goodman St. Rochester, NY 14620'
+      content: 'Address: <a href="https://www.google.com/maps/search/?api=1&amp;query=855+S.+Goodman+St%2C+Rochester%2C+NY+14620">855
+        S. Goodman St. Rochester, NY 14620</a>'
       align: left
       width: 1138
       row: 0
       column: 0
-      position: 2
-  - style: plain
-    column_widths: '365,266'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: contact-01
-      width: 365
-      row: 0
+      position: 3
+    - kind: text
       column: 0
-      position: 0
+      row: 0
+      position: 2
+      align: left
+      width: 1138
+      content: A minute from I-490 at the Goodman Street exit<br>— just south of the Highland Park Diner
+  - style: plain
+    column_widths: null
+    blocks:
+    - kind: embed
+      url: https://www.google.com/maps?q=855+S.+Goodman+St,+Rochester,+NY+14620&output=embed
+      column: 0
+      row: 0
+      position: 1
+      align: center
+    - kind: text
+      column: 0
+      row: 0
+      position: 2
+      align: center
+      content: <a href="https://www.google.com/maps/search/?api=1&amp;query=855+S.+Goodman+St%2C+Rochester%2C+NY+14620">Open
+        in Google Maps</a> for directions
     - kind: heading
       content: <a href="https://www.google.com/maps/dir//St.+John+the+Baptist+Orthodox+Church,+855+S+Goodman+St,+Rochester,+NY+14620/@43.1371722,-77.5979834,15z/data=!4m8!4m7!1m0!1m5!1m1!1s0x89d6b519c97a52fd:0xb7aa94752a8e6a78!2m2!1d-77.5979834!2d43.1371722">Map
         &amp; Directions</a>
@@ -639,440 +626,103 @@
       width: 349
       row: 0
       column: 0
-      position: 1
-    - kind: heading
-      content: <a href="https://www.youtube.com/channel/UCW7y8zQlbDEocn8N2pJwf9g">Live
-        Streaming</a>
-      align: left
-      width: 250
-      row: 0
-      column: 1
       position: 0
-    - kind: image
-      align: center
-      url: https://www.youtube.com/channel/UCW7y8zQlbDEocn8N2pJwf9g
-      asset_name: contact-02
-      width: 266
-      row: 0
-      column: 1
-      position: 1
   hero_asset_name: contact-hero
   hero_heading: Contact
-  hero_subheading:
-  hero_size: tall
+  hero_subheading: null
+  hero_size: standard
 - slug: donate
   sections:
   - style: light
-    column_widths: '1138'
+    column_widths: 1,1
     blocks:
     - kind: heading
-      content: Contribute today to the church’s general fund.
-      align: center
-      width: 1138
-      row: 0
       column: 0
+      row: 0
       position: 0
+      align: left
+      content: Financially
     - kind: text
-      content: This fund goes toward the parish’s monthly general needs. We rely 100%
-        on the generosity of those who donate in order to continue to minister to
-        this beautiful parish community.
-      align: center
-      width: 1138
-      row: 0
       column: 0
+      row: 0
       position: 1
-    - kind: heading
-      content: <a href="https://sjoca.churchtrac.com/give">Thank you!</a>
-      align: center
-      width: 1138
-      row: 0
+      align: left
+      content: This fund goes toward the parish’s monthly general needs. We rely 100% on the generosity
+        of those who donate in order to continue to minister to this beautiful parish community. In addition
+        we support our local homeless community, and our daughter mission parish.
+    - kind: button
       column: 0
+      row: 0
       position: 2
-  - style: light
-    column_widths: '168'
-    blocks:
-    - kind: image
-      align: center
-      url: https://www.google.com/url?q=https%3A%2F%2Fsjoca.churchtrac.com%2Fgive&sa=D&sntz=1&usg=AOvVaw0etxng7Cu_Ohv34Ug_28-h
-      asset_name: donate-01
-      width: 168
-      row: 0
-      column: 0
-      position: 0
-  - style: light
-    column_widths: '1138'
-    blocks:
-    - kind: heading
-      content: <a href="https://sjoca.churchtrac.com/give">DONATE</a>
-      align: center
-      width: 1138
-      row: 0
-      column: 0
-      position: 0
-  hero_asset_name: donate-hero
-  hero_heading: Donate
-  hero_subheading:
-  hero_size: tall
-- slug: events-services/miter-ceremony
-  sections:
-  - style: plain
-    column_widths: '1138'
-    blocks:
-    - kind: heading
-      content: CONGRATULATIONS Father Ken Stavrevsky!!
-      align: center
-      width: 1138
-      row: 0
-      column: 0
-      position: 0
-  - style: plain
-    column_widths: '464,645'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-01
-      width: 464
-      row: 0
-      column: 0
-      position: 0
-    - kind: heading
-      content: Father Ken James Stavrevsky Archpriest, Orthodox Church of America,
-        Lieutenant Colonel, USAF (Retired)
       align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 0
+      url: https://sjoca.churchtrac.com/give
+      content: Give online
     - kind: text
-      content: 'Very Reverend Ken James Stavrevsky and Natalie Eskoff were joined
-        in Holy Matrimony on 17 August 1975. They are the proud parents of Victoria
-        Stavrevsky. He was ordained to the priesthood in the Orthodox Church in America
-        (OCA) on 16 December 1978. He served as pastor of Saints Constantine and Helen
-        Church in Colorado Springs, Colorado from June 1979 to February 1982, where
-        he was commissioned as a chaplain in the United States Air Force Reserve on
-        15 March 1981. He entered active duty in the Air Force on 22 February 1982.
-        During his military career, he served principally in the capacity of “Orthodox
-        Chaplain” with associated duties and responsibilities consistent with the
-        mission of the Chaplain Service. In addition to providing pastoral care for
-        Orthodox personnel, his broader role as a chaplain included: pastoral counseling,
-        religious/moral education, visitation ministry, providing for the free exercise
-        of religion for military members and families, and advising military commanders
-        in matters of religious accommodation and moral issues during the planning
-        and conduct of war. Chaplain Stavrevsky retired from active duty in the United
-        States Air Force on 1 April 2002, having served with distinction for 20 years
-        and 4 months. Following his military retirement, he was attached to the Orthodox
-        Church in America, Diocese of Washington DC, and Saint Luke Orthodox Church
-        in McLean, Virginia. Father Stavrevsky also served as interim pastor in several
-        parishes, for varying lengths of time, including: Saint Mark Orthodox Church
-        (OCA; Bethesda, Maryland), Saint George Bulgarian Orthodox Church (OCA; Potomac,
-        Maryland), and Saint Thomas the Apostle Orthodox Church (American Carpatho-Russian
-        Orthodox Diocese; Waldorf, Maryland). In addition to his pastoral work, from
-        September 2002 to December 2003 he was an adjunct professor of English at
-        the College of Southern Maryland where he taught classes in writing, literature,
-        and business communications. He was assigned as pastor of Saint John the Baptist
-        Orthodox Church in Rochester, New York on 1 January 2004. He was appointed
-        Director of Communications for the Diocese of New York and New Jersey (Orthodox
-        Church in America) and member of the Council of Presbyters (June 2010). Following
-        election to serve on the Diocesan Council, he was appointed as Council Secretary
-        (Dec 2010). On 1 January 2021 he retired from active parish ministry having
-        been rector at Saint John the Baptist Orthodox Church for 17 years. Father
-        Stavrevsky enjoys writing and public speaking; he has lectured, written, and
-        presented papers in the fields of ethics and character development; his poetry
-        has been published in “Connections” and “Potomac Review.” He and Matushka
-        Natalie currently reside in Pawleys Island, South Carolina.'
-      align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 1
-  - style: plain
-    column_widths: '464,645'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-02
-      width: 464
-      row: 0
       column: 0
-      position: 0
-    - kind: heading
-      content: What is a Miter?
-      align: left
-      width: 645
       row: 0
-      column: 1
-      position: 0
-    - kind: text
-      content: The miter, also spelled mitre, in Orthodox Christian usage is a type
-        of head-covering worn by certain <a href="https://orthodoxwiki.org/Clergy">clergy</a>
-        of the Orthodox Church as a part of their ceremonial dress. The word is derived
-        from the Greek μίτρα, meaning a &#39;headband&#39; or &#39;turban&#39;.
-      align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 1
-    - kind: text
-      content: 'A head-covering, as a mark of position of certain religious and secular
-        officials, has a long history. In ancient Israel the Jewish high priest (Kohen
-        Gadol) wore a headdress called the Mitznefetthat wound around the head to
-        form a broad, flat-top topped turban. Officials of the court of the Eastern
-        Roman Empire wore a cap called the camelaucum (Greek: καμιλαύκιον kamilaukion)
-        that developed into the imperial crown by the ninth century. A miter in the
-        imperial form was not use by Orthodox bishops until after the <a href="https://orthodoxwiki.org/Fall_of_Constantinople">fall
-        of Constantinople</a> in 1453. Today, the typical miter in Orthodox churches
-        is based on the imperial crown of the late Eastern Roman Empire.'
-      align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 2
-    - kind: text
-      content: The present day miter is made in the shape of a bulbous crown and may
-        be constructed of number of materials such as brocade, damask, or cloth of
-        gold. Embroidery may be used in its construction as well as use of jewels
-        for decoration. The miters, while often of gold, may use other liturgical
-        colors. Normally, there are four icons attached to the miter. These usually
-        are icons of <a href="https://orthodoxwiki.org/Jesus">Jesus</a> Christ, the
-        <a href="https://orthodoxwiki.org/Theotokos">Theotokos</a>, <a href="https://orthodoxwiki.org/John_the_Forerunner">John
-        the Baptist</a>, and the Cross. A cross surmounts the miter, either upright
-        for <a href="https://orthodoxwiki.org/Bishop">bishop</a>’s miters or laying
-        flat on miters awarded to <a href="https://orthodoxwiki.org/Priests">priests</a>.
-      align: left
-      width: 645
-      row: 0
-      column: 1
       position: 3
-  - style: plain
-    column_widths: '464,645'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-03
-      width: 464
-      row: 0
-      column: 0
-      position: 0
+      align: left
+      content: This opens our secure giving page at ChurchTrac, which the parish already uses for its
+        records. You can give once or set up a regular gift.
     - kind: heading
-      content: Miter Ceremony
-      align: left
-      width: 645
-      row: 0
       column: 1
+      row: 0
       position: 0
+      align: left
+      content: With your time and talent
+    - kind: quote
+      column: 1
+      row: 0
+      position: 1
+      align: left
+      content: 1 Corinthians 15:58 — &#8220;Therefore, my dear brothers and sisters, stand firm. Let nothing
+        move you. Always give yourselves fully to the work of the Lord, because you know that your labor
+        in the Lord is not in vain.&#8221;
     - kind: text
-      content: His Eminence, Archbishop Michael presented the Miter to Father Ken
-        during Divine Liturgy on Sunday, April 30th. This is a once in a lifetime
-        achievement!
-      align: left
-      width: 645
-      row: 0
       column: 1
-      position: 1
-  - style: plain
-    column_widths: '464,645'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-04
-      width: 464
       row: 0
-      column: 0
-      position: 0
-    - kind: heading
-      content: Memory Book
+      position: 2
       align: left
-      width: 645
-      row: 0
+      content: 'Let us know if you can help us with any of these ministries:'
+    - kind: list
       column: 1
-      position: 0
+      row: 0
+      position: 3
+      align: left
+      content: 'Children''s Education
+
+        Building Maintenance
+
+        Gardening
+
+        Website Maintenance
+
+        Choir
+
+        Greeting
+
+        Accounting
+
+        Driving'
     - kind: text
-      content: Thank you to all who contributed! It turned out BEAUTIFUL and Father
-        was overwhelmed with gratitude! We will have a copy of the book that all can
-        see soon! Stay tuned:)
+      column: 1
+      row: 0
+      position: 4
       align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 1
-  - style: plain
-    column_widths: '266,266,266,266'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-05
-      width: 266
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-06
-      width: 266
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-07
-      width: 266
-      row: 0
-      column: 2
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-08
-      width: 266
-      row: 0
-      column: 3
-      position: 0
-  - style: plain
-    column_widths: '365,760'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-09
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-10
-      width: 365
-      row: 0
-      column: 0
-      position: 1
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-11
-      width: 760
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '365,365,365'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-12
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-13
-      width: 365
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-14
-      width: 365
-      row: 0
-      column: 2
-      position: 0
-  - style: plain
-    column_widths: '464,266,365'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-15
-      width: 464
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-16
-      width: 266
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-17
-      width: 365
-      row: 0
-      column: 2
-      position: 0
-  - style: plain
-    column_widths: '562,562'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-18
-      width: 562
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-19
-      width: 562
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '266,266,365'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-20
-      width: 266
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-21
-      width: 266
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-miter-ceremony-22
-      width: 365
-      row: 0
-      column: 2
-      position: 0
-  hero_asset_name: events-services-miter-ceremony-hero
-  hero_heading: Miter Ceremony
-  hero_subheading:
-  hero_size: tall
+      content: <a href="mailto:mitch@catprint.com">Email Dn Mitch</a> or speak to any of us after the
+        Liturgy.
+  hero_asset_name: donate-hero
+  hero_heading: Giving
+  hero_subheading: null
+  hero_size: standard
 - slug: events-services/weekly-bulletin
   sections:
   - style: plain
-    column_widths: '464,546'
+    column_widths: 464,546
     blocks:
     - kind: image
       align: center
-      url:
+      url: null
       asset_name: events-services-weekly-bulletin-01
       width: 464
       row: 0
@@ -1096,15 +746,13 @@
       column: 0
       position: 0
     - kind: text
-      content: Most feast days celebrated in the Orthodox Church focus on the remembrance
-        of Jesus Christ, the Mother of God, or other saintly persons. Celebrated as
-        well are other feast days remembering specific miracle working icons of Christ
-        or the Theotokos. The Holy Fathers of the Seventh Ecumenical Council, known
-        for generating the theological defense for restoring icons to Church life,
-        also constitutes a glorious feast celebrated by the Church. This council whose
-        official date is AD 787 was the second held in the city of Nicaea, and is
-        sometimes referred to as Nicaea II. This council is famous for sanctioning
-        the use of icons in our churches and homes.
+      content: Most feast days celebrated in the Orthodox Church focus on the remembrance of Jesus Christ,
+        the Mother of God, or other saintly persons. Celebrated as well are other feast days remembering
+        specific miracle working icons of Christ or the Theotokos. The Holy Fathers of the Seventh Ecumenical
+        Council, known for generating the theological defense for restoring icons to Church life, also
+        constitutes a glorious feast celebrated by the Church. This council whose official date is AD
+        787 was the second held in the city of Nicaea, and is sometimes referred to as Nicaea II. This
+        council is famous for sanctioning the use of icons in our churches and homes.
       align: left
       width: 1138
       row: 0
@@ -1159,9 +807,9 @@
       column: 0
       position: 1
     - kind: text
-      content: Grant, O Lord, a prosperous and peaceful life, health, salvation, and
-        furtherance in all good things unto Thy servants Sonya who is celebrating
-        her birthday and preserve her, O Lord, for many years!
+      content: Grant, O Lord, a prosperous and peaceful life, health, salvation, and furtherance in all
+        good things unto Thy servants Sonya who is celebrating her birthday and preserve her, O Lord,
+        for many years!
       align: left
       width: 1138
       row: 0
@@ -1179,29 +827,24 @@
       position: 0
     - kind: text
       content: 31 The God and Father of the Lord Jesus, <a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote2">t</a>he
-        who is blessed forever, knows that I am not lying. 32 At Damascus, the governor
-        under King Aretas was guarding the city of Damascus in order to seize me,
-        33 but I was let down in a basket through a window in the wall and escaped
-        his hands. 12 I must go on boasting. Though there is nothing to be gained
-        by it, I will go on to visions and revelations of the Lord. 2 I know a man
-        <a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote7">y</a>in
-        Christ who fourteen years ago was caught up to the third heaven—whether in
-        the body or out of the body I do not know, God knows. 3 And I know that this
-        man was caught up into paradise—whether in the body or out of the body I do
-        not know, God knows— 4 and he heard things that cannot be told, which man
-        may not utter. 5 On behalf of this man I will boast, but on my own behalf
-        I will not boast, except of my weaknesses— 6 though if I should wish to boast,
-        <a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote14">e</a>I
-        would not be a fool, for I would be speaking the truth; but I refrain from
-        it, so that no one may think more of me than he sees in me or hears from me.
-        7 So to keep me from becoming conceited because of the surpassing greatness
-        of the revelations,<a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote16">1</a>
+        who is blessed forever, knows that I am not lying. 32 At Damascus, the governor under King Aretas
+        was guarding the city of Damascus in order to seize me, 33 but I was let down in a basket through
+        a window in the wall and escaped his hands. 12 I must go on boasting. Though there is nothing
+        to be gained by it, I will go on to visions and revelations of the Lord. 2 I know a man <a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote7">y</a>in
+        Christ who fourteen years ago was caught up to the third heaven—whether in the body or out of
+        the body I do not know, God knows. 3 And I know that this man was caught up into paradise—whether
+        in the body or out of the body I do not know, God knows— 4 and he heard things that cannot be
+        told, which man may not utter. 5 On behalf of this man I will boast, but on my own behalf I will
+        not boast, except of my weaknesses— 6 though if I should wish to boast, <a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote14">e</a>I
+        would not be a fool, for I would be speaking the truth; but I refrain from it, so that no one
+        may think more of me than he sees in me or hears from me. 7 So to keep me from becoming conceited
+        because of the surpassing greatness of the revelations,<a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote16">1</a>
         a thorn was given me in the flesh, <a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote18">h</a>a
-        messenger of Satan to harass me, to keep me from becoming conceited. 8 Three
-        times I pleaded with the Lord about this, that it should leave me. 9 But he
-        said to me, “My grace is sufficient for you, for<a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote21">k</a>my
-        power is made perfect in weakness.” Therefore I will boast all the more gladly
-        of my weaknesses, so that the power of Christ may rest upon me.
+        messenger of Satan to harass me, to keep me from becoming conceited. 8 Three times I pleaded with
+        the Lord about this, that it should leave me. 9 But he said to me, “My grace is sufficient for
+        you, for<a href="https://biblia.com/bible/esv/2-corinthians-11-31--12-9#footnote21">k</a>my power
+        is made perfect in weakness.” Therefore I will boast all the more gladly of my weaknesses, so
+        that the power of Christ may rest upon me.
       align: left
       width: 1138
       row: 0
@@ -1215,16 +858,14 @@
       column: 0
       position: 2
     - kind: text
-      content: Soon afterward Jesus went with his disciples to the village of Nain,
-        and a large crowd followed him. A funeral procession was coming out as he
-        approached the village gate. The young man who had died was a widow’s only
-        son, and a large crowd from the village was with her. When the Lord saw her,
-        his heart overflowed with compassion. “Don’t cry!” he said. Then he walked
-        over to the coffin and touched it, and the bearers stopped. “Young man,” he
-        said, “I tell you, get up.” Then the dead boy sat up and began to talk! And
-        Jesus gave him back to his mother. Great fear swept the crowd, and they praised
-        God, saying, “A mighty prophet has risen among us,” and “God has visited his
-        people today.”
+      content: Soon afterward Jesus went with his disciples to the village of Nain, and a large crowd
+        followed him. A funeral procession was coming out as he approached the village gate. The young
+        man who had died was a widow’s only son, and a large crowd from the village was with her. When
+        the Lord saw her, his heart overflowed with compassion. “Don’t cry!” he said. Then he walked over
+        to the coffin and touched it, and the bearers stopped. “Young man,” he said, “I tell you, get
+        up.” Then the dead boy sat up and began to talk! And Jesus gave him back to his mother. Great
+        fear swept the crowd, and they praised God, saying, “A mighty prophet has risen among us,” and
+        “God has visited his people today.”
       align: left
       width: 1138
       row: 0
@@ -1235,7 +876,7 @@
     blocks:
     - kind: image
       align: center
-      url:
+      url: null
       asset_name: events-services-weekly-bulletin-02
       width: 1154
       row: 0
@@ -1252,8 +893,7 @@
       column: 0
       position: 0
     - kind: text
-      content: 'House Blessings: Please contact Fr. David to arrange a time for your
-        house to be blessed.'
+      content: 'House Blessings: Please contact Fr. David to arrange a time for your house to be blessed.'
       align: left
       width: 1138
       row: 0
@@ -1267,19 +907,17 @@
       column: 0
       position: 2
     - kind: text
-      content: '1.) The Food Cupboard: We are still collecting personal hygiene items
-        for this organization, to include: toothpaste, toothbrushes, deodorant, mouthwash,
-        shampoo, etc. Please bring any items you can donate to church and place in
-        the bin in the foyer.'
+      content: '1.) The Food Cupboard: We are still collecting personal hygiene items for this organization,
+        to include: toothpaste, toothbrushes, deodorant, mouthwash, shampoo, etc. Please bring any items
+        you can donate to church and place in the bin in the foyer.'
       align: left
       width: 1138
       row: 0
       column: 0
       position: 3
     - kind: text
-      content: '2.) Open Door Mission: This organization is looking for donations
-        of men&#39;s socks. If you are able to donate, there will be a bin in the
-        foyer.'
+      content: '2.) Open Door Mission: This organization is looking for donations of men&#39;s socks.
+        If you are able to donate, there will be a bin in the foyer.'
       align: left
       width: 1138
       row: 0
@@ -1287,561 +925,27 @@
       position: 4
   hero_asset_name: events-services-weekly-bulletin-hero
   hero_heading: Weekly Bulletin
-  hero_subheading:
-  hero_size: tall
+  hero_subheading: null
+  hero_size: standard
 - slug: events-services
   sections:
-  - style: plain
-    column_widths: '842,168'
-    blocks:
-    - kind: heading
-      content: 'Regular Services:'
-      align: left
-      width: 842
-      row: 0
-      column: 0
-      position: 0
-    - kind: subheading
-      content: 'Compline: Wednesdays @6pm'
-      align: left
-      width: 842
-      row: 0
-      column: 0
-      position: 1
-    - kind: subheading
-      content: 'Great Vespers: Saturday @6pm'
-      align: left
-      width: 842
-      row: 0
-      column: 0
-      position: 2
-    - kind: subheading
-      content: 'Divine Liturgy: Sunday @10am'
-      align: left
-      width: 842
-      row: 0
-      column: 0
-      position: 3
-    - kind: image
-      align: center
-      url: https://www.youtube.com/channel/UCW7y8zQlbDEocn8N2pJwf9g
-      asset_name: events-services-01
-      width: 168
-      row: 0
-      column: 1
-      position: 0
-    - kind: heading
-      content: <a href="https://www.youtube.com/channel/UCW7y8zQlbDEocn8N2pJwf9g">Live
-        Streaming!</a>
-      align: left
-      width: 152
-      row: 0
-      column: 1
-      position: 1
   - style: maroon
-    column_widths: '448,661'
+    column_widths: null
     blocks:
     - kind: heading
       content: 'Upcoming Events and Services:'
       align: left
-      width: 448
       row: 0
       column: 0
       position: 0
-    - kind: embed
-      url: https://www.churchtrac.com/public_calendar?ui=AE8E0B4D&view=listMonth
-      align: center
-      width: 661
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '562,546'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-02
-      width: 562
-      row: 0
-      column: 0
-      position: 0
-    - kind: heading
-      content: St. Nicholas Day 2023
-      align: center
-      width: 546
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '266,266,266,266'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-03
-      width: 266
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-04
-      width: 266
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-05
-      width: 266
-      row: 0
-      column: 2
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-06
-      width: 266
-      row: 0
-      column: 3
-      position: 0
-  - style: plain
-    column_widths: '365,760'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-07
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-08
-      width: 365
+    - kind: calendar
+      align: left
       row: 0
       column: 0
       position: 1
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-09
-      width: 760
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '365,365,365'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-10
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-11
-      width: 365
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-12
-      width: 365
-      row: 0
-      column: 2
-      position: 0
-  - style: plain
-    column_widths: '266,266,266,266'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-13
-      width: 266
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-14
-      width: 266
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-15
-      width: 266
-      row: 0
-      column: 2
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-16
-      width: 266
-      row: 0
-      column: 3
-      position: 0
-  - style: plain
-    column_widths: '661,365'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-17
-      width: 661
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-18
-      width: 365
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '365,760'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-19
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-20
-      width: 365
-      row: 0
-      column: 0
-      position: 1
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-21
-      width: 760
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '562,365'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-22
-      width: 562
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-23
-      width: 365
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '266,365,266'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-24
-      width: 266
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-25
-      width: 365
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-26
-      width: 266
-      row: 0
-      column: 2
-      position: 0
-  - style: plain
-    column_widths: '266,266,266,266'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-27
-      width: 266
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-28
-      width: 266
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-29
-      width: 266
-      row: 0
-      column: 2
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-30
-      width: 266
-      row: 0
-      column: 3
-      position: 0
-  - style: plain
-    column_widths: '365,365,365'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-31
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-32
-      width: 365
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-33
-      width: 365
-      row: 0
-      column: 2
-      position: 0
-  - style: plain
-    column_widths: '365,760'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-34
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-35
-      width: 365
-      row: 0
-      column: 0
-      position: 1
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-36
-      width: 760
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '266,266,266,266'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-37
-      width: 266
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-38
-      width: 266
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-39
-      width: 266
-      row: 0
-      column: 2
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-40
-      width: 266
-      row: 0
-      column: 3
-      position: 0
-  - style: light
-    column_widths: '562,546'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-41
-      width: 562
-      row: 0
-      column: 0
-      position: 0
-    - kind: heading
-      content: Youth Day at Seabreeze!
-      align: center
-      width: 546
-      row: 0
-      column: 1
-      position: 0
-  - style: plain
-    column_widths: '464,365,266'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-42
-      width: 464
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-43
-      width: 365
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-44
-      width: 266
-      row: 0
-      column: 2
-      position: 0
   - style: maroon
-    column_widths: '562,562'
+    column_widths: 464,645
     blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-45
-      width: 562
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-46
-      width: 562
-      row: 0
-      column: 1
-      position: 0
-  - style: light
-    column_widths: '365,365,365'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-47
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-48
-      width: 365
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-49
-      width: 365
-      row: 0
-      column: 2
-      position: 0
-  - style: plain
-    column_widths: '365,365,365'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-50
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-51
-      width: 365
-      row: 0
-      column: 1
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-52
-      width: 365
-      row: 0
-      column: 2
-      position: 0
-  - style: maroon
-    column_widths: '464,645'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-53
-      width: 464
-      row: 0
-      column: 0
-      position: 0
     - kind: heading
       content: Volunteer Weekends
       align: center
@@ -1850,8 +954,8 @@
       column: 1
       position: 0
     - kind: text
-      content: Open Door Mission PB&amp;J Factory! Each month, our goal is to give
-        back to the community in faith, kind acts and love.
+      content: Open Door Mission PB&amp;J Factory! Each month, our goal is to give back to the community
+        in faith, kind acts and love.
       align: left
       width: 645
       row: 0
@@ -1864,37 +968,12 @@
       row: 0
       column: 1
       position: 2
-  - style: plain
-    column_widths: '365,760'
-    blocks:
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-54
-      width: 365
-      row: 0
-      column: 0
-      position: 0
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-55
-      width: 365
-      row: 0
-      column: 0
-      position: 1
-    - kind: image
-      align: center
-      url:
-      asset_name: events-services-56
-      width: 760
-      row: 0
-      column: 1
-      position: 0
   hero_asset_name: events-services-hero
   hero_heading: Events &amp; Services
-  hero_subheading:
-  hero_size: tall
+  hero_subheading: null
+  hero_size: standard
+  hero_detail: Great Vespers Saturday 6pm · Reading of the Hours Sunday 9:30am · Divine Liturgy Sunday
+    10am · Akathist Wednesdays 6pm
 - slug: home
   sections:
   - style: light
@@ -1908,10 +987,9 @@
       column: 0
       position: 0
     - kind: heading
-      content: 'Our Mission: To be a community of Orthodox Christians faithful to
-        the doctrines, teachings, and traditions of the Holy Orthodox Church under
-        the ecclesiastical authority and guidance of the Diocese of New York and New
-        Jersey, Orthodox Church in America.'
+      content: 'Our Mission: To be a community of Orthodox Christians faithful to the doctrines, teachings,
+        and traditions of the Holy Orthodox Church under the ecclesiastical authority and guidance of
+        the Diocese of New York and New Jersey, Orthodox Church in America.'
       align: left
       width: 1138
       row: 0
@@ -1928,21 +1006,20 @@
       column: 0
       position: 0
     - kind: text
-      content: We welcome you to join us in the celebration of the Divine Services!
-        If you are interested in learning more about Orthodoxy, we welcome you to
-        &quot;come and see&quot; the beauty of the Orthodox Church and the living
-        witness to the faith established by the Lord Jesus Christ in 33AD.
+      content: We welcome you to join us in the celebration of the Divine Services! If you are interested
+        in learning more about Orthodoxy, we welcome you to &quot;come and see&quot; the beauty of the
+        Orthodox Church and the living witness to the faith established by the Lord Jesus Christ in 33AD.
       align: left
       width: 1138
       row: 0
       column: 0
       position: 1
   - style: maroon
-    column_widths: '464,661'
+    column_widths: 464,661
     blocks:
     - kind: image
       align: center
-      url:
+      url: null
       asset_name: home-exterior
       width: 464
       row: 0
@@ -1950,36 +1027,171 @@
       position: 0
     - kind: image
       align: center
-      url:
+      url: null
       asset_name: home-icon-st-john
       width: 464
       row: 0
       column: 0
-      position: 1
+      position: 3
     - kind: image
       align: center
-      url:
+      url: null
       asset_name: home-iconostasis
       width: 661
       row: 0
       column: 1
-      position: 0
+      position: 5
     - kind: text
-      content: We are a parish of The Orthodox Church of America (OCA), in the Diocese
-        of New York and New Jersey.
+      content: We are a parish of The Orthodox Church of America (OCA), in the Diocese of New York and
+        New Jersey.
       align: center
       width: 645
       row: 0
       column: 1
-      position: 1
+      position: 6
     - kind: text
       content: Our services are entirely in English!
       align: center
       width: 645
       row: 0
       column: 1
+      position: 7
+    - kind: heading
+      content: Service Times
+      align: center
+      column: 1
+      row: 0
+      position: 0
+      width: 661
+    - kind: subheading
+      content: 'Akathist: Wednesdays @6pm'
+      align: center
+      column: 1
+      row: 0
+      position: 4
+      width: 661
+    - kind: subheading
+      content: 'Great Vespers: Saturday @6pm'
+      align: center
+      column: 1
+      row: 0
+      position: 1
+      width: 661
+    - kind: subheading
+      content: 'Reading of the Hours: Sunday @9:30am'
+      align: center
+      column: 1
+      row: 0
       position: 2
+      width: 661
+    - kind: subheading
+      content: 'Divine Liturgy: Sunday @10:00am'
+      align: center
+      column: 1
+      row: 0
+      position: 3
+      width: 661
+    - kind: upcoming
+      column: 1
+      row: 0
+      position: 8
+      align: left
+      width: 661
+    - kind: text
+      column: 0
+      row: 0
+      position: 2
+      align: center
+      width: 464
+      content: <a href="https://www.google.com/maps/search/?api=1&amp;query=855+S.+Goodman+St%2C+Rochester%2C+NY+14620">855
+        S. Goodman St. Rochester, NY 14620</a>
+    - kind: text
+      column: 0
+      row: 0
+      position: 1
+      align: center
+      width: 464
+      content: A minute from I-490 at the Goodman Street exit<br>— just south of the Highland Park Diner
   hero_asset_name: home-hero
   hero_heading: Saint John the Baptist<br>Orthodox Church
-  hero_subheading:
+  hero_subheading: null
   hero_size: standard
+- slug: education
+  hero_asset_name: adult-education-hero
+  hero_heading: Adult Education
+  hero_detail: Wednesdays at 8:00pm, on Zoom
+  hero_size: standard
+  sections:
+  - style: light
+    column_widths: null
+    blocks:
+    - kind: heading
+      column: 0
+      row: 0
+      position: 0
+      align: center
+      content: Come and see
+    - kind: text
+      column: 0
+      row: 0
+      position: 1
+      align: center
+      content: Inquirers, catechumens, and anyone wishing to understand the Orthodox faith more deeply
+        are welcome. No preparation is needed.
+    - kind: button
+      column: 0
+      row: 0
+      position: 2
+      align: center
+      url: https://us06web.zoom.us/j/4021035288?pwd=UVAxYVdwZ0FTVVBMNG9tNWpTT2d4dz09
+      content: Join on Zoom
+  - style: plain
+    column_widths: null
+    blocks:
+    - kind: heading
+      column: 0
+      row: 0
+      position: 0
+      align: left
+      content: Past classes
+    - kind: classes
+      column: 0
+      row: 0
+      position: 1
+      align: left
+- slug: education/daily-lectionary
+  hero_asset_name: null
+  hero_heading: Daily Lectionary
+  hero_detail: The scripture appointed for each day, from the Orthodox Church in America
+  hero_size: standard
+  sections:
+  - style: plain
+    column_widths: null
+    blocks:
+    - kind: lectionary
+      column: 0
+      row: 0
+      position: 0
+      align: left
+- slug: education/orthodox-resources
+  hero_asset_name: null
+  hero_heading: Orthodox Resources
+  hero_detail: Places to read further
+  hero_size: standard
+  sections:
+  - style: light
+    column_widths: null
+    blocks:
+    - kind: heading
+      column: 0
+      row: 0
+      position: 0
+      align: center
+      content: Coming soon
+    - kind: text
+      column: 0
+      row: 0
+      position: 1
+      align: center
+      content: A collection of trustworthy places to read and listen further. If you have a site that
+        has helped you, <a href="mailto:fr.david@sjoca.org">tell Fr. David</a>.

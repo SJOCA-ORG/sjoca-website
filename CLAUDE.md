@@ -134,6 +134,36 @@ will write to).
 
 ---
 
+## The photo library
+
+Parish photographs live **outside this repo**, in a folder shared between
+contributors:
+
+```
+SJOCA_PHOTO_LIBRARY=/path/to/sjoca-photo-library   # defaults to ~/sjoca-photo-library
+```
+
+Keep it on Google Drive (or equivalent) so both developers seed from the same
+source and it is actually backed up. `db/seeds/curated.yml` lists which files
+become which site assets; without the library those entries report "missing"
+and the seed carries on.
+
+```
+sjoca-photo-library/
+  feast-days/ general/ historical/ interior/ people/ receptions/   50 originals
+  derived/                        crops made for the site
+  manifest.csv                    every file, with sha256, EXIF date, and for
+                                  crops, what they came from and how
+```
+
+**Not in git, deliberately.** Not because clergy serving publicly are sensitive,
+but because once committing parish photographs is normal, someone commits the
+ones with children in them.
+
+**The crops are real work.** They exist nowhere else — the originals survive on
+a thumbdrive, but the framing decisions do not. `manifest.csv` records the crop
+for each so they can be remade.
+
 ## Working agreements
 
 - **Propose, then wait for confirmation.** Mitch wants to see the intended actions before

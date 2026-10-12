@@ -10,6 +10,13 @@
 #
 # Think of this as the import of the old site, not as a content migration tool.
 
+# The fourth column, where present, is the label the parent takes as the first
+# item in its own submenu — so a visitor can tell the parent has a page too.
+SELF_NAV = {
+  "events-services" => "Calendar",
+  "education"       => "Adult Education"
+}.freeze
+
 NAV = [
   # slug,                             nav label,            parent,            pos
   ["home",                            "Home",               nil,               1],
@@ -19,10 +26,12 @@ NAV = [
   ["about-us/choir",                  "Choir",              "about-us",        3],
   ["events-services",                 "Events & Services",  nil,               3],
   ["events-services/weekly-bulletin", "Weekly Bulletin",    "events-services", 1],
-  ["events-services/miter-ceremony",  "Miter Ceremony",     "events-services", 2],
-  ["donate",                          "Donate",             nil,               4],
-  ["community-outreach",              "Community Outreach", nil,               5],
-  ["contact",                         "Contact",            nil,               6]
+  ["education",                       "Education & Resources", nil,            4],
+  ["education/daily-lectionary",      "Daily Lectionary",   "education",       1],
+  ["education/orthodox-resources",    "Orthodox Resources", "education",       2],
+  ["donate",                          "Giving",             nil,               5],
+  ["community-outreach",              "Community Outreach", nil,               6],
+  ["contact",                         "Contact",            nil,               7]
 ].freeze
 
 force   = ENV["FORCE_CONTENT_RESEED"] == "1"
@@ -54,7 +63,9 @@ NAV.each do |slug, nav_title, parent, position|
     hero_asset_name: data["hero_asset_name"],
     hero_heading:    data["hero_heading"],
     hero_subheading: data["hero_subheading"],
-    hero_size:       data["hero_size"] || "standard"
+    hero_detail:     data["hero_detail"],
+    hero_size:       data["hero_size"] || "standard",
+    self_nav_title:  SELF_NAV[slug]
   )
   page.save!
   page.sections.destroy_all
@@ -75,6 +86,26 @@ NAV.each do |slug, nav_title, parent, position|
         width:      b["width"]
       )
     end
+  end
+end
+
+# A page removed from NAV lingers in the database otherwise: renaming a slug
+# leaves the old row behind, still in the navigation, still reachable. That
+# happened twice -- Miter Ceremony and adult-education -- and both had to be
+# deleted by hand.
+#
+# Only prune on an explicit re-import. Once the Phase 2 CMS can create pages,
+# deleting anything not in this list would be destructive, so this needs
+# revisiting then.
+orphans = Page.where.not(slug: NAV.map(&:first))
+if orphans.any?
+  if force
+    orphans.each { |p| puts "   removing #{p.slug} (no longer in NAV)" }
+    orphans.destroy_all
+  else
+    puts "   !! #{orphans.count} page(s) in the database but not in NAV: " \
+         "#{orphans.pluck(:slug).join(', ')}"
+    puts "   !! FORCE_CONTENT_RESEED=1 to remove them"
   end
 end
 
