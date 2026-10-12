@@ -25,6 +25,15 @@ Newest decisions at the top of each section.
 
 ## Known gaps
 
+- [ ] **Move the photo library to shared storage** (Google Drive), and point
+      `SJOCA_PHOTO_LIBRARY` at it. Today it exists on one laptop, is not backed
+      up, and a second developer cloning the repo gets "missing" for every
+      curated asset. Agreed approach; not yet done.
+- [ ] **The admin preview must bypass the image cache.** Asset URLs are stable
+      by design, so a five-minute cache window means a parishioner can replace a
+      photo and not see the change — which reads as a broken CMS rather than a
+      cache. Caught by looking for exactly that.
+
 - [ ] **Allow embedding on the YouTube classes.** The Adult Education page is
       built to play the class recordings inline, but all three videos refuse:
       *"Playback on other websites has been disabled by the video owner."*
