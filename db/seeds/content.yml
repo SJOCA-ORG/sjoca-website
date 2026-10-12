@@ -1140,14 +1140,8 @@
       position: 0
       align: left
       content: Past classes
-    - kind: text
-      column: 0
-      row: 0
-      position: 1
-      align: left
-      content: Every class is recorded, so nothing is missed by starting late.
     - kind: classes
       column: 0
       row: 0
-      position: 2
+      position: 1
       align: left
