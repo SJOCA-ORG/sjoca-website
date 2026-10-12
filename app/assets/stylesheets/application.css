@@ -587,3 +587,28 @@ a:hover    { color: var(--maroon); }
   .lectionary__empty   { grid-column: 2; }
   .lectionary__today   { margin-bottom: 1.5rem; }
 }
+
+/* ---------- lists and quotations ---------------------------------------- */
+
+.b-list {
+  margin: 0 0 .9rem; padding: 0; list-style: none;
+  font-family: var(--font-content); font-size: 13pt; line-height: 1.5;
+}
+.b-list li { padding: .32rem 0 .32rem 1.25rem; position: relative; }
+.b-list li::before {
+  content: ""; position: absolute; left: 0; top: .95em;
+  width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .5;
+}
+.band--maroon .b-list li::before { background: #fff; }
+
+.b-quote {
+  margin: 0 0 1.1rem; padding: 0 0 0 1.1rem;
+  border-left: 3px solid var(--maroon);
+  font-family: var(--font-content); font-size: 12.5pt; font-style: italic;
+  line-height: 1.65; opacity: .9;
+}
+.band--maroon .b-quote { border-left-color: rgba(255,255,255,.55); }
+
+/* Two equal columns need a little air between them when they carry different
+   kinds of appeal. */
+@media (min-width: 900px) { .cols { gap: 3rem; } }

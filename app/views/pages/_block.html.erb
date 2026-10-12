@@ -27,6 +27,18 @@
 <% when "calendar" %>
   <div class="b b-calendar"><%= render "pages/calendar" %></div>
 
+<% when "list" %>
+  <%# One item per line in the content. Rendered as a real list so a screen
+      reader announces how many there are. %>
+  <ul class="b b-list b--<%= block.align %>">
+    <% block.content.to_s.split("\n").map(&:strip).reject(&:blank?).each do |item| %>
+      <li><%= sanitize_inline(item) %></li>
+    <% end %>
+  </ul>
+
+<% when "quote" %>
+  <blockquote class="b b-quote b--<%= block.align %>"><%= sanitize_inline(block.content) %></blockquote>
+
 <% when "lectionary" %>
   <div class="b b-lectionary"><%= render "pages/lectionary" %></div>
 

@@ -634,19 +634,19 @@
 - slug: donate
   sections:
   - style: light
-    column_widths: null
+    column_widths: 1,1
     blocks:
     - kind: heading
       column: 0
       row: 0
       position: 0
-      align: center
-      content: Giving to the parish
+      align: left
+      content: Financially
     - kind: text
       column: 0
       row: 0
       position: 1
-      align: center
+      align: left
       content: This fund goes toward the parish’s monthly general needs. We rely 100% on the generosity
         of those who donate in order to continue to minister to this beautiful parish community. In addition
         we support our local homeless community, and our daughter mission parish.
@@ -654,16 +654,63 @@
       column: 0
       row: 0
       position: 2
-      align: center
+      align: left
       url: https://sjoca.churchtrac.com/give
       content: Give online
     - kind: text
       column: 0
       row: 0
       position: 3
-      align: center
+      align: left
       content: This opens our secure giving page at ChurchTrac, which the parish already uses for its
         records. You can give once or set up a regular gift.
+    - kind: heading
+      column: 1
+      row: 0
+      position: 0
+      align: left
+      content: With your time and talent
+    - kind: quote
+      column: 1
+      row: 0
+      position: 1
+      align: left
+      content: 1 Corinthians 15:58 — &#8220;Therefore, my dear brothers and sisters, stand firm. Let nothing
+        move you. Always give yourselves fully to the work of the Lord, because you know that your labor
+        in the Lord is not in vain.&#8221;
+    - kind: text
+      column: 1
+      row: 0
+      position: 2
+      align: left
+      content: 'Let us know if you can help us with any of these ministries:'
+    - kind: list
+      column: 1
+      row: 0
+      position: 3
+      align: left
+      content: 'Children''s Education
+
+        Building Maintenance
+
+        Gardening
+
+        Website Maintenance
+
+        Choir
+
+        Greeting
+
+        Accounting
+
+        Driving'
+    - kind: text
+      column: 1
+      row: 0
+      position: 4
+      align: left
+      content: <a href="mailto:fr.david@sjoca.org">Email Fr. David</a> or speak to any of us after the
+        Liturgy.
   hero_asset_name: donate-hero
   hero_heading: Giving
   hero_subheading: null
