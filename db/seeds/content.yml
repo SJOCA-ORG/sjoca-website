@@ -952,7 +952,7 @@
   hero_subheading: null
   hero_size: standard
   hero_detail: Great Vespers Saturday 6pm · Reading of the Hours Sunday 9:30am · Divine Liturgy Sunday
-    10am · Compline Wednesdays 6pm
+    10am · Akathist Wednesdays 6pm
 - slug: home
   sections:
   - style: light
@@ -1043,7 +1043,7 @@
       position: 0
       width: 661
     - kind: subheading
-      content: 'Compline: Wednesdays @6pm'
+      content: 'Akathist: Wednesdays @6pm'
       align: center
       column: 1
       row: 0
@@ -1098,7 +1098,7 @@
 - slug: adult-education
   hero_asset_name: adult-education-hero
   hero_heading: Adult Education
-  hero_detail: Wednesdays at 8:00pm, after Compline — in person and on Zoom
+  hero_detail: Wednesdays at 8:00pm, after the Akathist — in person and on Zoom
   hero_size: standard
   sections:
   - style: light
@@ -1122,7 +1122,7 @@
       row: 0
       position: 2
       align: center
-      content: We meet in the church after Compline, and the same conversation runs on Zoom for anyone
+      content: We meet in the church after the Akathist, and the same conversation runs on Zoom for anyone
         who cannot be there in person.
     - kind: button
       column: 0

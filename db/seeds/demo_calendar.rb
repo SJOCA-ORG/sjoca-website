@@ -25,9 +25,9 @@ end
 DEMO = [
   # A cancellation — the case the home page most needs to surface, because it
   # contradicts what the parish already expects to be true.
-  { title: "No Compline this week — Fr. David away",
+  { title: "No Akathist this week — Fr. David away",
     on: Date.current.next_occurring(:wednesday), at: "18:00", duration: 0,
-    notes: "Compline resumes next Wednesday." },
+    notes: "The Akathist resumes next Wednesday." },
 
   # A one-off that is not part of the weekly round.
   { title: "Parish Council Meeting",

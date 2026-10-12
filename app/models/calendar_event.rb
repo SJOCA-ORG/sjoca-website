@@ -14,7 +14,14 @@ class CalendarEvent < ApplicationRecord
     /\A(great\s+)?vespers\z/i,
     /\Adivine\s+liturgy\z/i,
     /\Aakathist\z/i,
+    # Compline was the Wednesday service until Fr David replaced it with the
+    # Akathist. Kept so older entries still classify as routine.
     /\Acompline\z/i,
+    # The Wednesday class is now weekly and in ChurchTrac, so it belongs to the
+    # regular round. Without this it would be flagged as noteworthy on the home
+    # page every single week, which is how a "what's different" panel becomes
+    # noise and stops being read.
+    /adult\s*ed(ucation)?/i,
     /\A(reading\s+of\s+the\s+)?hours\z/i
   ].freeze
 
@@ -40,7 +47,12 @@ class CalendarEvent < ApplicationRecord
   # of something they would.
   def self.noteworthy_within(days) = within(days).select(&:noteworthy?)
 
-  def regular?     = REGULAR_TITLES.any? { |p| p.match?(title.to_s.strip) }
+  # Regular means both: it is one of the recurring titles AND ChurchTrac marks
+  # it as a recurring series. The second half matters — a one-off Vespers for a
+  # feast is not the routine Saturday one, and "Adult Education #3" on a
+  # Saturday afternoon is not the weekly Wednesday class. Using the recurring
+  # flag lets the titles stay broad without swallowing one-offs.
+  def regular? = recurring? && REGULAR_TITLES.any? { |p| p.match?(title.to_s.strip) }
   def cancellation? = CANCELLATION.match?(title.to_s.strip)
   def noteworthy?  = cancellation? || !regular?
 
