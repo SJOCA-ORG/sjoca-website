@@ -56,6 +56,23 @@ nothing should until the parish has said yes.
 
 ---
 
+## If the first build fails with "type ... already exists"
+
+An interrupted first deploy leaves tables behind without recording them in
+`schema_migrations`, so the next build tries to load the schema again and
+collides with its own leftovers. There is no data worth keeping at that point,
+so empty the database and redeploy:
+
+```bash
+psql "<render external connection string>" -c \
+  'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+```
+
+Then Manual Deploy → Clear build cache & deploy.
+
+The build now uses `db:prepare` rather than `db:migrate`, which handles the
+empty and the already-migrated case, so this should not recur.
+
 ## Afterwards
 
 **Deploys happen on push** to `main`. Migrations run in the

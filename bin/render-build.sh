@@ -7,6 +7,14 @@ bundle install
 bundle exec rails assets:precompile
 bundle exec rails assets:clean
 
-# Schema changes are applied on every deploy. Seeding is NOT run here: the
-# photographs are not in git, so the server cannot seed them. See render.yaml.
-bundle exec rails db:migrate
+# db:prepare rather than db:migrate.
+#
+# On an empty database db:migrate loads schema.rb and then records the
+# migrations; if that is interrupted the tables exist but schema_migrations does
+# not, and every later deploy fails with "type ... already exists" -- which is
+# exactly what happened on the first attempt here. db:prepare handles both the
+# empty and the already-migrated case and is what Rails recommends on deploy.
+#
+# Seeding is NOT run here: the photographs are not in git, so the server cannot
+# seed them. See docs/deployment.md.
+bundle exec rails db:prepare
