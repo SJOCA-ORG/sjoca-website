@@ -69,9 +69,13 @@ So somebody holds an **AWS account** containing the domain and Route 53, and a
 **Google Workspace** account for @sjoca.org mail. Both are needed before
 cutover, and neither is in our hands yet.
 
-- [ ] **Find who holds the AWS account.** Repointing the domain is a two-minute
-      Route 53 edit *if* someone can log in, and a protracted recovery if not.
-      This is the single thing most likely to delay cutover.
+- [x] ~~Find who holds the AWS account~~ — **in progress with AWS Support**,
+      case opened 12 October 2026. Mitch is already the registrant contact: the
+      January 2026 "confirm your contact information" email for sjoca.org was
+      sent to mitch@catprint.com. But the domain does not appear under the
+      account he can log into, so AWS is being asked which account holds it.
+      (Worth re-checking the region while waiting — the Registered Domains
+      screen only renders in us-east-1 and shows an empty list everywhere else.)
 - [ ] **Find who holds Google Workspace admin.** Mail must keep working through
       and after the move; it is independent of the website, but only if nobody
       edits the MX records by accident.
