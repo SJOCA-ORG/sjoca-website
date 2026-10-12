@@ -23,6 +23,29 @@ Newest decisions at the top of each section.
 - [ ] **Page-by-page visual comparison** against the old site, desktop and phone.
 - [ ] **Rehearse the AGM demo** against the real deployment.
 
+## Leadership page — open questions
+
+Council changed over and the page is updated as far as it can be. Still needed:
+
+- [ ] **Alec's surname.** Listed as "Alec" alone, which is the only entry on the
+      page without a full name.
+- [ ] **Confirm the email addresses follow the office, not the person.**
+      warden@, asstwarden@, secretary@ and treasurer@ look like role addresses,
+      so the page now assumes Heather takes warden@ on becoming President rather
+      than carrying asstwarden@ with her. If they are actually personal
+      aliases, three entries are wrong.
+- [ ] **Two domains are in use.** warden@, asstwarden@, secretary@ and
+      frdavid@ are all @sjoca.org; treasurer@ and deacon@ are
+      @stjohnthebaptistorthodox.org. Probably historical, worth settling.
+- [ ] **What happened to Steve F.?** Removed as President. Off the council, or
+      in another role?
+- [ ] **Does Heather keep "Matushka" in a lay office?** The page used it when
+      she was Vice President, so it is kept, but it is the parish's call.
+- [ ] **Photographs needed:** Heather (hers is a 271x233 family snapshot that
+      cannot be cropped usefully), Alec (none at all), and eventually the
+      Buildings & Grounds pair. Ten minutes at coffee hour would settle all of
+      them.
+
 ## Known gaps
 
 - [ ] **Move the photo library to shared storage** (Google Drive), and point

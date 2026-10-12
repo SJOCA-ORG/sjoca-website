@@ -159,98 +159,88 @@
     column_widths: 266,645
     blocks:
     - kind: image
-      align: center
-      url: null
-      asset_name: about-us-leadership-05
-      width: 266
-      row: 0
       column: 0
+      row: 0
       position: 0
+      align: center
+      asset_name: about-us-leadership-06
+      width: 266
     - kind: heading
+      column: 1
+      row: 0
+      position: 0
+      align: left
       content: President
-      align: left
       width: 645
-      row: 0
-      column: 1
-      position: 0
     - kind: heading
-      content: Steve F.
-      align: left
-      width: 645
-      row: 0
       column: 1
+      row: 0
       position: 1
-    - kind: heading
-      content: warden@sjoca.org
+      align: left
+      content: Matushka Heather McNulty
+      width: 645
+    - kind: text
+      column: 1
+      row: 0
+      position: 2
       align: left
       width: 645
-      row: 0
-      column: 1
-      position: 2
+      content: <a href="mailto:warden@sjoca.org">warden@sjoca.org</a>
   - style: plain
     column_widths: 464,605
     blocks:
     - kind: image
-      align: center
-      url: null
-      asset_name: about-us-leadership-06
-      width: 464
-      row: 0
       column: 0
+      row: 0
       position: 0
+      align: center
+      asset_name: about-us-leadership-07
+      width: 266
     - kind: heading
+      column: 1
+      row: 0
+      position: 0
+      align: left
       content: Vice President
-      align: left
-      width: 605
-      row: 0
-      column: 1
-      position: 0
+      width: 645
     - kind: heading
-      content: Matushka Heather
-      align: left
-      width: 605
-      row: 0
       column: 1
+      row: 0
       position: 1
-    - kind: text
-      content: asstwarden@sjoca.org
       align: left
-      width: 605
-      row: 0
+      content: Ryan Chacinski
+      width: 645
+    - kind: text
       column: 1
+      row: 0
       position: 2
+      align: left
+      width: 645
+      content: <a href="mailto:asstwarden@sjoca.org">asstwarden@sjoca.org</a>
   - style: plain
     column_widths: 266,645
     blocks:
-    - kind: image
-      align: center
-      url: null
-      asset_name: about-us-leadership-07
-      width: 266
-      row: 0
-      column: 0
-      position: 0
     - kind: heading
+      column: 1
+      row: 0
+      position: 0
+      align: left
       content: Secretary
-      align: left
       width: 645
-      row: 0
-      column: 1
-      position: 0
     - kind: heading
-      content: Ryan C.
-      align: left
-      width: 645
-      row: 0
       column: 1
+      row: 0
       position: 1
+      align: left
+      content: Alec
+      width: 645
     - kind: text
-      content: secretary@sjoca.org
+      column: 1
+      row: 0
+      position: 2
       align: left
       width: 645
-      row: 0
-      column: 1
-      position: 2
+      content: <a href="mailto:secretary@sjoca.org">secretary@sjoca.org</a>
   - style: plain
     column_widths: 266,645
     blocks:
