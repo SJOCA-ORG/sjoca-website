@@ -248,11 +248,12 @@ a:hover    { color: var(--maroon); }
 
 .b-embed { width: 100%; }
 .b-embed iframe {
-  width: 100%; min-height: 420px; border: 0; background: var(--white);
-  /* An embedded map swallows the page scroll on a phone, which is maddening.
-     Ignore pointer events until it is deliberately clicked. */
-  pointer-events: none;
+  width: 100%; min-height: 420px; aspect-ratio: 16 / 9; border: 0;
+  background: var(--white);
 }
+/* An embedded map swallows the page scroll on a phone, which is maddening, so
+   it stays inert until clicked. A video player has no such problem. */
+.b-embed--map iframe { pointer-events: none; }
 .b-embed:focus-within iframe,
 .b-embed.is-active iframe { pointer-events: auto; }
 
@@ -313,15 +314,31 @@ a:hover    { color: var(--maroon); }
   .site-footer__contact { text-align: left; }
 }
 
+/* Call to action — the Zoom link, chiefly. Sized for a thumb. */
+.button {
+  display: inline-block; padding: .75rem 1.6rem; margin-top: .4rem;
+  border: 1px solid currentColor; border-radius: 3px;
+  font-family: var(--font-content); font-size: 13pt; font-weight: 600;
+  text-decoration: none; letter-spacing: .01em;
+}
+.band--plain .button, .band--light .button {
+  background: var(--maroon); border-color: var(--maroon); color: #fff;
+}
+.band--plain .button:visited, .band--light .button:visited { color: #fff; }
+.band--plain .button:hover,   .band--light .button:hover   { background: var(--maroon-hover); border-color: var(--maroon-hover); }
+.band--maroon .button { background: #fff; border-color: #fff; color: var(--maroon); text-decoration: none; }
+.band--maroon .button:visited { color: var(--maroon); }
+.band--maroon .button:hover   { background: rgba(255,255,255,.88); }
+
 /* A map is only useful if you can actually use it, so one click arms it. */
 .b-embed { position: relative; }
-.b-embed::after {
+.b-embed--map::after {
   content: "Click the map to interact"; position: absolute; inset: auto 0 0 0;
   padding: .45rem; text-align: center;
   font-family: var(--font-content); font-size: 10.5pt;
   background: rgba(33,33,33,.72); color: #fff;
 }
-.b-embed.is-active::after { content: none; }
+.b-embed--map.is-active::after { content: none; }
 
 /* ---------- parish calendar --------------------------------------------
    Rendered from our own mirror of ChurchTrac rather than their iframe, so it

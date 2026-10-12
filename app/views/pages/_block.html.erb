@@ -31,9 +31,13 @@
   <div class="b b-upcoming"><%= render "pages/upcoming" %></div>
 
 <% when "embed" %>
-  <div class="b b-embed" data-controller="embed" data-action="click->embed#activate">
-    <iframe src="<%= block.url %>" title="Map of the parish"
-            loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <% map = block.url.to_s.include?("google.com/maps") %>
+  <div class="b b-embed <%= map ? "b-embed--map" : "b-embed--video" %>"
+       <%= 'data-controller=embed data-action=click->embed#activate'.html_safe if map %>>
+    <iframe src="<%= block.url %>"
+            title="<%= map ? "Map of the parish" : "Adult education class recordings" %>"
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            <%= 'allowfullscreen'.html_safe unless map %>></iframe>
   </div>
 
 <% when "button" %>

@@ -1095,3 +1095,61 @@
   hero_heading: Saint John the Baptist<br>Orthodox Church
   hero_subheading: null
   hero_size: standard
+- slug: adult-education
+  hero_asset_name: adult-education-hero
+  hero_heading: Adult Education
+  hero_detail: Wednesdays at 8:00pm, after Compline — in person and on Zoom
+  hero_size: standard
+  sections:
+  - style: light
+    column_widths: null
+    blocks:
+    - kind: heading
+      column: 0
+      row: 0
+      position: 0
+      align: center
+      content: Come and see
+    - kind: text
+      column: 0
+      row: 0
+      position: 1
+      align: center
+      content: Inquirers, catechumens, and anyone wishing to understand the Orthodox faith more deeply
+        are welcome. No preparation is needed, and no one will ask you to introduce yourself.
+    - kind: text
+      column: 0
+      row: 0
+      position: 2
+      align: center
+      content: We meet in the church after Compline, and the same conversation runs on Zoom for anyone
+        who cannot be there in person.
+    - kind: button
+      column: 0
+      row: 0
+      position: 3
+      align: center
+      url: https://us06web.zoom.us/j/4021035288?pwd=UVAxYVdwZ0FTVVBMNG9tNWpTT2d4dz09
+      content: Join on Zoom
+  - style: plain
+    column_widths: null
+    blocks:
+    - kind: heading
+      column: 0
+      row: 0
+      position: 0
+      align: left
+      content: Past classes
+    - kind: text
+      column: 0
+      row: 0
+      position: 1
+      align: left
+      content: Every class is recorded, so nothing is missed by starting late.
+    - kind: button
+      column: 0
+      row: 0
+      position: 2
+      align: left
+      url: https://www.youtube.com/playlist?list=PLQsSPU5CSGtY
+      content: Watch the classes on YouTube

@@ -19,9 +19,10 @@ NAV = [
   ["about-us/choir",                  "Choir",              "about-us",        3],
   ["events-services",                 "Events & Services",  nil,               3],
   ["events-services/weekly-bulletin", "Weekly Bulletin",    "events-services", 1],
-  ["donate",                          "Donate",             nil,               4],
-  ["community-outreach",              "Community Outreach", nil,               5],
-  ["contact",                         "Contact",            nil,               6]
+  ["adult-education",                 "Adult Education",    nil,               4],
+  ["donate",                          "Donate",             nil,               5],
+  ["community-outreach",              "Community Outreach", nil,               6],
+  ["contact",                         "Contact",            nil,               7]
 ].freeze
 
 force   = ENV["FORCE_CONTENT_RESEED"] == "1"

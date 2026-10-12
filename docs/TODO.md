@@ -25,6 +25,15 @@ Newest decisions at the top of each section.
 
 ## Known gaps
 
+- [ ] **Allow embedding on the YouTube classes.** The Adult Education page is
+      built to play the class recordings inline, but all three videos refuse:
+      *"Playback on other websites has been disabled by the video owner."*
+      Confirmed — YouTube's oEmbed endpoint returns `Unauthorized` for every one.
+      Fix is in YouTube Studio, per video or as a channel default: Edit →
+      Advanced settings → **Allow embedding**. Until then the page links out to
+      the playlist instead, which works but sends people away from the site.
+      Playlist: `PLQsSPU5CSGtY` ("Catechumen Classes 2026-2027").
+
 - [ ] **Site search.** Google Sites gives the parish a search box today and the
       rebuild does not. A regression, not a missing feature — nobody will notice
       until after cutover, when they cannot find the bulletin.
