@@ -154,6 +154,27 @@ project, and must be right at cutover.
       the footer's address. Exactly the duplication the Settings resource is
       meant to end. One place, rendered everywhere.
 
+## Decisions to revisit
+
+- [ ] **Scheduling: Render cron now, Solid Queue later.** The three syncs run as
+      Render cron jobs defined in `render.yaml`. Rails 8's own answer is Solid
+      Queue with recurring tasks in `config/recurring.yml`, which this app does
+      not have — the app was generated with `--skip-solid` to stay lean, and by
+      the time scheduling came up the Rails option no longer existed. The choice
+      followed from that rather than being made.
+
+      For three independent, idempotent, six-hourly syncs external cron is a
+      reasonable fit: it costs pennies, nothing runs between times, and failures
+      show in Render's dashboard where a volunteer will actually see them.
+      Retries buy little when the next run is hours away and each job already
+      refuses to apply bad data.
+
+      **What changes the answer:** the bulletin builder needs background jobs
+      regardless — it generates a PDF and an email, neither of which belongs in
+      a web request. So Solid Queue is coming. When it does, move the three
+      syncs into `config/recurring.yml`: one place for all scheduled work, and
+      a schedule that survives leaving Render.
+
 ## Worth doing, not urgent
 
 - [ ] **Decide where the daily readings go.** The mechanism is built and
