@@ -19,8 +19,11 @@ class Section < ApplicationRecord
   # CSS grid track sizes preserving the original proportions at any width.
   # Falls back to equal columns if nothing was measured.
   def grid_template
+    count  = columns.size
     widths = column_widths.to_s.split(",").map(&:to_i).reject(&:zero?)
-    return "repeat(#{[columns.size, 1].max}, minmax(0, 1fr))" if widths.size != columns.size
+    # An empty section has no measurement *and* no columns, so the sizes match
+    # and the fallback below would be skipped — emitting an empty property.
+    return "repeat(#{[count, 1].max}, minmax(0, 1fr))" if count.zero? || widths.size != count
 
     widths.map { |w| "minmax(0, #{w}fr)" }.join(" ")
   end

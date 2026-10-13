@@ -46,6 +46,10 @@ bin/rails db:seed
 bin/rails server
 ```
 
+Run the specs with `bundle exec rspec`. See [`docs/testing.md`](docs/testing.md) — the
+suite is mostly regression specs for bugs that actually shipped, and it is a
+prerequisite for Phase 2, not a nicety.
+
 The capture step is required: photos are not in git (see below), so a fresh clone has
 no image bytes until you run it.
 
@@ -82,7 +86,13 @@ will write to).
 ### Next
 
 1. Visual comparison pass, page by page, desktop and phone.
-2. Phase 2: the CMS with draft → review → publish, and the photo consent table.
+2. Browser specs — the largest gap in the suite (`docs/TODO.md`).
+3. Phase 2: see [`docs/ai-admin.md`](docs/ai-admin.md), which supersedes the
+   "minimum CMS" sketch. The parish edits by describing changes to an AI working
+   in a sandbox, with approval gated by computed blast radius. Build the
+   revision model, the approval audit trail and the test suite before any AI
+   wiring — the AI slots into the *draft* stage of a flow that must work
+   without it.
 
 Deployment is done — see [`docs/deployment.md`](docs/deployment.md). The site runs on
 Render at **https://sjoca.onrender.com** (service `srv-db6kqurl550s73bd5h90`), deployed

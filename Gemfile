@@ -31,6 +31,10 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
+  # Specs. See docs/testing.md — the suite exists so that template and refactor
+  # changes have something other than a human eyeball standing behind them.
+  gem "rspec-rails"
+
   # Audits gems for known security defects (use config/bundler-audit.yml to ignore issues)
   gem "bundler-audit", require: false
 
@@ -47,4 +51,8 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+
+  # Stubs outbound HTTP. Every importer spec runs offline: the real feeds are
+  # third-party and must never be hit from a test run.
+  gem "webmock"
 end

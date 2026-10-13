@@ -115,6 +115,29 @@ project, and must be right at cutover.
 
 ## Known gaps
 
+- [ ] **No browser specs, so the mobile-menu class of bug is still invisible.**
+      `capybara` and `selenium-webdriver` are in the Gemfile and unused. The
+      responsive checks `docs/ai-admin.md` calls for — every page at 390px and
+      1280px, no horizontal overflow, every nav item reachable — need them.
+      This is the largest gap in the suite; see `docs/testing.md`.
+
+- [ ] **`legacy_assets.byte_size` and `calendar_events.synced_at` are NOT NULL
+      at the database but neither defaulted nor validated by their models.**
+      Every current caller sets them by hand, so nothing is broken today — but
+      a programming error surfaces as a `PG::NotNullViolation` 500 rather than
+      a validation failure, and `byte_size` is just `data.bytesize`, computed
+      in two seed files that could drift apart. Phase 2 will have the CMS (and
+      the AI) creating assets, so a `before_validation` that derives it would
+      remove the footgun. Found while writing the specs.
+
+- [ ] **No specs for the YouTube or lectionary importers.** They share the
+      ChurchTrac importer's fail-closed shape, so the pattern is proven, but
+      their own parsing is not — and `Oca::LectionaryFeed` does brace-matched
+      JSON extraction off a page we do not control.
+
+- [ ] **`FORCE_CONTENT_RESEED` orphan pruning is untested**, and it deletes
+      pages.
+
 - [ ] **The jurisdiction appears only on the home page.** "A parish of the
       Orthodox Church in America (OCA), Diocese of New York and New Jersey" is
       in the mission statement and the maroon band, and nowhere else — so
