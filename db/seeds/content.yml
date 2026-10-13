@@ -85,6 +85,13 @@
       align: left
       width: 645
       content: <a href="mailto:frdavid@sjoca.org">frdavid@sjoca.org</a>
+    - kind: text
+      column: 1
+      row: 0
+      position: 2
+      align: left
+      width: 645
+      content: <a href="tel:+19144135605">914-413-5605</a>
   - style: plain
     column_widths: 265,745
     blocks:
@@ -101,7 +108,7 @@
       row: 0
       position: 0
       align: left
-      content: Reverend Deacon Sean McNulty
+      content: Reverend Deacon Sean McNulty, Attached
       width: 645
     - kind: text
       column: 1
@@ -125,7 +132,7 @@
       row: 0
       position: 0
       align: left
-      content: Reverend Deacon Mitchell VanDuyn
+      content: Reverend Deacon Mitchell VanDuyn, Attached
       width: 645
   - style: plain
     column_widths: 265,745
@@ -567,14 +574,21 @@
       width: 1138
       row: 0
       column: 0
+      position: 4
+    - kind: text
+      column: 0
+      row: 0
       position: 3
+      align: left
+      width: 1138
+      content: A minute from I-490 at the Goodman Street exit<br>— just south of the Highland Park Diner
     - kind: text
       column: 0
       row: 0
       position: 2
       align: left
       width: 1138
-      content: A minute from I-490 at the Goodman Street exit<br>— just south of the Highland Park Diner
+      content: 'Phone: <a href="tel:+19144135605">914-413-5605</a>'
   - style: plain
     column_widths: null
     blocks:
