@@ -8,6 +8,13 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <%# Parish mark: Flower City logo as a watermark behind an Orthodox three-bar
+        cross. See docs/favicon.md for the design history and provenance. %>
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon-180.png">
+    <link rel="manifest" href="<%= pwa_manifest_path %>">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <%= stylesheet_link_tag "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Lato:wght@300;400;700&family=Quicksand:wght@400;500;600&family=Lobster&display=swap" %>

@@ -8,6 +8,11 @@ Rails.application.routes.draw do
 
   root "pages#show", defaults: { path: "home" }
 
+  # Must come before the catch-all below: "*path" matches "manifest" and
+  # "service-worker" too, which is why these had never resolved.
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+
   # Page paths mirror the old site exactly ("/about-us/our-story"), so links
   # already out in the world keep working after cutover.
   get "*path", to: "pages#show", as: :page,
