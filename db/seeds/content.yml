@@ -929,31 +929,6 @@
       row: 0
       column: 0
       position: 1
-  - style: maroon
-    column_widths: 464,645
-    blocks:
-    - kind: heading
-      content: Volunteer Weekends
-      align: center
-      width: 645
-      row: 0
-      column: 1
-      position: 0
-    - kind: text
-      content: Open Door Mission PB&amp;J Factory! Each month, our goal is to give back to the community
-        in faith, kind acts and love.
-      align: left
-      width: 645
-      row: 0
-      column: 1
-      position: 1
-    - kind: text
-      content: Thank you so much to all of those who help and contribute!!
-      align: center
-      width: 645
-      row: 0
-      column: 1
-      position: 2
   hero_asset_name: events-services-hero
   hero_heading: Events &amp; Services
   hero_subheading: null
