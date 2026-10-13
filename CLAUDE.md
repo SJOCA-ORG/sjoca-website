@@ -3,7 +3,7 @@
 Context for anyone (person or Claude session) picking this project up. This file is
 committed so it travels with the repo; it is the handoff, not a scratchpad.
 
-**Last updated:** 2026-10-09 — Phase 1 Rails clone standing up and rendering.
+**Last updated:** 2026-10-13 — Phase 1 clone deployed to Render; parish favicon in place.
 
 ---
 
@@ -21,7 +21,7 @@ is detail hanging off that.
 
 ## Where we are
 
-**Phase 1 — Rails clone of the current site. Rendering, not yet deployed.**
+**Phase 1 — Rails clone of the current site. Deployed and live on Render.**
 
 The council already approved the project and the Rails approach; see
 [`IMPLEMENTATION-PLAN.md`](IMPLEMENTATION-PLAN.md), which supersedes Phase A of the
@@ -82,9 +82,18 @@ will write to).
 ### Next
 
 1. Visual comparison pass, page by page, desktop and phone.
-2. Choose a host; get it deployed and seeded (see the seed note on running the first
-   production seed from a developer machine).
-3. Phase 2: the CMS with draft → review → publish, and the photo consent table.
+2. Phase 2: the CMS with draft → review → publish, and the photo consent table.
+
+Deployment is done — see [`docs/deployment.md`](docs/deployment.md). The site runs on
+Render at **https://sjoca.onrender.com** (service `srv-db6kqurl550s73bd5h90`), deployed
+from `main` via `render.yaml`, with three cron jobs for the calendar, class recordings
+and lectionary mirrors. `sjoca.org` is **not** cut over yet; the domain owner is still
+being tracked down (`docs/TODO.md`).
+
+The parish favicon is in place — the Flower City logo behind an Orthodox three-bar
+cross. Design history, provenance and the regeneration command are in
+[`docs/favicon.md`](docs/favicon.md). It is generated from `public/icon.svg`;
+regenerate the rasters rather than hand-editing a PNG.
 
 ## Things that are settled — don't reopen without asking
 
