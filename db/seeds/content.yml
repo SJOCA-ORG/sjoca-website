@@ -54,19 +54,12 @@
       column: 0
       position: 0
     - kind: heading
-      content: His Eminence, Michael
-      align: left
-      width: 645
-      row: 0
       column: 1
+      row: 0
       position: 0
-    - kind: heading
-      content: Archbishop of New York &amp; the Diocese of New York &amp; New Jersey
       align: left
+      content: His Eminence MICHAEL, Archbishop of New York and the Diocese of New York and New Jersey
       width: 645
-      row: 0
-      column: 1
-      position: 1
   - style: plain
     column_widths: 265,745
     blocks:
