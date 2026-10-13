@@ -72,26 +72,19 @@
       column: 0
       position: 0
     - kind: heading
-      content: Very Reverend, Archpriest
-      align: left
-      width: 645
-      row: 0
       column: 1
+      row: 0
       position: 0
-    - kind: heading
-      content: David Mezynski
       align: left
+      content: Very Reverend Father David Mezynski, Ph.D.
       width: 645
-      row: 0
-      column: 1
-      position: 1
     - kind: text
-      content: frdavid@sjoca.org
+      column: 1
+      row: 0
+      position: 1
       align: left
       width: 645
-      row: 0
-      column: 1
-      position: 2
+      content: <a href="mailto:frdavid@sjoca.org">frdavid@sjoca.org</a>
   - style: plain
     column_widths: 265,745
     blocks:
@@ -104,26 +97,19 @@
       column: 0
       position: 0
     - kind: heading
-      content: Reverend Deacon
-      align: left
-      width: 645
-      row: 0
       column: 1
+      row: 0
       position: 0
-    - kind: heading
-      content: Sean M.
       align: left
+      content: Reverend Deacon Sean McNulty
       width: 645
-      row: 0
+    - kind: text
       column: 1
+      row: 0
       position: 1
-    - kind: heading
-      content: deacon@stjohnthebaptistorthodox.org
       align: left
       width: 645
-      row: 0
-      column: 1
-      position: 2
+      content: <a href="mailto:deacon@stjohnthebaptistorthodox.org">deacon@stjohnthebaptistorthodox.org</a>
   - style: plain
     column_widths: 265,745
     blocks:
@@ -139,14 +125,7 @@
       row: 0
       position: 0
       align: left
-      content: Reverend Deacon
-      width: 645
-    - kind: heading
-      column: 1
-      row: 0
-      position: 1
-      align: left
-      content: Mitch VanDuyn
+      content: Reverend Deacon Mitchell VanDuyn
       width: 645
   - style: plain
     column_widths: 265,745
