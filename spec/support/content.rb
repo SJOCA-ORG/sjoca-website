@@ -4,8 +4,12 @@
 module ContentBuilders
   # All content belongs to a revision. Specs get one published revision each,
   # so Revision.live -- which is how the controllers resolve it -- finds it.
+  # Specs render through the real Liquid templates, not a stub -- a spec that
+  # passes against made-up markup proves nothing about the site.
   def test_revision
-    @test_revision ||= Revision.create!(state: "published", title: "spec")
+    @test_revision ||= Revision.create!(state: "published", title: "spec").tap do |r|
+      DefaultTemplates.install!(r)
+    end
   end
 
   def build_page(slug: "home", title: "Home", nav_title: "Home",

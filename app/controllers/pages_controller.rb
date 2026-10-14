@@ -1,19 +1,32 @@
 class PagesController < ApplicationController
   include RevisionScoped
 
-  # The navigation is part of the layout, so it has to be there for the
-  # not-found page too, not just when a page resolves.
-  before_action :load_nav
+  rescue_from Site::Renderer::Error, with: :template_error
 
   def show
     @page = Page.in_revision(Current.revision).includes(sections: :blocks)
                 .find_by(slug: params[:path])
-    render "not_found", status: :not_found unless @page
+
+    renderer = Site::PageRenderer.new(Current.revision)
+    @header  = renderer.chrome("header", @page)
+    @footer  = renderer.chrome("footer", @page)
+
+    if @page
+      @body = renderer.body(@page)
+      render :show
+    else
+      render :not_found, status: :not_found
+    end
   end
 
   private
 
-  def load_nav
-    @nav = Page.in_revision(Current.revision).top_level.in_nav
+  # A broken template must not take the whole site down with a stack trace. In
+  # development it shows what is wrong; in production it is a 500 page.
+  def template_error(error)
+    Rails.logger.error("Liquid template error: #{error.message}")
+    raise error if Rails.env.local?
+
+    render plain: "This page is temporarily unavailable.", status: :internal_server_error
   end
 end

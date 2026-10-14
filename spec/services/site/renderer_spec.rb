@@ -1,0 +1,90 @@
+require "rails_helper"
+
+# The site is rendered from templates stored in the database. These specs cover
+# what that port has to keep true -- and two traps that cost real time.
+RSpec.describe Site::Renderer do
+  let(:revision) { test_revision }
+  let(:page)     { build_page(slug: "giving", title: "Giving", nav_title: "Giving") }
+  let(:renderer) { Site::PageRenderer.new(revision) }
+
+  describe "every block kind renders" do
+    # If a kind has no template it vanishes silently, which on a parish site
+    # means content disappearing with nothing to notice.
+    Block::KINDS.each do |kind|
+      it "renders a #{kind} block without error" do
+        section = build_section(page: page)
+        build_block(section: section, kind: kind, content: "Sample #{kind}")
+
+        expect { renderer.body(page.reload) }.not_to raise_error
+      end
+    end
+
+    it "has a template for every declared kind" do
+      names = revision.templates.pluck(:name)
+      Block::KINDS.each do |kind|
+        expect(names).to include("block/#{kind}"), "no template for block kind #{kind.inspect}"
+      end
+    end
+  end
+
+  describe "content safety" do
+    # Liquid does not escape by default, so anything landing in an attribute
+    # must be escaped by the drop. A quote in an alt text silently truncated
+    # the attribute and lost the rest of the description.
+    it "escapes a quote in a photograph's alt text" do
+      photo = build_asset(human_name: "quoted")
+      photo.update!(alt_text: %(An icon holding a scroll reading "Repent"))
+      section = build_section(page: page)
+      build_block(section: section, kind: "image", asset_name: "quoted")
+
+      html = renderer.body(page.reload)
+      expect(html).to include("&quot;Repent&quot;")
+      expect(html).not_to include(%(alt="An icon holding a scroll reading "Repent""))
+    end
+
+    it "strips markup the parish is not allowed to write" do
+      section = build_section(page: page)
+      build_block(section: section, kind: "text", content: "<script>alert(1)</script>Hello")
+
+      expect(renderer.body(page.reload)).not_to include("<script>")
+    end
+
+    it "keeps the inline markup that is allowed" do
+      section = build_section(page: page)
+      build_block(section: section, kind: "text", content: %(Visit <a href="/giving">Giving</a>))
+
+      expect(renderer.body(page.reload)).to include(%(<a href="/giving">Giving</a>))
+    end
+  end
+
+  # In Liquid only nil and false are falsy -- "" is truthy. Every {% if %}
+  # guarding an optional field rendered an empty tag until the drops returned
+  # nil for blank.
+  it "omits an optional hero field rather than rendering an empty tag" do
+    page.update!(hero_heading: "Giving", hero_subheading: "")
+
+    html = renderer.body(page.reload)
+    expect(html).to include("hero__title")
+    expect(html).not_to include("hero__subtitle")
+  end
+
+  describe "nesting" do
+    # {% render %} isolates scope, unlike {% include %}. Widgets silently
+    # rendered nothing until `site` was passed down through every level.
+    it "passes site data through page -> section -> block -> widget" do
+      section = build_section(page: page)
+      build_block(section: section, kind: "calendar")
+
+      expect(renderer.body(page.reload)).to include("calendar")
+    end
+  end
+
+  it "raises a clear error when a template is missing" do
+    revision.templates.find_by(name: "block/text").destroy
+
+    section = build_section(page: page)
+    build_block(section: section, kind: "text", content: "x")
+
+    expect { renderer.body(page.reload) }.to raise_error(/block\/text/)
+  end
+end

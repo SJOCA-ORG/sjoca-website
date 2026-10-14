@@ -7,6 +7,7 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require "rspec/rails"
 require "webmock/rspec"
 
+require Rails.root.join("db/seeds/templates")
 Dir[Rails.root.join("spec/support/**/*.rb")].sort.each { |f| require f }
 
 begin

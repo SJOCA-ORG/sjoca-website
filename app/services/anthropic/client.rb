@@ -11,9 +11,11 @@ module Anthropic
     VERSION  = "2023-06-01".freeze
     TIMEOUT  = 120
 
-    def initialize(api_key: self.class.api_key, model: self.class.model)
-      @api_key = api_key
-      @model   = model
+    def initialize(api_key: self.class.api_key, model: self.class.model,
+                   workspace_id: self.class.workspace_id)
+      @api_key      = api_key
+      @model        = model
+      @workspace_id = workspace_id
     end
 
     def self.api_key
@@ -22,6 +24,15 @@ module Anthropic
     end
 
     def self.model = ENV.fetch("ANTHROPIC_MODEL", "claude-sonnet-5")
+
+    # An account-level key is not tied to a workspace, and the API then requires
+    # the workspace to be named explicitly. A workspace-scoped key does not need
+    # this -- and is the better option anyway, since a workspace can carry a
+    # spend limit.
+    def self.workspace_id
+      ENV["ANTHROPIC_WORKSPACE_ID"].presence ||
+        Rails.application.credentials.dig(:anthropic, :workspace_id)
+    end
 
     def self.configured? = api_key.present?
 
@@ -33,9 +44,10 @@ module Anthropic
 
       response = Net::HTTP.start(ENDPOINT.host, ENDPOINT.port, use_ssl: true,
                                  open_timeout: TIMEOUT, read_timeout: TIMEOUT) do |http|
-        http.post(ENDPOINT.path, body.to_json,
-                  "x-api-key" => @api_key, "anthropic-version" => VERSION,
-                  "content-type" => "application/json")
+        headers = { "x-api-key" => @api_key, "anthropic-version" => VERSION,
+                    "content-type" => "application/json" }
+        headers["anthropic-workspace-id"] = @workspace_id if @workspace_id.present?
+        http.post(ENDPOINT.path, body.to_json, headers)
       end
 
       parsed = begin

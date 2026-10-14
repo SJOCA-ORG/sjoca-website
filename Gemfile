@@ -7,7 +7,12 @@ gem "rails", "~> 8.1.4"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.1"
+gem "pg"
+
+# Templates the parish can edit. Liquid rather than ERB because ERB is Ruby --
+# a view template can call User.destroy_all -- while Liquid can only reach what
+# a Drop deliberately exposes. See docs/ai-admin.md.
+gem "liquid", "~> 5.14"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -172,6 +172,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
     t.index ["page_id", "position"], name: "index_sections_on_page_id_and_position"
     t.index ["page_id"], name: "index_sections_on_page_id"
     t.index ["revision_id"], name: "index_sections_on_revision_id"
+  end
+
+  create_table "templates", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.string "name", null: false
+    t.text "source", default: "", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revision_id", "name"], name: "index_templates_on_revision_id_and_name", unique: true
   end
 
   create_table "theme_assets", force: :cascade do |t|

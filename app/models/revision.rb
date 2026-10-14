@@ -9,7 +9,8 @@ class Revision < ApplicationRecord
   has_many :pages,    dependent: :destroy
   has_many :sections, dependent: :destroy
   has_many :blocks,   dependent: :destroy
-  has_many :theme_assets,      dependent: :destroy
+  has_many :theme_assets, dependent: :destroy
+  has_many :templates,    dependent: :destroy
   has_many :messages, -> { order(:created_at) },
            class_name: "RevisionMessage", dependent: :destroy, inverse_of: :revision
 
@@ -38,6 +39,7 @@ class Revision < ApplicationRecord
         b.dup.tap { |c| c.revision = draft; c.section = sections[b.section] }.save!
       end
       source.theme_assets.find_each { |a| a.dup.tap { |c| c.revision = draft }.save! }
+      source.templates.find_each    { |t| t.dup.tap { |c| c.revision = draft }.save! }
 
       draft
     end
