@@ -23,6 +23,15 @@
   </head>
 
   <body>
+    <% if respond_to?(:previewing?) && previewing? %>
+      <div style="background:#6D0606;color:#fff;padding:.5rem 1rem;font:14px system-ui;
+                  display:flex;gap:1rem;align-items:center;position:sticky;top:0;z-index:999">
+        <strong>Preview</strong>
+        <span style="flex:1">You are looking at a draft, not the live site.</span>
+        <%= link_to "Back to admin", admin_root_path, style: "color:#fff" %>
+        <%= link_to "Exit preview", admin_exit_preview_path, style: "color:#fff" %>
+      </div>
+    <% end %>
     <a class="skip-link" href="#main">Skip to main content</a>
     <%= render "shared/header" %>
     <main id="main"><%= yield %></main>

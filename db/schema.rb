@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,6 +27,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_150000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "width"
+    t.bigint "revision_id", null: false
+    t.index ["revision_id"], name: "index_blocks_on_revision_id"
     t.index ["section_id", "row", "column", "position"], name: "index_blocks_on_section_id_and_row_and_column_and_position"
     t.index ["section_id"], name: "index_blocks_on_section_id"
   end
@@ -117,8 +119,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_150000) do
     t.datetime "updated_at", null: false
     t.text "hero_detail"
     t.string "self_nav_title"
+    t.bigint "revision_id", null: false
     t.index ["parent_slug", "position"], name: "index_pages_on_parent_slug_and_position"
-    t.index ["slug"], name: "index_pages_on_slug", unique: true
+    t.index ["revision_id", "slug"], name: "index_pages_on_revision_id_and_slug", unique: true
+    t.index ["revision_id"], name: "index_pages_on_revision_id"
   end
 
   create_table "photos", force: :cascade do |t|
@@ -136,6 +140,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_150000) do
     t.index ["human_name", "sha256"], name: "index_photos_on_human_name_and_sha256", unique: true
   end
 
+  create_table "revision_messages", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.string "role", null: false
+    t.text "content"
+    t.json "tool_calls"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revision_id", "created_at"], name: "index_revision_messages_on_revision_id_and_created_at"
+  end
+
+  create_table "revisions", force: :cascade do |t|
+    t.string "state", default: "draft", null: false
+    t.string "title"
+    t.string "created_by"
+    t.bigint "based_on_id"
+    t.datetime "published_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["state"], name: "index_revisions_on_state"
+  end
+
   create_table "sections", force: :cascade do |t|
     t.bigint "page_id", null: false
     t.integer "position", default: 0, null: false
@@ -143,8 +168,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_150000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "column_widths"
+    t.bigint "revision_id", null: false
     t.index ["page_id", "position"], name: "index_sections_on_page_id_and_position"
     t.index ["page_id"], name: "index_sections_on_page_id"
+    t.index ["revision_id"], name: "index_sections_on_revision_id"
+  end
+
+  create_table "theme_assets", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.string "name", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revision_id", "name"], name: "index_theme_assets_on_revision_id_and_name", unique: true
   end
 
   add_foreign_key "blocks", "sections"

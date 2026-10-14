@@ -1,0 +1,43 @@
+<% content_for :title, @revision.title %>
+<div class="row">
+  <h1 class="grow" style="margin:0"><%= @revision.title %></h1>
+  <span class="muted"><%= @revision.summary %></span>
+</div>
+
+<div class="row" style="margin:1rem 0">
+  <%= link_to "Preview the site", preview_admin_revision_path(@revision), class: "btn ghost" %>
+  <%= button_to "Publish", publish_admin_revision_path(@revision), class: "btn",
+        form: { style: "display:inline" },
+        data: { turbo_confirm: "Publish this revision? The live site changes immediately." } %>
+  <span class="grow"></span>
+  <%= link_to "All revisions", admin_root_path, class: "btn ghost" %>
+</div>
+
+<div class="chat">
+  <% if @messages.empty? %>
+    <p class="empty">
+      Describe a change in plain language — "move the service times above the photo on
+      the home page", "add a paragraph to Giving about the fall appeal".
+      Nothing you do here touches the live site until you publish.
+    </p>
+  <% end %>
+
+  <% @messages.each do |m| %>
+    <div class="msg <%= m.role %>">
+      <%= m.content %>
+      <% if m.tool_calls.present? %>
+        <span class="tools">
+          <% Array(m.tool_calls).each do |t| %>
+            <%= t["summary"].presence || t["name"] %><br>
+          <% end %>
+        </span>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<%= form_with url: admin_revision_messages_path(@revision), method: :post do |f| %>
+  <%= f.text_area :content, rows: 3, autofocus: true,
+        placeholder: "What would you like to change?" %>
+  <p style="margin:.6rem 0 0"><%= f.submit "Send", class: "btn" %></p>
+<% end %>

@@ -10,6 +10,18 @@ Rails.application.routes.draw do
 
   # Must come before the catch-all below: "*path" matches "manifest" and
   # "service-worker" too, which is why these had never resolved.
+  namespace :admin do
+    root "revisions#index"
+    get "exit-preview" => "revisions#exit_preview", as: :exit_preview
+    resources :revisions, only: %i[index show create destroy] do
+      member do
+        post "publish"
+        get  "preview"
+      end
+      resources :messages, only: :create
+    end
+  end
+
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 

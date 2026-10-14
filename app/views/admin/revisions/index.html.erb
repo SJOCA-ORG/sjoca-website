@@ -1,0 +1,59 @@
+<% content_for :title, "Site admin" %>
+<h1>Revisions</h1>
+
+<% if @live %>
+  <div class="card live">
+    <div class="row">
+      <span class="tag live">Live</span>
+      <strong class="grow"><%= @live.title %></strong>
+      <span class="muted"><%= @live.summary %></span>
+    </div>
+    <p class="muted">
+      Published <%= @live.published_at ? time_ago_in_words(@live.published_at) + " ago" : "—" %>.
+      This is what the parish sees.
+    </p>
+  </div>
+<% end %>
+
+<h2>Drafts</h2>
+<% if @drafts.any? %>
+  <% @drafts.each do |r| %>
+    <div class="card">
+      <div class="row">
+        <span class="tag">Draft</span>
+        <strong class="grow"><%= link_to r.title, admin_revision_path(r) %></strong>
+        <span class="muted"><%= r.summary %></span>
+      </div>
+      <div class="row" style="margin-top:.7rem">
+        <%= link_to "Open", admin_revision_path(r), class: "btn" %>
+        <%= link_to "Preview the site", preview_admin_revision_path(r), class: "btn ghost" %>
+        <%= button_to "Publish", publish_admin_revision_path(r), class: "btn",
+              form: { style: "display:inline" },
+              data: { turbo_confirm: "Publish this revision? The live site changes immediately." } %>
+        <span class="grow"></span>
+        <%= button_to "Discard", admin_revision_path(r), method: :delete, class: "btn danger",
+              form: { style: "display:inline" },
+              data: { turbo_confirm: "Discard this draft? The live site is unaffected." } %>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <p class="empty">No drafts. Start one to make changes — the live site is untouched until you publish.</p>
+<% end %>
+
+<%= button_to "Start editing", admin_revisions_path, class: "btn" %>
+
+<% if @history.any? %>
+  <h2>Previously published</h2>
+  <% @history.each do |r| %>
+    <div class="card">
+      <div class="row">
+        <span class="grow"><%= r.title %></span>
+        <span class="muted"><%= r.published_at&.strftime("%-d %b %Y, %H:%M") %></span>
+        <%= button_to "Roll back to this", publish_admin_revision_path(r), class: "btn ghost",
+              form: { style: "display:inline" },
+              data: { turbo_confirm: "Make this revision live again?" } %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

@@ -4,6 +4,7 @@ class Block < ApplicationRecord
   KINDS = %w[heading subheading text image embed button calendar upcoming classes lectionary list quote].freeze
 
   belongs_to :section
+  belongs_to :revision
 
   validates :kind, inclusion: { in: KINDS }
 

@@ -2,16 +2,25 @@
 # small, and a spec that spells out the structure it is testing reads better
 # than one that hides it behind a factory.
 module ContentBuilders
-  def build_page(slug: "home", title: "Home", nav_title: "Home", **attrs)
-    Page.create!(slug: slug, title: title, nav_title: nav_title, **attrs)
+  # All content belongs to a revision. Specs get one published revision each,
+  # so Revision.live -- which is how the controllers resolve it -- finds it.
+  def test_revision
+    @test_revision ||= Revision.create!(state: "published", title: "spec")
+  end
+
+  def build_page(slug: "home", title: "Home", nav_title: "Home",
+                 revision: nil, **attrs)
+    Page.create!(slug: slug, title: title, nav_title: nav_title,
+                 revision: revision || test_revision, **attrs)
   end
 
   def build_section(page:, style: "plain", **attrs)
-    page.sections.create!(style: style, **attrs)
+    page.sections.create!(style: style, revision: page.revision, **attrs)
   end
 
   def build_block(section:, kind: "text", content: "Hello", **attrs)
-    section.blocks.create!(kind: kind, content: content, **attrs)
+    section.blocks.create!(kind: kind, content: content,
+                           revision: section.revision, **attrs)
   end
 
   # byte_size is NOT NULL at the database but is neither defaulted nor validated

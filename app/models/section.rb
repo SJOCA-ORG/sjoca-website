@@ -8,6 +8,7 @@ class Section < ApplicationRecord
   STYLES = %w[plain light maroon].freeze
 
   belongs_to :page
+  belongs_to :revision
   has_many :blocks, -> { order(:column, :position) },
            dependent: :destroy, inverse_of: :section
 

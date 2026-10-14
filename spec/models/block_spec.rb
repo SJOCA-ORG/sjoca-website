@@ -6,13 +6,14 @@ RSpec.describe Block do
   it "accepts every declared kind" do
     section = build_section(page: build_page)
     described_class::KINDS.each do |kind|
-      expect(described_class.new(section: section, kind: kind))
+      expect(described_class.new(section: section, revision: section.revision, kind: kind))
         .to be_valid, "expected #{kind.inspect} to be a usable block kind"
     end
   end
 
   it "rejects a kind with no renderer behind it" do
-    expect(described_class.new(section: build_section(page: build_page), kind: "carousel"))
+    section = build_section(page: build_page)
+    expect(described_class.new(section: section, revision: section.revision, kind: "carousel"))
       .not_to be_valid
   end
 

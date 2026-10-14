@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "Site admin" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <style>
+      :root { --ink:#212121; --maroon:#6D0606; --rule:#D3D3D3; --band:#F6F6F6; }
+      * { box-sizing:border-box }
+      body { margin:0; font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+             color:var(--ink); background:#fff }
+      header.bar { background:var(--ink); color:#fff; padding:.7rem 1.2rem; display:flex;
+                   align-items:center; gap:1rem }
+      header.bar a { color:#fff; text-decoration:none; opacity:.85 }
+      header.bar a:hover { opacity:1 }
+      header.bar .grow { flex:1 }
+      main { max-width:1100px; margin:0 auto; padding:1.5rem 1.2rem 4rem }
+      h1 { font-size:1.35rem; margin:.2rem 0 1rem }
+      h2 { font-size:1.05rem; margin:2rem 0 .6rem }
+      .card { border:1px solid var(--rule); border-radius:8px; padding:1rem; margin-bottom:.8rem }
+      .card.live { border-color:var(--maroon); border-width:2px }
+      .muted { color:#666; font-size:.88rem }
+      .row { display:flex; align-items:center; gap:.8rem; flex-wrap:wrap }
+      .grow { flex:1 }
+      .btn { display:inline-block; border:1px solid var(--ink); background:var(--ink); color:#fff;
+             padding:.4rem .9rem; border-radius:6px; text-decoration:none; font-size:.9rem;
+             cursor:pointer; font-family:inherit }
+      .btn.ghost { background:#fff; color:var(--ink) }
+      .btn.danger { background:#fff; color:var(--maroon); border-color:var(--maroon) }
+      .tag { font-size:.75rem; text-transform:uppercase; letter-spacing:.05em;
+             padding:.15rem .5rem; border-radius:99px; background:var(--band) }
+      .tag.live { background:var(--maroon); color:#fff }
+      .notice { background:#EAF5EA; border:1px solid #BBD9BB; padding:.6rem 1rem;
+                border-radius:6px; margin-bottom:1rem }
+      .chat { display:flex; flex-direction:column; gap:.7rem; margin:1rem 0 }
+      .msg { padding:.7rem 1rem; border-radius:10px; max-width:46rem; white-space:pre-wrap }
+      .msg.user { background:var(--ink); color:#fff; align-self:flex-end }
+      .msg.assistant { background:var(--band); align-self:flex-start }
+      .msg .tools { display:block; margin-top:.5rem; font-size:.8rem; color:#555;
+                    border-top:1px solid var(--rule); padding-top:.4rem }
+      textarea { width:100%; font:inherit; padding:.7rem; border:1px solid var(--rule);
+                 border-radius:8px; resize:vertical }
+      .empty { color:#777; padding:2rem 0 }
+    </style>
+  </head>
+  <body>
+    <header class="bar">
+      <strong><%= link_to "Site admin", admin_root_path %></strong>
+      <span class="grow"></span>
+      <%= link_to "View live site", root_path, target: "_blank", rel: "noopener" %>
+    </header>
+    <main>
+      <% if notice %><p class="notice"><%= notice %></p><% end %>
+      <% if alert %><p class="notice" style="background:#FBEAEA;border-color:#E0B4B4"><%= alert %></p><% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>
