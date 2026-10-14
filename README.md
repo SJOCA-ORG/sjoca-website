@@ -62,7 +62,7 @@ for features.
 ### Getting started
 
 ```bash
-git clone git@github.com:catmando/sjoca-website.git
+git clone git@github.com:SJOCA-ORG/sjoca-website.git
 cd sjoca-website
 ```
 

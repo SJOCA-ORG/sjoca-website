@@ -202,7 +202,12 @@ for each so they can be remade.
 
 ## Repo facts
 
-- GitHub: `catmando/sjoca-website`, **public** (read). Write access granted as needed.
+- GitHub: `SJOCA-ORG/sjoca-website`, **public** (read). Write access granted as needed.
+  Owned by the **SJOCA-ORG** organisation, not a personal account, so the site does
+  not depend on one person's GitHub login — and so the org can enforce 2FA on
+  whoever holds SuperAdmin (see [`docs/ai-admin.md`](docs/ai-admin.md)).
+  Transferred from `catmando/sjoca-website` on 13 October 2026; GitHub redirects
+  the old path, but use the new one.
 - Small team, direct commits to `main` for now. Revisit when real code lands at Step 9.
 - `docs/` and `deck/` fill in as we reach each step; empty means not yet started.
 

@@ -10,7 +10,7 @@ managed Postgres, and the three sync jobs. Render reads it and builds all four.
 ## First time
 
 **1. Create the Blueprint.** In Render: New → Blueprint, connect
-`catmando/sjoca-website`, pick the `main` branch. Render finds
+`SJOCA-ORG/sjoca-website`, pick the `main` branch. Render finds
 `render.yaml` and proposes the services. Apply.
 
 **2. Set `RAILS_MASTER_KEY`** on the web service *and* each of the three cron
