@@ -1,9 +1,49 @@
 # Deploying to Render
 
-**Status:** Blueprint written, not yet deployed — 2026-10-12
+**Status:** Live at https://sjoca.onrender.com — 2026-10-13
 
 Everything is defined in [`render.yaml`](../render.yaml): the web service, a
 managed Postgres, and the three sync jobs. Render reads it and builds all four.
+
+---
+
+## If the repository ever moves owner
+
+Moving the repo (as it moved from `catmando` to the `SJOCA-ORG` organisation on
+13 October 2026) breaks automatic deployment in a way that is easy to miss,
+because **nothing reports an error**. Pushes succeed and simply do not ship.
+
+Two separate things have to be fixed, and only the first is obvious:
+
+1. **Re-point every service.** The web service *and all three cron jobs* each
+   store the repository URL. Via the API, `repo` is only accepted alongside
+   `branch` — sending `repo` alone fails with `"branch does not exist in the
+   repository"`, which reads like a problem with the repository rather than a
+   missing parameter:
+
+   ```bash
+   curl -X PATCH -H "Authorization: Bearer $RENDER_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"repo":"https://github.com/SJOCA-ORG/sjoca-website","branch":"main"}' \
+     https://api.render.com/v1/services/<service-id>
+   ```
+
+2. **Re-install Render's GitHub App on the new owner.** App installations do
+   not follow a repository across accounts. This is **not** a setting in
+   Render's dashboard — Render hands off to GitHub — so go directly to
+   <https://github.com/apps/render/installations/new> and choose the
+   organisation, or Organisation → Settings → GitHub Apps.
+
+   Check it with:
+
+   ```bash
+   gh api orgs/SJOCA-ORG/installations
+   ```
+
+**A successful manual deploy does not prove step 2 is done.** This repository is
+public, so Render can clone it with no permission at all; the clone will work
+while the webhook is still missing. The only honest test is to push a commit and
+watch whether a deploy starts on its own.
 
 ---
 
