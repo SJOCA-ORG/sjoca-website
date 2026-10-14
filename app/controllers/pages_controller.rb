@@ -7,6 +7,9 @@ class PagesController < ApplicationController
     @page = Page.in_revision(Current.revision).includes(sections: :blocks)
                 .find_by(slug: params[:path])
 
+    @theme_css = ThemeAsset.css_for(Current.revision)
+    @theme_js  = ThemeAsset.js_for(Current.revision)
+
     renderer = Site::PageRenderer.new(Current.revision)
     @header  = renderer.chrome("header", @page)
     @footer  = renderer.chrome("footer", @page)

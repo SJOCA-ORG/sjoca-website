@@ -7,8 +7,8 @@ class PageDrop < Liquid::Drop
   def path       = @page.path
   def sections   = @page.sections.map { |s| SectionDrop.new(s) }
 
-  def hero_heading    = presence(Sanitize.inline(@page.hero_heading))
-  def hero_subheading = presence(Sanitize.inline(@page.hero_subheading))
+  def hero_heading    = Sanitize.inline(@page.hero_heading).presence
+  def hero_subheading = Sanitize.inline(@page.hero_subheading).presence
   def hero_detail     = @page.hero_detail
   def hero_tall       = @page.tall_hero?
 
@@ -16,10 +16,6 @@ class PageDrop < Liquid::Drop
     asset = @page.hero_asset
     asset && PhotoDrop.new(asset)
   end
-
-  # Liquid treats "" as truthy, so blank must become nil or every optional
-  # field renders an empty tag.
-  def presence(v) = v.presence
 
   def has_hero = @page.hero_heading.present? || @page.hero_asset.present?
 end

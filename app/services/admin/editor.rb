@@ -28,6 +28,16 @@ module Admin
 
       Look before you edit. Call get_page to see real ids rather than guessing.
 
+      Templates are Liquid, stored as rows. BEFORE writing or changing any Liquid,
+      call liquid_guide — it lists every object and property a template can reach,
+      and the rules of this dialect, generated from the code so it cannot be stale.
+      Guessing at Liquid here wastes a turn: an empty string is truthy, {% render %}
+      does not inherit variables, and nothing is escaped automatically.
+
+      Styles go in a single overrides stylesheet via set_styles, appended after the
+      site's own CSS so it wins. Read it first with get_styles and return the whole
+      thing, not a fragment — it replaces what is there.
+
       House style, worth preserving:
       - British-influenced parish usage, sentence case for headings.
       - Clergy are named in full with their titles.

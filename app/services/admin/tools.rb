@@ -67,6 +67,10 @@ module Admin
              { css: str("The complete CSS to use") }, %w[css]),
 
         # --- templates: how things look, as opposed to what they say ---------
+        tool("liquid_guide",
+             "READ THIS BEFORE WRITING ANY LIQUID. Everything a template can see — every " \
+             "object and property available — plus the rules of this Liquid dialect. " \
+             "Generated from the code, so it is never out of date.", {}),
         tool("list_templates", "Every Liquid template, by name.", {}),
         tool("get_template", "The source of one Liquid template.",
              { name: str("e.g. \"block/heading\", \"header\", \"page\"") }, %w[name]),
@@ -239,6 +243,8 @@ module Admin
     end
 
     # ---- templates ---------------------------------------------------------
+
+    def liquid_guide(**) = DropReference.call
 
     def list_templates(**)
       { templates: revision.templates.order(:name).pluck(:name) }
