@@ -18,15 +18,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <%= stylesheet_link_tag "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Lato:wght@300;400;700&family=Quicksand:wght@400;500;600&family=Lobster&display=swap" %>
-    <%= stylesheet_link_tag :application, "data-turbo-track": "reload" %>
+    <%# The stylesheet is a database row, so the parish can change it. See
+        docs/liquid-vocabulary.md. %>
+    <%= stylesheet_link_tag theme_stylesheet_path(digest: @theme_digest), "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
-    <%# Styles the parish has set through the admin. After the compiled
-        stylesheet, so they override it. Stored per revision, so a change is
-        previewed and approved like any other. %>
-    <% if @theme_css.present? %>
-      <style><%= @theme_css.html_safe %></style>
-    <% end %>
+
   </head>
 
   <body>
@@ -43,8 +40,8 @@
     <%= @header %>
     <main id="main"><%= yield %></main>
     <%= @footer %>
-    <% if @theme_js.present? %>
-      <script><%= @theme_js.html_safe %></script>
+    <% if @theme_js_digest %>
+      <%= javascript_include_tag theme_javascript_path(digest: @theme_js_digest), defer: true %>
     <% end %>
   </body>
 </html>

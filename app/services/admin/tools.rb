@@ -70,9 +70,12 @@ module Admin
                position: int("Order in the navigation") },
              %w[slug title nav_title]),
         tool("list_photos", "Every photograph available, by name.", {}),
-        tool("get_styles", "The site's current custom CSS overrides.", {}),
-        tool("set_styles", "Replace the custom CSS. Appended after the main stylesheet, so it overrides.",
-             { css: str("The complete CSS to use") }, %w[css]),
+        tool("get_styles", "The site's complete stylesheet.", {}),
+        tool("set_styles",
+             "Replace the site's stylesheet. This is the WHOLE stylesheet, not an override " \
+             "layer — read it with get_styles, change what you need, and send all of it back. " \
+             "A mistake is previewed before publishing and undone by republishing.",
+             { css: str("The complete stylesheet") }, %w[css]),
 
         # --- templates: how things look, as opposed to what they say ---------
         tool("liquid_guide",
@@ -295,9 +298,9 @@ module Admin
     end
 
     def set_styles(css:, **)
-      a = revision.theme_assets.find_or_initialize_by(name: "overrides.css")
+      a = revision.theme_assets.find_or_initialize_by(name: ThemeAsset::KINDS.fetch("css"))
       a.update!(content: css)
-      ok "updated the custom stylesheet (#{css.to_s.lines.count} lines)"
+      ok "rewrote the stylesheet (#{css.to_s.lines.count} lines)"
     end
 
     # ---- templates ---------------------------------------------------------
