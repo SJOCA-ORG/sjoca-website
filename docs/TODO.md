@@ -118,32 +118,27 @@ project, and must be right at cutover.
 Nothing here is urgent, but all of it bites the *second* contributor rather than
 the first, which is exactly the person this project needs.
 
-- [ ] **Pin the language versions.** `.ruby-version` contains the literal word
-      `system`, which pins nothing — on this Mac it resolves to 3.4.7, on another
-      machine to whatever happens to be installed. The Gemfile has no `ruby`
-      directive at all, and there is no `.node-version` (development uses Node
-      24). Worse than absent, because tooling reads the file and believes it.
+- [x] **Pin the language versions.** Done 14 Oct 2026 — `.ruby-version` was the
+      literal word `system`, which pins nothing. Now `3.4.7`, with a matching
+      `ruby` directive in the Gemfile and `.node-version` at 24.
 
-- [ ] **Write `docs/development.md`.** `CLAUDE.md` tells a newcomer to run five
-      commands and nothing about what must already be installed. The project
-      shells out to **`magick`, `potrace`, `rsvg-convert`, `node`** and needs
-      **Postgres** and **Chrome** — of which only Postgres is mentioned anywhere
-      a newcomer would look, and ImageMagick/librsvg only inside
-      `docs/favicon.md`. A fresh clone on Linux or Windows fails several times
-      over, each with an unhelpful error. Cover macOS, Linux and Windows/WSL.
+- [x] **Write `docs/development.md`.** Done 14 Oct 2026. Covers the previously
+      undocumented `magick` / `potrace` / `rsvg-convert` / Chrome dependencies,
+      both routes to getting content, and the Postgres version trap.
 
 - [ ] **A `.devcontainer/` falls out of that work nearly free**, and then
       Codespaces becomes a valid environment without anything being designed
       around it — which is the point: tier-2 environment choice is the
       developer's, not the architecture's.
 
-- [ ] **Postgres 18 client tooling locally.** Production runs **PG 18**; this
-      machine has client and server **14.19**. `pg_dump` refuses to dump from a
-      server newer than itself, so `bin/pull-production-db` cannot work until
-      the local tooling is upgraded. Upgrading the local *server* too (or
-      running Postgres in Docker) avoids restoring an 18 dump into a 14 server.
+- [x] **Postgres 18 locally.** Done 14 Oct 2026 — was 14.19, client and server.
+      `postgresql@18` installed and linked, 14 stopped and unlinked, local data
+      dumped first and restored into 18 intact. Docker was considered and set
+      aside; cross-platform work is theoretical for now.
 
-- [ ] **Write `bin/pull-production-db`.** Needed to build Phase 2 at all, not
+- [x] **Write `bin/pull-production-db`.** Done 14 Oct 2026 and tested end to end
+      against production (40MB, 13 pages / 122 blocks / 122 photographs). Needed
+      to build Phase 2 at all, not
       just at the first tier-2 change — revision, preview and template work all
       want realistic content and real photographs. A `pg_dump` is a complete
       copy precisely because photo bytes live in the table, so this is one

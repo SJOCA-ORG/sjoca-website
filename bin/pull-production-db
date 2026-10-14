@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+#
+# Replace the local development database with a copy of production.
+#
+# A pg_dump is a complete copy of this site: photo bytes live in the
+# legacy_assets table rather than on disk or in object storage, precisely so
+# that pulling production down brings the images with it and there is no second
+# artifact to sync. See CLAUDE.md.
+#
+#   WHAT THIS FILE PRODUCES IS THE MOST SENSITIVE ARTIFACT IN THE PROJECT.
+#
+# The dump contains every parish photograph, children included, and it lands on
+# a laptop. The repository is public and the photos are deliberately not in it;
+# a dump undoes that reasoning the moment someone is careless. Dumps are written
+# to db/dumps/, which is gitignored, and .gitignore also covers *.sql, *.dump
+# and *.sql.gz as a backstop. Do not move them somewhere convenient.
+#
+# Needs RENDER_API_KEY in the environment. The Postgres client must be at least
+# the server's major version -- production runs 18, and pg_dump refuses to read
+# a server newer than itself.
+#
+# Usage:  bin/pull-production-db [target_database]
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+SERVICE_ID="dpg-db6kqhrl550s73bd3u9g-a"      # sjoca-db
+TARGET="${1:-sjoca_development}"
+DUMP_DIR="db/dumps"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+DUMP="${DUMP_DIR}/production-${STAMP}.dump"
+
+die() { echo "error: $*" >&2; exit 1; }
+
+[ "${RAILS_ENV:-development}" = "production" ] && die "refusing to run with RAILS_ENV=production"
+[ -n "${RENDER_API_KEY:-}" ] || die "RENDER_API_KEY is not set"
+command -v pg_dump >/dev/null || die "pg_dump not on PATH"
+command -v pg_restore >/dev/null || die "pg_restore not on PATH"
+
+echo "==> asking Render for the external connection string"
+URL=$(curl -fsS -H "Authorization: Bearer ${RENDER_API_KEY}" -H "Accept: application/json" \
+        "https://api.render.com/v1/postgres/${SERVICE_ID}/connection-info" \
+      | python3 -c 'import sys,json; print(json.load(sys.stdin).get("externalConnectionString",""))')
+[ -n "$URL" ] || die "no external connection string returned (is external access enabled?)"
+
+# Fail early and clearly on the version trap rather than midway through a dump.
+CLIENT_MAJOR=$(pg_dump --version | sed -E 's/.* ([0-9]+).*/\1/')
+SERVER_MAJOR=$(psql "$URL" -tAc 'show server_version' | sed -E 's/^([0-9]+).*/\1/')
+[ "$CLIENT_MAJOR" -ge "$SERVER_MAJOR" ] || die \
+  "pg_dump is $CLIENT_MAJOR but production is $SERVER_MAJOR; pg_dump cannot read a newer server.
+   Fix: brew install postgresql@${SERVER_MAJOR} && brew link --overwrite --force postgresql@${SERVER_MAJOR}"
+
+mkdir -p "$DUMP_DIR"
+echo "==> dumping production (server $SERVER_MAJOR, client $CLIENT_MAJOR)"
+pg_dump -Fc --no-owner --no-privileges "$URL" -f "$DUMP"
+echo "    $DUMP ($(du -h "$DUMP" | cut -f1))"
+
+echo "==> replacing ${TARGET}"
+read -r -p "    this DROPS the local ${TARGET}. continue? [y/N] " reply
+[ "$reply" = "y" ] || die "aborted"
+
+dropdb --if-exists "$TARGET"
+createdb "$TARGET"
+pg_restore --no-owner --no-privileges -d "$TARGET" "$DUMP"
+
+echo "==> done"
+psql -d "$TARGET" -tAc \
+  "select 'pages: '||(select count(*) from pages)
+        ||', blocks: '||(select count(*) from blocks)
+        ||', photos: '||(select count(*) from legacy_assets)" | sed 's/^/    /'
+echo
+echo "    The dump is still at ${DUMP}. It contains parish photographs."
+echo "    Delete it when you are done: rm ${DUMP}"
