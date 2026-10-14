@@ -1,6 +1,8 @@
 # AI as admin — the editing model for Phase 2
 
-Status: **agreed design, not yet built.** Decided in conversation on 13-14 October 2026.
+Status: **built and running locally, 14 October 2026.** The sandbox, the Liquid
+template store, the tool surface and the chat all work; the site is rendered from
+database templates. Not deployed — the admin refuses to serve outside development.
 This supersedes the "minimum CMS" sketch in `IMPLEMENTATION-PLAN.md` — see
 [What this changes](#what-this-changes-about-phase-2) at the end.
 
@@ -665,11 +667,10 @@ declared finished while still needing a developer.
 
 ## What this changes about Phase 2
 
-0. **Build the revision model first** — `revisions`, a `revision_id` on the content
-   tables, a `/preview/:id` route and `revision_messages`. Content-only, no Liquid
-   store, no template system. Pages, sections and blocks are *already* rows, so
-   this is small, and it puts a working conversational editor in front of the
-   parish long before the rest of the architecture is finished.
+0. ~~Build the revision model first.~~ **Done.** `revisions`, `revision_id` on the
+   content tables, `/preview/:id` as a session flag, `revision_messages`,
+   `templates` and `theme_assets`. The site renders from Liquid stored in the
+   database; 12 of 13 pages were verified DOM-identical to the ERB they replaced.
 
 1. **Tests are a prerequisite, not a nice-to-have.** The repo currently has none. The
    template layer and refactoring are both unsafe without them, and the automated
