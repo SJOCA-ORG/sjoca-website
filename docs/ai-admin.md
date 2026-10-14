@@ -53,6 +53,27 @@ Two details that are easy to get wrong:
   is rare, so the friction costs nothing. Role changes are written to an audit log that
   SuperAdmins can read.
 
+### The organisation's 2FA policy *is* the SuperAdmin authentication policy
+
+SuperAdmin is defined as "collaborator on the site repo", so whatever GitHub requires
+to hold that account is the only thing standing between an attacker and the Ruby,
+the routes, the migrations and the deploy. **Loosening the organisation's two-factor
+setting silently weakens the top tier of this permission model**, and it will not look
+like a security change at the time — it will look like an accommodation for one
+person's phone.
+
+GitHub's requirement is tiered: it can demand two-factor authentication generally, or
+only the stronger methods (authenticator app, passkey, security key), excluding SMS.
+Prefer the stronger setting, because **only SuperAdmins ever need a GitHub account at
+all.** Everyone else — Editors, Approvers, Viewers — authenticates to the application
+with Google. So this organisation will only ever hold a handful of technical people,
+and requiring strong methods of them costs nothing. The accessibility argument for
+SMS belongs to the parish volunteers, and they are not here.
+
+As of 13 October 2026 the organisation permits the weaker methods, because the one
+member's personal account still has SMS enabled. That is a temporary state, not a
+decision.
+
 ### When GitHub is unavailable
 
 Nothing ships — deployment runs through GitHub, and that is acceptable; outages are
