@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# What was said to the admin AI, and what it did about it.
+#
+# The whole conversation is persisted in revision_messages, so reviewing a
+# session needs no copying and pasting out of a browser.
+#
+#   bin/transcript            # the most recent draft
+#   bin/transcript 7          # a particular revision
+#   bin/transcript --list     # what revisions exist
+require_relative "../config/environment"
+
+if ARGV.first == "--list"
+  Revision.order(created_at: :desc).limit(20).each do |r|
+    puts format("  %-5s %-11s %-34s %s", r.id, r.state, r.title.to_s[0, 34],
+                "#{r.messages.count} messages")
+  end
+  exit
+end
+
+revision = ARGV.first ? Revision.find(ARGV.first) : (Revision.drafts.first || Revision.last)
+abort "no revisions yet" unless revision
+
+puts "=" * 78
+puts "Revision #{revision.id} — #{revision.title} (#{revision.state})"
+puts "#{revision.summary} · #{revision.messages.count} messages"
+puts "=" * 78
+
+revision.messages.order(:created_at).each do |m|
+  who = m.role == "user" ? "YOU" : "AI "
+  puts
+  puts "#{who}  #{m.created_at.strftime('%-d %b %H:%M:%S')}"
+  puts m.content.to_s.gsub(/^/, "     ")
+  Array(m.tool_calls).each do |t|
+    puts "     · #{t['summary'].presence || t['name']}"
+  end
+end
+puts

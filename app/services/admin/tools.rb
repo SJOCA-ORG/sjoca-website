@@ -64,7 +64,52 @@ module Admin
         tool("list_photos", "Every photograph available, by name.", {}),
         tool("get_styles", "The site's current custom CSS overrides.", {}),
         tool("set_styles", "Replace the custom CSS. Appended after the main stylesheet, so it overrides.",
-             { css: str("The complete CSS to use") }, %w[css])
+             { css: str("The complete CSS to use") }, %w[css]),
+
+        # --- templates: how things look, as opposed to what they say ---------
+        tool("list_templates", "Every Liquid template, by name.", {}),
+        tool("get_template", "The source of one Liquid template.",
+             { name: str("e.g. \"block/heading\", \"header\", \"page\"") }, %w[name]),
+        tool("set_template", "Replace a Liquid template's source. This changes how that thing renders everywhere.",
+             { name: str("Template name"), source: str("The complete Liquid source") },
+             %w[name source]),
+
+        # --- photographs ------------------------------------------------------
+        tool("describe_photo", "A photograph's dimensions, format and size.",
+             { name: str("Photo name") }, %w[name]),
+        tool("crop_photo", "Crop a photograph. Saves the result as a NEW photograph; the original is untouched.",
+             { name: str("Photo to crop"), x: int("Left edge"), y: int("Top edge"),
+               width: int("Width in px"), height: int("Height in px"),
+               as: str("Name for the result") },
+             %w[name x y width height as]),
+        tool("resize_photo", "Resize a photograph, keeping its proportions. Saves a NEW photograph.",
+             { name: str("Photo to resize"), width: int("Target width in px"),
+               height: int("Target height in px"), as: str("Name for the result") },
+             %w[name as]),
+        tool("rotate_photo", "Rotate a photograph. Saves a NEW photograph.",
+             { name: str("Photo"), degrees: int("Degrees clockwise"), as: str("Name for the result") },
+             %w[name degrees as]),
+        tool("trim_photo", "Trim blank or uniform edges off a photograph. Saves a NEW photograph.",
+             { name: str("Photo"), as: str("Name for the result") }, %w[name as]),
+        tool("adjust_photo", "Adjust brightness, saturation or hue. 100 means unchanged. Saves a NEW photograph.",
+             { name: str("Photo"), brightness: int("Percent, 100 = unchanged"),
+               saturation: int("Percent, 100 = unchanged"), hue: int("Percent, 100 = unchanged"),
+               as: str("Name for the result") }, %w[name as]),
+        tool("grayscale_photo", "Convert a photograph to black and white. Saves a NEW photograph.",
+             { name: str("Photo"), as: str("Name for the result") }, %w[name as]),
+        tool("feather_photo", "Soften a photograph's edges into a vignette, so it sits on the page without a hard border. Saves a NEW photograph.",
+             { name: str("Photo"), radius: int("Softness in px, 1-200"), as: str("Name for the result") },
+             %w[name as]),
+        tool("round_photo_corners", "Round a photograph's corners. Saves a NEW photograph.",
+             { name: str("Photo"), radius: int("Corner radius in px"), as: str("Name for the result") },
+             %w[name as]),
+        tool("convert_photo", "Convert a photograph to another format (png, jpg, webp, gif). Saves a NEW photograph.",
+             { name: str("Photo"), format: str("png, jpg, webp or gif"), as: str("Name for the result") },
+             %w[name format as]),
+        tool("combine_photos", "Place one photograph over another. Saves a NEW photograph.",
+             { base: str("Photo underneath"), overlay: str("Photo on top"),
+               gravity: str("center, north, south, east, west, or a corner"),
+               as: str("Name for the result") }, %w[base overlay as])
       ]
     end
 
@@ -192,6 +237,47 @@ module Admin
       a.update!(content: css)
       ok "updated the custom stylesheet (#{css.to_s.lines.count} lines)"
     end
+
+    # ---- templates ---------------------------------------------------------
+
+    def list_templates(**)
+      { templates: revision.templates.order(:name).pluck(:name) }
+    end
+
+    def get_template(name:, **)
+      source = Template.source_for(revision, name) or
+        raise ToolError, "there is no template called #{name.inspect}"
+      { name: name, source: source }
+    end
+
+    def set_template(name:, source:, **)
+      existing = revision.templates.find_by(name: name) or
+        raise ToolError, "there is no template called #{name.inspect}. Use list_templates to see them."
+
+      # Parse before saving: a template that does not compile would take every
+      # page using it down, and the editor would find out by looking.
+      Liquid::Template.parse(source)
+      existing.update!(source: source)
+      ok "rewrote the #{name} template"
+    rescue Liquid::SyntaxError => e
+      raise ToolError, "that Liquid does not compile: #{e.message}"
+    end
+
+    # ---- photographs ---------------------------------------------------------
+
+    def images = @images ||= ImageTools.new(revision)
+
+    def describe_photo(name:, **)      = images.describe(name: name)
+    def crop_photo(**a)                = images.crop(**a.slice(:name, :x, :y, :width, :height, :as))
+    def resize_photo(**a)              = images.resize(**a.slice(:name, :width, :height, :as).compact)
+    def rotate_photo(**a)              = images.rotate(**a.slice(:name, :degrees, :as))
+    def trim_photo(**a)                = images.trim(**a.slice(:name, :as))
+    def adjust_photo(**a)              = images.adjust(**a.slice(:name, :brightness, :saturation, :hue, :as).compact)
+    def grayscale_photo(**a)           = images.grayscale(**a.slice(:name, :as))
+    def feather_photo(**a)             = images.feather_edges(**a.slice(:name, :radius, :as).compact)
+    def round_photo_corners(**a)       = images.round_corners(**a.slice(:name, :radius, :as).compact)
+    def convert_photo(**a)             = images.convert(**a.slice(:name, :format, :as))
+    def combine_photos(**a)            = images.composite(**a.slice(:base, :overlay, :gravity, :as).compact)
 
     def ok(summary, **extra) = { ok: true, summary: summary, **extra }
   end

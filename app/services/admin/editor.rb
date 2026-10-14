@@ -78,7 +78,7 @@ module Admin
       message = "I made several changes but stopped after #{MAX_STEPS} steps. Have a look, then tell me what still needs doing."
       @revision.messages.create!(role: "assistant", content: message, tool_calls: performed)
       Result.new(reply: message, tool_calls: performed)
-    rescue Anthropic::Client::Error, Tools::ToolError => e
+    rescue Anthropic::Client::Error, Tools::ToolError, ImageTools::ToolError => e
       @revision.messages.create!(role: "assistant", content: "Something went wrong: #{e.message}")
       Result.new(reply: nil, tool_calls: performed || [], error: e.message)
     end
@@ -89,7 +89,7 @@ module Admin
       result = @tools.call(use["name"], use["input"] || {})
       performed << { "name" => use["name"], "summary" => result[:summary] } if result.is_a?(Hash) && result[:summary]
       result
-    rescue Tools::ToolError => e
+    rescue Tools::ToolError, ImageTools::ToolError => e
       # Hand the failure back to the model rather than aborting: it can usually
       # recover by looking the right id up.
       { ok: false, error: e.message }

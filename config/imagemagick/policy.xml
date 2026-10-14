@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policymap [
+<!ELEMENT policymap (policy)*>
+<!ATTLIST policymap xmlns CDATA #FIXED ''>
+<!ELEMENT policy EMPTY>
+<!ATTLIST policy xmlns CDATA #FIXED '' domain NOTATION (delegate|coder|filter|path|resource|system|module|cache) #IMPLIED
+  name CDATA #IMPLIED pattern CDATA #IMPLIED rights CDATA #IMPLIED
+  stealth NOTATION (True|False) #IMPLIED value CDATA #IMPLIED>
+]>
+<!--
+  ImageMagick runs on behalf of an AI acting for a parish volunteer. The danger
+  was never resizing a photograph; it is that ImageMagick will happily fetch a
+  URL as an input, shell out to delegates, and read arbitrary paths.
+
+  This closes those. Keep it in step with Admin::ImageTools.
+-->
+<policymap>
+  <!-- ImageMagick will read https://… as a filename. It must not. -->
+  <policy domain="coder" rights="none" pattern="URL" />
+  <policy domain="coder" rights="none" pattern="HTTPS" />
+  <policy domain="coder" rights="none" pattern="HTTP" />
+  <policy domain="coder" rights="none" pattern="FTP" />
+
+  <!-- The ImageTragick family: formats that execute or embed references. -->
+  <policy domain="coder" rights="none" pattern="MSL" />
+  <policy domain="coder" rights="none" pattern="MVG" />
+  <policy domain="coder" rights="none" pattern="MAGICK" />
+  <policy domain="coder" rights="none" pattern="EPHEMERAL" />
+  <policy domain="coder" rights="none" pattern="TEXT" />
+  <policy domain="coder" rights="none" pattern="SHOW" />
+  <policy domain="coder" rights="none" pattern="WIN" />
+  <policy domain="coder" rights="none" pattern="PLT" />
+
+  <!-- No ghostscript, no external programs at all. -->
+  <policy domain="delegate" rights="none" pattern="*" />
+
+  <!-- @filename reads a list of files; the AI must not be able to express one. -->
+  <policy domain="path" rights="none" pattern="@*" />
+
+  <!-- A parish photograph is not 30,000 pixels wide or 2GB of memory. -->
+  <policy domain="resource" name="width"  value="12KP" />
+  <policy domain="resource" name="height" value="12KP" />
+  <policy domain="resource" name="area"   value="128MP" />
+  <policy domain="resource" name="memory" value="512MiB" />
+  <policy domain="resource" name="disk"   value="1GiB" />
+  <policy domain="resource" name="time"   value="30" />
+</policymap>

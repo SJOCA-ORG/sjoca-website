@@ -288,8 +288,45 @@ rule, and it is simpler than the tiered model an earlier draft proposed.
 
 It writes rows: pages, sections, blocks, templates, theme assets, settings,
 photographs. It creates new versions rather than editing in place, so nothing is
-destroyed. It cannot add a *type*, cannot touch Ruby, cannot reach the filesystem —
-not because it is forbidden to, but because no tool in its surface does those things.
+destroyed. It cannot add a *type* and cannot touch Ruby — not because it is
+forbidden to, but because no tool in its surface does those things.
+
+### Image processing, and why "no subprocess" was the wrong rule
+
+An earlier draft said the AI could reach no program at all. That was the easy
+answer rather than the correct one, and it gave up something genuinely useful:
+the image work — crops, feathered edges, format conversion — was among the more
+valuable things done by hand on this site.
+
+**The danger was never ImageMagick. It is four specific things, and each closes
+separately:**
+
+1. **Shell interpolation.** Closed by never building a command *string*.
+   Processes are spawned with an argv array, so there is no shell to inject
+   into — no quoting bugs, no `;`, no backticks.
+2. **Filesystem reach.** Closed by the AI never naming a path. It names
+   *photographs* and *operations*; the paths are ours, in a temp directory we
+   create and destroy. It cannot express a path, so it cannot traverse one.
+3. **Network exfiltration.** ImageMagick will read `https://…` as an input
+   file. `config/imagemagick/policy.xml` refuses that, along with the delegates
+   and coders behind the ImageTragick family of bugs.
+4. **Runaway work.** A wall-clock timeout, an output size cap, and pixel and
+   memory limits in the same policy file.
+
+So the rule is not *"the AI may not run programs"*. It is **"the AI may run three
+known programs — ImageMagick, rsvg-convert, potrace — with validated arguments,
+on files it cannot name, in a directory it cannot leave."** That is a boundary
+enforceable in code rather than by good intentions, and
+`spec/services/admin/image_tools_spec.rb` is that boundary written down: shell
+metacharacters, path traversal, URL inputs and format allowlists each have a
+spec that fails if the firewall slips.
+
+Output is always a **new** photograph row, never an overwrite, so an unfortunate
+crop is undone by publishing the previous version.
+
+Where the line still holds: **no general shell.** Image processing has a bounded
+shape — images in, images out, a known vocabulary. A general shell has no shape,
+nothing to validate against, and no way to say what it may not do.
 
 So there are exactly two ways the site changes:
 
