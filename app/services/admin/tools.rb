@@ -54,8 +54,16 @@ module Admin
                hero_subheading: str("Smaller line under it"),
                hero_asset_name: str("Photo human_name for the hero"),
                hero_size: str("standard or tall"), position: int("Order in the navigation"),
-               show_in_nav: { type: "boolean", description: "Whether it appears in the menu" } },
+               show_in_nav: { type: "boolean", description: "Whether it appears in the menu" },
+               parent_slug: str("Slug of the page this sits under in the menu, or empty for top level"),
+               self_nav_title: str("Label this page takes as the FIRST item in its own submenu, " \
+                                   "so a visitor can tell the parent has a page of its own") },
              %w[slug]),
+        tool("delete_page", "Remove a page and everything on it. Existing links to it will 404.",
+             { slug: str("Page slug") }, %w[slug]),
+        tool("move_section", "Move a band to a different page, or to a different position.",
+             { id: int("Section id"), page_slug: str("Target page, if moving between pages"),
+               position: int("Order on the page") }, %w[id]),
         tool("add_page", "Create a page. It renders immediately at /slug.",
              { slug: str("Path, e.g. \"about-us/our-icons\""), title: str("Browser title"),
                nav_title: str("Navigation label"), parent_slug: str("Parent page slug, for submenus"),
@@ -238,9 +246,37 @@ module Admin
 
     def update_page(slug:, **attrs)
       p = find_page(slug)
-      p.update!(attrs.slice(:title, :nav_title, :hero_heading, :hero_subheading,
-                            :hero_asset_name, :hero_size, :position, :show_in_nav).compact)
+      # parent_slug and self_nav_title are deliberately not .compact-ed: setting
+      # either to empty is how a page is moved back to the top level.
+      permitted = attrs.slice(:title, :nav_title, :hero_heading, :hero_subheading,
+                              :hero_asset_name, :hero_size, :position, :show_in_nav).compact
+      permitted[:parent_slug]    = attrs[:parent_slug].presence    if attrs.key?(:parent_slug)
+      permitted[:self_nav_title] = attrs[:self_nav_title].presence if attrs.key?(:self_nav_title)
+
+      if permitted[:parent_slug].present? && !pages.exists?(slug: permitted[:parent_slug])
+        raise ToolError, "there is no page #{permitted[:parent_slug].inspect} to sit under"
+      end
+
+      p.update!(permitted)
       ok "updated the #{slug} page"
+    end
+
+    def delete_page(slug:, **)
+      page = find_page(slug)
+      children = pages.where(parent_slug: slug).pluck(:slug)
+      raise ToolError, "#{slug} has pages under it (#{children.join(', ')}). Move or remove those first." if children.any?
+
+      n = page.sections.sum { |s| s.blocks.count }
+      page.destroy!
+      ok "deleted the page /#{slug} and the #{n} blocks on it"
+    end
+
+    def move_section(id:, **attrs)
+      s = find_section(id)
+      s.page = find_page(attrs[:page_slug]) if attrs[:page_slug].present?
+      s.position = attrs[:position] if attrs[:position]
+      s.save!
+      ok "moved section #{s.id}#{attrs[:page_slug].present? ? " to /#{attrs[:page_slug]}" : ""}"
     end
 
     def add_page(slug:, title:, nav_title:, **attrs)
