@@ -96,26 +96,26 @@ LIQUID
   </section>
 LIQUID
 
-"block/heading"    => %(<h2 class="b b-heading b--{{ block.align }}">{{ block.content }}</h2>\n),
-"block/subheading" => %(<p class="b b-subheading b--{{ block.align }}">{{ block.content }}</p>\n),
-"block/text"       => %(<p class="b b-text b--{{ block.align }}">{{ block.content }}</p>\n),
-"block/quote"      => %(<blockquote class="b b-quote b--{{ block.align }}">{{ block.content }}</blockquote>\n),
+"block/heading"    => %(<h2 class="b b-heading b--{{ block.align }} {{ block.css_class }}">{{ block.content }}</h2>\n),
+"block/subheading" => %(<p class="b b-subheading b--{{ block.align }} {{ block.css_class }}">{{ block.content }}</p>\n),
+"block/text"       => %(<p class="b b-text b--{{ block.align }} {{ block.css_class }}">{{ block.content }}</p>\n),
+"block/quote"      => %(<blockquote class="b b-quote b--{{ block.align }} {{ block.css_class }}">{{ block.content }}</blockquote>\n),
 
 "block/button" => <<~'LIQUID',
-  <p class="b b--{{ block.align }}">
+  <p class="b b--{{ block.align }} {{ block.css_class }}">
     <a class="button" href="{{ block.url }}">{{ block.content }}</a>
   </p>
 LIQUID
 
 "block/list" => <<~'LIQUID',
-  <ul class="b b-list b--{{ block.align }}">
+  <ul class="b b-list b--{{ block.align }} {{ block.css_class }}">
     {% for item in block.items %}<li>{{ item }}</li>{% endfor %}
   </ul>
 LIQUID
 
 "block/image" => <<~'LIQUID',
   {% if block.photo %}
-    <figure class="b b-image b--{{ block.align }}"
+    <figure class="b b-image b--{{ block.align }} {{ block.css_class }}"
             {% if block.width %}style="max-width:{{ block.width }}px"{% endif %}>
       {% if block.url %}<a href="{{ block.url }}">{% endif %}
         <img src="{{ block.photo.url }}" alt="{{ block.photo.alt }}" loading="lazy">

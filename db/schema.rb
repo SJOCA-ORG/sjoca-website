@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -28,6 +28,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_190000) do
     t.datetime "updated_at", null: false
     t.integer "width"
     t.bigint "revision_id", null: false
+    t.string "css_class"
     t.index ["revision_id"], name: "index_blocks_on_revision_id"
     t.index ["section_id", "row", "column", "position"], name: "index_blocks_on_section_id_and_row_and_column_and_position"
     t.index ["section_id"], name: "index_blocks_on_section_id"

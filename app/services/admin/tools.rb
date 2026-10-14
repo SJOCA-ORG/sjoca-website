@@ -25,7 +25,9 @@ module Admin
              { slug: str("Page slug, e.g. \"giving\" or \"about-us/choir\"") }, %w[slug]),
         tool("update_block", "Change an existing block's text, alignment or width.",
              { id: int("Block id"), content: str("New text. Inline HTML links are allowed."),
-               align: str("left, center or right"), width: int("Max width in px, images only") },
+               align: str("left, center or right"), width: int("Max width in px, images only"),
+               css_class: str("A style name for THIS block alone, e.g. \"lead\" — then write a " \
+                              "CSS rule for it. Use this rather than inventing a block kind for a one-off.") },
              %w[id]),
         tool("add_block", "Add a block to a section.",
              { section_id: int("Section id"),
@@ -34,7 +36,8 @@ module Admin
                asset_name: str("Photo human_name, for image blocks"),
                url: str("Link target, for button, image or embed blocks"),
                column: int("Column index, 0-based"), position: int("Order within the column"),
-               align: str("left, center or right") },
+               align: str("left, center or right"),
+               css_class: str("A style name for this block alone") },
              %w[section_id kind]),
         tool("move_block", "Move a block to a different column or position, or to another section.",
              { id: int("Block id"), section_id: int("Target section, if moving between sections"),
@@ -161,10 +164,15 @@ module Admin
     # ---- dispatch ----------------------------------------------------------
 
     def call(name, args)
-      args = args.symbolize_keys
+      args = (args || {}).symbolize_keys
       raise ToolError, "unknown tool #{name}" unless respond_to?(name, true)
 
       send(name, **args)
+    rescue ArgumentError => e
+      # A missing or mistyped argument must come back as something the model can
+      # read and retry, not an exception that ends the turn. It called set_styles
+      # with no css and the whole conversation died.
+      raise ToolError, "#{name}: #{e.message}. Check the tool's required arguments."
     end
 
     private
@@ -198,7 +206,7 @@ module Admin
 
     def update_block(id:, **attrs)
       b = find_block(id)
-      b.update!(attrs.slice(:content, :align, :width, :url, :asset_name).compact)
+      b.update!(attrs.slice(:content, :align, :width, :url, :asset_name, :css_class).compact)
       ok "updated #{b.kind} block #{b.id}", block: id
     end
 
@@ -207,7 +215,7 @@ module Admin
       position = attrs[:position] || (s.blocks.where(column: attrs[:column] || 0).maximum(:position).to_i + 1)
       b = s.blocks.create!(revision: revision, kind: kind, position: position,
                            column: attrs[:column] || 0,
-                           **attrs.slice(:content, :asset_name, :url, :align, :width).compact)
+                           **attrs.slice(:content, :asset_name, :url, :align, :width, :css_class).compact)
       ok "added a #{kind} block to section #{s.id}", block: b.id
     end
 

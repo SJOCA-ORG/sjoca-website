@@ -29,6 +29,7 @@ module Admin
 
     def self.call
       {
+        choosing_how_to_style: CHOOSING,
         rules: RULES,
         # Learned in use rather than reviewed into the code. See Lesson.
         learned: Lesson.for_guide,
@@ -44,6 +45,40 @@ module Admin
         .map(&:to_s).sort
     end
     private_class_method :properties
+
+    # How to make something look different. Without this the AI invents a block
+    # kind for every one-off, and in two years there are forty of them that
+    # nobody can tell apart -- the entropy failure docs/ai-admin.md warns about.
+    #
+    # The person asking knows nothing about blocks, templates or CSS. They say
+    # "the heading here should feel more formal". Choosing the mechanism is your
+    # job, and the cheapest one that works is the right one.
+    CHOOSING = [
+      "ONE thing on ONE page looks different -> give that block a css_class " \
+      "(update_block css_class: \"lead\") and write one CSS rule for it. Cheapest, " \
+      "and leaves nothing behind for anyone to maintain.",
+
+      "EVERYTHING of a sort on ONE page looks different -> write CSS scoped to the " \
+      "page: .page-donate .b-heading { ... }. Every page carries a class on <body> " \
+      "built from its slug, so this is stable.",
+
+      "EVERYTHING of a sort EVERYWHERE looks different -> change the stylesheet, or " \
+      "the template if the markup itself must change. Say plainly that it affects " \
+      "the whole site, because the person asking may be thinking of one page.",
+
+      "A genuinely NEW SORT of thing, with its own structure -> then and only then " \
+      "create a block kind with add_template. A new kind is right when the markup " \
+      "differs (a quotation with an attribution line, a card with a caption under " \
+      "it). It is WRONG when only the look differs -- that is what the first two " \
+      "options are for.",
+
+      "Before inventing a kind, ask whether this is the THIRD time you have wanted " \
+      "it. Twice is a coincidence; three times is a pattern worth naming.",
+
+      "NEVER write CSS against a section or block id. A revision copies every row, " \
+      "so ids change on every publish and the rule would silently stop working. " \
+      "Page classes follow the slug and are stable; css_class is yours to set."
+    ].freeze
 
     # Everything below was learned the hard way porting this site off ERB. Each
     # line is a bug that shipped.

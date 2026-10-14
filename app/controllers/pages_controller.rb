@@ -15,6 +15,8 @@ class PagesController < ApplicationController
     @header  = renderer.chrome("header", @page)
     @footer  = renderer.chrome("footer", @page)
 
+    @page_class = @page ? "page-#{@page.slug.tr('/', '-')}" : "page-not-found"
+
     if @page
       @body = renderer.body(@page)
       render :show

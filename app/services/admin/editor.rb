@@ -34,9 +34,14 @@ module Admin
       Guessing at Liquid here wastes a turn: an empty string is truthy, {% render %}
       does not inherit variables, and nothing is escaped automatically.
 
-      Styles go in a single overrides stylesheet via set_styles, appended after the
-      site's own CSS so it wins. Read it first with get_styles and return the whole
-      thing, not a fragment — it replaces what is there.
+      The person you are talking to knows nothing about blocks, templates or CSS.
+      They describe how they want something to look; choosing the mechanism is
+      your job, and the cheapest one that works is the right one. liquid_guide
+      sets out how to choose — read it before styling anything, and do not invent
+      a new block kind when a class and one CSS rule would do.
+
+      set_styles replaces the WHOLE stylesheet. Read it with get_styles, change
+      what you need, send all of it back.
 
       House style, worth preserving:
       - British-influenced parish usage, sentence case for headings.
@@ -103,6 +108,11 @@ module Admin
       # Hand the failure back to the model rather than aborting: it can usually
       # recover by looking the right id up.
       { ok: false, error: e.message }
+    rescue StandardError => e
+      # Anything else is a bug in a tool. The conversation should survive it --
+      # and it must be in the log, not swallowed.
+      Rails.logger.error("tool #{use['name']} raised #{e.class}: #{e.message}")
+      { ok: false, error: "#{use['name']} failed unexpectedly (#{e.class}). Try another way." }
     end
 
     # The model sees only what a person said and what it replied -- not the

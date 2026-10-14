@@ -12,6 +12,10 @@ class BlockDrop < Liquid::Drop
   def content = Sanitize.inline(@block.content)
   def raw_content = @block.content.to_s
   def align   = @block.align
+
+  # An extra class for styling this one block. Bounded to safe class names so a
+  # template cannot be broken by it.
+  def css_class = @block.css_class.to_s.scan(/[a-z][a-z0-9_-]*/).first(3).join(" ").presence
   def width   = @block.width.presence
   def url     = @block.url.presence
   def column  = @block.column

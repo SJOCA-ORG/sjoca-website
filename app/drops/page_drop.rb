@@ -2,6 +2,11 @@ class PageDrop < Liquid::Drop
   def initialize(page) = @page = page
 
   def slug       = @page.slug
+
+  # A stable CSS hook for this page: "about-us/choir" -> "page-about-us-choir".
+  # Stable because it follows the slug. Section and block ids are NOT stable --
+  # a revision copies them -- so they must never be used in a stylesheet.
+  def css_class  = "page-#{@page.slug.tr('/', '-')}"
   def title      = @page.title
   def nav_title  = @page.nav_title
   def path       = @page.path
