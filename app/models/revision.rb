@@ -32,15 +32,17 @@ class Revision < ApplicationRecord
       draft = create!(state: "draft", title: title || "Draft #{Time.current.strftime('%-d %b, %H:%M')}",
                       created_by: created_by, based_on: source)
 
+      # Templates first: a block's kind is only valid if block/<kind> exists in
+      # the same revision, so copying content before templates fails validation.
+      source.templates.find_each    { |t| t.dup.tap { |c| c.revision = draft }.save! }
+      source.theme_assets.find_each { |a| a.dup.tap { |c| c.revision = draft }.save! }
+
       pages    = source.pages.index_with    { |p| p.dup.tap { |c| c.revision = draft }.tap(&:save!) }
       sections = source.sections.index_with { |s|
         s.dup.tap { |c| c.revision = draft; c.page = pages[s.page] }.tap(&:save!) }
       source.blocks.find_each do |b|
         b.dup.tap { |c| c.revision = draft; c.section = sections[b.section] }.save!
       end
-      source.theme_assets.find_each { |a| a.dup.tap { |c| c.revision = draft }.save! }
-      source.templates.find_each    { |t| t.dup.tap { |c| c.revision = draft }.save! }
-
       draft
     end
   end

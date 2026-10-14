@@ -79,12 +79,31 @@ RSpec.describe Site::Renderer do
     end
   end
 
-  it "raises a clear error when a template is missing" do
-    revision.templates.find_by(name: "block/text").destroy
-
+  it "raises a clear error naming the template, not \"internal\"" do
     section = build_section(page: page)
     build_block(section: section, kind: "text", content: "x")
+    revision.templates.find_by(name: "section").destroy
 
-    expect { renderer.body(page.reload) }.to raise_error(/block\/text/)
+    expect { renderer.body(page.reload) }.to raise_error(/section/)
+  end
+
+  # A block kind is only usable once a template renders it. Without this a kind
+  # with no template renders as nothing at all -- content silently vanishing.
+  it "refuses a block kind that has no template" do
+    section = build_section(page: page)
+    block = Block.new(section: section, revision: revision, kind: "nonesuch", content: "x")
+
+    expect(block).not_to be_valid
+    expect(block.errors.full_messages.first).to match(/no template/)
+  end
+
+  it "accepts a new kind as soon as its template exists" do
+    revision.templates.create!(name: "block/scripture", source: "<blockquote>{{ block.content }}</blockquote>")
+    section = build_section(page: page)
+
+    block = Block.new(section: section, revision: revision, kind: "scripture", content: "Be steadfast")
+    expect(block).to be_valid
+    block.save!
+    expect(renderer.body(page.reload)).to include("<blockquote>Be steadfast</blockquote>")
   end
 end

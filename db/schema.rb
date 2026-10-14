@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -102,6 +102,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_170000) do
     t.datetime "updated_at", null: false
     t.index ["lectionary_day_id", "position"], name: "index_lectionary_readings_on_lectionary_day_id_and_position", unique: true
     t.index ["lectionary_day_id"], name: "index_lectionary_readings_on_lectionary_day_id"
+  end
+
+  create_table "lessons", force: :cascade do |t|
+    t.string "subject", null: false
+    t.text "body", null: false
+    t.string "learned_in"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active", "subject"], name: "index_lessons_on_active_and_subject"
   end
 
   create_table "pages", force: :cascade do |t|

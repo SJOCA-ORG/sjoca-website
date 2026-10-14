@@ -30,6 +30,8 @@ module Admin
     def self.call
       {
         rules: RULES,
+        # Learned in use rather than reviewed into the code. See Lesson.
+        learned: Lesson.for_guide,
         objects: (ROOTS.merge(NESTED)).map { |path, (klass, purpose)|
           { path: path, purpose: purpose, properties: properties(klass) }
         }
@@ -50,9 +52,13 @@ module Admin
       "whether something has content, use {% if thing != blank %}, not {% if thing %}. " \
       "Most drops here already return nothing for blank values, but do not rely on it.",
 
-      "{% render %} does NOT inherit variables — it starts with an empty scope. " \
-      "Anything a sub-template needs must be passed: {% render 'block', block: block, site: site %}. " \
-      "A widget that renders nothing is almost always this.",
+      "Nesting uses {% include 'name' %}, which SHARES the surrounding scope — so " \
+      "`block`, `section` and `site` are already visible and need not be passed. " \
+      "{% include %} also takes a variable: {% include block.template %} is how a block " \
+      "finds its own template, which is why there is no dispatcher to maintain.",
+
+      "{% render %} is the opposite: it isolates scope and requires a quoted literal. " \
+      "It cannot contain an {% include %}. This site uses include throughout; prefer it.",
 
       "Liquid does NOT escape output. Text that lands inside an HTML attribute must " \
       "be escaped: alt=\"{{ photo.alt }}\" is already safe because the drop escapes it, " \
@@ -62,7 +68,7 @@ module Admin
       "at the first > and silently breaks the attribute. This happened on the real site.",
 
       "Templates are named like paths — 'block/heading', 'header', 'page' — but they " \
-      "are database rows. {% render 'block/heading' %} loads the row of that name.",
+      "are database rows. {% include 'block/heading' %} loads the row of that name.",
 
       "A block kind renders through the template named block/<kind>. Adding a new " \
       "kind means creating a template with the matching name; there is no code to change.",

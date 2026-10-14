@@ -77,6 +77,28 @@ module Admin
         tool("set_template", "Replace a Liquid template's source. This changes how that thing renders everywhere.",
              { name: str("Template name"), source: str("The complete Liquid source") },
              %w[name source]),
+        tool("add_template",
+             "Create a new Liquid template. Naming it block/<something> creates a new " \
+             "kind of block, usable immediately with add_block — no developer needed.",
+             { name: str("New template name, e.g. \"block/scripture\" or \"partial/card\""),
+               source: str("The complete Liquid source") }, %w[name source]),
+
+        # --- scripts ----------------------------------------------------------
+        tool("get_scripts", "The site's current custom JavaScript.", {}),
+        tool("set_scripts",
+             "Replace the custom JavaScript, which runs on every page. Use it for behaviour " \
+             "Liquid cannot express. Returns the whole file, so send the whole file.",
+             { js: str("The complete JavaScript to use") }, %w[js]),
+
+        # --- what you have worked out -----------------------------------------
+        tool("record_lesson",
+             "Write down something you worked out that would otherwise have to be worked " \
+             "out again — a Liquid construct that behaved unexpectedly, a convention of " \
+             "this site, a trap. It is handed back to you by liquid_guide in every future " \
+             "session. Record facts you verified, not guesses.",
+             { subject: str("liquid, styles, photos, content or house-style"),
+               lesson: str("One or two sentences, specific enough to act on") },
+             %w[subject lesson]),
 
         # --- photographs ------------------------------------------------------
         tool("describe_photo", "A photograph's dimensions, format and size.",
@@ -254,6 +276,35 @@ module Admin
       source = Template.source_for(revision, name) or
         raise ToolError, "there is no template called #{name.inspect}"
       { name: name, source: source }
+    end
+
+    def add_template(name:, source:, **)
+      raise ToolError, "#{name.inspect} already exists; use set_template" if revision.templates.exists?(name: name)
+      raise ToolError, "a template name looks like block/heading or partial/card" unless
+        name.to_s.match?(%r{\A[a-z][a-z0-9_-]*(/[a-z][a-z0-9_-]*)?\z})
+
+      Liquid::Template.parse(source)
+      revision.templates.create!(name: name, source: source)
+      note = name.to_s.start_with?("block/") ? " — blocks of kind #{name.to_s.delete_prefix('block/')} can now be added" : ""
+      ok "created the #{name} template#{note}"
+    rescue Liquid::SyntaxError => e
+      raise ToolError, "that Liquid does not compile: #{e.message}"
+    end
+
+    def get_scripts(**) = { js: ThemeAsset.js_for(revision) }
+
+    def set_scripts(js:, **)
+      a = revision.theme_assets.find_or_initialize_by(name: ThemeAsset::KINDS.fetch("js"))
+      a.update!(content: js)
+      ok "updated the custom JavaScript (#{js.to_s.lines.count} lines)"
+    end
+
+    def record_lesson(subject:, lesson:, **)
+      record = Lesson.new(subject: subject, body: lesson, learned_in: revision.id.to_s)
+      return ok("already noted: #{lesson.to_s.truncate(60)}") unless record.valid? || record.errors[:body].none?
+      raise ToolError, record.errors.full_messages.to_sentence unless record.save
+
+      ok "noted for next time: #{lesson.to_s.truncate(70)}"
     end
 
     def set_template(name:, source:, **)

@@ -23,10 +23,23 @@ RSpec.describe Admin::DropReference do
     expect(block[:properties]).to include("is_map")
   end
 
+  it "hands back lessons the AI recorded in earlier sessions" do
+    Lesson.create!(subject: "liquid", body: "The weekly bulletin block must stay first in its band.")
+
+    expect(described_class.call[:learned].map { |l| l[:lesson] })
+      .to include(/weekly bulletin/)
+  end
+
+  it "omits lessons that a person has switched off" do
+    Lesson.create!(subject: "liquid", body: "Something that turned out to be wrong.", active: false)
+
+    expect(described_class.call[:learned]).to be_empty
+  end
+
   it "carries the rules that were learned the hard way" do
     rules = reference[:rules].join(" ")
     expect(rules).to match(/empty string is TRUE/i)
-    expect(rules).to match(/does NOT inherit/i)
+    expect(rules).to match(/SHARES the surrounding scope/i)
     expect(rules).to match(/quote attribute values/i)
   end
 

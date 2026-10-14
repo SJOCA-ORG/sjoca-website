@@ -5,14 +5,19 @@
 # lays out, and reading its DOM in document order gets the arrangement wrong.
 # `column_widths` holds the proportions measured off the live page.
 class Section < ApplicationRecord
+  # The bands the site ships with. NOT a closed list: `style` becomes the CSS
+  # class band--<style>, so a new one is a stylesheet rule rather than a Ruby
+  # change. Bounded to a safe class name so it cannot break the markup.
   STYLES = %w[plain light maroon].freeze
+  STYLE_NAME = /\A[a-z][a-z0-9-]{0,30}\z/
 
   belongs_to :page
   belongs_to :revision
   has_many :blocks, -> { order(:column, :position) },
            dependent: :destroy, inverse_of: :section
 
-  validates :style, inclusion: { in: STYLES }
+  validates :style, format: { with: STYLE_NAME,
+                              message: "must be a simple name like plain, light or maroon" }
 
   # [[blocks in column 0], [blocks in column 1], ...], left to right.
   def columns = blocks.group_by(&:column).sort.map(&:last)

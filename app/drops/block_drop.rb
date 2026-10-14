@@ -3,6 +3,10 @@ class BlockDrop < Liquid::Drop
 
   def id      = @block.id
   def kind    = @block.kind
+
+  # Which template renders this block. {% include block.template %} then needs
+  # no dispatcher, so adding a kind is writing ONE template.
+  def template = "block/#{@block.kind}"
   # Sanitised here rather than in the template: a template author must not be
   # able to bypass it, and once the parish edits this text it is user input.
   def content = Sanitize.inline(@block.content)

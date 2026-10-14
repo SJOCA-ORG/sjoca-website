@@ -78,7 +78,7 @@ LIQUID
   {% endif %}
 
   {% for section in page.sections %}
-    {% render 'section', section: section, site: site %}
+    {% include 'section' %}
   {% endfor %}
 LIQUID
 
@@ -88,29 +88,12 @@ LIQUID
       <div class="cols" style="--tracks: {{ section.grid_template }}">
         {% for column in section.columns %}
           <div class="col">
-            {% for block in column %}{% render 'block', block: block, site: site %}{% endfor %}
+            {% for block in column %}{% include block.template %}{% endfor %}
           </div>
         {% endfor %}
       </div>
     </div>
   </section>
-LIQUID
-
-"block" => <<~'LIQUID',
-  {%- case block.kind -%}
-  {%- when 'heading'    -%}{% render 'block/heading', block: block, site: site %}
-  {%- when 'subheading' -%}{% render 'block/subheading', block: block, site: site %}
-  {%- when 'text'       -%}{% render 'block/text', block: block, site: site %}
-  {%- when 'image'      -%}{% render 'block/image', block: block, site: site %}
-  {%- when 'button'     -%}{% render 'block/button', block: block, site: site %}
-  {%- when 'list'       -%}{% render 'block/list', block: block, site: site %}
-  {%- when 'quote'      -%}{% render 'block/quote', block: block, site: site %}
-  {%- when 'embed'      -%}{% render 'block/embed', block: block, site: site %}
-  {%- when 'calendar'   -%}{% render 'block/calendar',   site: site %}
-  {%- when 'upcoming'   -%}{% render 'block/upcoming',   site: site %}
-  {%- when 'classes'    -%}{% render 'block/classes',    site: site %}
-  {%- when 'lectionary' -%}{% render 'block/lectionary', site: site %}
-  {%- endcase -%}
 LIQUID
 
 "block/heading"    => %(<h2 class="b b-heading b--{{ block.align }}">{{ block.content }}</h2>\n),
