@@ -6,23 +6,44 @@ This supersedes the "minimum CMS" sketch in `IMPLEMENTATION-PLAN.md` — see
 
 ---
 
-## The idea
+## The Problem
 
-Rather than building a form-based admin screen for every kind of change, the parish
-edits the site **by describing what it wants**. A maintainer says "add a photo of the
-Nativity vigil to the home page, above the service times" and an AI makes that change
-in a sandbox. Someone with authority looks at the sandbox, approves it, and it ships.
+The survey indicated several problems including accuracy, and freshness of the information on the site.
+Currently the site contains photos that are years old, lists people that have died as current church
+leaders, and pages on activities that we no longer participate in.  It does not have any information
+on important events like the weekly video classes.
 
-The whole of it is under version control, so nothing is ever unrecoverable.
+The reasons that the site had gotten stale was threefold:  First, it required some expertise using
+Google Sites.  Second, it was easy to break something, and difficult to recover.  Both these
+things led to reluctance to update the site.  To compound this volunteers to update the site rotate in
+and out, and have little time to spend updating the site.
 
-### Why, in one paragraph
+## The Solution
 
-The survey said schedule accuracy matters most; the site advertised 2023 events. The
-cause was never that editing was *hard* — it was that editing was **frightening**.
-There was no undo on Google Sites, so the few people willing to touch the site became
-protective of it and everyone else stayed away. A sandbox that cannot damage anything
-is not primarily a safety feature. It is permission to experiment, and that is the
-actual fix for a stale website.
+As a first step we converted the existing site to a new Ruby-on-Rails application, while leaving the
+existing site in place.  Once we had a RoR site up in development, we began updating the site: 
+cleaning up the styling, adding new pages, and features, updating photos.  
+
+All the cleanup was done by chat interaction with Claude code.  Changes would be requested, and Claude
+would update the site, and further adjustments could be made.
+
+It then occurred to us that instead of building a more traditional set of form based CMS tools for ongoing site
+maintenance, we could just provide an AI chat interface as the means to make changes to the site.
+
+Changes would be made in "sandbox" mode ensuring that revisions to the site could be previewed and approved
+before being updated to production.  Furthermore the AI would not access or change any ruby code.  If such changes
+were needed (which happens even the best CMS systems) these would be made in the normal manner, within a code
+development environment.  However the goal is to minimize such changes.
+
+UI assets (html, javascript, stylesheets) would all be stored as database records, and any changes or additions
+would be new records.
+
+The whole of the site is thus under version control, so nothing is ever unrecoverable.
+
+Editors can update the site, play with different improvements easily and without worrying about hurting the current site.
+
+Once a Revision is ready it can be marked for approval by an "Approver"
+
 
 ---
 
@@ -32,15 +53,21 @@ actual fix for a stale website.
 |---|---|---|
 | *(none)* | self-registration | authenticate, and nothing else — **cannot see drafts** |
 | Viewer | Approver | view sandboxes, comment |
-| Editor | Approver | create and edit a sandbox |
-| SuperEditor | Approver | the above, plus theme and block templates (changes that affect every page) |
-| Approver | **SuperAdmin only** | approve and deploy; manage users up to Editor/SuperEditor |
+| Editor | Approver | create and edit a sandbox — content, templates, styles, photographs |
+| Approver | **SuperAdmin only** | approve and publish; manage users up to Editor |
 | SuperAdmin | GitHub | everything, including Ruby, routes, migrations, and the Liquid drop surface |
 
 **Login is OAuth.** Google for most people, so they use the account they already have.
 **SuperAdmin is GitHub**, and specifically requires being a collaborator on the site
 repo — so there is one source of truth for who holds the keys, and removing someone
-from the repo revokes their access automatically.
+from the repo revokes their access automatically. (Cache that check with a TTL, so a
+GitHub outage does not sign a SuperAdmin out mid-session.)
+
+**There is no SuperEditor tier.** An earlier draft had one, gating theme and template
+changes separately because they affect every page. It was removed on review for a
+good reason: *everything goes through approval anyway*, so a second permission tier
+added friction without adding safety. Blast radius still matters — but for deciding
+**what to test**, not **who may act**. See the review checks below.
 
 Two details that are easy to get wrong:
 
@@ -74,12 +101,6 @@ As of 13 October 2026 the organisation permits the weaker methods, because the o
 member's personal account still has SMS enabled. That is a temporary state, not a
 decision.
 
-### When GitHub is unavailable
-
-Nothing ships — deployment runs through GitHub, and that is acceptable; outages are
-short. But the SuperAdmin collaborator check must be **cached with a TTL** so a brief
-blip does not sign people out or lose sandbox work in progress. Fail closed on the
-*role*; never on the work.
 
 ---
 
@@ -102,7 +123,7 @@ this site is 13 pages, 66 sections and 204 blocks — about 300 small rows, copi
 in milliseconds. Deltas would save nothing and would make deletion need tombstones
 and every query need a fallback join.
 
-**Photographs are the exception and are never copied.** `legacy_assets` is ~32MB
+**Photographs are the exception and are never copied.** `photos` is ~32MB
 and already versions itself; blocks reference a photo by `human_name`, so
 revisions share them.
 
@@ -132,7 +153,7 @@ revision.
 | `templates` | `layout/page`, `block/heading`, `partial/icon_card` … in Liquid |
 | `theme_assets` | CSS and JS |
 | `settings` | service times and similar (see `cms-capabilities.md`) |
-| `legacy_assets` | photographs, already append-only |
+| `photos` | photographs, already append-only |
 
 Nesting works through a custom `Liquid::FileSystem`: `{% render 'icon_card' %}`
 loads from the `templates` table instead of from disk, so templates include
@@ -149,8 +170,8 @@ Two things fall out of this:
   *layout* that is not "bands of columns of blocks" — a gallery, cards, a two-up
   comparison.
 - **`Block::KINDS` stops being a Ruby constant.** If a kind is "a template named
-  `block/<kind>` exists", a SuperEditor can add a `scripture_quote` type by
-  writing one Liquid template. Tier 2 shrinks again.
+  `block/<kind>` exists", an Editor can add a `scripture_quote` type by writing one
+  Liquid template. The work a developer has to do shrinks again.
 
 ## The workflow, in detail
 
@@ -217,6 +238,11 @@ exit hatch, not the workflow. Build it when it is wanted.
   and it would look like a bug in the CMS rather than what it was. The seed becomes
   bootstrap-only, for an empty database.
 
+**Show who holds the lock, with their email and phone number**, so a waiting editor
+can simply ring them. A lock whose holder is anonymous turns a thirty-second
+conversation into a support request. The timeout is settable by a SuperAdmin and
+defaults to **one day**; a SuperAdmin can also steal a stale one.
+
 ## The admin is an API; the browser chat is one client
 
 A developer must be able to drive the AI admin from wherever they happen to work —
@@ -236,19 +262,62 @@ Authorisation lives in the API rather than the UI — not to constrain SuperAdmi
 who are repository collaborators with deploy access and nothing to circumvent, but
 so an Editor's token grants Editor permissions whatever client it arrives from.
 
-## What the AI may change, and who approves it
+### How this relates to Claude Code
 
-The gate is chosen by **blast radius, computed** — not by file type, declared. File
-type is a crude proxy for the thing that actually matters, which is how much of the
-site a change can affect. The system already knows which pages use which templates and
-blocks, so it can work this out.
+They are **not the same thing**, and the difference is the whole security story.
 
-| change | reaches | gate |
-|---|---|---|
-| text, images, blocks on one page | that page | Editor → Approver |
-| a page body's Liquid | that page | Editor → Approver |
-| a palette, the header, a block template | every page using it | SuperEditor → Approver |
-| layout, routes, models, migrations, the Liquid drop surface | the application | SuperAdmin |
+*Claude Code* — what built this site — is a CLI agent on a developer's machine with
+a shell and the filesystem. That is appropriate for a developer and completely
+inappropriate for a server-side admin reachable by a parish volunteer.
+
+*The admin AI* is a call to the Anthropic API from the Rails application, with a
+**fixed set of tools that are Ruby methods** operating on revision rows. No shell, no
+filesystem, no `eval`. It cannot write code because nothing in its tool surface can.
+
+But yes to the important half of the question: **the system prompt and the tool
+definitions are part of the codebase**, versioned and reviewed like any other source,
+and a developer inherits them. Tuning the admin's behaviour is a pull request.
+
+And the two meet: because the admin is an API, a developer *using* Claude Code can
+drive it — same tools, same approval path, different client.
+
+## What the AI may change
+
+**The AI can only create new records of types that already exist.** That is the whole
+rule, and it is simpler than the tiered model an earlier draft proposed.
+
+It writes rows: pages, sections, blocks, templates, theme assets, settings,
+photographs. It creates new versions rather than editing in place, so nothing is
+destroyed. It cannot add a *type*, cannot touch Ruby, cannot reach the filesystem —
+not because it is forbidden to, but because no tool in its surface does those things.
+
+So there are exactly two ways the site changes:
+
+1. **Someone talks to the AI**, which writes records, which an Approver publishes.
+2. **A developer commits code**, which is reviewed and deployed in the normal way.
+
+There is no third path and no tiered permission gate. Everything in route 1 goes
+through the same single approval step regardless of how much of the site it touches.
+
+### Image tools
+
+Photographs are records too, so the AI needs real tools for them: **crop, resize,
+rotate, adjust, feather or mask edges, convert format, generate the responsive
+sizes.** Each produces a *new* `photos` row rather than overwriting — the append-only
+rule applies to derived images exactly as it does to originals, so an unfortunate
+crop is undone by publishing the previous version.
+
+These are the same operations used throughout this project's own image work
+(ImageMagick and librsvg), and they are the difference between an editor being able
+to use a photograph and having to ask someone with Photoshop.
+
+### Blast radius still matters — for testing, not permissions
+
+Dropping the permission tiers does not make a change to the header equivalent to a
+change on one page. The system knows which pages use which templates and blocks, so
+it can compute what a change reaches and **put that in front of the reviewer**:
+"this touched the header → all 13 pages → here they are at 390px and 1280px, before
+and after." That is the job blast radius does now.
 
 ### Templates are Liquid, not ERB
 
@@ -278,13 +347,13 @@ request, and limits turn that into a clean error.
 
 ## Photographs and consent
 
-Photographs go into the database, as they already do: `legacy_assets` is append-only,
+Photographs go into the database, as they already do: `photos` is append-only,
 keyed by a semantic `human_name`, newest published row wins. During a conversation
 uploaded photos are recorded; when the session is finalised the AI proposes names and
 the author accepts or changes them.
 
-**The consent table gates this absolutely.** The AI must be unable to place a photograph
-of a child on a page without a consent record. Every new photograph is approved
+**The consent table gates this absolutely.** The AI must be unable to place a
+photograph of a child on a page without a consent record. Every new photograph is approved
 *individually* on the review screen, and the approval records who approved it and when.
 
 This is the one irreversible harm in the entire system. Everything else in this document
@@ -344,6 +413,23 @@ Two things follow:
   palette has dates the paschalion can set them in perpetuity. The parish would not
   switch seasons; the seasons would just happen.
 
+### When the AI cannot do something, it should say so in the repository
+
+The AI cannot change code. So when an editor asks for something outside its tool
+surface, the right response is not a shrug — it is to **open a GitHub issue**,
+quoting the request verbatim and explaining what capability was missing.
+
+That closes the loop between the two routes. The parish's actual unmet needs arrive
+as a prioritised list written by the people who hit them, instead of a developer
+guessing at what to build next. It is also the honest alternative to the failure mode
+this whole design guards against: an editor quietly giving up and the site going
+stale again, with nobody knowing why.
+
+Proposing the change as a **pull request** is the natural next step and worth
+building once the issue flow is working. It needs code generation and a checkout, so
+it is a bigger job than filing an issue — and an issue with a real user's words in it
+is already most of the value.
+
 ---
 
 ## Automated checks
@@ -394,7 +480,7 @@ only if screenshot diffing proves worth paying for.
 unreleased announcements and photographs of children, and sending those to an
 external API crosses the line this project has held everywhere else.
 
-The content-presence checks matter most at the SuperEditor layer. A broken theme
+The content-presence checks matter most for template changes. A broken theme
 template does not merely look ugly — it can make content *vanish*, and **a broken site
 and a quiet parish look identical from the front.** That is why the importers refuse
 empty results, and the theme layer needs the same posture.
@@ -468,13 +554,17 @@ council than the fallback was.
 
 ## The acceptance test: replay the whole site through the admin
 
+**Dn Mitch runs it, as a non-technical user** — which, where the visual design of the
+site is concerned, is an accurate description rather than a pretence.
+
 The claim this document makes is that the parish can run its own website without a
 developer. That claim is **falsifiable**, and there is an obvious way to test it.
 
 Once the admin works:
 
-1. **Roll the site back to the original Google Sites clone** — the look it had when
-   Phase 1 finished. With the revision model this is not a revert at all, it is
+1. **Roll the site back as far as it goes** — not to the end of Phase 1 but to its
+   *beginning*: the Google Sites clone as first extracted, before any styling or
+   content work. With the revision model this is not a revert at all, it is
    publishing the first revision.
 2. **Keep every Ruby widget** already built: the ChurchTrac calendar mirror, the
    lectionary and class-recording importers, the block renderers behind
@@ -497,10 +587,31 @@ behaves and Events gets a calendar tab.
 
 Every failure is informative in a way guessing is not. **Each thing the AI cannot
 do is a missing capability, named precisely**, and the list that comes out is the
-real tier-1 scope rather than one we imagined at a whiteboard. Some will be content
-(rows, should already work), some style (the `theme_assets` layer), some structural
-(new pages, nav order), and some will turn out to genuinely need Ruby — which is
-itself the answer to "how big is tier 2, really?"
+real scope rather than one we imagined at a whiteboard.
+
+### Derive the vocabulary first, then replay
+
+An earlier draft framed this as discovering the gaps purely by running the test. That
+is backwards, and the better order is:
+
+1. **Analyse the site as it stands today** and extract the **minimum set of Liquid
+   macros** that could reproduce it. Minimum is the point — a large vocabulary proves
+   nothing, because anything is reproducible given enough bespoke templates.
+2. **Dn Mitch reviews that set before the replay begins.** If it is not
+   comprehensible to him on paper, it will not be usable by a volunteer in practice,
+   and that is worth finding out before any code is written.
+3. **Then replay**, and treat every "that needs a code change" as **an ordinary bug**
+   — fixed the way it would be fixed a year from now: a code change, reviewed,
+   deployed. Not a failure of the test, just the second route working as designed.
+
+That last point matters for how the result is read. The test is not "did the AI
+manage everything?" — it is **"is the set of things needing a developer small,
+comprehensible, and shrinking?"**
+
+The consequence worth stating plainly: **this defines what must already exist in the
+site before the replay starts.** Anything that cannot be reproduced by writing
+database rows has to be pre-implemented. Working that list out *is* the design of
+tier 1.
 
 ### Two cautions
 
@@ -524,7 +635,7 @@ declared finished while still needing a developer.
    parish long before the rest of the architecture is finished.
 
 1. **Tests are a prerequisite, not a nice-to-have.** The repo currently has none. The
-   SuperEditor layer and refactoring are both unsafe without them, and the automated
+   template layer and refactoring are both unsafe without them, and the automated
    checks above are the same machinery. Build this first.
 2. **The content model matters more than the editor UI.** `Block::KINDS` is already a
    bounded vocabulary with typed fields and a real grid — that is the hard part and it
@@ -536,15 +647,22 @@ declared finished while still needing a developer.
 
 ## Open questions
 
-- The invite flow and the pending-user queue.
-- Lock timeout duration, and the SuperAdmin steal UI.
-- Who owns the Liquid drop surface and reviews additions to it.
-- **The GitHub organisation.** `github.com/Sjoca` is a dormant *personal* account from
-  August 2017 — created and never used again, zero repos, no name or email. It is not
-  the parish, and no parish organisation exists. Available alternatives include
-  `sjoca-rochester`, `sjoca-org`, `sjoca-ny` and `stjohnrochester`. Moving the repo to
-  an organisation matters for two reasons: an org can **enforce 2FA** on collaborators
-  (a personal repo cannot), and it detaches SuperAdmin from Mitch's personal account.
-  GitHub transfers set up redirects, so the move can happen later — but **make the
-  owner/repo a config value now** so the SuperAdmin check becomes a one-line change
-  rather than a hunt.
+**Settled on review:**
+
+- *Invites.* For now a SuperAdmin adds people and sets roles by hand. A self-service
+  invite flow can wait until there is anyone to invite.
+- *Locks.* Timeout is settable by a SuperAdmin, default **one day**, with a SuperAdmin
+  steal. The lock screen shows who holds it, with their email and phone number.
+- *The Liquid drop surface is Ruby* — so yes, the only way to change it is a developer
+  editing code and committing. That is exactly why it is the load-bearing security
+  decision: it is the one boundary a template author cannot move.
+
+**Still open:**
+
+- Rename `legacy_assets` to `photos`. "Legacy" described the Google Sites migration
+  and will mean nothing in a year. 39 occurrences across 19 files, and the public URL
+  is `/media/:human_name`, so nothing user-facing changes.
+- **Make `owner/repo` a config value** before the SuperAdmin check is written, so it
+  is never hardcoded. (The organisation move itself is **done** — the repository is
+  now `SJOCA-ORG/sjoca-website`. The org's 2FA requirement is still permissive; see
+  above.)

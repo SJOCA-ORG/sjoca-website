@@ -151,6 +151,31 @@ the first, which is exactly the person this project needs.
       as well as `*.dump` and `*.sql.gz` — plain `.sql` was missed, and this
       repo is public.)
 
+## From the ai-admin.md review (14 Oct 2026)
+
+- [ ] **Rename `legacy_assets` to `photos`.** "Legacy" described the Google Sites
+      migration and will mean nothing to anyone in a year; the table holds the
+      parish's photographs and should say so. 39 occurrences across 19 files —
+      model, controller, two seed files, migrations, views, helper, specs. The
+      public URL is `/media/:human_name` and does not contain the name, so
+      **nothing user-facing changes**. Mechanical, and the suite covers it.
+
+- [ ] **Image tools for the admin.** Crop, resize, rotate, feather or mask edges,
+      convert format, generate responsive sizes — each producing a *new* photo
+      record rather than overwriting. Same operations used throughout this
+      project's own image work. Without these an editor has to find someone with
+      Photoshop before they can use a photograph.
+
+- [ ] **The AI opens a GitHub issue when it cannot do something**, quoting the
+      request verbatim. Turns unmet needs into a prioritised list written by the
+      people who hit them, instead of a developer guessing. A pull request is the
+      natural next step and a bigger job; the issue is most of the value.
+
+- [ ] **Derive the minimum Liquid macro set** from the current site, for review
+      *before* the replay test begins. Minimum is the point — a large vocabulary
+      proves nothing. This list is the design of what must exist before the test
+      can start.
+
 ## Known gaps
 
 - [ ] **No browser specs, so the mobile-menu class of bug is still invisible.**
