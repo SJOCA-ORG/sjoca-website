@@ -31,7 +31,8 @@ revision.messages.order(:created_at).each do |m|
   puts "#{who}  #{m.created_at.strftime('%-d %b %H:%M:%S')}"
   puts m.content.to_s.gsub(/^/, "     ")
   Array(m.tool_calls).each do |t|
-    puts "     · #{t['summary'].presence || t['name']}"
+    mark = t["failed"] ? "✗" : (t["read"] ? "·" : "→")
+    puts "     #{mark} #{t['summary'].presence || t['name']}"
   end
 end
 puts

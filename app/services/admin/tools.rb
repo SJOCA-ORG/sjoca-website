@@ -73,11 +73,28 @@ module Admin
                position: int("Order in the navigation") },
              %w[slug title nav_title]),
         tool("list_photos", "Every photograph available, by name.", {}),
-        tool("get_styles", "The site's complete stylesheet.", {}),
+        tool("get_styles",
+             "The site's complete stylesheet — about 26KB. Usually too large to work with; " \
+             "prefer find_styles.", {}),
+        tool("add_styles",
+             "Add CSS rules to the end of the stylesheet. This is how to style something: " \
+             "it sends only what you are adding. PREFER THIS over set_styles.",
+             { css: str("The rules to add"),
+               note: str("A short comment saying what these are for, e.g. \"Giving page heading\"") },
+             %w[css]),
+        tool("edit_styles",
+             "Change one part of the stylesheet by replacing an exact snippet. Read the " \
+             "relevant part with find_styles first. Sends only the part that changes.",
+             { find: str("The exact existing text to replace"),
+               replace: str("What to put in its place") }, %w[find replace]),
+        tool("find_styles",
+             "Search the stylesheet and return the matching rules with their line numbers. " \
+             "Use this instead of get_styles, which returns 26KB.",
+             { pattern: str("A selector or word to look for, e.g. \"site-nav\" or \"--maroon\"") },
+             %w[pattern]),
         tool("set_styles",
-             "Replace the site's stylesheet. This is the WHOLE stylesheet, not an override " \
-             "layer — read it with get_styles, change what you need, and send all of it back. " \
-             "A mistake is previewed before publishing and undone by republishing.",
+             "Replace the ENTIRE stylesheet. Rarely the right tool — it is about 26KB, which " \
+             "will not fit in one reply. Use add_styles or edit_styles instead.",
              { css: str("The complete stylesheet") }, %w[css]),
 
         # --- templates: how things look, as opposed to what they say ---------
@@ -303,6 +320,38 @@ module Admin
 
     def get_styles(**)
       { css: ThemeAsset.css_for(revision) }
+    end
+
+    def add_styles(css:, note: nil, **)
+      current = ThemeAsset.css_for(revision)
+      heading = note.present? ? "\n\n/* #{note.to_s.gsub(%r{[*/]}, '')} */\n" : "\n\n"
+      write_css(current + heading + css.to_s.strip + "\n")
+      ok "added #{css.to_s.lines.count} lines of CSS#{note.present? ? " for #{note}" : ''}"
+    end
+
+    def edit_styles(find:, replace:, **)
+      current = ThemeAsset.css_for(revision)
+      count = current.scan(find.to_s).size
+      raise ToolError, "that text is not in the stylesheet. Use find_styles to see what is there." if count.zero?
+      raise ToolError, "that text appears #{count} times; include enough surrounding text to be unique." if count > 1
+
+      write_css(current.sub(find.to_s, replace.to_s))
+      ok "changed #{find.to_s.truncate(50).inspect} in the stylesheet"
+    end
+
+    def find_styles(pattern:, **)
+      lines = ThemeAsset.css_for(revision).lines
+      hits = lines.each_with_index.select { |l, _| l.downcase.include?(pattern.to_s.downcase) }
+      return { matches: [], note: "nothing matching #{pattern.inspect}" } if hits.empty?
+
+      { matches: hits.first(40).map { |line, i|
+          { line: i + 1, text: line.rstrip,
+            context: lines[[i - 1, 0].max..(i + 3)].join.rstrip } } }
+    end
+
+    def write_css(css)
+      a = revision.theme_assets.find_or_initialize_by(name: ThemeAsset::KINDS.fetch("css"))
+      a.update!(content: css)
     end
 
     def set_styles(css:, **)

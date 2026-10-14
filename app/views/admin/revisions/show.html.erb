@@ -27,8 +27,8 @@
       <%= m.content %>
       <% if m.tool_calls.present? %>
         <span class="tools">
-          <% Array(m.tool_calls).each do |t| %>
-            <%= t["summary"].presence || t["name"] %><br>
+          <% Array(m.tool_calls).reject { |t| t["read"] }.each do |t| %>
+            <span style="<%= "color:#8B1A1A" if t["failed"] %>"><%= t["summary"].presence || t["name"] %></span><br>
           <% end %>
         </span>
       <% end %>

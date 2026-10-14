@@ -40,8 +40,10 @@ module Admin
       sets out how to choose — read it before styling anything, and do not invent
       a new block kind when a class and one CSS rule would do.
 
-      set_styles replaces the WHOLE stylesheet. Read it with get_styles, change
-      what you need, send all of it back.
+      The stylesheet is about 26KB — far too large to send back in one reply, so
+      do NOT reach for get_styles and set_styles. Use add_styles to append new
+      rules, find_styles to see what already exists, and edit_styles to change
+      one part. These send only what changes.
 
       House style, worth preserving:
       - British-influenced parish usage, sentence case for headings.
@@ -68,6 +70,7 @@ module Admin
 
       conversation = history
       performed    = []
+      failures     = Hash.new(0)
 
       MAX_STEPS.times do
         response = @client.call(system: SYSTEM, messages: conversation,
@@ -85,12 +88,38 @@ module Admin
 
         results = uses.map do |use|
           outcome = run(use, performed)
+
+          # It self-corrects well when an error says something actionable. It
+          # cannot when the real cause is invisible to it -- a reply truncated at
+          # max_tokens looks like an unexplained failure, and it will try the
+          # same thing until the step budget runs out. Say so after the second
+          # identical failure rather than letting it burn ten more.
+          if outcome.is_a?(Hash) && outcome[:ok] == false
+            failures[use["name"]] += 1
+            if failures[use["name"]] >= 2
+              outcome = outcome.merge(
+                stop: "#{use['name']} has now failed #{failures[use['name']]} times. Do NOT try it " \
+                      "again — something about this approach cannot work. If you were sending a " \
+                      "large amount of text, your reply is being cut short: use add_styles or " \
+                      "edit_styles, which send only what changes. Otherwise try a different tool, " \
+                      "or tell the person plainly what you cannot do and why."
+              )
+            end
+          end
+
           { type: "tool_result", tool_use_id: use["id"], content: outcome.to_json }
         end
         conversation << { role: "user", content: results }
       end
 
-      message = "I made several changes but stopped after #{MAX_STEPS} steps. Have a look, then tell me what still needs doing."
+      # Say what actually happened rather than "I stopped after 12 steps", which
+      # tells the person nothing about whether their change was made.
+      failed = performed.select { |p| p["failed"] }
+      done   = performed.reject { |p| p["failed"] || p["read"] }
+      message = +"I ran out of steps before finishing."
+      message << " I did manage: #{done.map { |p| p['summary'] }.join('; ')}." if done.any?
+      message << " What kept failing: #{failed.map { |p| p['summary'] }.uniq.first(2).join('; ')}." if failed.any?
+      message << " Have a look at what is there, and tell me what still needs doing."
       @revision.messages.create!(role: "assistant", content: message, tool_calls: performed)
       Result.new(reply: message, tool_calls: performed)
     rescue Anthropic::Client::Error, Tools::ToolError, ImageTools::ToolError => e
@@ -100,18 +129,27 @@ module Admin
 
     private
 
+    # Every call is recorded, successes AND failures. Twelve steps once produced a
+    # single line in the transcript because only successes with a summary were
+    # kept -- which hid the fact that eleven attempts had failed identically.
     def run(use, performed)
       result = @tools.call(use["name"], use["input"] || {})
-      performed << { "name" => use["name"], "summary" => result[:summary] } if result.is_a?(Hash) && result[:summary]
+      performed << if result.is_a?(Hash) && result[:summary]
+                     { "name" => use["name"], "summary" => result[:summary] }
+                   else
+                     { "name" => use["name"], "summary" => "looked at #{use['name'].tr('_', ' ')}", "read" => true }
+                   end
       result
     rescue Tools::ToolError, ImageTools::ToolError => e
       # Hand the failure back to the model rather than aborting: it can usually
       # recover by looking the right id up.
+      performed << { "name" => use["name"], "summary" => "FAILED: #{e.message}", "failed" => true }
       { ok: false, error: e.message }
     rescue StandardError => e
       # Anything else is a bug in a tool. The conversation should survive it --
       # and it must be in the log, not swallowed.
       Rails.logger.error("tool #{use['name']} raised #{e.class}: #{e.message}")
+      performed << { "name" => use["name"], "summary" => "FAILED unexpectedly: #{e.class}", "failed" => true }
       { ok: false, error: "#{use['name']} failed unexpectedly (#{e.class}). Try another way." }
     end
 
