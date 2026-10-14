@@ -1,6 +1,6 @@
 # AI as admin — the editing model for Phase 2
 
-Status: **agreed design, not yet built.** Decided in conversation on 13 October 2026.
+Status: **agreed design, not yet built.** Decided in conversation on 13-14 October 2026.
 This supersedes the "minimum CMS" sketch in `IMPLEMENTATION-PLAN.md` — see
 [What this changes](#what-this-changes-about-phase-2) at the end.
 
@@ -83,25 +83,158 @@ blip does not sign people out or lose sandbox work in progress. Fail closed on t
 
 ---
 
-## The sandbox
+## The sandbox is a revision, not a second site
 
-Every editing session happens in a sandbox that cannot affect the live site. The
-promotion path is: **sandbox → review → approve → deploy**, with a deployment date
-optionally in the future (the scheduled-publishing design already in
-`IMPLEMENTATION-PLAN.md`: start and end dates both optional, no end means "until
-pulled", the undated version is evergreen and dated ones layer on top).
+There is **no separate sandbox instance**. The sandbox is a set of rows.
 
-**Concurrency:** one sandbox at a time. Creating one locks out other editors. Because a
-single AI mediates, it can tell a waiting editor who holds the lock and what they are
-doing. A SuperAdmin can steal a stale lock — the realistic failure is not a merge
-conflict, it is somebody opening a sandbox and going on holiday. Revisit if the parish
-ever has enough simultaneous editors to need real branching.
+```
+revisions(id, state, title, created_by, based_on_id,
+          approved_by, approved_at, published_at)
+          state: draft -> in_review -> published -> superseded   (or discarded)
+```
 
-**Approval is deployment.** Whoever clicks approve is the release manager. Keep `/up`
-wired to an automatic rollback so a bad promotion heals itself rather than waiting for
-somebody to notice.
+`pages`, `sections`, `blocks`, `templates` and `theme_assets` each carry a
+`revision_id`. The live site renders the published revision; a preview at
+`/preview/:id` is **the same Rails application rendering a different revision**.
 
----
+**A revision is a full copy, not a delta.** That sounds expensive until you count:
+this site is 13 pages, 66 sections and 204 blocks — about 300 small rows, copied
+in milliseconds. Deltas would save nothing and would make deletion need tombstones
+and every query need a fallback join.
+
+**Photographs are the exception and are never copied.** `legacy_assets` is ~32MB
+and already versions itself; blocks reference a photo by `human_name`, so
+revisions share them.
+
+### Why not a second deployment
+
+A separate staging site was considered and rejected, and the reason is specific to
+this project: **the content lives in the database and the photographs live only
+there.** A second site would need either production's database — in which case it
+is not a sandbox — or its own, which then needs a periodic dump restore, has stale
+photographs, and leaves approved changes needing a database-to-database diff to get
+home. The same objection applies to Codespaces, and to any model where the preview
+is a different process.
+
+The second obstacle is latency. A sandbox deploying from a branch means every
+change is commit, push, and a three-minute build before the editor sees anything.
+Conversational editing does not survive that.
+
+A revision overlay has neither problem, and it keeps the single-editor lock
+*optional* rather than architectural — each editor could eventually hold their own
+revision.
+
+### Everything non-Ruby becomes a row
+
+| table | holds |
+|---|---|
+| `pages` / `sections` / `blocks` | already exist, already rows |
+| `templates` | `layout/page`, `block/heading`, `partial/icon_card` … in Liquid |
+| `theme_assets` | CSS and JS |
+| `settings` | service times and similar (see `cms-capabilities.md`) |
+| `legacy_assets` | photographs, already append-only |
+
+Nesting works through a custom `Liquid::FileSystem`: `{% render 'icon_card' %}`
+loads from the `templates` table instead of from disk, so templates include
+templates, recursively, all from the database.
+
+**Versioning needs nothing new.** Use the pattern `legacy_assets` already uses —
+append-only rows keyed by name, newest published wins. Photographs and templates
+then version identically.
+
+Two things fall out of this:
+
+- **Adding a page already works.** `pages` is a row and the route is a catch-all,
+  so a new page needs no migration, no Ruby and no deploy. What needs Liquid is a
+  *layout* that is not "bands of columns of blocks" — a gallery, cards, a two-up
+  comparison.
+- **`Block::KINDS` stops being a Ruby constant.** If a kind is "a template named
+  `block/<kind>` exists", a SuperEditor can add a `scripture_quote` type by
+  writing one Liquid template. Tier 2 shrinks again.
+
+## The workflow, in detail
+
+1. **Editor signs in** with Google.
+2. **Starts editing.** The system checks the lock, creates a `draft` revision based
+   on the published one, copies ~300 rows, holds the lock. Sub-second.
+3. **Describes a change.** The request carries their session and the revision id. A
+   background job calls the model with tools **scoped to that revision** —
+   `add_block`, `move_block`, `update_block`. Production is untouched throughout.
+4. **Previews** at `/preview/:id`. Client-side checks run at 390px and 1280px.
+5. **Uploads a photograph.** Stored at once as a `draft` asset with no consent
+   record. Named at finalisation.
+6. **Closes the laptop.** Nothing is "saved" because nothing was ever unsaved —
+   every turn already wrote rows.
+7. **Returns tomorrow** and resumes. **This is the part easy to get wrong:**
+   resuming needs the *conversation*, not just the rows, or the AI cannot resolve
+   "move it back up a bit". A `revision_messages` table persists role, content and
+   tool calls per turn. Without it the feature works on day one and is useless on
+   day two.
+8. **Submits for review.** Lock stays held so nothing shifts under the reviewer.
+9. **Approver sees four things:** the plain-language change log, the preview, each
+   new photograph individually for consent, and the check results.
+10. **Approves.** One database transaction: revision published, previous
+    superseded, draft photographs published with consent records, approver and
+    timestamp recorded, lock released.
+
+### Approval is a transaction, not a deployment
+
+An earlier draft of this document said "approval is deployment". That is true only
+for tier 2. **A tier-1 publish is a pointer flip** — instant, no build, no wait.
+Rollback is flipping back, and any revision can be made live again, forward or
+back, like checking out a tag.
+
+One sharp edge: blocks reference photographs by `human_name` and
+`LegacyAsset.current` returns the newest published one, so **rolling back content
+does not roll back a photograph that was swapped since.** Pinning asset ids in
+revisions would fix that, at the cost of the "replace a photo without touching any
+page" property that was deliberate. Not decided.
+
+### Git is not in the approval path
+
+Committing on every approval was considered and dropped. It buys little — the
+audit trail is already in the database, reviewers look at the preview rather than
+diffs, and recovery comes from revisions — while costing git credentials on the
+server, push-failure handling, and the question of whether a failed push rolls back
+an approval.
+
+The decisive argument: **it would make publishing depend on GitHub being
+available.** Tier 2 already cannot ship during a GitHub outage; there is no reason
+to extend that to the 95% case for a record we already hold.
+
+Instead, **export-to-git is an on-demand action** that turns the database into
+ordinary Rails files — a standard application someone else could host. It is the
+exit hatch, not the workflow. Build it when it is wanted.
+
+### Two rules that must not be forgotten
+
+- **The lock is what removes merge conflicts entirely.** One editor, one revision,
+  and approval requires the lock, so two people can never diverge from one base.
+  That is the whole reason to accept its inconvenience.
+- **Once this ships, deploys must stop re-seeding content.** `db/seeds/content.rb`
+  loads `content.yml` and prunes orphaned pages. With the database authoritative, a
+  re-seeding deploy would silently revert every parish edit since the last export —
+  and it would look like a bug in the CMS rather than what it was. The seed becomes
+  bootstrap-only, for an empty database.
+
+## The admin is an API; the browser chat is one client
+
+A developer must be able to drive the AI admin from wherever they happen to work —
+a Mac, someone's Linux box, a Codespace. **Tier-2 environment choice is the
+developer's, not the architecture's**, so nothing here is designed around it.
+
+What that *does* require is that the capabilities are an authenticated HTTP API,
+with the browser chat as one client of it. A CLI is another. Claude Code on a
+developer's machine is another, plausibly over MCP. Pointing any of them at a local
+application or at production is then a difference of base URL and token.
+
+Build the chat UI first and extract the API later and the tools end up tangled in
+controller and session code, and the CLI never happens. This is the part that
+cannot be retrofitted cheaply, so decide it before anything is written.
+
+Authorisation lives in the API rather than the UI — not to constrain SuperAdmins,
+who are repository collaborators with deploy access and nothing to circumvent, but
+so an Editor's token grants Editor permissions whatever client it arrives from.
 
 ## What the AI may change, and who approves it
 
@@ -234,6 +367,33 @@ inevitable; **repeats do not have to be.** Every bug we hit becomes a permanent 
   renders, the nav still has the expected items
 - link check, HTML validity
 
+### Where these actually run
+
+Not on the server, at least not first. The web service is on Render's **starter**
+plan (512MB) using the native Ruby runtime; headless Chrome needs 300–500MB for a
+single page on top of Rails and **will not run there**. It would want a larger
+instance and probably a Docker runtime.
+
+Two things make that less limiting than it sounds.
+
+The tooling already exists — `reference/current-site/capture.mjs` drives Chrome
+over CDP with no npm dependencies and already does device-metric emulation and
+screenshots. It simply runs locally today.
+
+And **most of these checks need no server-side browser at all.** The preview
+renders in the editor's own browser, and overflow, nav reachability, contrast and
+content presence are DOM measurements — `scrollWidth > clientWidth`, computed
+styles, element boxes — doable from injected JavaScript in the preview frame at
+several widths. That catches the mobile-menu class of bug, which was an *assertion*
+failure rather than a visual-diff one. No infrastructure, no cost.
+
+So: client-side assertions first; a separate worker with Docker and Chrome later,
+only if screenshot diffing proves worth paying for.
+
+**Rule one option out now:** no third-party screenshot service. Drafts contain
+unreleased announcements and photographs of children, and sending those to an
+external API crosses the line this project has held everywhere else.
+
 The content-presence checks matter most at the SuperEditor layer. A broken theme
 template does not merely look ugly — it can make content *vanish*, and **a broken site
 and a quiet parish look identical from the front.** That is why the importers refuse
@@ -306,7 +466,62 @@ council than the fallback was.
 
 ---
 
+## The acceptance test: replay the whole site through the admin
+
+The claim this document makes is that the parish can run its own website without a
+developer. That claim is **falsifiable**, and there is an obvious way to test it.
+
+Once the admin works:
+
+1. **Roll the site back to the original Google Sites clone** — the look it had when
+   Phase 1 finished. With the revision model this is not a revert at all, it is
+   publishing the first revision.
+2. **Keep every Ruby widget** already built: the ChurchTrac calendar mirror, the
+   lectionary and class-recording importers, the block renderers behind
+   `upcoming`, `calendar`, `lectionary` and `classes`. Those are tier 2 by
+   definition and are not what is being tested.
+3. **Redo every change made since, through the AI admin only**, on a development
+   machine, with no developer intervention of any kind.
+4. **Watch where it fails**, and fix the admin rather than the content.
+
+The target is unambiguous — the site as it looks today — and the work is real
+rather than invented: **62 commits, of which 34 touched content and 16 touched
+views or stylesheets.** Service times moved above the hero. Live-streaming removed.
+The Miter Ceremony page retired. Address and phone turned into links. Giving
+restructured into "Financially Support" and "With your time and talent", with 1 Cor
+15:58 and eight ministries. Clergy titles corrected. Mobile menu rebuilt. The
+leadership page reorganised. Hero sizes changed. Nav restructured so About Us
+behaves and Events gets a calendar tab.
+
+### Why this is the right test
+
+Every failure is informative in a way guessing is not. **Each thing the AI cannot
+do is a missing capability, named precisely**, and the list that comes out is the
+real tier-1 scope rather than one we imagined at a whiteboard. Some will be content
+(rows, should already work), some style (the `theme_assets` layer), some structural
+(new pages, nav order), and some will turn out to genuinely need Ruby — which is
+itself the answer to "how big is tier 2, really?"
+
+### Two cautions
+
+**Judge the outcome, not the method.** These changes were originally made by a
+developer with full repository access, sometimes in ways a constrained system
+cannot reproduce. If the AI reaches the same visual result by a different route,
+that is a pass, not a workaround.
+
+**Some of it may legitimately be out of scope.** The favicon is files in `public/`,
+not database rows; a new block *kind* may need its renderer before it can be
+placed. Deciding deliberately that something is tier 2 is a valid outcome. Quietly
+doing it by hand and counting it as a pass is not — that is how a system gets
+declared finished while still needing a developer.
+
 ## What this changes about Phase 2
+
+0. **Build the revision model first** — `revisions`, a `revision_id` on the content
+   tables, a `/preview/:id` route and `revision_messages`. Content-only, no Liquid
+   store, no template system. Pages, sections and blocks are *already* rows, so
+   this is small, and it puts a working conversational editor in front of the
+   parish long before the rest of the architecture is finished.
 
 1. **Tests are a prerequisite, not a nice-to-have.** The repo currently has none. The
    SuperEditor layer and refactoring are both unsafe without them, and the automated

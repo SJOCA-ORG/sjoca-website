@@ -28,6 +28,7 @@ reference/current-site/shots-mobile/
 # ---- Database dumps ----
 # Production dumps contain admin accounts and parish photos. Keep them local.
 *.dump
+*.sql
 *.sql.gz
 db/dumps/
 

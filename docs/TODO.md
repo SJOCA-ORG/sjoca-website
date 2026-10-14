@@ -113,6 +113,49 @@ project, and must be right at cutover.
 - [ ] **Schedule the three syncs** once deployed: `churchtrac:sync`,
       `classes:sync`, `lectionary:sync`.
 
+## Developer environment
+
+Nothing here is urgent, but all of it bites the *second* contributor rather than
+the first, which is exactly the person this project needs.
+
+- [ ] **Pin the language versions.** `.ruby-version` contains the literal word
+      `system`, which pins nothing — on this Mac it resolves to 3.4.7, on another
+      machine to whatever happens to be installed. The Gemfile has no `ruby`
+      directive at all, and there is no `.node-version` (development uses Node
+      24). Worse than absent, because tooling reads the file and believes it.
+
+- [ ] **Write `docs/development.md`.** `CLAUDE.md` tells a newcomer to run five
+      commands and nothing about what must already be installed. The project
+      shells out to **`magick`, `potrace`, `rsvg-convert`, `node`** and needs
+      **Postgres** and **Chrome** — of which only Postgres is mentioned anywhere
+      a newcomer would look, and ImageMagick/librsvg only inside
+      `docs/favicon.md`. A fresh clone on Linux or Windows fails several times
+      over, each with an unhelpful error. Cover macOS, Linux and Windows/WSL.
+
+- [ ] **A `.devcontainer/` falls out of that work nearly free**, and then
+      Codespaces becomes a valid environment without anything being designed
+      around it — which is the point: tier-2 environment choice is the
+      developer's, not the architecture's.
+
+- [ ] **Postgres 18 client tooling locally.** Production runs **PG 18**; this
+      machine has client and server **14.19**. `pg_dump` refuses to dump from a
+      server newer than itself, so `bin/pull-production-db` cannot work until
+      the local tooling is upgraded. Upgrading the local *server* too (or
+      running Postgres in Docker) avoids restoring an 18 dump into a 14 server.
+
+- [ ] **Write `bin/pull-production-db`.** Needed to build Phase 2 at all, not
+      just at the first tier-2 change — revision, preview and template work all
+      want realistic content and real photographs. A `pg_dump` is a complete
+      copy precisely because photo bytes live in the table, so this is one
+      script against Render's external connection string.
+
+      **The dump is the most sensitive artifact this project produces.** It
+      contains every parish photograph, children included, and it lands on
+      developer laptops. It must default to a gitignored directory, and the
+      docs must say plainly what the file is. (`.gitignore` now covers `*.sql`
+      as well as `*.dump` and `*.sql.gz` — plain `.sql` was missed, and this
+      repo is public.)
+
 ## Known gaps
 
 - [ ] **No browser specs, so the mobile-menu class of bug is still invisible.**
