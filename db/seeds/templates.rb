@@ -184,11 +184,11 @@ LIQUID
   </div></div>
 LIQUID
 
-"block/classes" => <<~'LIQUID',
-  {% if site.classes.any %}
-    <div class="b b-classes"><div class="classes">
+"block/recordings" => <<~'LIQUID',
+  {% if site.recordings.any %}
+    <div class="b b-recordings"><div class="classes">
       <ul class="classes__list">
-        {% for rec in site.classes.recordings %}
+        {% for rec in site.recordings.all limit: 3 %}
           <li class="classes__item">
             <a class="classes__link" href="{{ rec.watch_url }}" rel="noopener">
               <span class="classes__thumb">
@@ -205,7 +205,7 @@ LIQUID
         {% endfor %}
       </ul>
       <p class="classes__all">
-        <a class="button" href="{{ site.classes.playlist_url }}" rel="noopener">All classes on YouTube</a>
+        <a class="button" href="{{ site.recordings.playlist_url }}" rel="noopener">All classes on YouTube</a>
       </p>
     </div></div>
   {% endif %}

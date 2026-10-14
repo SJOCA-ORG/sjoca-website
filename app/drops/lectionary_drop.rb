@@ -4,9 +4,13 @@ class LectionaryDrop < Liquid::Drop
     day && DayDrop.new(day)
   end
 
+  # How many days ahead to show belongs to the template:
+  #   {% for day in site.lectionary.ahead limit: 6 %}
+  CAP_DAYS = 30
+
   def ahead
-    LectionaryDay.where(on: Date.current.tomorrow..(Date.current + 6))
-                 .order(:on).map { |d| DayDrop.new(d) }
+    @ahead ||= LectionaryDay.where(on: Date.current.tomorrow..(Date.current + CAP_DAYS))
+                            .order(:on).map { |d| DayDrop.new(d) }
   end
 
   def has_ahead = ahead.any?

@@ -19,10 +19,10 @@ module Admin
     NESTED = {
       "site.calendar"   => [CalendarDrop,   "parish calendar, grouped into weeks"],
       "site.upcoming"   => [UpcomingDrop,   "notable events in the coming week"],
-      "site.classes"    => [ClassesDrop,    "recent adult-education recordings"],
+      "site.recordings" => [RecordingsDrop, "recordings of the adult education classes"],
       "site.lectionary" => [LectionaryDrop, "today's appointed readings"],
       "site.calendar.weeks[]" => [CalendarDrop::WeekDrop, "one week of the calendar"],
-      "site.classes.recordings[]" => [ClassesDrop::RecordingDrop, "one recording"],
+      "site.recordings.all[]" => [RecordingsDrop::RecordingDrop, "one recording"],
       "site.lectionary.today"  => [LectionaryDrop::DayDrop, "one day's readings"],
       "site.lectionary.today.appointed[]" => [LectionaryDrop::ReadingDrop, "one reading"]
     }.freeze

@@ -12,6 +12,6 @@ class SiteDrop < Liquid::Drop
 
   def calendar   = @calendar   ||= CalendarDrop.new
   def upcoming   = @upcoming   ||= UpcomingDrop.new
-  def classes    = @classes    ||= ClassesDrop.new
+  def recordings = @recordings ||= RecordingsDrop.new
   def lectionary = @lectionary ||= LectionaryDrop.new
 end

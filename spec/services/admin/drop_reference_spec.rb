@@ -47,6 +47,29 @@ RSpec.describe Admin::DropReference do
     expect(Admin::Tools.definitions.map { |t| t[:name] }).to include("liquid_guide")
   end
 
+  # It referenced a drop class that had been renamed, so liquid_guide -- the tool
+  # that teaches the AI the rules -- raised NameError every time it was called.
+  # The AI worked around it by exploring, and nothing reported the breakage.
+  it "actually builds, rather than naming a class that no longer exists" do
+    expect { described_class.call }.not_to raise_error
+  end
+
+  it "names only drop classes that are defined" do
+    (described_class::ROOTS.merge(described_class::NESTED)).each do |path, (klass, _)|
+      expect(klass).to be_a(Class), "#{path} does not point at a real class"
+    end
+  end
+
+  # Every tool the AI is offered must actually be callable.
+  it "offers no tool without a method behind it" do
+    build_page   # so there is live content to branch from
+    tools = Admin::Tools.new(Revision.open_sandbox)
+    Admin::Tools.definitions.each do |definition|
+      expect(tools.respond_to?(definition[:name], true))
+        .to be(true), "tool #{definition[:name]} is advertised but has no method"
+    end
+  end
+
   # Every property named must actually work when a template calls it.
   it "names only properties that really resolve" do
     page = build_page
