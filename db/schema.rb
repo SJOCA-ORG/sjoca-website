@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -102,21 +102,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_120000) do
     t.index ["lectionary_day_id"], name: "index_lectionary_readings_on_lectionary_day_id"
   end
 
-  create_table "legacy_assets", force: :cascade do |t|
-    t.string "human_name", null: false
-    t.binary "data", null: false
-    t.string "content_type", null: false
-    t.integer "byte_size", null: false
-    t.string "sha256", null: false
-    t.string "source_url"
-    t.text "alt_text"
-    t.string "status", default: "published", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["human_name", "created_at"], name: "index_legacy_assets_on_human_name_and_created_at"
-    t.index ["human_name", "sha256"], name: "index_legacy_assets_on_human_name_and_sha256", unique: true
-  end
-
   create_table "pages", force: :cascade do |t|
     t.string "slug", null: false
     t.string "title", null: false
@@ -134,6 +119,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_120000) do
     t.string "self_nav_title"
     t.index ["parent_slug", "position"], name: "index_pages_on_parent_slug_and_position"
     t.index ["slug"], name: "index_pages_on_slug", unique: true
+  end
+
+  create_table "photos", force: :cascade do |t|
+    t.string "human_name", null: false
+    t.binary "data", null: false
+    t.string "content_type", null: false
+    t.integer "byte_size", null: false
+    t.string "sha256", null: false
+    t.string "source_url"
+    t.text "alt_text"
+    t.string "status", default: "published", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["human_name", "created_at"], name: "index_photos_on_human_name_and_created_at"
+    t.index ["human_name", "sha256"], name: "index_photos_on_human_name_and_sha256", unique: true
   end
 
   create_table "sections", force: :cascade do |t|

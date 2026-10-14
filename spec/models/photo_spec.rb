@@ -3,7 +3,7 @@ require "rails_helper"
 # The append-only scheme is the whole point of this table: replacing a photo
 # must never destroy the one it replaced, because after cutover this table is
 # the parish's only copy.
-RSpec.describe LegacyAsset do
+RSpec.describe Photo do
   describe ".current" do
     it "returns the newest published row for a name" do
       old = build_asset(human_name: "home-hero", bytes: "OLD", created_at: 2.days.ago)

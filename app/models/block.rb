@@ -7,5 +7,5 @@ class Block < ApplicationRecord
 
   validates :kind, inclusion: { in: KINDS }
 
-  def asset = asset_name && LegacyAsset.current(asset_name)
+  def asset = asset_name && Photo.current(asset_name)
 end

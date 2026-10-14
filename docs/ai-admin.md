@@ -659,9 +659,7 @@ declared finished while still needing a developer.
 
 **Still open:**
 
-- Rename `legacy_assets` to `photos`. "Legacy" described the Google Sites migration
-  and will mean nothing in a year. 39 occurrences across 19 files, and the public URL
-  is `/media/:human_name`, so nothing user-facing changes.
+- *(none from this review — `legacy_assets` was renamed to `photos` on 14 Oct 2026.)*
 - **Make `owner/repo` a config value** before the SuperAdmin check is written, so it
   is never hardcoded. (The organisation move itself is **done** — the repository is
   now `SJOCA-ORG/sjoca-website`. The org's 2FA requirement is still permissive; see

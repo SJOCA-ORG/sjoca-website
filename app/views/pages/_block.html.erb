@@ -16,10 +16,10 @@
             <%= %(style=max-width:#{block.width}px).html_safe if block.width %>>
       <% if block.url.present? %>
         <a href="<%= block.url %>">
-          <%= image_tag legacy_asset_path(asset.human_name), alt: asset.alt_text.to_s, loading: "lazy" %>
+          <%= image_tag photo_path(asset.human_name), alt: asset.alt_text.to_s, loading: "lazy" %>
         </a>
       <% else %>
-        <%= image_tag legacy_asset_path(asset.human_name), alt: asset.alt_text.to_s, loading: "lazy" %>
+        <%= image_tag photo_path(asset.human_name), alt: asset.alt_text.to_s, loading: "lazy" %>
       <% end %>
     </figure>
   <% end %>

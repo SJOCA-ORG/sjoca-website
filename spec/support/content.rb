@@ -17,9 +17,9 @@ module ContentBuilders
   # byte_size is NOT NULL at the database but is neither defaulted nor validated
   # by the model -- every caller computes it. See docs/TODO.md.
   def build_asset(human_name: "home-hero", bytes: "PNGDATA", status: "published", **attrs)
-    LegacyAsset.create!(
+    Photo.create!(
       human_name: human_name, content_type: "image/png", data: bytes,
-      byte_size: bytes.bytesize, sha256: LegacyAsset.digest(bytes),
+      byte_size: bytes.bytesize, sha256: Photo.digest(bytes),
       status: status, **attrs
     )
   end

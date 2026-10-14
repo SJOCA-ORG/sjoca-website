@@ -13,7 +13,7 @@
     <% icon = icon_of_the_day(today.on) %>
     <% if icon %>
       <figure class="lectionary__icon">
-        <%= image_tag legacy_asset_path(icon.human_name), alt: icon.alt_text.to_s, loading: "lazy" %>
+        <%= image_tag photo_path(icon.human_name), alt: icon.alt_text.to_s, loading: "lazy" %>
       </figure>
     <% end %>
 

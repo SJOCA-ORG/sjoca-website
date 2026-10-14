@@ -1,5 +1,6 @@
-# An image carried over from the Google Sites site, stored as bytes in the
-# database rather than on disk or in object storage.
+# A parish photograph, stored as bytes in the database rather than on disk or in
+# object storage. The first batch came across from the Google Sites site; new
+# ones are uploaded.
 #
 # Two reasons for bytes-in-the-table:
 #   1. A pg_dump is then a complete copy. Pulling production down for local
@@ -10,7 +11,7 @@
 # Versioning: rows are append-only. Several rows may share a human_name; the
 # newest published one wins. Replacing a photo means inserting a new row, which
 # leaves the old one intact and recoverable.
-class LegacyAsset < ApplicationRecord
+class Photo < ApplicationRecord
   STATUSES = %w[published draft].freeze
 
   validates :human_name, :content_type, :sha256, presence: true

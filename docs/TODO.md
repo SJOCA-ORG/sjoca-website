@@ -153,12 +153,11 @@ the first, which is exactly the person this project needs.
 
 ## From the ai-admin.md review (14 Oct 2026)
 
-- [ ] **Rename `legacy_assets` to `photos`.** "Legacy" described the Google Sites
-      migration and will mean nothing to anyone in a year; the table holds the
-      parish's photographs and should say so. 39 occurrences across 19 files —
-      model, controller, two seed files, migrations, views, helper, specs. The
-      public URL is `/media/:human_name` and does not contain the name, so
-      **nothing user-facing changes**. Mechanical, and the suite covers it.
+- [x] **Rename `legacy_assets` to `photos`.** Done 14 Oct 2026. Table, model,
+      controller, route helper, seed file and specs. The `asset_name` /
+      `hero_asset_name` columns were deliberately left alone — they do not say
+      "legacy", and renaming them would mean rewriting 30 keys in `content.yml`.
+      The public URL `/media/:human_name` is unchanged, so no links broke.
 
 - [ ] **Image tools for the admin.** Crop, resize, rotate, feather or mask edges,
       convert format, generate responsive sizes — each producing a *new* photo

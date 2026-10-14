@@ -4,7 +4,7 @@
 # Each entry becomes a NEW version under its human_name. Because the newest
 # published row wins, adding one here changes what a page displays without any
 # page, block or template being touched — which is the whole point of the
-# legacy_assets design. The superseded row stays, so it is always recoverable.
+# photos design. The superseded row stays, so it is always recoverable.
 require "digest"
 
 CURATED_MIME = {
@@ -39,20 +39,20 @@ YAML.load_file(spec).each do |entry|
   # recency, which is exactly what happened the first time this ran. So compare
   # against the CURRENT version, and re-promote an existing row if it has been
   # overtaken.
-  current = LegacyAsset.current(entry["human_name"])
+  current = Photo.current(entry["human_name"])
   if current&.sha256 == digest
     skipped += 1
     next
   end
 
-  if (existing = LegacyAsset.find_by(human_name: entry["human_name"], sha256: digest))
+  if (existing = Photo.find_by(human_name: entry["human_name"], sha256: digest))
     existing.touch(:created_at)
     promoted += 1
     puts "   #{entry['human_name']}: re-promoted to current"
     next
   end
 
-  LegacyAsset.create!(
+  Photo.create!(
     human_name:   entry["human_name"],
     data:         bytes,
     content_type: CURATED_MIME.fetch(path.extname.downcase, "image/jpeg"),
@@ -63,7 +63,7 @@ YAML.load_file(spec).each do |entry|
     status:       "published"
   )
   created += 1
-  n = LegacyAsset.versions_of(entry["human_name"]).count
+  n = Photo.versions_of(entry["human_name"]).count
   puts "   #{entry['human_name']}: now #{n} version#{'s' if n != 1}, newest wins"
 end
 

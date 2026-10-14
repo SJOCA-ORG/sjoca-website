@@ -38,7 +38,7 @@ RSpec.describe Page do
   end
 
   describe "#hero_asset" do
-    it "resolves through LegacyAsset so swapping a photo needs no page edit" do
+    it "resolves through Photo so swapping a photo needs no page edit" do
       build_asset(human_name: "home-hero", bytes: "FIRST", created_at: 2.days.ago)
       page = build_page(hero_asset_name: "home-hero")
       newer = build_asset(human_name: "home-hero", bytes: "SECOND", created_at: 1.hour.ago)

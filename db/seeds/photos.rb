@@ -1,4 +1,4 @@
-# Seeds the legacy_assets table from the images captured off the current
+# Seeds the photos table from the images captured off the current
 # Google Sites site.
 #
 # Where the bytes come from: reference/current-site/images/, populated by
@@ -18,7 +18,7 @@
 require "digest"
 
 # Extension -> MIME. Marcel ships with Active Storage, which this app skips
-# (asset bytes live in legacy_assets, so there is nothing for it to do).
+# (asset bytes live in photos, so there is nothing for it to do).
 MIME_BY_EXT = {
   ".jpeg" => "image/jpeg", ".jpg" => "image/jpeg",
   ".png"  => "image/png",  ".gif" => "image/gif",
@@ -31,7 +31,7 @@ manifest = Rails.root.join("reference/current-site/images/manifest.tsv")
 unless manifest.exist?
   warn "!! No captured images at #{manifest}."
   warn "!! Run reference/current-site/capture.sh first, then re-run db:seed."
-  warn "!! Skipping legacy_assets."
+  warn "!! Skipping photos."
   return
 end
 
@@ -54,12 +54,12 @@ assets.each do |a|
   bytes  = path.binread
   digest = Digest::SHA256.hexdigest(bytes)
 
-  if LegacyAsset.exists?(human_name: a["human_name"], sha256: digest)
+  if Photo.exists?(human_name: a["human_name"], sha256: digest)
     skipped += 1
     next
   end
 
-  LegacyAsset.create!(
+  Photo.create!(
     human_name:   a["human_name"],
     data:         bytes,
     content_type: MIME_BY_EXT.fetch(path.extname.downcase, "image/jpeg"),
@@ -72,4 +72,4 @@ assets.each do |a|
   created += 1
 end
 
-puts "legacy_assets: #{created} created, #{skipped} already present, #{missing} missing"
+puts "photos: #{created} created, #{skipped} already present, #{missing} missing"

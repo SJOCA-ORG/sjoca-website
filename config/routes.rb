@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   # Images carried over from the old site, served from the database.
   # Looked up by human_name, so swapping a photo never changes a URL.
-  get "media/:human_name", to: "legacy_assets#show", as: :legacy_asset,
+  get "media/:human_name", to: "photos#show", as: :photo,
       constraints: { human_name: %r{[a-z0-9\-]+} }
 
   get "up" => "rails/health#show", as: :rails_health_check

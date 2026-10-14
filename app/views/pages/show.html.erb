@@ -3,7 +3,7 @@
 <% if @page.hero_heading.present? || @page.hero_asset.present? %>
   <section class="hero <%= "hero--tall" if @page.tall_hero? %>"
            <% if (hero = @page.hero_asset) %>
-             style="background-image:url(<%= legacy_asset_path(hero.human_name) %>)"
+             style="background-image:url(<%= photo_path(hero.human_name) %>)"
            <% end %>>
     <div class="hero__inner">
       <% if @page.hero_heading.present? %>
