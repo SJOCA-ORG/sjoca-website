@@ -1,9 +1,12 @@
 # Every request renders exactly one revision.
 #
-# Preview is a session flag rather than a URL prefix, so an editor browses the
-# site normally -- every link, every nav item, the real thing -- and simply sees
-# the draft. A banner makes the state obvious, because a preview you forget you
-# are in is worse than no preview at all.
+# Preview is normally a session flag, so an editor browses the site normally --
+# every link, every nav item, the real thing -- and simply sees the draft.
+#
+# A SIGNED link is the other way in: ?preview=<token>. It is how the visual
+# checks let a headless browser see a draft, and it is what makes a preview
+# shareable with someone who is not logged in -- an Approver on their phone, say.
+# Signed rather than a bare id, so a draft cannot be read by guessing numbers.
 module RevisionScoped
   extend ActiveSupport::Concern
 
@@ -19,9 +22,19 @@ module RevisionScoped
   end
 
   def preview_revision
+    return @preview_revision if defined?(@preview_revision)
+
+    @preview_revision = revision_from_token || revision_from_session
+  end
+
+  def revision_from_token
+    params[:preview].present? && Revision.from_preview_token(params[:preview])
+  end
+
+  def revision_from_session
     return nil if session[:preview_revision_id].blank?
 
-    @preview_revision ||= Revision.find_by(id: session[:preview_revision_id])
+    Revision.find_by(id: session[:preview_revision_id])
   end
 
   def previewing? = preview_revision.present?

@@ -1,3 +1,4 @@
+require "open3"
 module Admin
   # The AI's entire reach into the site.
   #
@@ -79,6 +80,12 @@ module Admin
              { slug: str("Page slug"),
                find: str("Optional: only return the parts matching this, e.g. \"calendar\"") },
              %w[slug]),
+        tool("check_appearance",
+             "Open the page in a real browser at phone width AND desktop width, and report " \
+             "what is visibly wrong — content running off the side, a menu taller than the " \
+             "screen, things overlapping. This is the only check that sees LAYOUT; check_page " \
+             "only reads the markup.",
+             { slug: str("Page slug") }, %w[slug]),
         tool("check_page",
              "Look for problems on a page: template errors, elements that rendered empty, " \
              "images that point at nothing, links going nowhere.",
@@ -383,6 +390,33 @@ module Admin
         problems: problems.uniq.first(25),
         suggestions: suggestions.uniq.first(10),
         ok: problems.empty? }
+    end
+
+    # The markup checks cannot see layout. This opens the draft in a real
+    # browser -- the same code, and the same CDP protocol, that runs in a
+    # container; only the path to the binary differs.
+    def check_appearance(slug:, **)
+      page = find_page(slug)
+      base = ENV.fetch("SITE_URL", "http://localhost:3000")
+      token = revision.preview_token
+      url = "#{base}/#{page.slug == 'home' ? '' : page.slug}?preview=#{token}"
+
+      out, err, status = Open3.capture3(
+        "node", Rails.root.join("script/visual_check.mjs").to_s, url
+      )
+      return { slug: slug, error: "could not run the browser check: #{err.lines.first}" } unless status.success?
+
+      data = JSON.parse(out) rescue nil
+      return { slug: slug, error: "the browser check returned nothing usable" } if data.nil?
+      return { slug: slug, error: data["error"] } if data["error"]
+
+      findings = data["widths"].flat_map { |w, v|
+        (v["findings"] || []).map { |f| f.merge("width" => w) }
+      }
+      { slug: slug,
+        ok: findings.none? { |f| f["severity"] == "broken" },
+        findings: findings,
+        checked: data["widths"].keys }
     end
 
     def render_page(page)

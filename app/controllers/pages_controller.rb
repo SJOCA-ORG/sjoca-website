@@ -11,6 +11,12 @@ class PagesController < ApplicationController
     @theme_js_digest = ThemeAsset.js_for(Current.revision).present? &&
                        ThemeAsset.digest_for(Current.revision, "js")
 
+    # A signed preview link must carry through to the stylesheet, or the browser
+    # fetches it with no preview context and gets the LIVE styles -- a preview
+    # showing the draft's content with the published site's appearance, which is
+    # worse than no preview because it looks like it worked.
+    @preview = params[:preview].presence
+
     renderer = Site::PageRenderer.new(Current.revision)
     @header  = renderer.chrome("header", @page)
     @footer  = renderer.chrome("footer", @page)

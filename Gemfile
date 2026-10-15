@@ -13,6 +13,11 @@ gem "pg"
 # a view template can call User.destroy_all -- while Liquid can only reach what
 # a Drop deliberately exposes. See docs/ai-admin.md.
 gem "liquid", "~> 5.14"
+
+# Background jobs, Postgres-backed. An AI editing turn takes 10-60 seconds and
+# must not run inside a web request. Runs inside Puma (SOLID_QUEUE_IN_PUMA), so
+# there is no second service to pay for.
+gem "solid_queue"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]

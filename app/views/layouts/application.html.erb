@@ -20,7 +20,7 @@
     <%= stylesheet_link_tag "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Lato:wght@300;400;700&family=Quicksand:wght@400;500;600&family=Lobster&display=swap" %>
     <%# The stylesheet is a database row, so the parish can change it. See
         docs/liquid-vocabulary.md. %>
-    <%= stylesheet_link_tag theme_stylesheet_path(digest: @theme_digest), "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag theme_stylesheet_path(digest: @theme_digest, preview: @preview), "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
 
@@ -41,7 +41,7 @@
     <main id="main"><%= yield %></main>
     <%= @footer %>
     <% if @theme_js_digest %>
-      <%= javascript_include_tag theme_javascript_path(digest: @theme_js_digest), defer: true %>
+      <%= javascript_include_tag theme_javascript_path(digest: @theme_js_digest, preview: @preview), defer: true %>
     <% end %>
   </body>
 </html>

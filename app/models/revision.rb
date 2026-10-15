@@ -22,6 +22,21 @@ class Revision < ApplicationRecord
 
   def self.live = find_by(state: "published")
 
+  # A signed, expiring link that shows this revision to someone who is not
+  # logged in -- a headless browser running the visual checks, or an Approver
+  # on their phone. Signed rather than a bare id, so a draft cannot be read by
+  # guessing numbers.
+  PREVIEW_PURPOSE = "revision_preview"
+
+  def preview_token
+    Rails.application.message_verifier(PREVIEW_PURPOSE).generate(id, expires_in: 7.days)
+  end
+
+  def self.from_preview_token(token)
+    id = Rails.application.message_verifier(PREVIEW_PURPOSE).verified(token.to_s)
+    id && find_by(id: id)
+  end
+
   # A sandbox: a full copy of the live content, which the editor then changes.
   # Photographs are not copied -- blocks reference them by human_name, and
   # `photos` versions itself.
