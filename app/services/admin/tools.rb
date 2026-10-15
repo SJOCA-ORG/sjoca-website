@@ -13,9 +13,10 @@ module Admin
       raise ToolError, "revision #{revision.id} is not a draft" unless revision.editable?
 
       @revision = revision
+      @touched  = Set.new
     end
 
-    attr_reader :revision
+    attr_reader :revision, :touched
 
     # ---- schema handed to the model ---------------------------------------
 
@@ -84,8 +85,12 @@ module Admin
              "Open the page in a real browser at phone width AND desktop width, and report " \
              "what is visibly wrong — content running off the side, a menu taller than the " \
              "screen, things overlapping. This is the only check that sees LAYOUT; check_page " \
-             "only reads the markup.",
-             { slug: str("Page slug") }, %w[slug]),
+             "only reads the markup. On a phone the menu is opened before looking, because " \
+             "a closed menu hides its own faults.",
+             { slug: str("Page slug"),
+               click: str("Optional CSS selector to click before looking — an accordion, a " \
+                          "\"read more\", anything that only misbehaves once opened") },
+             %w[slug]),
         tool("check_page",
              "Look for problems on a page: template errors, elements that rendered empty, " \
              "images that point at nothing, links going nowhere.",
@@ -216,9 +221,28 @@ module Admin
     def sections = revision.sections
     def blocks   = revision.blocks
 
-    def find_block(id)   = blocks.find_by(id: id)   || raise(ToolError, "no block #{id} in this revision")
-    def find_section(id) = sections.find_by(id: id) || raise(ToolError, "no section #{id} in this revision")
-    def find_page(slug)  = pages.find_by(slug: slug) || raise(ToolError, "no page #{slug.inspect}")
+    # Note the page every change lands on, so the loop knows what to re-check.
+    def find_block(id)
+      b = blocks.find_by(id: id) || raise(ToolError, "no block #{id} in this revision")
+      @touched << b.section.page.slug
+      b
+    end
+
+    def find_section(id)
+      s = sections.find_by(id: id) || raise(ToolError, "no section #{id} in this revision")
+      @touched << s.page.slug
+      s
+    end
+
+    def find_page(slug)
+      p = pages.find_by(slug: slug) || raise(ToolError, "no page #{slug.inspect}")
+      @touched << p.slug
+      p
+    end
+
+    # A template or stylesheet change affects everything, so everything is
+    # suspect -- but checking 13 pages every turn is wasteful. Check a sample.
+    def touched_everything! = @touched.merge(pages.order(:position).limit(3).pluck(:slug))
 
     def list_pages(**)
       { pages: pages.order(:position).map { |p|
@@ -395,15 +419,15 @@ module Admin
     # The markup checks cannot see layout. This opens the draft in a real
     # browser -- the same code, and the same CDP protocol, that runs in a
     # container; only the path to the binary differs.
-    def check_appearance(slug:, **)
+    def check_appearance(slug:, click: nil, **)
       page = find_page(slug)
       base = ENV.fetch("SITE_URL", "http://localhost:3000")
       token = revision.preview_token
       url = "#{base}/#{page.slug == 'home' ? '' : page.slug}?preview=#{token}"
 
-      out, err, status = Open3.capture3(
-        "node", Rails.root.join("script/visual_check.mjs").to_s, url
-      )
+      args = ["node", Rails.root.join("script/visual_check.mjs").to_s, url]
+      args << "--click=#{click}" if click.present?
+      out, err, status = Open3.capture3(*args)
       return { slug: slug, error: "could not run the browser check: #{err.lines.first}" } unless status.success?
 
       data = JSON.parse(out) rescue nil
@@ -436,6 +460,7 @@ module Admin
       current = ThemeAsset.css_for(revision)
       heading = note.present? ? "\n\n/* #{note.to_s.gsub(%r{[*/]}, '')} */\n" : "\n\n"
       write_css(current + heading + css.to_s.strip + "\n")
+      touched_everything!
       ok "added #{css.to_s.lines.count} lines of CSS#{note.present? ? " for #{note}" : ''}"
     end
 
@@ -446,6 +471,7 @@ module Admin
       raise ToolError, "that text appears #{count} times; include enough surrounding text to be unique." if count > 1
 
       write_css(current.sub(find.to_s, replace.to_s))
+      touched_everything!
       ok "changed #{find.to_s.truncate(50).inspect} in the stylesheet"
     end
 
@@ -521,6 +547,7 @@ module Admin
       # page using it down, and the editor would find out by looking.
       Liquid::Template.parse(source)
       existing.update!(source: source)
+      touched_everything!
       ok "rewrote the #{name} template"
     rescue Liquid::SyntaxError => e
       raise ToolError, "that Liquid does not compile: #{e.message}"

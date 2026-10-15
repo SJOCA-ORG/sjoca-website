@@ -26,7 +26,16 @@ module Admin
       photo, list, button or widget. Widgets — calendar, upcoming, classes,
       lectionary — render live data and take no content of their own.
 
-      Look before you edit. Call get_page to see real ids rather than guessing.
+      Look before you edit, and look again after. get_page shows you real ids
+      rather than guessing at them; view_page shows what actually rendered;
+      check_page reads the markup for breakage. After changing a template or
+      anything about how the site looks, call check_appearance — it opens the
+      page in a real browser at phone and desktop width, which is the only way
+      to see that something runs off the side or overlaps.
+
+      Your changed pages are rendered and checked automatically before your reply
+      is shown, so a mistake will come back to you. Checking yourself first is
+      quicker than being told.
 
       Templates are Liquid, stored as rows. BEFORE writing or changing any Liquid,
       call liquid_guide — it lists every object and property a template can reach,
@@ -57,7 +66,7 @@ module Admin
       explain what would be needed. Do not pretend it worked.
     PROMPT
 
-    Result = Struct.new(:reply, :tool_calls, :error, keyword_init: true)
+    Result = Struct.new(:reply, :tool_calls, :error, :problems, keyword_init: true)
 
     def initialize(revision, client: Anthropic::Client.new)
       @revision = revision
@@ -68,9 +77,10 @@ module Admin
     def call(user_text)
       @revision.messages.create!(role: "user", content: user_text)
 
-      conversation = history
-      performed    = []
-      failures     = Hash.new(0)
+      conversation  = history
+      performed     = []
+      failures      = Hash.new(0)
+      verified_once = false
 
       MAX_STEPS.times do
         response = @client.call(system: SYSTEM, messages: conversation,
@@ -81,9 +91,24 @@ module Admin
         uses = content.select { |c| c["type"] == "tool_use" }
         if uses.empty?
           text = content.select { |c| c["type"] == "text" }.map { |c| c["text"] }.join("\n").strip
+
+          # Before telling anyone it is done, look at what it actually produced.
+          # Relying on the prompt to remember this does not work -- the tools
+          # existed for a day and nothing ever called them.
+          problems = verify(performed)
+          if problems.any? && !verified_once
+            verified_once = true
+            conversation << { role: "user", content: [{ type: "text", text:
+              "Before you reply: I rendered the pages you changed and found these " \
+              "problems. Fix them, or explain why they are not problems.\n\n" +
+              problems.map { |p| "- #{p}" }.join("\n") }] }
+            next
+          end
+
+          text = "#{text}\n\nStill not right: #{problems.join('; ')}" if problems.any?
           @revision.messages.create!(role: "assistant", content: text.presence || "(no reply)",
                                      tool_calls: performed)
-          return Result.new(reply: text, tool_calls: performed)
+          return Result.new(reply: text, tool_calls: performed, problems: problems)
         end
 
         results = uses.map do |use|
@@ -128,6 +153,20 @@ module Admin
     end
 
     private
+
+    # Render what was changed and look for breakage. This runs whether or not
+    # the model thought to check, because a tool nobody calls is not a safeguard.
+    def verify(performed)
+      return [] unless performed.any? { |p| !p["read"] && !p["failed"] }
+      return [] if @tools.touched.empty?
+
+      @tools.touched.to_a.first(4).flat_map do |slug|
+        result = @tools.call("check_page", { "slug" => slug })
+        Array(result[:problems]).map { |p| "/#{slug}: #{p}" }
+      rescue StandardError => e
+        ["/#{slug}: could not be checked (#{e.class})"]
+      end
+    end
 
     # Every call is recorded, successes AND failures. Twelve steps once produced a
     # single line in the transcript because only successes with a summary were

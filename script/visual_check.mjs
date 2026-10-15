@@ -15,6 +15,10 @@ import { join } from "node:path";
 
 const URL_ARG = process.argv[2];
 const SHOTS = process.argv.includes("--shots");
+// Something to click before looking -- a menu button, an accordion, a "read
+// more". Without this the check only ever sees a page in its resting state,
+// and the worst bug on this site was one that only appeared after a tap.
+const CLICK = (process.argv.find((a) => a.startsWith("--click=")) || "").slice(8);
 const OUT = process.env.SHOT_DIR || "/tmp/sjoca-shots";
 
 if (!URL_ARG) { console.error("usage: visual_check.mjs <url> [--shots]"); process.exit(1); }
@@ -131,10 +135,10 @@ const INSPECT = `(() => {
            text: document.body.innerText.trim().length };
 })()`;
 
-const OPEN_MENU = `(() => {
-  const toggle = document.querySelector(".site-header__toggle, [data-action*='nav#toggle']");
-  if (!toggle || getComputedStyle(toggle).display === "none") return false;
-  toggle.click();
+const clickExpr = (sel) => `(() => {
+  const el = document.querySelector(${JSON.stringify(sel)});
+  if (!el || getComputedStyle(el).display === "none") return false;
+  el.click();
   return true;
 })()`;
 
@@ -168,17 +172,18 @@ try {
     // of menu in a 611px window with no way to scroll -- only appeared once you
     // TAPPED the button, so a page-load check (or a screenshot) would have
     // missed it entirely. Open it and look again, as a person would.
-    if (w.name === "phone") {
+    const selector = CLICK || (w.name === "phone" ? ".site-header__toggle" : null);
+    if (selector) {
       const { result: opened } = await send("Runtime.evaluate",
-        { expression: OPEN_MENU, returnByValue: true }, sessionId);
+        { expression: clickExpr(selector), returnByValue: true }, sessionId);
       if (opened.value) {
         await sleep(400);
         const { result: after } = await send("Runtime.evaluate",
           { expression: INSPECT, returnByValue: true }, sessionId);
-        const extra = (after.value.findings || []).map(f =>
-          ({ ...f, what: f.what + " (with the menu open)" }));
+        const label = CLICK ? ` (after clicking ${CLICK})` : " (with the menu open)";
+        const extra = (after.value.findings || []).map(f => ({ ...f, what: f.what + label }));
         result.widths[w.name].findings.push(...extra);
-        result.widths[w.name].menu_opened = true;
+        result.widths[w.name].clicked = selector;
       }
     }
 
