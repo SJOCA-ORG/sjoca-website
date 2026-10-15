@@ -3,7 +3,7 @@
 # Gathered under one object deliberately: {% render %} isolates scope, so each
 # nested template must be handed what it needs explicitly. Passing one `site`
 # keeps that to a single argument instead of five.
-class SiteDrop < Liquid::Drop
+class SiteDrop < BaseDrop
   # Today these are constants; the `settings` table cms-capabilities.md calls
   # for would back them later without any template changing.
   def name    = "Saint John the Baptist Orthodox Church"

@@ -1,4 +1,4 @@
-class SectionDrop < Liquid::Drop
+class SectionDrop < BaseDrop
   def initialize(section) = @section = section
 
   def id            = @section.id

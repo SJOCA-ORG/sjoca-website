@@ -1,4 +1,4 @@
-class PageDrop < Liquid::Drop
+class PageDrop < BaseDrop
   def initialize(page) = @page = page
 
   def slug       = @page.slug

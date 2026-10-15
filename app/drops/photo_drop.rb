@@ -1,7 +1,7 @@
 # A photograph, as a template may see it. Note what is absent: no `data`, no
 # `destroy`, no way back to ActiveRecord. A template can show a photo and
 # nothing else.
-class PhotoDrop < Liquid::Drop
+class PhotoDrop < BaseDrop
   def initialize(photo) = @photo = photo
 
   def name    = @photo.human_name

@@ -1,4 +1,4 @@
-class LectionaryDrop < Liquid::Drop
+class LectionaryDrop < BaseDrop
   def today
     day = LectionaryDay.today
     day && DayDrop.new(day)
@@ -26,7 +26,7 @@ class LectionaryDrop < Liquid::Drop
     photo && PhotoDrop.new(photo)
   end
 
-  class DayDrop < Liquid::Drop
+  class DayDrop < BaseDrop
     def initialize(day) = @day = day
 
     def date_text      = @day.date_text
@@ -36,7 +36,7 @@ class LectionaryDrop < Liquid::Drop
     def citations      = @day.appointed.map(&:citation).join(" · ")
   end
 
-  class ReadingDrop < Liquid::Drop
+  class ReadingDrop < BaseDrop
     def initialize(reading) = @r = reading
 
     def kind       = @r.kind

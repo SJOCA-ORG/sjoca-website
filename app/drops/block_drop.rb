@@ -1,4 +1,4 @@
-class BlockDrop < Liquid::Drop
+class BlockDrop < BaseDrop
   def initialize(block) = @block = block
 
   def id      = @block.id

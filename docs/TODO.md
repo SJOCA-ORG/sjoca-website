@@ -175,6 +175,51 @@ the first, which is exactly the person this project needs.
       proves nothing. This list is the design of what must exist before the test
       can start.
 
+## A general way to pull in outside data
+
+Mitch's idea, 14 October 2026, and a better primitive than the three bespoke
+mirrors already built.
+
+- [ ] **One server-side fetch primitive, instead of per-feed Ruby.** The server
+      fetches a URL, caches the result, and hands it to the page as JSON in a
+      `<script type="application/json">` tag. JavaScript and CSS written through
+      the admin then format it however the parish wants.
+
+      This would have covered **all three** existing mirrors — ChurchTrac,
+      the YouTube playlist, the oca.org lectionary — with no Ruby per source,
+      and it solves the thing the iframe could not: *the parish controls how it
+      looks*. That was the actual complaint about embedding ChurchTrac.
+
+      Browser JavaScript cannot do this itself. The ChurchTrac feed sends **no
+      `Access-Control-Allow-Origin` header**, so a fetch from sjoca.org is
+      blocked by the browser. Checked, 14 Oct 2026. Fetching server-side is the
+      only route.
+
+      Shape: a `data_sources` row (name, url, refresh interval), a cached
+      response, `site.data.<name>` in templates.
+
+- [ ] **The SSRF guard this needs, which is the part to get right.** The AI
+      would be choosing a URL *our server* fetches, from inside Render's
+      network. Unguarded, `http://169.254.169.254/` is the cloud metadata
+      endpoint and `localhost:5432` is the parish database.
+
+      - HTTPS only; resolve the host and refuse any private, loopback or
+        link-local address — **and re-check after every redirect**, since a
+        public URL can redirect to `127.0.0.1`
+      - Cache with a TTL, and serve stale if the source is down
+      - Size and time caps; text and JSON only
+      - Never forward our own credentials
+
+- [ ] **Domain policy: open, but surfaced at review.** Decided to leave it open
+      rather than maintain an allowlist. Instead, **the first use of a new
+      domain is flagged in the approval screen**: "This change fetches data from
+      `example.com` for the first time — worth checking with your technical team
+      before approving."
+
+      That keeps the AI able to use a source nobody anticipated, while making
+      sure a new outbound connection is never invisible to the person approving
+      it. The approval record should note which domains a revision introduced.
+
 ## Known gaps
 
 - [ ] **No browser specs, so the mobile-menu class of bug is still invisible.**

@@ -8,7 +8,7 @@
 #   {% for week in site.calendar.weeks limit: 8 %}
 #
 # `events` is the same data ungrouped, for a template that wants its own shape.
-class CalendarDrop < Liquid::Drop
+class CalendarDrop < BaseDrop
   CAP_DAYS = 365
 
   def weeks
@@ -22,7 +22,7 @@ class CalendarDrop < Liquid::Drop
   def any    = events.any?
   def count  = events.size
 
-  class WeekDrop < Liquid::Drop
+  class WeekDrop < BaseDrop
     def initialize(start, events) = (@start = start; @events = events)
 
     def heading

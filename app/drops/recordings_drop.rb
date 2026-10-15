@@ -7,7 +7,7 @@
 #
 # The cap below is a safety bound, not a design choice -- it stops a template
 # accidentally rendering every recording ever made.
-class RecordingsDrop < Liquid::Drop
+class RecordingsDrop < BaseDrop
   CAP = 100
 
   def all   = @all ||= ClassRecording.latest(CAP).map { |r| RecordingDrop.new(r) }
@@ -16,7 +16,7 @@ class RecordingsDrop < Liquid::Drop
 
   def playlist_url = Rails.application.config.adult_education.playlist_url
 
-  class RecordingDrop < Liquid::Drop
+  class RecordingDrop < BaseDrop
     def initialize(rec) = @rec = rec
 
     def title     = @rec.clean_title

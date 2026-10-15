@@ -4,7 +4,7 @@
 #
 # How far ahead to look belongs to the template:
 #   {% for event in site.upcoming.events limit: 5 %}
-class UpcomingDrop < Liquid::Drop
+class UpcomingDrop < BaseDrop
   CAP_DAYS = 60
 
   def events = @events ||= CalendarEvent.noteworthy_within(CAP_DAYS).map { |e| EventDrop.new(e) }

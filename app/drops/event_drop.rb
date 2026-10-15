@@ -1,4 +1,4 @@
-class EventDrop < Liquid::Drop
+class EventDrop < BaseDrop
   def initialize(event) = @event = event
 
   def title      = @event.title

@@ -1,5 +1,5 @@
 # One top-level navigation entry and its submenu.
-class NavDrop < Liquid::Drop
+class NavDrop < BaseDrop
   def initialize(page, current_slug) = (@page = page; @current = current_slug)
 
   def title    = @page.nav_title
