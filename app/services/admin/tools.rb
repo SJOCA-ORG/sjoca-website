@@ -72,6 +72,17 @@ module Admin
                nav_title: str("Navigation label"), parent_slug: str("Parent page slug, for submenus"),
                position: int("Order in the navigation") },
              %w[slug title nav_title]),
+        tool("view_page",
+             "The rendered HTML of a page as it will actually appear. USE THIS after " \
+             "changing a template or adding blocks — it is the only way to see whether " \
+             "what you wrote produced anything.",
+             { slug: str("Page slug"),
+               find: str("Optional: only return the parts matching this, e.g. \"calendar\"") },
+             %w[slug]),
+        tool("check_page",
+             "Look for problems on a page: template errors, elements that rendered empty, " \
+             "images that point at nothing, links going nowhere.",
+             { slug: str("Page slug") }, %w[slug]),
         tool("list_photos", "Every photograph available, by name.", {}),
         tool("get_styles",
              "The site's complete stylesheet — about 26KB. Usually too large to work with; " \
@@ -312,6 +323,71 @@ module Admin
                         parent_slug: attrs[:parent_slug],
                         position: attrs[:position] || (pages.maximum(:position).to_i + 1))
       ok "created the page /#{p.slug}"
+    end
+
+    def view_page(slug:, find: nil, **)
+      page = find_page(slug)
+      html = render_page(page)
+
+      if find.present?
+        lines = html.lines.each_with_index
+                    .select { |l, _| l.downcase.include?(find.to_s.downcase) }
+        return { slug: slug, matching: find,
+                 html: lines.first(40).map { |l, i| "#{i + 1}: #{l.rstrip}" }.join("\n") }
+      end
+
+      { slug: slug, html: html.truncate(12_000),
+        truncated: html.length > 12_000, length: html.length }
+    end
+
+    # The checks a person would do by looking, done by reading the markup. Not a
+    # substitute for seeing it at phone width -- that needs a browser -- but it
+    # catches the whole class of "it rendered nothing and said nothing".
+    def check_page(slug:, **)
+      page = find_page(slug)
+      problems = []
+
+      begin
+        html = render_page(page)
+      rescue Site::Renderer::Error => e
+        return { slug: slug, ok: false, suggestions: [],
+                 problems: ["the page does not render: #{e.message}"] }
+      end
+
+      doc = Nokogiri::HTML5.fragment(html)
+      suggestions = []
+
+      doc.css("[class*=__]").each do |node|
+        next unless node.children.empty? && node.text.strip.empty?
+        next if %w[img br hr input iframe].include?(node.name)
+
+        problems << "<#{node.name} class=\"#{node['class']}\"> rendered empty — " \
+                    "usually a property that does not exist on the drop"
+      end
+
+      doc.css("img").each do |img|
+        problems << "an image has no src" if img["src"].blank?
+        # Accessibility, not breakage. Kept separate or it drowns out the things
+        # that are actually wrong -- which is how a checker gets ignored.
+        suggestions << "#{img['src']} has no alt text for screen readers" if img["alt"].blank?
+      end
+
+      doc.css("a").each do |a|
+        problems << "a link has no href" if a["href"].blank?
+      end
+
+      blocks = page.sections.sum { |s| s.blocks.count }
+      problems << "the page has #{blocks} blocks but rendered almost nothing" if blocks.positive? && html.length < 200
+
+      { slug: slug, blocks: blocks, rendered_bytes: html.length,
+        problems: problems.uniq.first(25),
+        suggestions: suggestions.uniq.first(10),
+        ok: problems.empty? }
+    end
+
+    def render_page(page)
+      Current.revision = revision
+      Site::PageRenderer.new(revision).body(page).to_s
     end
 
     def list_photos(**)
