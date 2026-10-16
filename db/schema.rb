@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_15_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -29,6 +29,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_210000) do
     t.integer "width"
     t.bigint "revision_id", null: false
     t.string "css_class"
+    t.integer "asset_version"
     t.index ["revision_id"], name: "index_blocks_on_revision_id"
     t.index ["section_id", "row", "column", "position"], name: "index_blocks_on_section_id_and_row_and_column_and_position"
     t.index ["section_id"], name: "index_blocks_on_section_id"
@@ -131,6 +132,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_210000) do
     t.text "hero_detail"
     t.string "self_nav_title"
     t.bigint "revision_id", null: false
+    t.integer "hero_asset_version"
     t.index ["parent_slug", "position"], name: "index_pages_on_parent_slug_and_position"
     t.index ["revision_id", "slug"], name: "index_pages_on_revision_id_and_slug", unique: true
     t.index ["revision_id"], name: "index_pages_on_revision_id"
@@ -147,8 +149,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_210000) do
     t.string "status", default: "published", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "version", null: false
     t.index ["human_name", "created_at"], name: "index_photos_on_human_name_and_created_at"
     t.index ["human_name", "sha256"], name: "index_photos_on_human_name_and_sha256", unique: true
+    t.index ["human_name", "version"], name: "index_photos_on_human_name_and_version"
   end
 
   create_table "revision_messages", force: :cascade do |t|

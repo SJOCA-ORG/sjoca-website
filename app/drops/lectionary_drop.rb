@@ -22,7 +22,7 @@ class LectionaryDrop < BaseDrop
                  .distinct.order(:human_name).pluck(:human_name)
     return nil if names.empty?
 
-    photo = Photo.current(names[Date.current.yday % names.size])
+    photo = Photo.newest(names[Date.current.yday % names.size])
     photo && PhotoDrop.new(photo)
   end
 

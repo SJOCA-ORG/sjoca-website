@@ -38,12 +38,15 @@ RSpec.describe Page do
   end
 
   describe "#hero_asset" do
-    it "resolves through Photo so swapping a photo needs no page edit" do
-      build_asset(human_name: "home-hero", bytes: "FIRST", created_at: 2.days.ago)
-      page = build_page(hero_asset_name: "home-hero")
-      newer = build_asset(human_name: "home-hero", bytes: "SECOND", created_at: 1.hour.ago)
+    # "Swap a photo without touching any page" is deliberately gone. It was
+    # invisible: you could not tell from a page which picture it would show, and
+    # a swap changed pages nobody had edited. Replacing is now an edit.
+    it "keeps showing the version it points at when a newer one is added" do
+      first = build_asset(human_name: "home-hero", bytes: "FIRST", version: 1)
+      page  = build_page(hero_asset_name: "home-hero", hero_asset_version: 1)
+      build_asset(human_name: "home-hero", bytes: "SECOND", version: 2)
 
-      expect(page.hero_asset).to eq(newer)
+      expect(page.hero_asset).to eq(first)
     end
 
     it "is nil when the page names no hero" do
@@ -51,7 +54,7 @@ RSpec.describe Page do
     end
 
     it "is nil when the named asset does not exist, rather than raising" do
-      expect(build_page(hero_asset_name: "missing").hero_asset).to be_nil
+      expect(build_page(hero_asset_name: "missing", hero_asset_version: 1).hero_asset).to be_nil
     end
   end
 

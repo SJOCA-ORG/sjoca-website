@@ -21,9 +21,25 @@ class Photo < ApplicationRecord
 
   scope :published, -> { where(status: "published") }
 
-  # The asset currently shown for this name.
-  def self.current(human_name)
-    published.where(human_name: human_name).order(created_at: :desc, id: :desc).first
+  # A reference is a PAIR -- the slug and the version -- so a page says exactly
+  # which photograph it shows and a rollback restores the picture along with the
+  # words. There is no "current": that was an inference, and inferences are what
+  # made rolling back dishonest.
+  def self.find_version(human_name, version)
+    return nil if human_name.blank? || version.blank?
+
+    published.find_by(human_name: human_name, version: version)
+  end
+
+  # Only for choosing a version to pin, never for rendering.
+  def self.newest(human_name)
+    published.where(human_name: human_name).order(version: :desc, id: :desc).first
+  end
+
+  # Every version of a name, for an editor deciding which to point at.
+  def self.choices(human_name)
+    versions_of(human_name).map { |p| { version: p.version, added: p.created_at.to_date.to_s,
+                                        bytes: p.byte_size } }
   end
 
   # Every version of a name, newest first. For the Phase 2 history view.

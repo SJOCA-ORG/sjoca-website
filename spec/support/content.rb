@@ -14,6 +14,10 @@ module ContentBuilders
 
   def build_page(slug: "home", title: "Home", nav_title: "Home",
                  revision: nil, **attrs)
+    if attrs[:hero_asset_name].present? && attrs[:hero_asset_version].blank?
+      attrs[:hero_asset_version] = Photo.newest(attrs[:hero_asset_name])&.version
+    end
+
     Page.create!(slug: slug, title: title, nav_title: nav_title,
                  revision: revision || test_revision, **attrs)
   end
@@ -23,17 +27,24 @@ module ContentBuilders
   end
 
   def build_block(section:, kind: "text", content: "Hello", **attrs)
+    # Pin to the newest version by default, so a spec naming a photo just works.
+    if attrs[:asset_name].present? && attrs[:asset_version].blank?
+      attrs[:asset_version] = Photo.newest(attrs[:asset_name])&.version
+    end
+
     section.blocks.create!(kind: kind, content: content,
                            revision: section.revision, **attrs)
   end
 
   # byte_size is NOT NULL at the database but is neither defaulted nor validated
   # by the model -- every caller computes it. See docs/TODO.md.
-  def build_asset(human_name: "home-hero", bytes: "PNGDATA", status: "published", **attrs)
+  # A photograph is identified by (slug, version); a reference must carry both.
+  def build_asset(human_name: "home-hero", bytes: "PNGDATA", status: "published",
+                  version: 1, **attrs)
     Photo.create!(
       human_name: human_name, content_type: "image/png", data: bytes,
       byte_size: bytes.bytesize, sha256: Photo.digest(bytes),
-      status: status, **attrs
+      status: status, version: version, **attrs
     )
   end
 

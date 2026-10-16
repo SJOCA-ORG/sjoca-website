@@ -4,35 +4,48 @@ require "rails_helper"
 # must never destroy the one it replaced, because after cutover this table is
 # the parish's only copy.
 RSpec.describe Photo do
-  describe ".current" do
-    it "returns the newest published row for a name" do
-      old = build_asset(human_name: "home-hero", bytes: "OLD", created_at: 2.days.ago)
-      new = build_asset(human_name: "home-hero", bytes: "NEW", created_at: 1.hour.ago)
+  # A reference is a PAIR -- slug and version -- so a page says exactly which
+  # photograph it shows, and rolling back restores the picture with the words.
+  describe ".find_version" do
+    it "returns exactly the version asked for, not the newest" do
+      old = build_asset(human_name: "home-hero", bytes: "OLD", version: 1)
+      new = build_asset(human_name: "home-hero", bytes: "NEW", version: 2)
 
-      expect(described_class.current("home-hero")).to eq(new)
-      expect(old.reload).to be_persisted, "replacing a photo must not destroy the old one"
+      expect(described_class.find_version("home-hero", 1)).to eq(old)
+      expect(described_class.find_version("home-hero", 2)).to eq(new)
+    end
+
+    it "keeps every version, so last year's picture can be pointed at again" do
+      build_asset(human_name: "christmas-pageant", bytes: "2025", version: 101)
+      build_asset(human_name: "christmas-pageant", bytes: "2026", version: 222)
+
+      expect(described_class.find_version("christmas-pageant", 101).data).to eq("2025")
+      expect(described_class.versions_of("christmas-pageant").count).to eq(2)
     end
 
     it "ignores drafts, so an unapproved photo never reaches the site" do
-      live = build_asset(human_name: "home-hero", bytes: "LIVE", created_at: 2.days.ago)
-      build_asset(human_name: "home-hero", bytes: "DRAFT", status: "draft",
-                  created_at: 1.minute.ago)
+      live = build_asset(human_name: "home-hero", bytes: "LIVE", version: 1)
+      build_asset(human_name: "home-hero", bytes: "DRAFT", status: "draft", version: 2)
 
-      expect(described_class.current("home-hero")).to eq(live)
+      expect(described_class.find_version("home-hero", 1)).to eq(live)
+      expect(described_class.find_version("home-hero", 2)).to be_nil
     end
 
     it "is nil for an unknown name rather than raising" do
-      expect(described_class.current("no-such-photo")).to be_nil
+      expect(described_class.find_version("no-such-photo", 1)).to be_nil
     end
 
-    # created_at has second resolution; two rows written in the same second
-    # must still order deterministically or "newest wins" is a coin toss.
-    it "breaks ties on id when timestamps match exactly" do
-      at = Time.current
-      build_asset(human_name: "tie", bytes: "FIRST", created_at: at)
-      second = build_asset(human_name: "tie", bytes: "SECOND", created_at: at)
+    it "is nil when the version does not exist, rather than falling back" do
+      build_asset(human_name: "home-hero", version: 1)
+      expect(described_class.find_version("home-hero", 99)).to be_nil
+    end
 
-      expect(described_class.current("tie")).to eq(second)
+    # Only for choosing which version to pin -- never for rendering.
+    it "newest finds the highest version, for an editor picking one" do
+      build_asset(human_name: "tie", bytes: "FIRST", version: 1)
+      second = build_asset(human_name: "tie", bytes: "SECOND", version: 9)
+
+      expect(described_class.newest("tie")).to eq(second)
     end
   end
 

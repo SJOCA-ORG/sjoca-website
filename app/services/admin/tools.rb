@@ -35,7 +35,9 @@ module Admin
              { section_id: int("Section id"),
                kind: str("heading, subheading, text, image, button, list, quote, embed, calendar, upcoming, classes or lectionary"),
                content: str("Text, or one item per line for a list"),
-               asset_name: str("Photo human_name, for image blocks"),
+               asset_name: str("Photo name, for image blocks"),
+               asset_version: int("Which version of that photo. Required with asset_name — " \
+                                  "a name alone resolves to nothing. list_photos shows them."),
                url: str("Link target, for button, image or embed blocks"),
                column: int("Column index, 0-based"), position: int("Order within the column"),
                align: str("left, center or right"),
@@ -57,7 +59,8 @@ module Admin
              { slug: str("Page slug"), title: str("Browser title"), nav_title: str("Navigation label"),
                hero_heading: str("Large heading over the hero image"),
                hero_subheading: str("Smaller line under it"),
-               hero_asset_name: str("Photo human_name for the hero"),
+               hero_asset_name: str("Photo name for the hero"),
+               hero_asset_version: int("Which version of it"),
                hero_size: str("standard or tall"), position: int("Order in the navigation"),
                show_in_nav: { type: "boolean", description: "Whether it appears in the menu" },
                parent_slug: str("Slug of the page this sits under in the menu, or empty for top level"),
@@ -95,7 +98,15 @@ module Admin
              "Look for problems on a page: template errors, elements that rendered empty, " \
              "images that point at nothing, links going nowhere.",
              { slug: str("Page slug") }, %w[slug]),
-        tool("list_photos", "Every photograph available, by name.", {}),
+        tool("list_photos",
+             "Every photograph, with its versions. A reference is a PAIR — name and " \
+             "version — so a page says exactly which picture it shows and a rollback " \
+             "restores it. A name on its own renders nothing.", {}),
+        tool("repoint_photo",
+             "Point every reference to a photograph at a particular version — how a " \
+             "picture is replaced across the site, or an old one brought back.",
+             { name: str("Photo name"), version: int("Which version to use") },
+             %w[name version]),
         tool("get_styles",
              "The site's complete stylesheet — about 26KB. Usually too large to work with; " \
              "prefer find_styles.", {}),
@@ -265,7 +276,8 @@ module Admin
 
     def update_block(id:, **attrs)
       b = find_block(id)
-      b.update!(attrs.slice(:content, :align, :width, :url, :asset_name, :css_class).compact)
+      b.update!(attrs.slice(:content, :align, :width, :url, :asset_name,
+                            :asset_version, :css_class).compact)
       ok "updated #{b.kind} block #{b.id}", block: id
     end
 
@@ -274,7 +286,8 @@ module Admin
       position = attrs[:position] || (s.blocks.where(column: attrs[:column] || 0).maximum(:position).to_i + 1)
       b = s.blocks.create!(revision: revision, kind: kind, position: position,
                            column: attrs[:column] || 0,
-                           **attrs.slice(:content, :asset_name, :url, :align, :width, :css_class).compact)
+                           **attrs.slice(:content, :asset_name, :asset_version, :url,
+                                         :align, :width, :css_class).compact)
       ok "added a #{kind} block to section #{s.id}", block: b.id
     end
 
@@ -319,7 +332,8 @@ module Admin
       # parent_slug and self_nav_title are deliberately not .compact-ed: setting
       # either to empty is how a page is moved back to the top level.
       permitted = attrs.slice(:title, :nav_title, :hero_heading, :hero_subheading,
-                              :hero_asset_name, :hero_size, :position, :show_in_nav).compact
+                              :hero_asset_name, :hero_asset_version, :hero_size,
+                              :position, :show_in_nav).compact
       permitted[:parent_slug]    = attrs[:parent_slug].presence    if attrs.key?(:parent_slug)
       permitted[:self_nav_title] = attrs[:self_nav_title].presence if attrs.key?(:self_nav_title)
 
@@ -407,6 +421,21 @@ module Admin
         problems << "a link has no href" if a["href"].blank?
       end
 
+      # A reference is a pair. Half a reference resolves to nothing and renders
+      # nothing, with no error anywhere -- the photograph simply is not there.
+      page.sections.flat_map(&:blocks).select { |b| b.asset_name.present? }.each do |b|
+        next if b.asset
+        problems << if b.asset_version.blank?
+                      "block #{b.id} names the photograph #{b.asset_name.inspect} but no version, " \
+                      "so nothing renders. Pin it with update_block asset_version:"
+                    else
+                      "block #{b.id} points at #{b.asset_name}@#{b.asset_version}, which does not exist"
+                    end
+      end
+      if page.hero_asset_name.present? && page.hero_asset.nil?
+        problems << "the hero names #{page.hero_asset_name.inspect} but it does not resolve"
+      end
+
       blocks = page.sections.sum { |s| s.blocks.count }
       problems << "the page has #{blocks} blocks but rendered almost nothing" if blocks.positive? && html.length < 200
 
@@ -449,7 +478,32 @@ module Admin
     end
 
     def list_photos(**)
-      { photos: Photo.published.distinct.pluck(:human_name).sort }
+      { photos: Photo.published.order(:human_name, version: :desc)
+                     .group_by(&:human_name)
+                     .map { |name, rows|
+                       { name: name,
+                         versions: rows.map(&:version),
+                         newest: rows.first.version,
+                         note: rows.size > 1 ? "#{rows.size} versions — point at whichever you want" : nil
+                       }.compact },
+        reminder: "A reference is a PAIR: asset_name AND asset_version. A name alone renders nothing." }
+    end
+
+    # Replacing a photograph everywhere is a real operation now, not invisible
+    # magic. It appears in the change log as the edits it actually is.
+    def repoint_photo(name:, version:, **)
+      photo = Photo.find_version(name, version) or
+        raise ToolError, "there is no #{name} at version #{version}. " \
+                         "Versions: #{Photo.versions_of(name).pluck(:version).join(', ')}"
+
+      changed = blocks.where(asset_name: name).where.not(asset_version: version)
+      heroes  = pages.where(hero_asset_name: name).where.not(hero_asset_version: version)
+      n = changed.count + heroes.count
+      changed.update_all(asset_version: version)
+      heroes.update_all(hero_asset_version: version)
+      touched_everything!
+
+      ok "pointed #{n} #{'reference'.pluralize(n)} to #{name} at version #{version}"
     end
 
     def get_styles(**)

@@ -1,8 +1,8 @@
 Rails.application.routes.draw do
   # Images carried over from the old site, served from the database.
   # Looked up by human_name, so swapping a photo never changes a URL.
-  get "media/:human_name", to: "photos#show", as: :photo,
-      constraints: { human_name: %r{[a-z0-9\-]+} }
+  get "media/:human_name(/:version)", to: "photos#show", as: :photo,
+      constraints: { human_name: %r{[a-z0-9\-]+}, version: /\d+/ }
 
   # The site's own CSS and JS, served from the revision being rendered. The
   # digest in the path means these can be cached for a year and still change the

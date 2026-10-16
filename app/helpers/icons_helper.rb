@@ -10,6 +10,6 @@ module IconsHelper
                        .distinct.order(:human_name).pluck(:human_name)
     return nil if names.empty?
 
-    Photo.current(names[date.yday % names.size])
+    Photo.newest(names[date.yday % names.size])
   end
 end

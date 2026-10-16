@@ -46,9 +46,18 @@ RSpec.describe "Seeing the rendered page" do
       expect(result[:problems].join).to match(/nonexistent/)
     end
 
+    it "catches a half-written reference: a name with no version" do
+      draft.pages.find_by(slug: "giving").sections.first
+           .blocks.create!(revision: draft, kind: "image", asset_name: "photo-with-no-version")
+
+      expect(tools.call("check_page", { "slug" => "giving" })[:problems].join)
+        .to match(/no version/)
+    end
+
     it "catches an image pointing at nothing" do
       draft.pages.find_by(slug: "giving").sections.first
-           .blocks.create!(revision: draft, kind: "image", asset_name: "missing-photo")
+           .blocks.create!(revision: draft, kind: "image",
+                           asset_name: "missing-photo", asset_version: 1)
       draft.templates.find_by(name: "block/image")
            .update!(source: %(<img src="{{ block.photo.url }}" alt="x">))
 
@@ -60,9 +69,10 @@ RSpec.describe "Seeing the rendered page" do
     # alt-text warnings across 11 pages, which would drown anything important
     # and teach the AI to ignore the whole list.
     it "reports missing alt text as a suggestion, not as breakage" do
-      build_asset(human_name: "photo-without-alt")
+      build_asset(human_name: "photo-without-alt", version: 1)
       draft.pages.find_by(slug: "giving").sections.first
-           .blocks.create!(revision: draft, kind: "image", asset_name: "photo-without-alt")
+           .blocks.create!(revision: draft, kind: "image",
+                           asset_name: "photo-without-alt", asset_version: 1)
 
       result = tools.call("check_page", { "slug" => "giving" })
       expect(result[:ok]).to be(true)

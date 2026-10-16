@@ -18,13 +18,24 @@ RSpec.describe Block do
   end
 
   describe "#asset" do
-    it "resolves the newest published version of its named image" do
-      build_asset(human_name: "choir", bytes: "OLD", created_at: 2.days.ago)
-      newest = build_asset(human_name: "choir", bytes: "NEW", created_at: 1.hour.ago)
+    # A reference is a pair. The block shows the version it points at, not
+    # whatever happens to be newest -- which is what makes a rollback restore
+    # the right picture.
+    it "resolves exactly the version it points at" do
+      old = build_asset(human_name: "choir", bytes: "OLD", version: 1)
+      build_asset(human_name: "choir", bytes: "NEW", version: 2)
       block = build_block(section: build_section(page: build_page),
-                          kind: "image", asset_name: "choir")
+                          kind: "image", asset_name: "choir", asset_version: 1)
 
-      expect(block.asset).to eq(newest)
+      expect(block.asset).to eq(old)
+    end
+
+    it "shows nothing when the version it points at is gone, rather than guessing" do
+      build_asset(human_name: "choir", version: 2)
+      block = build_block(section: build_section(page: build_page),
+                          kind: "image", asset_name: "choir", asset_version: 1)
+
+      expect(block.asset).to be_nil
     end
 
     it "is nil when no asset is named" do

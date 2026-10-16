@@ -13,7 +13,7 @@ class Block < ApplicationRecord
 
   validate :kind_has_a_template
 
-  def asset = asset_name && Photo.current(asset_name)
+  def asset = Photo.find_version(asset_name, asset_version)
 
   def self.kinds_in(revision)
     (KINDS + revision.templates.where("name LIKE 'block/%'")

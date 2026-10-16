@@ -17,14 +17,14 @@ RSpec.describe Admin::ImageTools do
       result = tools.resize(name: "sample", width: 1, as: "sample-small")
 
       expect(result[:ok]).to be(true)
-      expect(Photo.current("sample-small")).to be_present
+      expect(Photo.newest("sample-small")).to be_present
     end
 
     it "never overwrites the original, so a bad crop is undone by republishing" do
-      original = Photo.current("sample").data
+      original = Photo.newest("sample").data
       tools.grayscale(name: "sample", as: "sample-grey")
 
-      expect(Photo.current("sample").data).to eq(original)
+      expect(Photo.newest("sample").data).to eq(original)
     end
 
     it "reports dimensions without changing anything" do

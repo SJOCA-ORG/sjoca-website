@@ -124,7 +124,7 @@ module Admin
     end
 
     def fetch(name)
-      Photo.current(name) || raise(ToolError, "there is no photograph called #{name.inspect}")
+      Photo.newest(name) || raise(ToolError, "there is no photograph called #{name.inspect}")
     end
 
     def check_name(name)
@@ -158,10 +158,13 @@ module Admin
       raise ToolError, "the result is #{bytes.bytesize} bytes, over the #{MAX_BYTES} limit" if bytes.bytesize > MAX_BYTES
       raise ToolError, "the operation produced nothing" if bytes.empty?
 
+      # Stamped with the revision that produced it, so a reference can pin it and
+      # rolling back restores the picture along with the words.
       photo = Photo.create!(human_name: name, data: bytes, byte_size: bytes.bytesize,
                             content_type: content_type, sha256: Photo.digest(bytes),
-                            status: "published")
-      { ok: true, summary: "#{summary}, saved as #{name}", photo: name, bytes: photo.byte_size }
+                            status: "published", version: @revision.id)
+      { ok: true, summary: "#{summary}, saved as #{name} (version #{photo.version})",
+        photo: name, version: photo.version, bytes: photo.byte_size }
     rescue ActiveRecord::RecordInvalid => e
       raise ToolError, e.record.errors.full_messages.to_sentence
     end

@@ -39,7 +39,7 @@ YAML.load_file(spec).each do |entry|
   # recency, which is exactly what happened the first time this ran. So compare
   # against the CURRENT version, and re-promote an existing row if it has been
   # overtaken.
-  current = Photo.current(entry["human_name"])
+  current = Photo.newest(entry["human_name"])
   if current&.sha256 == digest
     skipped += 1
     next

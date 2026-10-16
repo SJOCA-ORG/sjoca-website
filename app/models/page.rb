@@ -19,7 +19,7 @@ class Page < ApplicationRecord
   # site's children underneath a draft parent.
   def children = self.class.in_revision(revision_id).where(parent_slug: slug).in_nav
 
-  def hero_asset = hero_asset_name && Photo.current(hero_asset_name)
+  def hero_asset = Photo.find_version(hero_asset_name, hero_asset_version)
   def tall_hero? = hero_size == "tall"
   def path = "/#{slug}"
 end

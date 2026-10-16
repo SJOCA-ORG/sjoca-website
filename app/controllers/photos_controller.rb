@@ -9,7 +9,13 @@ class PhotosController < ApplicationController
   # approving a photo swap and then not seeing it, which reads as a broken
   # workflow. Five minutes plus revalidation is cheap and behaves predictably.
   def show
-    asset = Photo.current(params[:human_name])
+    # The version is part of the URL, so a replaced photograph never serves from
+    # a cache under the old address.
+    asset = if params[:version].present?
+              Photo.find_version(params[:human_name], params[:version])
+            else
+              Photo.newest(params[:human_name])
+            end
     return head :not_found unless asset
 
     # stale? issues the 304 itself when it returns false. Do not also call
