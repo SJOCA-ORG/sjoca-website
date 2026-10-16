@@ -591,6 +591,117 @@ council than the fallback was.
 
 ---
 
+## Standing promises
+
+Designed 15 October 2026, not yet built.
+
+Writing code, every change comes with a spec. The equivalent here is a **standing
+promise**: something about the site that should remain true after the next
+change, and which a person cannot be relied upon to re-check every time.
+
+Not every verification deserves to become one. The test is: **would a future
+change that breaks this be a bug, or a different choice?**
+
+| | |
+|---|---|
+| "the home page shows the service times" | breaking it is a bug — **keep** |
+| "the service times sit above the photograph" | that is what was asked for — **keep** |
+| "the heading reads exactly *Financially Support*" | rewording is legitimate — **do not keep** |
+| "the heading is 2.2em" | a styling decision someone may revisit — **do not keep** |
+
+### What a promise is made of
+
+Four things:
+
+1. **An id.** Promises are immutable; changing one means creating a new one.
+2. **A short summary**, shown on the approval screen.
+3. **The full intent in plain language**, revealable there, and read by the AI
+   when it has to judge a failure.
+4. **A script** that checks it, which runs *without the model*.
+
+The AI writes it in that order: understand the intent in language, compile it to
+a script, prove the script works, then condense the summary.
+
+Splitting intent from execution is what makes this affordable. The script is
+free to run, so promises can be checked every turn. The intent survives for the
+moment that matters — when something fails and the question is *"is the site
+wrong, or is the promise now wrong?"* The model has both the original reasoning
+and the actual check in front of it, which is the only way to tell those apart.
+
+It is the same shape as a remembered command: reason it out once, compile it to
+something cheap, keep the reasoning attached.
+
+### The scripts are JavaScript, run in the rendered page
+
+The infrastructure already exists — `script/visual_check.mjs` evaluates
+JavaScript inside the real page over CDP. A promise is a script returning
+`{ pass, message }`.
+
+Three reasons, in order of importance:
+
+- **The sandbox comes free.** JavaScript in a page cannot reach the server, the
+  database or the filesystem. The browser *is* the boundary, so there is no new
+  firewall to design — unlike every other "let it run something" decision here.
+- **It can see what matters.** Promises can assert on *rendered* output, not
+  just markup: whether something is visible, where it sits, whether it is
+  reachable without scrolling.
+- **It batches.** One page load evaluates every promise for that page.
+
+The alternative — inventing a small assertion language over the markup — is
+cheaper still, but cannot see layout and would have to be designed and
+maintained. There is no reason to invent a language when a sandbox is already
+sitting there.
+
+### The manifest
+
+Promises are immutable rows. **A revision carries a list of promise ids**, copied
+forward when a sandbox is opened.
+
+- Adding one appends an id.
+- Changing one removes an id and adds a new one, so a diff of two revisions'
+  lists *is* the history of what the site promises.
+- Removing one drops the id. Nothing is deleted; the promise still exists.
+
+A list rather than a query, for the reason the photograph versions taught us:
+a query has to infer intent from ordering, and a branch from an old revision
+makes that inference wrong. A list infers nothing.
+
+### Verifying a promise actually promises something
+
+A script returning `true` unconditionally also "works", and a promise that cannot
+fail is **worse than none** — it manufactures confidence.
+
+So a new promise is proved twice: it passes **now**, and it fails when the thing
+it asserts is **removed**. For content that is usually cheap — delete the block,
+re-run, confirm red, put it back. Where it is not, the AI states plainly what
+would make it fail, and that sentence sits beside the summary at review.
+
+### The risk: erosion
+
+The AI both breaks a promise and judges whether the break was legitimate. Each
+judgment will be defensible. The danger is not one bad call, it is thirty
+reasonable ones: **a removal is the hardest change for a reviewer to notice**,
+because "removed a check that no longer applies" reads as tidying.
+
+So removals are deliberately louder than additions. A new promise is a line; a
+removed one names what it asserted and how long it stood — *"the home page shows
+the service times, promised since October 2026, is no longer checked."*
+
+### Where the first ones come from
+
+Nothing creates the initial set. The AI writes promises for changes it makes, so
+the site starts with none — yet the ones that matter most were never anyone's
+"change": the service times are present, the parish is contactable, the calendar
+renders, no page is orphaned from the navigation. Those are seeded once,
+deliberately.
+
+### When a promise fails
+
+It never blocks publishing. The parish must never be unable to correct a service
+time because an assertion is stale. A failure is resolved during editing — the
+AI fixes the content or proposes changing the promise, with its reasoning — and
+anything unresolved is surfaced at approval as a question, not a refusal.
+
 ## The acceptance test: replay the whole site through the admin
 
 **Dn Mitch runs it, as a non-technical user** — which, where the visual design of the
