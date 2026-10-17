@@ -5,13 +5,15 @@ module Admin
 
       unless Anthropic::Client.configured?
         return redirect_to admin_revision_path(revision),
-                           alert: "No Anthropic API key is configured. Set ANTHROPIC_API_KEY."
+                           alert: "No Anthropic API key is configured."
       end
 
       text = params[:content].to_s.strip
       return redirect_to admin_revision_path(revision) if text.blank?
 
-      Editor.new(revision).call(text)
+      # Out of the request. A turn can take a minute, and a frozen page with no
+      # sign of life is the difference between usable and not.
+      EditingTurnJob.perform_later(revision.id, text)
       redirect_to admin_revision_path(revision)
     end
   end

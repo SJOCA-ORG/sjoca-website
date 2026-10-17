@@ -102,6 +102,13 @@ module Admin
              "Every photograph, with its versions. A reference is a PAIR — name and " \
              "version — so a page says exactly which picture it shows and a rollback " \
              "restores it. A name on its own renders nothing.", {}),
+        tool("find_photos",
+             "Search the photographs by what is IN them, not by filename. The library is " \
+             "named positionally (about-us-leadership-01), so a filename tells you nothing " \
+             "about the subject. Ask for what you want a picture of in plain words.",
+             { looking_for: str("What you want a picture of, e.g. the choir singing, " \
+                                "a priest vested in purple, the church exterior") },
+             %w[looking_for]),
         tool("repoint_photo",
              "Point every reference to a photograph at a particular version — how a " \
              "picture is replaced across the site, or an old one brought back.",
@@ -503,6 +510,44 @@ module Admin
       Site::PageRenderer.new(revision).body(page).to_s
     end
 
+    # The library is named positionally, so a filename says nothing about what is
+    # in the picture. Descriptions are what make it findable -- see
+    # lib/tasks/photos.rake, which writes them by looking at each photograph.
+    def find_photos(looking_for:, **)
+      words = looking_for.to_s.downcase.scan(/[a-z]{3,}/) -
+              %w[the and for with photo picture image shows showing some any]
+      return { matches: [], note: "say what you are looking for in a few words" } if words.empty?
+
+      described = Photo.published.where.not(alt_text: [nil, ""])
+                       .select(:human_name, :version, :alt_text).to_a
+      haystacks = described.to_h { |p| [p, "#{p.human_name.tr('-', ' ')} #{p.alt_text}".downcase] }
+
+      # Weight by rarity. Counting plain matches rewards the common words:
+      # "a priest in purple vestments" scored every priest photograph equally and
+      # ignored "purple", which was the only word that mattered.
+      rarity = words.to_h do |w|
+        seen = haystacks.count { |_, text| text.include?(w) }
+        [w, seen.zero? ? 0.0 : Math.log((haystacks.size + 1).to_f / seen)]
+      end
+
+      scored = haystacks.filter_map do |photo, text|
+        hit = words.select { |w| text.include?(w) }
+        next if hit.empty?
+
+        [hit.sum { |w| rarity[w] }, hit, photo]
+      end
+
+      best = scored.sort_by { |score, _, p| [-score, p.human_name] }
+                   .uniq { |_, _, p| p.human_name }
+                   .first(8)
+
+      { matches: best.map { |score, hit, p|
+          { name: p.human_name, version: p.version,
+            matched: hit.join(", "), score: score.round(2),
+            shows: p.alt_text.to_s.truncate(170) } },
+        searched: described.map(&:human_name).uniq.size }
+    end
+
     def list_photos(**)
       { photos: Photo.published.order(:human_name, version: :desc)
                      .group_by(&:human_name)
@@ -510,6 +555,7 @@ module Admin
                        { name: name,
                          versions: rows.map(&:version),
                          newest: rows.first.version,
+                         shows: rows.first.alt_text.presence&.truncate(120),
                          note: rows.size > 1 ? "#{rows.size} versions — point at whichever you want" : nil
                        }.compact },
         reminder: "A reference is a PAIR: asset_name AND asset_version. A name alone renders nothing." }

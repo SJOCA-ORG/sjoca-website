@@ -83,6 +83,10 @@ module Admin
     def call(user_text)
       @revision.messages.create!(role: "user", content: user_text)
 
+      # A placeholder the page can watch while the work happens.
+      @working = @revision.messages.create!(role: "assistant", state: "working",
+                                            content: "", progress: [])
+
       conversation  = history
       performed     = []
       failures      = Hash.new(0)
@@ -131,8 +135,8 @@ module Admin
             text = "#{text}\n\nStanding promises still broken: " \
                    "#{broken.map { |b| b[:summary] }.join('; ')}."
           end
-          @revision.messages.create!(role: "assistant", content: text.presence || "(no reply)",
-                                     tool_calls: performed)
+          @working.update!(state: "done", content: text.presence || "(no reply)",
+                           tool_calls: performed)
           return Result.new(reply: text, tool_calls: performed, problems: problems)
         end
 
@@ -170,10 +174,10 @@ module Admin
       message << " I did manage: #{done.map { |p| p['summary'] }.join('; ')}." if done.any?
       message << " What kept failing: #{failed.map { |p| p['summary'] }.uniq.first(2).join('; ')}." if failed.any?
       message << " Have a look at what is there, and tell me what still needs doing."
-      @revision.messages.create!(role: "assistant", content: message, tool_calls: performed)
+      @working.update!(state: "done", content: message, tool_calls: performed)
       Result.new(reply: message, tool_calls: performed)
     rescue Anthropic::Client::Error, Tools::ToolError, ImageTools::ToolError => e
-      @revision.messages.create!(role: "assistant", content: "Something went wrong: #{e.message}")
+      @working&.update!(state: "done", content: "Something went wrong: #{e.message}")
       Result.new(reply: nil, tool_calls: performed || [], error: e.message)
     end
 
@@ -209,11 +213,13 @@ module Admin
     # kept -- which hid the fact that eleven attempts had failed identically.
     def run(use, performed)
       result = @tools.call(use["name"], use["input"] || {})
+      note = nil
       performed << if result.is_a?(Hash) && result[:summary]
                      { "name" => use["name"], "summary" => result[:summary] }
                    else
                      { "name" => use["name"], "summary" => "looked at #{use['name'].tr('_', ' ')}", "read" => true }
                    end
+      @working&.update_column(:progress, performed)
       result
     rescue Tools::ToolError, ImageTools::ToolError => e
       # Hand the failure back to the model rather than aborting: it can usually

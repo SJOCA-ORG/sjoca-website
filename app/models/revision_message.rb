@@ -8,4 +8,6 @@ class RevisionMessage < ApplicationRecord
   validates :role, inclusion: { in: ROLES }
 
   scope :for_model, -> { order(:created_at) }
+
+  def working? = state == "working"
 end

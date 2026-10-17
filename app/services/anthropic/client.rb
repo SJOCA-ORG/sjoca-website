@@ -36,6 +36,13 @@ module Anthropic
 
     def self.configured? = api_key.present?
 
+    # An image, as a content block. The model can see photographs, which is how
+    # a library of positionally-named files becomes searchable by what is in them.
+    def self.image_block(bytes, content_type)
+      { type: "image",
+        source: { type: "base64", media_type: content_type, data: Base64.strict_encode64(bytes) } }
+    end
+
     def call(system:, messages:, tools: [], max_tokens: 4096)
       raise Error, "no Anthropic API key configured" if @api_key.blank?
 

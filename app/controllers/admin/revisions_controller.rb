@@ -11,6 +11,7 @@ module Admin
     # The chat.
     def show
       @messages = @revision.messages
+      @working  = @messages.find { |m| m.state == "working" }
     end
 
     def create

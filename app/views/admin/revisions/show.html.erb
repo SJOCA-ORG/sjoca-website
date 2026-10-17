@@ -52,18 +52,40 @@
   <% end %>
 
   <% @messages.each do |m| %>
-    <div class="msg <%= m.role %>">
-      <%= m.content %>
-      <% if m.tool_calls.present? %>
-        <span class="tools">
-          <% Array(m.tool_calls).reject { |t| t["read"] }.each do |t| %>
-            <span style="<%= "color:#8B1A1A" if t["failed"] %>"><%= t["summary"].presence || t["name"] %></span><br>
-          <% end %>
-        </span>
-      <% end %>
-    </div>
+    <% if m.working? %>
+      <%# Still thinking. Shows each step as it happens, so it is visibly alive. %>
+      <div class="msg assistant" id="working">
+        <em class="muted">Working<span class="dots">…</span></em>
+        <% if Array(m.progress).any? %>
+          <span class="tools">
+            <% Array(m.progress).each do |t| %>
+              <span style="<%= "color:#8B1A1A" if t["failed"] %>">
+                <%= t["read"] ? "·" : "→" %> <%= t["summary"].presence || t["name"] %>
+              </span><br>
+            <% end %>
+          </span>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="msg <%= m.role %>">
+        <%= m.content %>
+        <% if m.tool_calls.present? %>
+          <span class="tools">
+            <% Array(m.tool_calls).reject { |t| t["read"] }.each do |t| %>
+              <span style="<%= "color:#8B1A1A" if t["failed"] %>"><%= t["summary"].presence || t["name"] %></span><br>
+            <% end %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
   <% end %>
 </div>
+
+<% if @working %>
+  <%# No websockets to maintain: a page this simple can just reload itself while
+      there is work in flight. %>
+  <meta http-equiv="refresh" content="3">
+<% end %>
 
 <%= form_with url: admin_revision_messages_path(@revision), method: :post do |f| %>
   <%= f.text_area :content, rows: 3, autofocus: true,
