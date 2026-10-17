@@ -172,7 +172,8 @@ module Admin
           end
 
           # Before the mechanical checks: let it see the thing it just made.
-          if !looked_once && (shot = look_at_it(performed))
+          shot = looked_once ? nil : look_at_it(performed)
+          if shot.is_a?(Hash) && shot[:screenshots].present?
             looked_once = true
             blocks = Tools.screenshot_blocks(shot[:screenshots])
             if blocks.any?
@@ -317,10 +318,17 @@ module Admin
                        move_block delete_block add_section update_section
                        move_section delete_section].freeze
 
+    # Returns the check_appearance result, or NIL when there is nothing to look
+    # at. Not [] -- this returned an empty ARRAY from its guards, copied from
+    # `verify` just above, which returns a list of problems. An empty array is
+    # truthy in Ruby, so the caller's `if (shot = look_at_it(...))` passed and
+    # then asked an Array for [:screenshots]. Every turn that changed something
+    # the guards declined to photograph died with "no implicit conversion of
+    # Symbol into Integer", which names neither the cause nor the place.
     def look_at_it(performed)
       names = performed.filter_map { |p| p["name"] unless p["failed"] }
-      return [] if (names & LOOKS_CHANGED).empty?
-      return [] if @tools.touched.empty?
+      return nil if (names & LOOKS_CHANGED).empty?
+      return nil if @tools.touched.empty?
 
       # One page, and it must be a page the change LANDED on. Taking
       # touched.first photographed whichever page the global sample happened to
