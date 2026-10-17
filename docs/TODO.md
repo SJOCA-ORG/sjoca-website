@@ -177,48 +177,67 @@ the first, which is exactly the person this project needs.
 
 ## A general way to pull in outside data
 
-Mitch's idea, 14 October 2026, and a better primitive than the three bespoke
-mirrors already built.
+Mitch's idea, 14 October 2026. **Built 17 October 2026.**
 
-- [ ] **One server-side fetch primitive, instead of per-feed Ruby.** The server
-      fetches a URL, caches the result, and hands it to the page as JSON in a
-      `<script type="application/json">` tag. JavaScript and CSS written through
-      the admin then format it however the parish wants.
+- [x] **One server-side fetch primitive, instead of per-feed Ruby.** Done:
+      `DataSource` (a revision row: a name and one or more https addresses),
+      `FetchedPage` (the cache, keyed by URL and shared across revisions), and
+      `site.data.<name>.json_tag`, which writes the payload into the page as
+      `<script type="application/json">`. JavaScript and CSS written through the
+      admin do the rest. `add_data_source`, `peek_data`, `list_data_sources`
+      and `remove_data_source` are the tools.
 
-      This would have covered **all three** existing mirrors — ChurchTrac,
-      the YouTube playlist, the oca.org lectionary — with no Ruby per source,
-      and it solves the thing the iframe could not: *the parish controls how it
-      looks*. That was the actual complaint about embedding ChurchTrac.
+      `site.calendar`, `site.upcoming`, `site.recordings` and `site.lectionary`
+      were deleted along with their templates and 231 lines of CSS. The reason
+      was sharper than "less Ruby": `site.upcoming` silently excluded every
+      regularly scheduled service, its entire description to the AI was
+      "notable events in the coming week", and a home-page box got built on it
+      with no Vespers and no Divine Liturgy. Judgement buried in Ruby cannot be
+      read, questioned or rolled back.
 
-      Browser JavaScript cannot do this itself. The ChurchTrac feed sends **no
-      `Access-Control-Allow-Origin` header**, so a fetch from sjoca.org is
-      blocked by the browser. Checked, 14 Oct 2026. Fetching server-side is the
-      only route.
+- [ ] **The claim that this covers all three mirrors is WRONG, and that
+      matters.** Checked 17 October, after the primitive was built:
 
-      Shape: a `data_sources` row (name, url, refresh interval), a cached
-      response, `site.data.<name>` in templates.
+      | mirror | what it actually serves |
+      |---|---|
+      | ChurchTrac | plain JSON — covered, verified against the live feed |
+      | YouTube | an HTML page, with `var ytInitialData = {...}` brace-matched out of ~1MB of markup |
+      | OCA lectionary | HTML pages, one per day — an index plus a crawl 30 days ahead |
 
-- [ ] **The SSRF guard this needs, which is the part to get right.** The AI
-      would be choosing a URL *our server* fetches, from inside Render's
-      network. Unguarded, `http://169.254.169.254/` is the cloud metadata
-      endpoint and `localhost:5432` is the parish database.
+      Only ChurchTrac is a clean fit. The other two need the fetched bytes
+      PARSED before there is any JSON to hand over, and the lectionary is not
+      one URL at all. Two routes, neither built:
 
-      - HTTPS only; resolve the host and refuse any private, loopback or
-        link-local address — **and re-check after every redirect**, since a
-        public URL can redirect to `127.0.0.1`
-      - Cache with a TTL, and serve stale if the source is down
-      - Size and time caps; text and JSON only
-      - Never forward our own credentials
+      - the page's own JavaScript parses the raw bytes — `DOMParser` on the
+        readings pages, a brace match on the playlist. Works, but ships ~1MB of
+        HTML to every visitor on that page.
+      - a server-side transform: AI-written JavaScript, a pure function of
+        bytes to JSON, run once per refresh in a sandbox with **no network and
+        no filesystem**. Keeps the payload small and keeps every outbound
+        request inside the one guard.
 
-- [ ] **Domain policy: open, but surfaced at review.** Decided to leave it open
-      rather than maintain an allowlist. Instead, **the first use of a new
-      domain is flagged in the approval screen**: "This change fetches data from
-      `example.com` for the first time — worth checking with your technical team
-      before approving."
+      The second is better and is more work. Until one of them exists,
+      `ClassRecording` and `LectionaryDay` keep their importers. The ChurchTrac
+      mirror and its cron job are now redundant (the cache's serve-stale covers
+      the argument that justified mirroring) but are left in place until the
+      replay test has actually rebuilt the calendar.
 
-      That keeps the AI able to use a source nobody anticipated, while making
-      sure a new outbound connection is never invisible to the person approving
-      it. The approval record should note which domains a revision introduced.
+- [x] **The SSRF guard.** `Site::OutboundFetch`. HTTPS only; every address the
+      host resolves to checked against the private, loopback, link-local,
+      carrier-NAT and reserved ranges; re-checked after each redirect; no
+      cookies or credentials; size and time caps; text and data content types
+      only. 17 specs, one per attack — including the redirect-to-127.0.0.1
+      bypass, which is the one people ship.
+
+- [x] **Domain policy: open, but surfaced at review.** `Revision#new_domains`
+      drives a panel on the approval screen naming any domain this revision
+      fetches from that the live site does not.
+
+- [ ] **Decide whether to serve a stale payload silently.** Today a fetch
+      failure with a cached copy serves the copy and sets `.stale`, and nothing
+      makes a template mention it. Right for a brief outage, wrong if a feed
+      moves and the site shows last month's services for a month. Wants a
+      staleness bound, and something visible past it.
 
 ## Known gaps
 

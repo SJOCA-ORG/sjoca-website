@@ -3,7 +3,8 @@
 Context for anyone (person or Claude session) picking this project up. This file is
 committed so it travels with the repo; it is the handoff, not a scratchpad.
 
-**Last updated:** 2026-10-13 — Phase 1 clone deployed to Render; parish favicon in place.
+**Last updated:** 2026-10-17 — Phase 2 AI admin built; feed-specific drops replaced by one
+guarded fetch primitive; site cleared back to the baseline for the replay test.
 
 ---
 
@@ -87,12 +88,52 @@ will write to).
 
 1. Visual comparison pass, page by page, desktop and phone.
 2. Browser specs — the largest gap in the suite (`docs/TODO.md`).
-3. Phase 2: see [`docs/ai-admin.md`](docs/ai-admin.md), which supersedes the
-   "minimum CMS" sketch. The parish edits by describing changes to an AI working
-   in a sandbox, with approval gated by computed blast radius. Build the
-   revision model, the approval audit trail and the test suite before any AI
-   wiring — the AI slots into the *draft* stage of a flow that must work
-   without it.
+3. **The replay test — this is where the project is.** The site is back at the
+   Phase 1 baseline (revision 8 live, no open drafts) and the task is to
+   reproduce everything since **through the admin conversation alone**, with no
+   developer edits. See the acceptance test in
+   [`docs/ai-admin.md`](docs/ai-admin.md). Mitch drives it.
+
+   The AI admin is built: 54 tools, Liquid templates as database rows, revisions
+   as copy-on-write sandboxes, standing promises checked in a real browser, and
+   a change log. See [`docs/liquid-vocabulary.md`](docs/liquid-vocabulary.md)
+   for the whole surface in one page.
+
+### Three things to know before touching the AI admin
+
+- **It can see.** `check_appearance` opens a page in real Chrome at 390px and
+  1280px and returns the screenshots to the model (~2,460 tokens). Before 17
+  October it drove the browser and threw the pixels away, which is why it once
+  put a home-page box in the footer: nothing was measurably broken, it just
+  looked wrong, and it had no way to perceive that. If a layout judgement goes
+  wrong, check that the screenshots are still arriving before blaming the model.
+
+- **There are no feed-specific drops, deliberately.** `site.calendar`,
+  `site.upcoming`, `site.recordings` and `site.lectionary` were deleted on 17
+  October. Outside data comes in through `add_data_source` → the server fetches
+  and caches the address → `{{ site.data.<name>.json_tag }}` writes it into the
+  page as JSON → admin-written JavaScript formats it. **Do not add a drop for a
+  new feed.** The reason is in `docs/ai-admin.md`: `site.upcoming` silently
+  excluded every regularly scheduled service and the AI built a page on top of
+  it that was missing Vespers and the Divine Liturgy, because the filter was
+  invisible to it. Judgement in Ruby is judgement nobody can review.
+
+- **`Site::OutboundFetch` is a security boundary, not a helper.** It is the only
+  place the app fetches a URL chosen by the AI rather than by a developer, and
+  the request leaves our server inside Render's network. Read the comments
+  before changing anything in it, and keep its 17 specs passing — each one
+  stands for an attack. Notably: the private-address check runs **again after
+  every redirect**, because a public URL may redirect to `127.0.0.1`.
+
+### The ChurchTrac, YouTube and lectionary mirrors
+
+`CalendarEvent`, `ClassRecording` and `LectionaryDay` still exist with their
+importers and cron jobs. The fetch primitive makes the **ChurchTrac** one
+redundant and it will go once the replay test has rebuilt the calendar through
+the admin. The other two cannot go yet: YouTube serves an HTML page with the
+data brace-matched out of ~1MB of markup, and oca.org serves one HTML page per
+day. Both need the bytes parsed before there is JSON to hand over —
+`docs/TODO.md` has the two possible routes.
 
 Deployment is done — see [`docs/deployment.md`](docs/deployment.md). The site runs on
 Render at **https://sjoca.onrender.com** (service `srv-db6kqurl550s73bd5h90`), deployed

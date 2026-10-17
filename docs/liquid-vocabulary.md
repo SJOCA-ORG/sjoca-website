@@ -22,7 +22,7 @@ Page  ──  the thing at a URL, e.g. /about-us/choir
 
 Nothing else. Every page on the site is bands of columns of blocks.
 
-## The 16 templates
+## The 12 templates
 
 Each is a database row. Editing one changes how that thing renders **everywhere**.
 
@@ -48,17 +48,23 @@ Each is a database row. Editing one changes how that thing renders **everywhere*
 | `block/button` | a link styled as a button |
 | `block/embed` | a map or a video from elsewhere |
 
-### Live-data widgets — 4 templates
+### Live-data widgets — removed, 17 October 2026
 
-These pull from the mirrors and take no content of their own. The parish places
-them; the content maintains itself.
+There were four: `block/calendar`, `block/upcoming`, `block/classes`,
+`block/lectionary`, each backed by a Ruby drop that decided what was worth
+showing. They are gone, and so are the drops.
 
-| template | shows |
-|---|---|
-| `block/calendar` | the parish calendar, grouped by week, from ChurchTrac |
-| `block/upcoming` | what is *different* about the coming week |
-| `block/classes` | the three most recent adult-education recordings |
-| `block/lectionary` | today's appointed readings, from oca.org |
+The reason is the most useful thing we learned building this. `site.upcoming`
+quietly excluded every regularly scheduled service — reasonable in the abstract,
+since nobody needs telling that Vespers is on Saturday again. The AI was told
+only that it meant "notable events in the coming week". So when asked for the
+next seven days it produced a home-page box with **no Vespers and no Divine
+Liturgy in it**, added a dedup hack when events appeared to repeat, and had no
+way to discover the filter it was arguing with.
+
+Editorial judgement in Ruby is judgement nobody downstream can read, question,
+or roll back. Anything from outside now arrives through one primitive and every
+decision about it is written in JavaScript, in the revision, in the open.
 
 **A new kind of block is one new template.** Write `block/scripture` and a
 scripture block can be placed immediately — no developer, no deploy. Verified end
@@ -83,17 +89,38 @@ is_map, template
 
 **`nav`** — title, path, slug, current, children, has_children, self_title
 
-**`site`** — name, address, email, and the four live feeds:
+**`site`** — name, address, email, and `data`
 
-- `site.calendar.weeks[].events[]` — title, day, date_num, time_text,
-  elsewhere, notes, cancelled, noteworthy, today
-- `site.upcoming.events[]` — the same
-- `site.classes.recordings[]` — title, number, date_text, watch_url, thumbnail
-- `site.lectionary.today.appointed[]` — kind, citation, body, verses, paragraphs
+**`site.data`** — outside data, by whatever name it was set up under. It has no
+fixed properties: `site.data.calendar` exists if a source called `calendar`
+does.
+
+**`site.data.<name>`** — `json_tag`, `json`, `id`, `name`, `note`, `urls`, and
+for a template that wants to say something went wrong: `ok`, `error`, `stale`,
+`age`, `bytes`.
+
+That is the whole of it. One primitive where there were four feeds:
+
+```liquid
+{{ site.data.calendar.json_tag }}
+```
+
+writes `<script type="application/json" id="data-calendar">…</script>` into the
+page, and the site's own JavaScript takes it from there:
+
+```javascript
+const events = JSON.parse(
+  document.getElementById("data-calendar").textContent);
+```
+
+The server does the fetching because a browser cannot: ChurchTrac sends no
+`Access-Control-Allow-Origin` header, so a fetch from sjoca.org is blocked
+outright. Addresses are checked hard before anything is fetched — see
+`Site::OutboundFetch`, and `docs/TODO.md` for what it refuses and why.
 
 ---
 
-## The 35 tools
+## The 54 tools
 
 **Looking** — `list_pages`, `get_page`, `list_photos`, `list_templates`,
 `get_template`, `get_styles`, `get_scripts`, `describe_photo`, `liquid_guide`
@@ -102,8 +129,28 @@ is_map, template
 `add_section`, `update_section`, `move_section`, `delete_section`,
 `add_page`, `update_page`, `delete_page`
 
-**Appearance** — `set_styles` (CSS), `set_scripts` (JavaScript),
+**Appearance** — `add_styles`, `edit_styles`, `find_styles` (CSS),
+`add_script`, `edit_script`, `find_script` (JavaScript),
 `set_template`, `add_template`
+
+These send only what changes. `set_styles` and `set_scripts` still exist and
+are the wrong tool: a reply is capped at 4096 tokens, so replacing a whole
+26KB stylesheet is arithmetically impossible and fails by being cut short.
+
+**Looking at the result** — `view_page`, `check_page`, `check_appearance`
+
+`check_appearance` opens the page in a real browser at 390px and 1280px and
+**returns the screenshots**, so the AI can see the page rather than infer it
+from measurements. Added 17 October, after it put a box in the footer that
+belonged in the right-hand column: nothing was measurably broken, it just
+looked wrong, and "looks wrong" was not something it could perceive.
+
+**Outside data** — `add_data_source`, `peek_data`, `list_data_sources`,
+`remove_data_source`
+
+`peek_data` is the one to notice. It reports a feed's type, size, field names
+and a short sample, so the AI writes JavaScript against the real shape of
+someone else's data instead of guessing at it.
 
 **Photographs** — `crop_photo`, `resize_photo`, `rotate_photo`, `trim_photo`,
 `adjust_photo`, `grayscale_photo`, `feather_photo`, `round_photo_corners`,
@@ -136,7 +183,7 @@ Checked against what actually happened between the Phase 1 baseline and today.
 | Navigation reordered | `update_page` position | yes |
 | Mobile menu rebuilt | `set_styles`, and `header` if the markup must change | yes |
 | Feathered photograph edges | `feather_photo` | yes |
-| Daily lectionary page | `add_page` + place the widget | yes |
+| Daily lectionary page | `add_page`, `add_data_source`, a template and a script | yes — and it is now real work rather than placing a widget |
 
 **Three gaps were found writing this table**, and all three are now closed — which
 is exactly why the table was worth writing before the test rather than after.
@@ -147,8 +194,13 @@ Honestly, so the test is not judged against the wrong bar:
 
 - **Anything in `public/`** — the favicon, `robots.txt`, the web manifest. Files,
   not rows.
-- **New live data.** A fifth widget — a sermon archive, say — needs a model, an
-  importer and a drop. The *templates* for it would be editable afterwards.
+- ~~**New live data.** A fifth widget — a sermon archive, say — needs a model, an
+  importer and a drop.~~ **No longer true, 17 October.** `add_data_source` takes
+  any https address, and the formatting is a template and a script. A sermon
+  archive is now a conversation, not a deploy. The remaining limit is that the
+  payload reaches the page as raw bytes: a feed serving JSON works today, and
+  one serving HTML needs the page's own JavaScript to pick it apart (or the
+  server-side transform in `docs/TODO.md`, not built).
 - **Exposing something a drop does not carry.** If a template needs a field no
   drop offers, that is a Ruby change. The AI is told to say so rather than
   pretend.
@@ -158,11 +210,18 @@ Honestly, so the test is not judged against the wrong bar:
 
 ### The one thing I would watch
 
-`set_styles` replaces a **single** overrides stylesheet wholesale. That is fine
-for "make the headings larger" and crude for a season's worth of accumulated
-changes — read it, change part, send the whole thing back. If the replay turns
-that into a reliable source of mistakes, splitting CSS into named sections is the
-obvious fix, and it is a small one.
+~~`set_styles` replaces a single stylesheet wholesale.~~ **Closed.**
+`add_styles`, `edit_styles` and `find_styles` send only what changes, and the
+same three now exist for JavaScript. The whole-file tools remain, marked in
+their own descriptions as the wrong choice.
+
+What I would watch instead: **the AI now writes the judgement that used to be
+hidden in Ruby, and judgement can be wrong in ways a renderer cannot.** A drop
+that excluded the regular services was invisible and wrong. A line of
+JavaScript that excludes them is visible and can still be wrong — the gain is
+that it can be read, argued with, and rolled back, not that it is correct. The
+test to watch for is whether a mistake of that kind surfaces in review, or
+whether the code being present is mistaken for the code being right.
 
 ---
 

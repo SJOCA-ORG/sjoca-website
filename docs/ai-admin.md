@@ -293,6 +293,98 @@ photographs. It creates new versions rather than editing in place, so nothing is
 destroyed. It cannot add a *type* and cannot touch Ruby — not because it is
 forbidden to, but because no tool in its surface does those things.
 
+### Outside data, and why four drops became one primitive
+
+*17 October 2026. Mitch's call, and the best correction the design has had.*
+
+There were four drops reading mirrored data: `site.calendar`, `site.upcoming`,
+`site.recordings`, `site.lectionary`. Each was written by a developer, and each
+encoded a judgement about what was worth showing. `site.upcoming` left out every
+regularly scheduled service, on the reasoning that nobody needs telling Vespers
+is on Saturday again. Defensible. But the AI was told only that it meant
+"notable events in the coming week."
+
+So when asked for the next seven days on the home page, it built a box with **no
+Vespers and no Divine Liturgy in it** — the two things a visitor most wants —
+added a string-accumulator hack to deduplicate events that seemed to repeat, and
+guarded the whole thing on a different list than it looped over. Three symptoms,
+one cause: it was arguing with a filter it could not see, and no amount of
+intelligence would have found it.
+
+**The lesson is not "document the drops better."** It is that a judgement
+embedded in Ruby is a judgement the editor cannot read, cannot question, and
+cannot roll back. The drop was the wrong *shape*, not badly described.
+
+All four are gone. In their place, one primitive:
+
+```
+DataSource        a revision row: a name, and one or more https addresses
+Site::OutboundFetch   the guarded fetch — the only place this app reaches the
+                      internet on behalf of something the AI wrote
+FetchedPage       the cache, keyed by URL, shared across revisions
+site.data.<name>.json_tag   writes the payload into the page as
+                            <script type="application/json">
+```
+
+Everything after that is JavaScript and CSS written through the admin. What
+"upcoming" means is now a line of code in the revision, where it can be read,
+argued with, and reverted.
+
+This cost something, and the cost is worth naming. A drop that wrongly excluded
+the services was invisible and wrong. A script that wrongly excludes them is
+visible and **still wrong**. The gain is reviewability, not correctness. The
+thing to watch in review is whether a mistake of that kind gets caught, or
+whether code being present gets mistaken for code being right.
+
+**Reaching the internet is a real escalation, and it is guarded as one.** The
+URL arrives from a conversation and the request leaves *our* server, inside
+Render's private network, where `169.254.169.254` is the cloud metadata endpoint
+and `localhost:5432` is the parish database. So: HTTPS only; every address the
+host resolves to checked against the private, loopback, link-local, carrier-NAT
+and reserved ranges; **re-checked after every redirect**, because a public URL
+may redirect to `127.0.0.1` and that is the bypass people actually ship; no
+cookies and no credentials; size and time caps; text and data types only. There
+are 17 specs, one per attack.
+
+The list of permitted domains is deliberately **open**. An allowlist would have
+to be maintained by a developer, which reintroduces exactly the dependency this
+removes. Instead the first fetch from an unfamiliar domain is named on the
+approval screen: *"This change fetches data from example.com for the first time
+— worth checking with whoever looks after the technical side."* A new outbound
+connection is never invisible to the person saying yes to it.
+
+**What it does not yet cover.** The payload reaches the page as raw bytes. A feed
+serving JSON works today, verified against ChurchTrac. A source serving HTML —
+the YouTube playlist, the oca.org readings — needs parsing before there is JSON
+to hand over, so those two importers stay for now. See `docs/TODO.md`.
+
+### Seeing the page
+
+*Same day, and the other half of the same failure.*
+
+Asked to put a week's events on the home page, the AI appended a band at the
+bottom of the page. It belonged beside the welcome text. Nothing was *broken* —
+no sideways scroll, no overlap, no unreachable menu item — so every check
+reported success. It simply looked wrong.
+
+It could not have known. `check_appearance` drove a real browser, took the
+measurements, and threw the screenshot away; tool results went back as JSON
+text, so an image could not have reached the model in any case.
+`Anthropic::Client.image_block` had been written for exactly this and never
+called. The AI had never seen the website.
+
+It does now, at 390px and 1280px, for about 2,460 tokens a look. Asked to
+describe the home page it reported the gold vestments in the hero, the
+green-robed icon, the script lettering, the two-column photo grid, and that the
+upcoming box sits on the right at desktop width and moves below on a phone. None
+of that is in the findings list.
+
+Worth separating two explanations that were both available for the footer
+mistake. One is "the model is not clever enough." The other is "it was working
+blind, on a twelve-step budget, with tools that made appending cheap and
+restructuring expensive." The second was true, and fixing it was a day's work.
+Reach for that one first.
+
 ### Image processing, and why "no subprocess" was the wrong rule
 
 An earlier draft said the AI could reach no program at all. That was the easy

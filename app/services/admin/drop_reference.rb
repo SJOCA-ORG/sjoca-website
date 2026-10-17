@@ -9,7 +9,7 @@ module Admin
     # Each entry: the drop, how a template reaches it, and what it is for.
     ROOTS = {
       "page"       => [PageDrop, "the page being rendered"],
-      "site"       => [SiteDrop, "the parish, and the live data feeds"],
+      "site"       => [SiteDrop, "the parish, and its outside data"],
       "nav"        => [NavDrop, "each top-level navigation entry (an array)"],
       "section"    => [SectionDrop, "a horizontal band (inside the page template)"],
       "block"      => [BlockDrop, "one piece of content (inside the section template)"],
@@ -28,7 +28,13 @@ module Admin
     # and hands it to the page as JSON. What counts as notable is then a line of
     # JavaScript that can be read, changed and argued with.
     NESTED = {
-      "site.data" => [DataDrop, "outside data, by the name it was given — see add_data_source"],
+      # Its properties ARE the data source names, which live in the database, so
+      # reflection has nothing to list here. Hence saying so in words.
+      "site.data" => [DataDrop,
+                      "outside data. It has no fixed properties: each one is the name of a " \
+                      "data source, so site.data.calendar exists if a source called " \
+                      "\"calendar\" does. list_data_sources says which exist; add_data_source " \
+                      "makes a new one. For a name with a hyphen use site.data[\"daily-readings\"]."],
       "site.data.<name>" => [DataDrop::SourceDrop,
                              "one source. json_tag writes it into the page as " \
                              "<script type=\"application/json\" id=\"data-<name>\">, which the " \
@@ -47,8 +53,13 @@ module Admin
       }
     end
 
+    # liquid_method_missing is how a drop resolves a name it does not have a
+    # method for -- site.data.<whatever-it-was-called>. It is machinery, not a
+    # property, and listing it told the AI to write {{ site.data.liquid_method_missing }}.
+    PLUMBING = %i[initialize liquid_method_missing available].freeze
+
     def self.properties(klass)
-      (klass.public_instance_methods(false) - [:initialize])
+      (klass.public_instance_methods(false) - PLUMBING)
         .reject { |m| m.to_s.end_with?("?") }   # Liquid cannot call these
         .map(&:to_s).sort
     end
