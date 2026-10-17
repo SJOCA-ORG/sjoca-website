@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_17_162205) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_17_190923) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -177,7 +177,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_162205) do
     t.integer "version", null: false
     t.index ["human_name", "created_at"], name: "index_photos_on_human_name_and_created_at"
     t.index ["human_name", "sha256"], name: "index_photos_on_human_name_and_sha256", unique: true
-    t.index ["human_name", "version"], name: "index_photos_on_human_name_and_version"
+    t.index ["human_name", "version"], name: "index_photos_on_human_name_and_version", unique: true
   end
 
   create_table "promises", force: :cascade do |t|

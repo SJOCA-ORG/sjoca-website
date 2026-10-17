@@ -261,8 +261,15 @@ module Admin
              %w[subject lesson]),
 
         # --- photographs ------------------------------------------------------
-        tool("describe_photo", "A photograph's dimensions, format and size.",
-             { name: str("Photo name") }, %w[name]),
+        tool("describe_photo",
+             "LOOK AT a photograph: it is sent to you as a picture, along with its " \
+             "dimensions, its alt text and which versions of that name exist. Use this " \
+             "whenever the choice of photograph matters — the alt text was written by " \
+             "someone else and may be wrong, and several versions of one name can be " \
+             "quite different pictures.",
+             { name: str("Photo name"),
+               version: int("Which version to look at. Omit for the newest.") },
+             %w[name]),
         tool("crop_photo", "Crop a photograph. Saves the result as a NEW photograph; the original is untouched.",
              { name: str("Photo to crop"), x: int("Left edge"), y: int("Top edge"),
                width: int("Width in px"), height: int("Height in px"),
@@ -619,6 +626,11 @@ module Admin
     # Text is not legible at this size and does not need to be. The question put
     # to these pictures is where things sit on the page.
     SHOT_FIT = "1568x1568>"
+
+    # Photographs are looked at to CHOOSE between them, which does not need a
+    # full-size image. 800px is enough to tell an ordination from the altar and
+    # costs about a third as many tokens.
+    PHOTO_FIT = "800x800>"
 
     def self.screenshot_blocks(screenshots)
       Array(screenshots).filter_map do |shot|
@@ -1055,7 +1067,29 @@ module Admin
 
     def images = @images ||= ImageTools.new(revision)
 
-    def describe_photo(name:, **)      = images.describe(name: name)
+    # Shows the model the PHOTOGRAPH, not just its dimensions. It had no way to
+    # see one: it searched alt text written by someone else, which for three
+    # images of Deacon Mitch was the same sentence describing only the first of
+    # them. Asked for a particular picture it could not look, so it guessed.
+    #
+    # Same mechanism as the browser check -- the editor turns these paths into
+    # image blocks. A photograph is sent at most once per call.
+    def describe_photo(name:, version: nil, **)
+      photo = version.present? ? Photo.find_version(name, version) : Photo.newest(name)
+      raise ToolError, "there is no photograph called #{name.inspect}" if photo.nil?
+
+      facts = images.describe(name: name)
+      path = Rails.root.join("tmp/photos", "#{photo.human_name}-v#{photo.version}.png")
+      FileUtils.mkdir_p(path.dirname)
+      File.binwrite(path, ImageTools.fit_bytes(photo.data, PHOTO_FIT))
+
+      facts.merge(
+        name: photo.human_name, version: photo.version,
+        versions: Photo.versions_of(photo.human_name).pluck(:version),
+        alt_text: photo.alt_text,
+        screenshots: [{ "width" => "#{photo.human_name} v#{photo.version}", "path" => path.to_s }]
+      )
+    end
     def crop_photo(**a)                = images.crop(**a.slice(:name, :x, :y, :width, :height, :as))
     def resize_photo(**a)              = images.resize(**a.slice(:name, :width, :height, :as).compact)
     def rotate_photo(**a)              = images.rotate(**a.slice(:name, :degrees, :as))
