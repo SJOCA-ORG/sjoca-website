@@ -19,6 +19,27 @@ module Admin
 
     attr_reader :revision, :edited, :sampled
 
+    # What the changed pages ACTUALLY contain, in order, as data.
+    #
+    # It checked its work by looking at a screenshot and reported that a new
+    # paragraph sat between two photographs. It did not: the paragraph and the
+    # icon were both at position 1, and it rendered after the icon. A picture at
+    # phone width cannot settle "is this between those two things", and a
+    # picture is the medium in which you see what you expected to see.
+    #
+    # An ordered list cannot be misread that way.
+    def structure_of(slug)
+      page = pages.find_by(slug: slug) or return nil
+
+      lines = page.sections.order(:position, :id).map do |s|
+        rows = s.blocks.order(:column, :position, :id).map do |b|
+          "      col#{b.column}.#{b.position}  #{b.kind.ljust(9)} #{describe_block(b)}"
+        end
+        ["  band #{s.id} (#{s.style})", *rows].join("\n")
+      end
+      "/#{slug}\n#{lines.join("\n")}"
+    end
+
     # Everything worth re-checking: what was edited, plus the sample taken when
     # a global change could have broken pages nobody edited.
     def touched = @edited + @sampled
@@ -36,9 +57,17 @@ module Admin
                css_class: str("A style name for THIS block alone, e.g. \"lead\" — then write a " \
                               "CSS rule for it. Use this rather than inventing a block kind for a one-off.") },
              %w[id]),
-        tool("add_block", "Add a block to a section.",
+        tool("add_block",
+             "Add a block to a section. To place it somewhere particular, say WHICH BLOCK " \
+             "it goes after or before rather than working out a position number — " \
+             "everything below shifts to make room. A raw position number lands on top of " \
+             "whatever is already there.",
              { section_id: int("Section id"),
-               kind: str("heading, subheading, text, image, button, list, quote, embed, calendar, upcoming, classes or lectionary"),
+               after_block: int("Put it immediately after this block (get_page shows ids)"),
+               before_block: int("Put it immediately before this block"),
+               kind: str("heading, subheading, text, image, button, list or quote — and any " \
+                         "other kind this revision has a block/<kind> template for. " \
+                         "list_templates shows them."),
                content: str("Text, or one item per line for a list"),
                asset_name: str("Photo name, for image blocks"),
                asset_version: int("Which version of that photo. Required with asset_name — " \
@@ -48,8 +77,13 @@ module Admin
                align: str("left, center or right"),
                css_class: str("A style name for this block alone") },
              %w[section_id kind]),
-        tool("move_block", "Move a block to a different column or position, or to another section.",
+        tool("move_block",
+             "Move a block. Say which block it should sit after or before; everything below " \
+             "shifts to make room. Position numbers are a last resort — two blocks on one " \
+             "number leaves the order between them undefined.",
              { id: int("Block id"), section_id: int("Target section, if moving between sections"),
+               after_block: int("Put it immediately after this block"),
+               before_block: int("Put it immediately before this block"),
                column: int("Column index"), position: int("Order within the column") }, %w[id]),
         tool("delete_block", "Remove a block.", { id: int("Block id") }, %w[id]),
         tool("add_section", "Add a horizontal band to a page.",
@@ -419,19 +453,78 @@ module Admin
       ok "updated #{b.kind} block #{b.id}", block: id
     end
 
-    def add_block(section_id:, kind:, **attrs)
+    # "Between the church photograph and the icon" is the way the request is
+    # actually made, and a raw position number cannot express it. Asked for
+    # exactly that, it inserted at position 1 -- where the icon already sat --
+    # and did not move the icon. Two blocks at one position, the text rendered
+    # AFTER the icon rather than between, and nothing failed.
+    #
+    # So: say where, by naming the block to sit after or before. Everything from
+    # there down shifts to make room, which is what "insert" has always meant.
+    def add_block(section_id:, kind:, after_block: nil, before_block: nil, **attrs)
       s = find_section(section_id)
-      position = attrs[:position] || (s.blocks.where(column: attrs[:column] || 0).maximum(:position).to_i + 1)
-      b = s.blocks.create!(revision: revision, kind: kind, position: position,
-                           column: attrs[:column] || 0,
+      column, position = placement(s, attrs, after_block, before_block)
+      make_room(s, column, position)
+
+      b = s.blocks.create!(revision: revision, kind: kind, position: position, column: column,
                            **attrs.slice(:content, :asset_name, :asset_version, :url,
                                          :align, :width, :css_class).compact)
-      ok "added a #{kind} block to section #{s.id}", block: b.id
+      ok "added a #{kind} block to section #{s.id}#{" (#{neighbours(b)})" if after_block || before_block}",
+         block: b.id
     end
 
-    def move_block(id:, **attrs)
+    # Where a new block goes: beside a named one, at an explicit number, or at
+    # the end of its column.
+    def placement(section, attrs, after_block, before_block)
+      if after_block.present? || before_block.present?
+        anchor = section.blocks.find_by(id: after_block.presence || before_block) ||
+                 raise(ToolError, "block #{after_block.presence || before_block} is not in section #{section.id}. " \
+                                  "get_page shows which blocks are where.")
+        return [anchor.column, after_block.present? ? anchor.position + 1 : anchor.position]
+      end
+
+      column = attrs[:column] || 0
+      # An empty column starts at 0, not 1. Everything seeded from the original
+      # site is 0-based, and starting new columns at 1 made two conventions in
+      # one table for no reason.
+      highest = section.blocks.where(column: column).maximum(:position)
+      [column, attrs[:position] || (highest.nil? ? 0 : highest + 1)]
+    end
+
+    # Shift everything at or below this position down, so inserting never lands
+    # two blocks on the same number.
+    def make_room(section, column, position)
+      section.blocks.where(column: column).where(position: position..)
+             .order(position: :desc).each { |b| b.update_columns(position: b.position + 1) }
+    end
+
+    def neighbours(block)
+      siblings = block.section.blocks.where(column: block.column).order(:position, :id).to_a
+      i = siblings.index(block)
+      above = siblings[i - 1] if i.positive?
+      below = siblings[i + 1]
+      ["after #{describe_block(above)}" , ("before #{describe_block(below)}" if below)].compact.join(", ")
+    end
+
+    def describe_block(b)
+      return "the top of the column" if b.nil?
+
+      b.asset_name.presence || b.content.to_s.gsub(/<[^>]*>/, " ").squish.truncate(40).presence || b.kind
+    end
+
+    def move_block(id:, after_block: nil, before_block: nil, **attrs)
       b = find_block(id)
       b.section = find_section(attrs[:section_id]) if attrs[:section_id]
+
+      if after_block.present? || before_block.present?
+        column, position = placement(b.section, attrs, after_block, before_block)
+        # Out of the way first, or it shifts itself.
+        b.update_columns(position: -1)
+        make_room(b.section, column, position)
+        b.update!(column: column, position: position)
+        return ok("moved block #{b.id} (#{neighbours(b.reload)})", block: b.id)
+      end
+
       b.update!(attrs.slice(:column, :position).compact)
       ok "moved block #{b.id}", block: b.id
     end

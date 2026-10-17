@@ -52,6 +52,24 @@ module Admin
       page in a real browser at phone and desktop width and SENDS YOU THE
       SCREENSHOTS, so you can see the result rather than infer it.
 
+      CHECK YOUR WORK TWO WAYS, and do not confuse them.
+
+      A picture tells you whether something LOOKS right. It will not tell you
+      whether it IS right, and it invites you to see what you expected: asked to
+      put a paragraph between two photographs, this loop once added it, looked at
+      the screenshot, and reported it sat between them. It did not — it shared a
+      position number with one of the photographs and rendered after both.
+
+      So check the facts as well as the picture. get_page gives you the real
+      order: column and position for every block. If something was asked to go
+      BETWEEN two things, it must be numbered between them in the same column.
+      Two things on one number means the order between them is undefined, and
+      the layout is wrong however it happens to look.
+
+      When placing a block, say which block it goes after or before rather than
+      working out a number — add_block and move_block take after_block and
+      before_block, and shift everything else to make room.
+
       Look at those pictures and judge them as a person would. The findings list
       only reports what is measurably broken; it cannot tell you that something
       is in the wrong place, badly spaced, or stranded at the bottom of a page
@@ -233,11 +251,25 @@ module Admin
             looked_once = true
             blocks = Tools.screenshot_blocks(shot[:screenshots])
             if blocks.any?
+              # The picture AND the structure. Checking by eye alone, it
+              # reported that a new paragraph sat between two photographs when
+              # the paragraph and one photograph shared a position and it
+              # actually rendered after both. A screenshot invites you to
+              # confirm what you expected; an ordered list does not.
+              layout = @tools.structure_of(shot[:slug])
+
               conversation << { role: "user", content: [{ type: "text", text:
-                "Before you reply: here is the page you changed, as it now looks at phone " \
-                "and desktop width. Look at it as the person asking would. Is anything in " \
-                "the wrong place, badly spaced, or stranded where it does not belong? Fix " \
-                "it if so. If it looks right, say what you changed and stop." }] + blocks }
+                "Before you reply, check your work TWO ways.\n\n" \
+                "First, the order of what is actually on the page — this is the fact, not " \
+                "an impression:\n\n#{layout}\n\n" \
+                "Read that against what was asked for. If something was meant to go between " \
+                "two things, it must be numbered between them in the same column. If two " \
+                "entries share a number, the order between them is undefined and the layout " \
+                "is wrong however it happens to look.\n\n" \
+                "Second, the page as it now looks at phone and desktop width. Judge it as " \
+                "the person asking would: anything in the wrong place, badly spaced, or " \
+                "stranded where it does not belong?\n\n" \
+                "Fix what is wrong. If both check out, say what you changed and stop." }] + blocks }
               next
             end
           end
