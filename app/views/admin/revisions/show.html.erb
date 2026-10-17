@@ -175,8 +175,34 @@
   })();
 </script>
 
-<%= form_with url: admin_revision_messages_path(@revision), method: :post do |f| %>
-  <%= f.text_area :content, rows: 3, autofocus: true,
-        placeholder: "What would you like to change?" %>
-  <p style="margin:.6rem 0 0"><%= f.submit "Send", class: "btn" %></p>
+<%# Only a draft can be edited. Without this the box accepted a request on a
+    published or discarded revision, enqueued it, and failed a minute later
+    with "revision 47 is not a draft" -- which reads like a system fault
+    rather than "you are on the wrong page". %>
+<% if @revision.editable? %>
+  <%= form_with url: admin_revision_messages_path(@revision), method: :post do |f| %>
+    <%= f.text_area :content, rows: 3, autofocus: true,
+          placeholder: "What would you like to change?" %>
+    <p style="margin:.6rem 0 0"><%= f.submit "Send", class: "btn" %></p>
+  <% end %>
+<% else %>
+  <div class="card" style="border-color:#8B1A1A">
+    <strong>
+      <%= @revision.live? ? "This is the live site." : "This draft is closed." %>
+    </strong>
+    <p style="margin:.5rem 0 0" class="muted">
+      <%= if @revision.live?
+            "Published revisions are not edited directly — changes are made in a draft and published."
+          elsif @revision.state == "discarded"
+            "It was discarded, so it can be read but not changed."
+          else
+            "It has been superseded by a later revision."
+          end %>
+      Everything said here is kept.
+    </p>
+    <p style="margin:.8rem 0 0">
+      <%= button_to "Start a new draft from the live site", admin_revisions_path,
+            method: :post, class: "btn", form: { style: "display:inline" } %>
+    </p>
+  </div>
 <% end %>

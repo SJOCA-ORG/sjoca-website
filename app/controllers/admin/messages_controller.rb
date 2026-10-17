@@ -8,6 +8,12 @@ module Admin
                            alert: "No Anthropic API key is configured."
       end
 
+      unless revision.editable?
+        return redirect_to admin_revision_path(revision),
+                           alert: "That draft is closed, so it cannot be changed. " \
+                                  "Start a new draft to make changes."
+      end
+
       text = params[:content].to_s.strip
       return redirect_to admin_revision_path(revision) if text.blank?
 
