@@ -42,8 +42,15 @@ module Admin
       rather than guessing at them; view_page shows what actually rendered;
       check_page reads the markup for breakage. After changing a template or
       anything about how the site looks, call check_appearance — it opens the
-      page in a real browser at phone and desktop width, which is the only way
-      to see that something runs off the side or overlaps.
+      page in a real browser at phone and desktop width and SENDS YOU THE
+      SCREENSHOTS, so you can see the result rather than infer it.
+
+      Look at those pictures and judge them as a person would. The findings list
+      only reports what is measurably broken; it cannot tell you that something
+      is in the wrong place, badly spaced, or stranded at the bottom of a page
+      when it belongs beside the text. That judgement is yours, and it is the
+      main reason to call this tool. If a layout looks wrong to you, fix it and
+      look again.
 
       Your changed pages are rendered and checked automatically before your reply
       is shown, so a mistake will come back to you. Checking yourself first is
@@ -188,7 +195,14 @@ module Admin
             end
           end
 
-          { type: "tool_result", tool_use_id: use["id"], content: outcome.to_json }
+          # A tool result is normally JSON text. check_appearance also hands back
+          # screenshot paths, and those become real images here -- the only way
+          # the model can judge where something sits on a page rather than
+          # trusting a list of measurements.
+          shots = outcome.is_a?(Hash) ? Tools.screenshot_blocks(outcome[:screenshots]) : []
+          content = [{ type: "text", text: outcome.to_json }] + shots
+
+          { type: "tool_result", tool_use_id: use["id"], content: content }
         end
         conversation << { role: "user", content: results }
       end

@@ -32,6 +32,25 @@ module Admin
 
     def initialize(revision) = @revision = revision
 
+    # Scale a file on disk down to fit a geometry, returning PNG bytes. Used for
+    # the browser-check screenshots, which are not photos and never become rows,
+    # so this is the one operation that takes a path instead of a photo name. It
+    # goes through the same hardened policy as everything else here.
+    def self.fit(path, geometry)
+      env = { "MAGICK_CONFIGURE_PATH" => Rails.root.join("config/imagemagick").to_s }
+      out, err, status = nil
+      Timeout.timeout(TIMEOUT) do
+        out, err, status = Open3.capture3(env, BINARIES[:magick],
+                                          path, "-resize", geometry, "-strip", "png:-",
+                                          binmode: true)
+      end
+      raise ToolError, "magick failed: #{err.to_s.lines.first&.strip}" unless status&.success?
+
+      out
+    rescue Timeout::Error
+      raise ToolError, "magick took longer than #{TIMEOUT} seconds and was stopped"
+    end
+
     # ---- operations --------------------------------------------------------
 
     def describe(name:)

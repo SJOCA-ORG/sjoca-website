@@ -481,15 +481,24 @@ module Admin
     # The markup checks cannot see layout. This opens the draft in a real
     # browser -- the same code, and the same CDP protocol, that runs in a
     # container; only the path to the binary differs.
+    # The findings below are measurements -- sideways scroll, unreachable menu
+    # items, overlap. They cannot say "that box belongs in the right-hand column
+    # rather than at the bottom of the page", because nothing is broken by any
+    # measure; it simply looks wrong. So this also returns the screenshots, and
+    # the editor attaches them to the reply as images. Judging a layout from a
+    # list of findings is what put the upcoming-events box in the footer.
     def check_appearance(slug:, click: nil, **)
       page = find_page(slug)
       base = ENV.fetch("SITE_URL", "http://localhost:3000")
       token = revision.preview_token
       url = "#{base}/#{page.slug == 'home' ? '' : page.slug}?preview=#{token}"
 
-      args = ["node", Rails.root.join("script/visual_check.mjs").to_s, url]
+      # A directory of its own per call: the script names shots by width, so two
+      # checks sharing a directory would overwrite each other's pictures.
+      shot_dir = Rails.root.join("tmp/shots", SecureRandom.hex(4)).to_s
+      args = ["node", Rails.root.join("script/visual_check.mjs").to_s, url, "--shots"]
       args << "--click=#{click}" if click.present?
-      out, err, status = Open3.capture3(*args)
+      out, err, status = Open3.capture3({ "SHOT_DIR" => shot_dir }, *args)
       return { slug: slug, error: "could not run the browser check: #{err.lines.first}" } unless status.success?
 
       data = JSON.parse(out) rescue nil
@@ -502,7 +511,40 @@ module Admin
       { slug: slug,
         ok: findings.none? { |f| f["severity"] == "broken" },
         findings: findings,
-        checked: data["widths"].keys }
+        checked: data["widths"].keys,
+        # Paths, not bytes. The editor reads them and builds the image blocks, so
+        # nothing here is large enough to bloat the message log it is recorded in.
+        screenshots: data["widths"].filter_map { |w, v| { "width" => w, "path" => v["screenshot"] } if v["screenshot"] } }
+    end
+
+    # Screenshots are tall -- a whole page, not a viewport -- and the API
+    # downscales anything over 1568px on its long edge anyway. So fit them to
+    # exactly that box: one predictable resize instead of ours followed by
+    # theirs, and no wasted tokens on detail that gets thrown away.
+    #
+    # The first attempt here used a 900x2400 box, which was wrong in a way worth
+    # recording: for a tall page the HEIGHT binds, so the phone shot came out
+    # NARROWER than the 390px it was taken at. Constrain the square, not a
+    # shape, or a long page collapses into an unreadable sliver.
+    #
+    # Text is not legible at this size and does not need to be. The question put
+    # to these pictures is where things sit on the page.
+    SHOT_FIT = "1568x1568>"
+
+    def self.screenshot_blocks(screenshots)
+      Array(screenshots).filter_map do |shot|
+        path = shot["path"] || shot[:path]
+        next unless path && File.exist?(path)
+
+        bytes = ImageTools.fit(path, SHOT_FIT)
+        next if bytes.blank?
+
+        [{ type: "text", text: "Screenshot of the page at #{shot['width'] || shot[:width]} width:" },
+         Anthropic::Client.image_block(bytes, "image/png")]
+      rescue StandardError => e
+        Rails.logger.warn("could not prepare screenshot #{path}: #{e.message}")
+        nil
+      end.flatten
     end
 
     def render_page(page)
