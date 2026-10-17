@@ -13,10 +13,15 @@ module Admin
       raise ToolError, "revision #{revision.id} is not a draft" unless revision.editable?
 
       @revision = revision
-      @touched  = Set.new
+      @edited   = Set.new   # where a change actually landed
+      @sampled  = Set.new   # checked because a global change could have broken them
     end
 
-    attr_reader :revision, :touched
+    attr_reader :revision, :edited, :sampled
+
+    # Everything worth re-checking: what was edited, plus the sample taken when
+    # a global change could have broken pages nobody edited.
+    def touched = @edited + @sampled
 
     # ---- schema handed to the model ---------------------------------------
 
@@ -331,25 +336,46 @@ module Admin
     # Note the page every change lands on, so the loop knows what to re-check.
     def find_block(id)
       b = blocks.find_by(id: id) || raise(ToolError, "no block #{id} in this revision")
-      @touched << b.section.page.slug
+      @edited << b.section.page.slug
       b
     end
 
     def find_section(id)
       s = sections.find_by(id: id) || raise(ToolError, "no section #{id} in this revision")
-      @touched << s.page.slug
+      @edited << s.page.slug
       s
     end
 
     def find_page(slug)
       p = pages.find_by(slug: slug) || raise(ToolError, "no page #{slug.inspect}")
-      @touched << p.slug
+      @edited << p.slug
       p
     end
 
-    # A template or stylesheet change affects everything, so everything is
-    # suspect -- but checking 13 pages every turn is wasteful. Check a sample.
-    def touched_everything! = @touched.merge(pages.order(:position).limit(3).pluck(:slug))
+    # Two different questions, which were being answered by one set.
+    #
+    # EDITED is where a change actually landed. That is what to show the person
+    # ("see /home"), and what to photograph before replying.
+    #
+    # SAMPLED is the rest: a stylesheet or template change affects every page,
+    # so a few are checked for breakage. Those are not pages anybody edited and
+    # offering them as links is baffling -- a change to the home page was
+    # reported with a link to /events-services/weekly-bulletin.
+    #
+    # The sample was also wrong. order(:position).limit(3) returned
+    # about-us/our-story, events-services/weekly-bulletin, home -- because
+    # child pages share position numbers with their parents and sort first. So
+    # the automatic screenshot was of a page nobody had touched.
+    def touched_everything!
+      @sampled.merge(sample_pages)
+    end
+
+    # The home page, then top-level pages: the ones most likely to show a
+    # stylesheet mistake, and the ones a person recognises.
+    def sample_pages
+      top = pages.where(parent_slug: nil).order(:position).pluck(:slug)
+      (["home"] & pages.pluck(:slug)) + (top - ["home"]).first(2)
+    end
 
     def list_pages(**)
       { pages: pages.order(:position).map { |p|

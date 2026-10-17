@@ -175,11 +175,9 @@
 
 <section class="pane-right">
   <div class="preview-bar">
-    <select id="preview-page" aria-label="Page to preview">
-      <% @revision.pages.order(:position, :slug).each do |pg| %>
-        <option value="<%= pg.slug %>"><%= pg.nav_title.presence || pg.title %></option>
-      <% end %>
-    </select>
+    <%# No page selector: you navigate by clicking the site, as a visitor would.
+        This just says where you are. %>
+    <span id="preview-where" class="muted" style="font-variant-numeric:tabular-nums">/</span>
 
     <div class="seg" role="group" aria-label="Preview width">
       <button type="button" id="w-wide" aria-pressed="true">Desktop</button>
@@ -191,7 +189,10 @@
     <a class="muted" id="preview-open" href="#" target="_blank" rel="noopener">open in a tab ↗</a>
   </div>
 
-  <div class="stage" id="stage">
+  <% last = @messages.reverse.find { |m| m.role == "assistant" && m.touched.present? } %>
+  <div class="stage" id="stage"
+       data-latest-id="<%= last&.id %>"
+       data-latest-slug="<%= Array(last&.touched).first %>">
     <iframe id="preview" title="The draft as it looks now"></iframe>
   </div>
 </section>
@@ -206,8 +207,8 @@
 
     var TOKEN = <%= @revision.preview_token.to_json.html_safe %>;
     var KEY = "sjoca.preview.<%= @revision.id %>";
-    var select = document.getElementById("preview-page");
     var stage = document.getElementById("stage");
+    var where = document.getElementById("preview-where");
     var open = document.getElementById("preview-open");
     var wide = document.getElementById("w-wide");
     var phone = document.getElementById("w-phone");
@@ -215,66 +216,67 @@
     function remembered() {
       try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
     }
-    function remember(state) {
+    function remember(extra) {
+      var state = remembered();
+      for (var k in extra) state[k] = extra[k];
       try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private window */ }
+      return state;
     }
 
     var state = remembered();
-    if (state.slug) select.value = state.slug;
-    if (!select.value) select.selectedIndex = 0;
+    var slug = state.slug || "home";
 
-    function path() {
-      var slug = select.value;
-      return "/" + (slug === "home" ? "" : slug);
+    // A finished turn reloads this page. If the reply changed a page, go and
+    // look at THAT page -- that is the one worth seeing, and hunting for it was
+    // the job the page selector used to do badly.
+    //
+    // Only once per reply: after the jump you are free to click elsewhere and
+    // stay there, because the reply's id is remembered as already followed.
+    var latestId = stage.dataset.latestId;
+    var latestSlug = stage.dataset.latestSlug;
+    if (latestSlug && latestId && latestId !== state.followed) {
+      slug = latestSlug;
+      remember({ followed: latestId, slug: slug });
     }
-    // bare=1 drops the "you are looking at a draft" banner: this pane says so
-    // already, and at phone width the banner is a sixth of the screen.
-    function url() { return path() + "?preview=" + encodeURIComponent(TOKEN) + "&bare=1"; }
-    function tabUrl() { return path() + "?preview=" + encodeURIComponent(TOKEN); }
 
-    function show() {
-      frame.src = url();
-      open.href = tabUrl();   // a real tab keeps the banner
-      remember({ slug: select.value, phone: stage.classList.contains("phone") });
+    function pathFor(s) { return "/" + (s === "home" ? "" : s); }
+    function url(s) { return pathFor(s) + "?preview=" + encodeURIComponent(TOKEN) + "&bare=1"; }
+    function tabUrl(s) { return pathFor(s) + "?preview=" + encodeURIComponent(TOKEN); }
+
+    function show(s) {
+      slug = s;
+      frame.src = url(slug);
+      open.href = tabUrl(slug);
+      where.textContent = pathFor(slug);
+      remember({ slug: slug });
     }
 
     function setWidth(isPhone) {
       stage.classList.toggle("phone", isPhone);
       phone.setAttribute("aria-pressed", String(isPhone));
       wide.setAttribute("aria-pressed", String(!isPhone));
-      remember({ slug: select.value, phone: isPhone });
+      remember({ phone: isPhone });
     }
 
     setWidth(!!state.phone);
-    show();
+    show(slug);
 
-    // Clicking about inside the pane changes the page; the selector should say
-    // where you actually are, and coming back later should return you there.
+    // Clicking about inside the pane changes the page; say where you are, and
+    // come back here next time.
     frame.addEventListener("load", function () {
       var here;
       try { here = frame.contentWindow.location.pathname; } catch (e) { return; }
 
-      var slug = here === "/" ? "home" : here.replace(/^\/|\/$/g, "");
-      if (![].some.call(select.options, function (o) { return o.value === slug; })) return;
-      if (select.value === slug) return;
-
-      select.value = slug;
-      open.href = tabUrl();
-      remember({ slug: slug, phone: stage.classList.contains("phone") });
+      var at = here === "/" ? "home" : here.replace(/^\/|\/$/g, "");
+      slug = at;
+      where.textContent = here;
+      open.href = tabUrl(at);
+      remember({ slug: at });
     });
 
-    select.addEventListener("change", show);
     wide.addEventListener("click", function () { setWidth(false); });
     phone.addEventListener("click", function () { setWidth(true); });
-    document.getElementById("preview-reload").addEventListener("click", show);
-
-    // Follow the conversation: when a reply says which pages it touched, show
-    // the first of them rather than making you hunt for it in the dropdown.
-    window.showTouched = function (slug) {
-      if (!slug) return;
-      select.value = slug;
-      show();
-    };
+    document.getElementById("preview-reload").addEventListener("click", function () { show(slug); });
   })();
 
   // Keep the newest message in view. The conversation scrolls inside its pane

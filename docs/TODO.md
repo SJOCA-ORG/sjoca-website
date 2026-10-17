@@ -274,9 +274,11 @@ Noted by Mitch during the replay test, 17 October 2026. Not urgent.
       already says so, and at phone width the banner was a sixth of the screen
       you are trying to judge.
 
-- [ ] **The preview pane does not follow the conversation yet.** When a reply
-      says which pages it touched, the pane should offer to show the first of
-      them. `window.showTouched(slug)` exists and nothing calls it.
+- [x] **The preview pane follows the conversation.** When a reply says which
+      page it changed, the pane goes there -- once. The reply's id is
+      remembered as followed, so you can click elsewhere afterwards and stay
+      there. The page selector is gone: you navigate by clicking the site, as a
+      visitor would, and the bar just says where you are.
 
 ## Known gaps
 

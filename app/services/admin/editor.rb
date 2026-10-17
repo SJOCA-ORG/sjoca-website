@@ -202,7 +202,10 @@ module Admin
           end
           @working.update!(state: "done", content: text.presence || "(no reply)",
                            tool_calls: performed, usage: spent,
-                           touched: @tools.touched.to_a)
+                           # The pages a person would want to look at: the ones
+                           # that were changed, not every page a stylesheet
+                           # edit could in principle have affected.
+                           touched: (@tools.edited.presence || @tools.sampled).to_a)
           return Result.new(reply: text, tool_calls: performed, problems: problems)
         end
 
@@ -319,9 +322,11 @@ module Admin
       return [] if (names & LOOKS_CHANGED).empty?
       return [] if @tools.touched.empty?
 
-      # One page. Two widths is already two screenshots, and the point is to
-      # make it LOOK, not to narrate the whole site back to it.
-      slug = @tools.touched.to_a.first
+      # One page, and it must be a page the change LANDED on. Taking
+      # touched.first photographed whichever page the global sample happened to
+      # list first, so a change to the home page was checked by looking at
+      # /about-us/our-story.
+      slug = (@tools.edited.presence || @tools.sampled).to_a.first
       @tools.call("check_appearance", { "slug" => slug })
     rescue StandardError => e
       Rails.logger.warn("automatic appearance check failed: #{e.message}")
