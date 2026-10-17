@@ -23,9 +23,14 @@ module Admin
         working: working.present?,
         since: working&.created_at&.to_i,
         steps: Array(working&.progress).map { |t|
-          { text: t["summary"].presence || t["name"],
-            kind: t["failed"] ? "failed" : (t["read"] ? "read" : "change") }
-        }
+          if t["say"]
+            { text: t["say"], kind: "say" }
+          else
+            { text: t["summary"].presence || t["name"],
+              kind: t["failed"] ? "failed" : (t["read"] ? "read" : "change") }
+          end
+        },
+        usage: working&.usage
       }
     end
 

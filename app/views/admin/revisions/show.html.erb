@@ -56,7 +56,8 @@
       <%# Still thinking. Shows each step as it happens, so it is visibly alive. %>
       <div class="msg assistant" id="working" data-since="<%= m.created_at.to_i %>">
         <em class="muted">Working<span class="dots">…</span>
-          <span id="working-clock" style="font-variant-numeric:tabular-nums">0s</span></em>
+          <span id="working-clock" style="font-variant-numeric:tabular-nums">0s</span>
+          <span id="working-cost" class="muted" style="font-size:.85rem"></span></em>
         <span class="tools" id="working-steps">
           <% Array(m.progress).each do |t| %>
             <span style="<%= "color:#8B1A1A" if t["failed"] %>">
@@ -69,11 +70,21 @@
       <div class="msg <%= m.role %>">
         <%= m.content %>
         <% if m.tool_calls.present? %>
-          <span class="tools">
-            <% Array(m.tool_calls).reject { |t| t["read"] }.each do |t| %>
-              <span style="<%= "color:#8B1A1A" if t["failed"] %>"><%= t["summary"].presence || t["name"] %></span><br>
+          <details class="tools">
+            <summary style="cursor:pointer;color:#666">
+              what it did<% if m.usage.present? %>
+                — <%= m.usage["calls"] %> calls,
+                <%= number_with_delimiter(m.usage["input"].to_i + m.usage["output"].to_i) %> tokens
+              <% end %>
+            </summary>
+            <% Array(m.tool_calls).each do |t| %>
+              <% if t["say"] %>
+                <span style="color:#444;font-style:italic"><%= t["say"] %></span><br>
+              <% elsif !t["read"] %>
+                <span style="<%= "color:#8B1A1A" if t["failed"] %>">→ <%= t["summary"].presence || t["name"] %></span><br>
+              <% end %>
             <% end %>
-          </span>
+          </details>
         <% end %>
       </div>
     <% end %>
@@ -93,6 +104,7 @@
     var started = Number(box.dataset.since) * 1000 || Date.now();
     var steps = document.getElementById("working-steps");
     var clock = document.getElementById("working-clock");
+    var cost = document.getElementById("working-cost");
 
     function tick() {
       var s = Math.round((Date.now() - started) / 1000);
@@ -105,10 +117,19 @@
         .then(function (d) {
           if (!d.working) { location.reload(); return; }
           steps.innerHTML = d.steps.map(function (t) {
+            if (t.kind === "say") {
+              // What it is thinking, in its own words, as it works.
+              return "<span style=\"color:#222;font-style:normal;display:block;margin:.4rem 0\">" +
+                     t.text.replace(/</g, "&lt;") + "</span>";
+            }
             var mark = t.kind === "failed" ? "✗" : (t.kind === "read" ? "·" : "→");
-            var colour = t.kind === "failed" ? "color:#8B1A1A" : "";
+            var colour = t.kind === "failed" ? "color:#8B1A1A" : "color:#666";
             return "<span style=\"" + colour + "\">" + mark + " " + t.text + "</span>";
           }).join("<br>");
+          if (d.usage && d.usage.calls) {
+            cost.textContent = "· " + d.usage.calls + " calls, " +
+              ((d.usage.input + d.usage.output) / 1000).toFixed(1) + "k tokens";
+          }
           setTimeout(poll, 1500);
         })
         .catch(function () { setTimeout(poll, 4000); });

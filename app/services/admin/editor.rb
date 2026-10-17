@@ -32,6 +32,12 @@ module Admin
       photo, list, button or widget. Widgets — calendar, upcoming, classes,
       lectionary — render live data and take no content of their own.
 
+      Say what you are doing as you go. A line before you look something up or
+      make a change — "let me see what is on that page", "that photograph is the
+      wrong one, finding a better" — appears on screen while you work, so the
+      person is not watching a blank page for a minute. Keep it to a sentence,
+      and in their language, not yours.
+
       Look before you edit, and look again after. get_page shows you real ids
       rather than guessing at them; view_page shows what actually rendered;
       check_page reads the markup for breakage. After changing a template or
@@ -92,6 +98,7 @@ module Admin
       failures      = Hash.new(0)
       verified_once   = false
       promises_raised = false
+      spent           = { input: 0, output: 0, calls: 0 }
 
       MAX_STEPS.times do
         response = @client.call(system: SYSTEM, messages: conversation,
@@ -99,9 +106,23 @@ module Admin
         content = response["content"] || []
         conversation << { role: "assistant", content: content }
 
+        # The model narrates as it works -- "let me look at the home page" --
+        # in the same response as the tool call. That was being thrown away,
+        # which is why the page showed mechanical step names and nothing of what
+        # it was thinking.
+        said = content.select { |c| c["type"] == "text" }
+                      .map { |c| c["text"].to_s.strip }.reject(&:blank?)
+        said.each { |line| performed << { "say" => line } }
+
+        usage = response["usage"] || {}
+        spent[:input]  += usage["input_tokens"].to_i
+        spent[:output] += usage["output_tokens"].to_i
+        spent[:calls]  += 1
+        @working&.update_columns(progress: performed, usage: spent)
+
         uses = content.select { |c| c["type"] == "tool_use" }
         if uses.empty?
-          text = content.select { |c| c["type"] == "text" }.map { |c| c["text"] }.join("\n").strip
+          text = said.join("\n").strip
 
           # Before telling anyone it is done, look at what it actually produced.
           # Relying on the prompt to remember this does not work -- the tools
@@ -136,7 +157,7 @@ module Admin
                    "#{broken.map { |b| b[:summary] }.join('; ')}."
           end
           @working.update!(state: "done", content: text.presence || "(no reply)",
-                           tool_calls: performed)
+                           tool_calls: performed, usage: spent)
           return Result.new(reply: text, tool_calls: performed, problems: problems)
         end
 
@@ -219,7 +240,7 @@ module Admin
                    else
                      { "name" => use["name"], "summary" => "looked at #{use['name'].tr('_', ' ')}", "read" => true }
                    end
-      @working&.update_column(:progress, performed)
+      @working&.update_columns(progress: performed)
       result
     rescue Tools::ToolError, ImageTools::ToolError => e
       # Hand the failure back to the model rather than aborting: it can usually
