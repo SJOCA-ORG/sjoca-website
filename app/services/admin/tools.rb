@@ -137,6 +137,23 @@ module Admin
              "Replace the ENTIRE stylesheet. Rarely the right tool — it is about 26KB, which " \
              "will not fit in one reply. Use add_styles or edit_styles instead.",
              { css: str("The complete stylesheet") }, %w[css]),
+        tool("add_script",
+             "Add JavaScript to the site. Runs on every page, after the document is parsed " \
+             "(the tag is deferred), so no DOMContentLoaded wrapper is needed. This is how to " \
+             "do anything the templates and stylesheet cannot: read data out of the page, " \
+             "reformat it, sort it, filter it, respond to a click.",
+             { js: str("The JavaScript to add"),
+               note: str("A short comment saying what it is for, e.g. \"format the calendar\"") },
+             %w[js]),
+        tool("edit_script",
+             "Change one part of the JavaScript by replacing an exact snippet. Read it with " \
+             "find_script first.",
+             { find: str("The exact existing text to replace"),
+               replace: str("What to put in its place") }, %w[find replace]),
+        tool("find_script",
+             "Read the site's JavaScript. With no pattern it returns the whole thing when it " \
+             "is small; with one it returns the matching lines and their surroundings.",
+             { pattern: str("Optional: a word or function name to look for") }, []),
 
         # --- templates: how things look, as opposed to what they say ---------
         tool("liquid_guide",
@@ -158,8 +175,9 @@ module Admin
         # --- scripts ----------------------------------------------------------
         tool("get_scripts", "The site's current custom JavaScript.", {}),
         tool("set_scripts",
-             "Replace the custom JavaScript, which runs on every page. Use it for behaviour " \
-             "Liquid cannot express. Returns the whole file, so send the whole file.",
+             "Replace the ENTIRE JavaScript file. Rarely the right tool: once the file is a " \
+             "few hundred lines it will not fit in one reply, and the attempt fails silently " \
+             "by being cut short. Use add_script or edit_script instead.",
              { js: str("The complete JavaScript to use") }, %w[js]),
 
         # --- what you have worked out -----------------------------------------
@@ -658,6 +676,61 @@ module Admin
       a.update!(content: css)
     end
 
+    # ---- JavaScript --------------------------------------------------------
+    #
+    # Same three-tool shape as the stylesheet, and for the same reason: sending
+    # the whole file back on every change does not fit in one reply.
+    #
+    # site.js is served by ThemeController and linked from the layout with
+    # `defer`, so it runs after the document is parsed and does not need a
+    # DOMContentLoaded wrapper.
+
+    def add_script(js:, note: nil, **)
+      current = ThemeAsset.js_for(revision)
+      heading = note.present? ? "\n\n// #{note.to_s.delete("\n")}\n" : "\n\n"
+      write_js((current.presence || SCRIPT_HEADER) + heading + js.to_s.strip + "\n")
+      touched_everything!
+      ok "added #{js.to_s.lines.count} lines of JavaScript#{note.present? ? " for #{note}" : ''}"
+    end
+
+    def edit_script(find:, replace:, **)
+      current = ThemeAsset.js_for(revision)
+      raise ToolError, "there is no JavaScript yet. Use add_script." if current.blank?
+
+      count = current.scan(find.to_s).size
+      raise ToolError, "that text is not in the script. Use find_script to see what is there." if count.zero?
+      raise ToolError, "that text appears #{count} times; include enough surrounding text to be unique." if count > 1
+
+      write_js(current.sub(find.to_s, replace.to_s))
+      touched_everything!
+      ok "changed #{find.to_s.truncate(50).inspect} in the script"
+    end
+
+    def find_script(pattern: nil, **)
+      js = ThemeAsset.js_for(revision)
+      return { matches: [], note: "there is no JavaScript on this site yet" } if js.blank?
+
+      lines = js.lines
+      return { lines: lines.size, script: js } if pattern.blank? && js.bytesize < 4000
+
+      hits = lines.each_with_index.select { |l, _| l.downcase.include?(pattern.to_s.downcase) }
+      return { matches: [], note: "nothing matching #{pattern.inspect}", lines: lines.size } if hits.empty?
+
+      { matches: hits.first(40).map { |line, i|
+          { line: i + 1, text: line.rstrip,
+            context: lines[[i - 1, 0].max..(i + 3)].join.rstrip } } }
+    end
+
+    SCRIPT_HEADER = <<~JS.freeze
+      // The site's JavaScript. A database row, not a file, so it is part of a
+      // revision: previewed before publishing and undone by republishing.
+      JS
+
+    def write_js(js)
+      a = revision.theme_assets.find_or_initialize_by(name: ThemeAsset::KINDS.fetch("js"))
+      a.update!(content: js)
+    end
+
     def set_styles(css:, **)
       a = revision.theme_assets.find_or_initialize_by(name: ThemeAsset::KINDS.fetch("css"))
       a.update!(content: css)
@@ -694,9 +767,11 @@ module Admin
     def get_scripts(**) = { js: ThemeAsset.js_for(revision) }
 
     def set_scripts(js:, **)
-      a = revision.theme_assets.find_or_initialize_by(name: ThemeAsset::KINDS.fetch("js"))
-      a.update!(content: js)
-      ok "updated the custom JavaScript (#{js.to_s.lines.count} lines)"
+      write_js(js)
+      # Was missing, so a JavaScript change marked nothing as touched and the
+      # automatic verify and promise checks skipped the page entirely.
+      touched_everything!
+      ok "replaced the custom JavaScript (#{js.to_s.lines.count} lines)"
     end
 
     def record_lesson(subject:, lesson:, **)
