@@ -239,6 +239,26 @@ Mitch's idea, 14 October 2026. **Built 17 October 2026.**
       moves and the site shows last month's services for a month. Wants a
       staleness bound, and something visible past it.
 
+## The admin chat window
+
+Noted by Mitch during the replay test, 17 October 2026. Not urgent.
+
+- [ ] **The progress box should be a fixed size and scroll inside itself.**
+      Today it grows as the turn goes on, so the page gets longer and longer
+      and the useful parts leave the screen.
+
+      It should fill the available height and stay there, with the transcript
+      scrolling within it, so that two things stay visible without the reader
+      chasing them:
+
+      - **the newest messages, pinned to the bottom** — that is where the turn
+        actually is, and it is what you want to read
+      - **the bar at the top showing that work is in progress** — scrolled off,
+        there is no sign anything is happening
+
+      A long turn is thirty steps. Watching one at the moment means scrolling
+      down to find the end and losing the "working" indicator on the way.
+
 ## Known gaps
 
 - [ ] **No browser specs, so the mobile-menu class of bug is still invisible.**
