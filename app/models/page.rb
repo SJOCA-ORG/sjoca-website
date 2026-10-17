@@ -1,6 +1,6 @@
 class Page < ApplicationRecord
   belongs_to :revision
-  has_many :sections, -> { order(:position) }, dependent: :destroy, inverse_of: :page
+  has_many :sections, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :page
 
   validates :slug, :title, :nav_title, presence: true
   # Unique *within a revision*. A slug necessarily repeats across revisions --
@@ -8,7 +8,10 @@ class Page < ApplicationRecord
   validates :slug, uniqueness: { scope: :revision_id }
 
   scope :in_revision, ->(rev) { where(revision: rev) }
-  scope :in_nav,      -> { where(show_in_nav: true).order(:position) }
+  # :id is the tiebreak, not decoration. Two pages shared position 5 and the
+  # menu order between them was undefined -- the same class of bug that had
+  # one photograph on the deployed site and another locally.
+  scope :in_nav,      -> { where(show_in_nav: true).order(:position, :id) }
   scope :top_level,   -> { where(parent_slug: nil) }
 
   def self.find_by_path!(path, revision: Current.revision)

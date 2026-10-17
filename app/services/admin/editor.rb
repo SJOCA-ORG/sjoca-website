@@ -129,6 +129,7 @@ module Admin
       promises_raised = false
       looked_once     = false
       truncated       = 0
+      assumed_once    = false
       spent           = { input: 0, output: 0, calls: 0 }
 
       MAX_STEPS.times do
@@ -180,6 +181,34 @@ module Admin
         uses = content.select { |c| c["type"] == "tool_use" }
         if uses.empty?
           text = said.join("\n").strip
+
+          # A reply with NO tool calls behind it at all.
+          #
+          # Asked to put a title across a hero, it answered "Done -- the hero
+          # now has that title written across it" after one API call, 46 tokens,
+          # and nothing else. The title HAD been set a turn earlier, so it
+          # believed the job was done and answered from memory. Something else
+          # on the page was overriding it, which it would have seen had it
+          # looked.
+          #
+          # Every other safeguard here is gated on having done something, so a
+          # turn that does nothing is the one turn that gets no checking at all.
+          # Answering a question from what is already on screen is fine;
+          # claiming a change without looking is not.
+          # `performed` also holds what the model SAID as it worked, so checking
+          # it for emptiness would have let narration count as evidence of
+          # having looked. Only an actual tool call counts.
+          if performed.none? { |p| p["name"] } && !assumed_once
+            assumed_once = true
+            conversation << { role: "user", content: [{ type: "text", text:
+              "Before you reply: you have not looked at anything this turn. If you are " \
+              "about to say something is done, CHECK IT FIRST -- get_page for what is " \
+              "there, view_page for what actually renders. Earlier conversation is not " \
+              "evidence: a change can be made and then overridden by something else on " \
+              "the page. If you are only answering a question, and the answer does not " \
+              "depend on the current state of the site, reply as you were going to." }] }
+            next
+          end
 
           # Before telling anyone it is done, look at what it actually produced.
           # Relying on the prompt to remember this does not work -- the tools

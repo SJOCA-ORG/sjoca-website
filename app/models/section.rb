@@ -13,7 +13,7 @@ class Section < ApplicationRecord
 
   belongs_to :page
   belongs_to :revision
-  has_many :blocks, -> { order(:column, :position) },
+  has_many :blocks, -> { order(:column, :position, :id) },
            dependent: :destroy, inverse_of: :section
 
   validates :style, format: { with: STYLE_NAME,

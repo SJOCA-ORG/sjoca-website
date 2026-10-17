@@ -72,6 +72,15 @@ module Admin
                self_nav_title: str("Label this page takes as the FIRST item in its own submenu, " \
                                    "so a visitor can tell the parent has a page of its own") },
              %w[slug]),
+        tool("move_page",
+             "Move a page in the menu, said the way the request is: after this one, or " \
+             "before that one. Use this rather than setting a position number with " \
+             "update_page — numbers collide, and two pages sharing one leaves the order " \
+             "between them undefined. Pages are renumbered afterwards so there are no gaps.",
+             { slug: str("The page to move"),
+               after: str("Put it immediately after this page's slug"),
+               before: str("Put it immediately before this page's slug") },
+             %w[slug]),
         tool("delete_page", "Remove a page and everything on it. Existing links to it will 404.",
              { slug: str("Page slug") }, %w[slug]),
         tool("move_section", "Move a band to a different page, or to a different position.",
@@ -380,12 +389,12 @@ module Admin
     # The home page, then top-level pages: the ones most likely to show a
     # stylesheet mistake, and the ones a person recognises.
     def sample_pages
-      top = pages.where(parent_slug: nil).order(:position).pluck(:slug)
+      top = pages.where(parent_slug: nil).order(:position, :id).pluck(:slug)
       (["home"] & pages.pluck(:slug)) + (top - ["home"]).first(2)
     end
 
     def list_pages(**)
-      { pages: pages.order(:position).map { |p|
+      { pages: pages.order(:position, :id).map { |p|
           { slug: p.slug, nav_title: p.nav_title, in_nav: p.show_in_nav,
             parent: p.parent_slug, sections: p.sections.count, blocks: p.sections.sum { |s| s.blocks.count } } } }
     end
@@ -395,7 +404,7 @@ module Admin
       { slug: page.slug, title: page.title, nav_title: page.nav_title,
         hero: { heading: page.hero_heading, subheading: page.hero_subheading,
                 photo: page.hero_asset_name, size: page.hero_size },
-        sections: page.sections.order(:position).map { |s|
+        sections: page.sections.order(:position, :id).map { |s|
           { id: s.id, style: s.style, column_widths: s.column_widths,
             blocks: s.blocks.order(:column, :position).map { |b|
               { id: b.id, kind: b.kind, column: b.column, position: b.position,
@@ -472,6 +481,43 @@ module Admin
 
       p.update!(permitted)
       ok "updated the #{slug} page"
+    end
+
+    # "Move Donate after Education & Resources" has no honest expression as an
+    # integer, and asking for one produced exactly the bug you would predict:
+    # Donate was set to 5, Community Outreach was already 5, and the menu order
+    # between them became whatever the database felt like returning.
+    #
+    # So say it in the words the request is actually made in. Siblings are
+    # renumbered 1..n afterwards, which also tidies up whatever was there
+    # before.
+    def move_page(slug:, after: nil, before: nil, **)
+      page = find_page(slug)
+      raise ToolError, "say either after: or before:, not both" if after.present? && before.present?
+      raise ToolError, "say which page to move it after or before" if after.blank? && before.blank?
+
+      anchor_slug = (after.presence || before)
+      anchor = pages.find_by(slug: anchor_slug) or
+        raise ToolError, "there is no page #{anchor_slug.inspect} to move it #{after.present? ? 'after' : 'before'}"
+
+      if anchor.parent_slug != page.parent_slug
+        raise ToolError, "#{slug} sits #{page.parent_slug ? "under /#{page.parent_slug}" : 'at the top level'} " \
+                         "and #{anchor_slug} sits #{anchor.parent_slug ? "under /#{anchor.parent_slug}" : 'at the top level'}. " \
+                         "Use update_page with parent_slug to move it between levels first."
+      end
+
+      siblings = pages.where(parent_slug: page.parent_slug).order(:position, :id).to_a
+      siblings.delete(page)
+      at = siblings.index(anchor)
+      siblings.insert(after.present? ? at + 1 : at, page)
+
+      Page.transaction do
+        siblings.each_with_index { |s, i| s.update_columns(position: i + 1) }
+      end
+      touched_everything!
+
+      ok "moved #{page.nav_title} #{after.present? ? 'after' : 'before'} #{anchor.nav_title}. " \
+         "The menu now reads: #{siblings.map(&:nav_title).join(', ')}"
     end
 
     def delete_page(slug:, **)
