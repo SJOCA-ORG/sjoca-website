@@ -25,6 +25,17 @@
   <span class="grow"></span>
   <%= link_to "All revisions", admin_root_path, class: "btn ghost" %>
 </div>
+    <% if @working %>
+      <%# Pinned, deliberately. A thirty-step turn scrolls its own progress out
+          of sight, and a page with no sign of life is indistinguishable from a
+          broken one. The steps stream below; this says it is still going. %>
+      <div class="working-bar" id="working-bar" data-since="<%= @working.created_at.to_i %>">
+        <strong>Working<span class="dots">…</span></strong>
+        <span id="working-clock" style="font-variant-numeric:tabular-nums">0s</span>
+        <span id="working-cost" class="muted"></span>
+        <span class="latest" id="working-latest"></span>
+      </div>
+    <% end %>
   </div>
 
   <div class="scroller" id="scroller">
@@ -89,11 +100,10 @@
   <% @messages.each do |m| %>
     <% if m.working? %>
       <%# Still thinking. Shows each step as it happens, so it is visibly alive. %>
+      <%# The clock and the "working" label live in the pinned bar at the top of
+          this pane, not here, so they stay visible however far the steps run. %>
       <div class="msg assistant" id="working" data-since="<%= m.created_at.to_i %>">
-        <em class="muted">Working<span class="dots">…</span>
-          <span id="working-clock" style="font-variant-numeric:tabular-nums">0s</span>
-          <span id="working-cost" class="muted" style="font-size:.85rem"></span></em>
-        <span class="tools" id="working-steps">
+        <span class="tools" id="working-steps" style="border-top:0;padding-top:0">
           <% Array(m.progress).each do |t| %>
             <% label = t["say"].presence || t["summary"].presence || t["name"] %>
             <% next if label.blank? %>
@@ -293,14 +303,15 @@
   // as it happens. A meta refresh in the body is not reliably honoured, which
   // is what left this looking dead.
   (function () {
-    var box = document.getElementById("working");
-    if (!box) return;
+    var bar = document.getElementById("working-bar");
+    if (!bar) return;
 
     var url = "<%= status_admin_revision_path(@revision) %>";
-    var started = Number(box.dataset.since) * 1000 || Date.now();
+    var started = Number(bar.dataset.since) * 1000 || Date.now();
     var steps = document.getElementById("working-steps");
     var clock = document.getElementById("working-clock");
     var cost = document.getElementById("working-cost");
+    var latest = document.getElementById("working-latest");
 
     function tick() {
       var s = Math.round((Date.now() - started) / 1000);
@@ -312,6 +323,7 @@
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (!d.working) { location.reload(); return; }
+          if (!steps) { setTimeout(poll, 1500); return; }
           steps.innerHTML = d.steps.map(function (t) {
             if (t.kind === "say") {
               // What it is thinking, in its own words, as it works.
@@ -322,6 +334,11 @@
             var colour = t.kind === "failed" ? "color:#8B1A1A" : "color:#666";
             return "<span style=\"" + colour + "\">" + mark + " " + t.text + "</span>";
           }).join("<br>");
+          // The newest step, repeated in the pinned bar, so something is
+          // visible even when you have scrolled back through the history.
+          var last = d.steps[d.steps.length - 1];
+          if (last && latest) latest.textContent = last.text;
+
           if (window.stickToBottom) window.stickToBottom();
           if (d.usage && d.usage.calls) {
             cost.textContent = "· " + d.usage.calls + " calls, " +
