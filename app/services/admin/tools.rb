@@ -155,6 +155,40 @@ module Admin
              "is small; with one it returns the matching lines and their surroundings.",
              { pattern: str("Optional: a word or function name to look for") }, []),
 
+        # --- data from outside this site --------------------------------------
+        tool("list_data_sources",
+             "The outside data this site pulls in — a calendar feed, a playlist, a readings " \
+             "page — with the exact Liquid and JavaScript needed to use each one.", {}),
+        tool("add_data_source",
+             "Set up an address for the server to fetch, cache, and hand to the page as JSON. " \
+             "This is how the site shows anything that lives somewhere else. The server does " \
+             "the fetching because a browser cannot: most sites refuse a request from another " \
+             "site. Give several addresses to treat them as one source (a date range, say). " \
+             "Then put {{ site.data.<name>.json_tag }} in a template and read it in your " \
+             "script with JSON.parse(document.getElementById(\"data-<name>\").textContent). " \
+             "Only https, and the address must be a public one.",
+             { name: str("A short name, lower case with hyphens, e.g. \"calendar\". It becomes " \
+                         "the id of the element in the page."),
+               urls: { type: "array", items: { type: "string" },
+                       description: "One or more https addresses to fetch" },
+               refresh_minutes: { type: "integer",
+                                  description: "How old the cached copy may get before it is " \
+                                               "fetched again. 5 at the least; 60 is sensible " \
+                                               "for a calendar." },
+               note: str("What this is, in a few words") },
+             %w[name urls]),
+        tool("peek_data",
+             "Look at what a data source actually returned: its type, its size, the names of " \
+             "its fields and a short sample. Call this BEFORE writing JavaScript to read it — " \
+             "guessing the shape of someone else's feed wastes a turn.",
+             { name: str("The data source name"),
+               path: str("Optional: dig into the structure, e.g. \"items.0.title\"") },
+             %w[name]),
+        tool("remove_data_source",
+             "Stop pulling in an outside data source. Anything in a template or script that " \
+             "used it will stop working, so check first.",
+             { name: str("The data source name") }, %w[name]),
+
         # --- templates: how things look, as opposed to what they say ---------
         tool("liquid_guide",
              "READ THIS BEFORE WRITING ANY LIQUID. Everything a template can see — every " \
@@ -265,9 +299,15 @@ module Admin
 
     # ---- dispatch ----------------------------------------------------------
 
+    # Only a DECLARED tool may be called. respond_to?(name, true) was enough to
+    # reach any private method on this class -- write_css, touched_everything!,
+    # the lot -- which made the tool list a suggestion rather than the boundary
+    # it is supposed to be.
+    def self.names = @names ||= definitions.map { |d| d[:name] }.to_set
+
     def call(name, args)
       args = (args || {}).symbolize_keys
-      raise ToolError, "unknown tool #{name}" unless respond_to?(name, true)
+      raise ToolError, "unknown tool #{name}" unless self.class.names.include?(name.to_s)
 
       send(name, **args)
     rescue ArgumentError => e
@@ -729,6 +769,100 @@ module Admin
     def write_js(js)
       a = revision.theme_assets.find_or_initialize_by(name: ThemeAsset::KINDS.fetch("js"))
       a.update!(content: js)
+    end
+
+    # ---- outside data ------------------------------------------------------
+
+    def list_data_sources(**)
+      rows = revision.data_sources.order(:name)
+      return { sources: [], note: "no outside data is set up yet. add_data_source adds one." } if rows.empty?
+
+      { sources: rows.map { |d|
+          state = begin
+                    d.pages.map { |r| r.error.presence || (r.stale? ? "stale" : "ok") }.uniq.join(", ")
+                  rescue Site::OutboundFetch::Refused => e
+                    e.message
+                  end
+          { name: d.name, urls: d.url_list, refresh_minutes: d.refresh_minutes,
+            note: d.note.presence, state: state,
+            use: "{{ site.data.#{d.name.tr('-', '_')}.json_tag }} in a template, " \
+                 "then JSON.parse(document.getElementById(\"data-#{d.name}\").textContent) in the script" } } }
+    end
+
+    def add_data_source(name:, urls:, refresh_minutes: 60, note: nil, **)
+      list = urls.is_a?(Array) ? urls : [urls.to_s]
+      source = revision.data_sources.find_or_initialize_by(name: name.to_s.strip.downcase)
+      source.assign_attributes(urls: list, refresh_minutes: refresh_minutes.to_i, note: note)
+      raise ToolError, source.errors.full_messages.to_sentence unless source.save
+
+      # Fetch once now, so a bad address is reported to the person who just
+      # typed it rather than to a visitor reading the page next week.
+      begin
+        source.pages
+      rescue Site::OutboundFetch::Refused => e
+        source.destroy
+        raise ToolError, "that address could not be fetched, so the source was not added: #{e.message}"
+      end
+
+      touched_everything!
+      ok "set up #{source.name} from #{source.domains.join(', ')} " \
+         "(#{source.url_list.size} #{'address'.pluralize(source.url_list.size)})"
+    end
+
+    def remove_data_source(name:, **)
+      source = revision.data_sources.find_by(name: name.to_s) or
+        raise ToolError, "there is no data source called #{name.inspect}. " \
+                         "There is: #{revision.data_sources.pluck(:name).join(', ').presence || 'nothing'}"
+
+      source.destroy
+      touched_everything!
+      ok "removed the #{name} data source"
+    end
+
+    # The AI has to write JavaScript that picks this data apart, and it cannot do
+    # that without knowing its shape. It also cannot be handed a megabyte of
+    # fetched HTML. So: describe the structure, and show a small sample.
+    PEEK_CHARS = 1200
+
+    def peek_data(name:, path: nil, **)
+      source = revision.data_sources.find_by(name: name.to_s) or
+        raise ToolError, "there is no data source called #{name.inspect}"
+
+      row = source.pages.first
+      raise ToolError, "#{name} has not been fetched: #{row.error}" if row.body.blank?
+
+      body = row.body.to_s
+      parsed = begin
+                 JSON.parse(body)
+               rescue JSON::ParserError
+                 nil
+               end
+
+      base = { name: source.name, url: row.url, content_type: row.content_type,
+               bytes: body.bytesize, fetched: row.age_text,
+               addresses: source.url_list.size }
+
+      return base.merge(json: false, sample: body[0, PEEK_CHARS],
+                        note: "Not JSON. The sample is the first #{PEEK_CHARS} characters; " \
+                              "your script will have to pick what it needs out of this text.") if parsed.nil?
+
+      base.merge(json: true, shape: shape_of(parsed), sample: sample_of(parsed, path))
+    end
+
+    def shape_of(value, depth = 0)
+      case value
+      when Array then "array of #{value.size}#{value.first ? " × #{shape_of(value.first, depth + 1)}" : ''}"
+      when Hash  then depth > 1 ? "object" : "{ #{value.keys.first(25).join(', ')} }"
+      else value.class.name.downcase
+      end
+    end
+
+    def sample_of(parsed, path)
+      subject = path.present? ? parsed.dig(*path.to_s.split(".")) : parsed
+      first = subject.is_a?(Array) ? subject.first(2) : subject
+      JSON.pretty_generate(first)[0, PEEK_CHARS]
+    rescue StandardError
+      JSON.generate(parsed)[0, PEEK_CHARS]
     end
 
     def set_styles(css:, **)

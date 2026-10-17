@@ -12,6 +12,7 @@ class Revision < ApplicationRecord
   has_many :theme_assets, dependent: :destroy
   has_many :templates,    dependent: :destroy
   has_many :revision_promises, dependent: :destroy
+  has_many :data_sources, dependent: :destroy
   has_many :promises, through: :revision_promises
   has_many :messages, -> { order(:created_at) },
            class_name: "RevisionMessage", dependent: :destroy, inverse_of: :revision
@@ -59,6 +60,9 @@ class Revision < ApplicationRecord
         draft.revision_promises.create!(promise_id: rp.promise_id)
       end
       source.theme_assets.find_each { |a| a.dup.tap { |c| c.revision = draft }.save! }
+      # The DEFINITION of a data source travels with the revision. The cached
+      # response does not -- that is keyed by URL and shared (FetchedPage).
+      source.data_sources.find_each { |d| d.dup.tap { |c| c.revision = draft }.save! }
 
       pages    = source.pages.index_with    { |p| p.dup.tap { |c| c.revision = draft }.tap(&:save!) }
       sections = source.sections.index_with { |s|
@@ -97,6 +101,18 @@ class Revision < ApplicationRecord
 
     { added:   Promise.where(id: (mine - before).to_a).to_a,
       removed: Promise.where(id: (before - mine).to_a).to_a }
+  end
+
+  # Domains this revision fetches from that the live site does not. Decided in
+  # docs/TODO.md: the list of allowed domains is left OPEN rather than
+  # maintained by hand, and the first use of a new one is surfaced to whoever
+  # approves the change instead. A new outbound connection should never be
+  # invisible to the person saying yes to it.
+  def new_domains
+    mine = data_sources.flat_map(&:domains).uniq
+    return mine if based_on.nil?
+
+    mine - based_on.data_sources.flat_map(&:domains).uniq
   end
 
   def summary = "#{pages.count} pages, #{sections.count} sections, #{blocks.count} blocks"

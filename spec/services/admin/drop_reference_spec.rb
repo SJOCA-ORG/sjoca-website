@@ -9,7 +9,7 @@ RSpec.describe Admin::DropReference do
   it "documents every drop a template can reach" do
     paths = reference[:objects].map { |o| o[:path] }
     expect(paths).to include("page", "site", "block", "photo", "nav", "section")
-    expect(paths).to include("site.calendar", "site.lectionary", "site.lectionary.today")
+    expect(paths).to include("site.data", "site.data.<name>")
   end
 
   it "stays in step with the code automatically" do

@@ -4,7 +4,7 @@ class Block < ApplicationRecord
   # The kinds the site ships with. NOT a closed list: a kind is usable as soon
   # as a template named block/<kind> exists in the revision, so adding one is
   # writing a template rather than changing Ruby and deploying.
-  KINDS = %w[heading subheading text image embed button calendar upcoming recordings lectionary list quote].freeze
+  KINDS = %w[heading subheading text image embed button list quote].freeze
 
   NAME = /\A[a-z][a-z0-9_-]{1,40}\z/
 

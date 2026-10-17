@@ -16,15 +16,23 @@ module Admin
       "photo"      => [PhotoDrop, "a photograph, via block.photo or page.hero_photo"]
     }.freeze
 
+    # There used to be a drop per feed here -- site.calendar, site.upcoming,
+    # site.recordings, site.lectionary -- each one knowing, in Ruby, what was
+    # worth showing. They are gone. site.upcoming silently left out every
+    # regularly scheduled service, the reference line said only "notable events
+    # in the coming week", and a page got built on top of it that was missing
+    # Vespers and the Divine Liturgy. Nothing could see the decision to question
+    # it.
+    #
+    # One primitive replaces all four: the server fetches an address, caches it,
+    # and hands it to the page as JSON. What counts as notable is then a line of
+    # JavaScript that can be read, changed and argued with.
     NESTED = {
-      "site.calendar"   => [CalendarDrop,   "parish calendar, grouped into weeks"],
-      "site.upcoming"   => [UpcomingDrop,   "notable events in the coming week"],
-      "site.recordings" => [RecordingsDrop, "recordings of the adult education classes"],
-      "site.lectionary" => [LectionaryDrop, "today's appointed readings"],
-      "site.calendar.weeks[]" => [CalendarDrop::WeekDrop, "one week of the calendar"],
-      "site.recordings.all[]" => [RecordingsDrop::RecordingDrop, "one recording"],
-      "site.lectionary.today"  => [LectionaryDrop::DayDrop, "one day's readings"],
-      "site.lectionary.today.appointed[]" => [LectionaryDrop::ReadingDrop, "one reading"]
+      "site.data" => [DataDrop, "outside data, by the name it was given — see add_data_source"],
+      "site.data.<name>" => [DataDrop::SourceDrop,
+                             "one source. json_tag writes it into the page as " \
+                             "<script type=\"application/json\" id=\"data-<name>\">, which the " \
+                             "site's JavaScript then reads with JSON.parse"]
     }.freeze
 
     def self.call

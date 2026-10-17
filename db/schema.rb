@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_17_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_17_162205) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -81,6 +81,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_130000) do
     t.datetime "updated_at", null: false
     t.index ["held_on"], name: "index_class_recordings_on_held_on"
     t.index ["youtube_id"], name: "index_class_recordings_on_youtube_id", unique: true
+  end
+
+  create_table "data_sources", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.string "name", null: false
+    t.json "urls", default: [], null: false
+    t.integer "refresh_minutes", default: 60, null: false
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revision_id", "name"], name: "index_data_sources_on_revision_id_and_name", unique: true
+    t.index ["revision_id"], name: "index_data_sources_on_revision_id"
+  end
+
+  create_table "fetched_pages", force: :cascade do |t|
+    t.string "key", null: false
+    t.text "url", null: false
+    t.text "body"
+    t.string "content_type"
+    t.integer "status"
+    t.text "error"
+    t.datetime "fetched_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_fetched_pages_on_key", unique: true
   end
 
   create_table "lectionary_days", force: :cascade do |t|
@@ -384,6 +409,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_130000) do
   end
 
   add_foreign_key "blocks", "sections"
+  add_foreign_key "data_sources", "revisions"
   add_foreign_key "lectionary_readings", "lectionary_days"
   add_foreign_key "sections", "pages"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade

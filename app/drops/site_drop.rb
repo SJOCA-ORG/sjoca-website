@@ -10,8 +10,8 @@ class SiteDrop < BaseDrop
   def address = "855 S. Goodman St. Rochester, NY 14620"
   def email   = "fr.david@sjoca.org"
 
-  def calendar   = @calendar   ||= CalendarDrop.new
-  def upcoming   = @upcoming   ||= UpcomingDrop.new
-  def recordings = @recordings ||= RecordingsDrop.new
-  def lectionary = @lectionary ||= LectionaryDrop.new
+  # Outside data, by whatever name it was given. One primitive instead of a drop
+  # per feed: see DataDrop.
+  def data = @data ||= DataDrop.new(Current.revision)
+
 end

@@ -69,13 +69,18 @@ RSpec.describe Site::Renderer do
   end
 
   describe "nesting" do
-    # {% render %} isolates scope, unlike {% include %}. Widgets silently
-    # rendered nothing until `site` was passed down through every level.
-    it "passes site data through page -> section -> block -> widget" do
+    # {% render %} isolates scope, unlike {% include %}. A block template that
+    # reaches `site` silently rendered NOTHING until site was passed down
+    # through every level, and three pages collapsed to an empty band while
+    # still returning 200. This is that regression, kept after the widget
+    # templates it was originally written against were removed.
+    it "passes site through page -> section -> block" do
+      revision.templates.create!(name: "block/sitecheck",
+                                 source: %(<div class="b b-sitecheck">{{ site.name }}</div>))
       section = build_section(page: page)
-      build_block(section: section, kind: "calendar")
+      build_block(section: section, kind: "sitecheck")
 
-      expect(renderer.body(page.reload)).to include("calendar")
+      expect(renderer.body(page.reload)).to include("Saint John the Baptist")
     end
   end
 

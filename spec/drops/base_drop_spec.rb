@@ -1,31 +1,34 @@
 require "rails_helper"
 
 # Liquid renders an unknown property as an empty string and says NOTHING. A
-# template asking for {{ event.date }} when the property is date_num produces a
-# page with blank dates, no error, and nothing in any log. The AI did exactly
+# template asking for {{ photo.caption }} when the property is alt produces a
+# page with blank captions, no error, and nothing in any log. The AI did exactly
 # this -- it invented `special`, `date` and `place` writing a calendar template,
 # having already read the guide that lists the real ones.
 RSpec.describe BaseDrop do
-  let(:event) { CalendarEvent.new(title: "Vespers", starts_at: Time.current) }
+  let(:photo) do
+    Photo.new(human_name: "test-photo", alt_text: "Vespers", version: 1,
+              content_type: "image/png", data: "x", byte_size: 1, sha256: "x")
+  end
 
   def render(source, revision)
     Current.revision = revision
     template = Liquid::Template.parse(source)
-    [template.render("event" => EventDrop.new(event)), template.errors.map(&:message)]
+    [template.render("photo" => PhotoDrop.new(photo)), template.errors.map(&:message)]
   end
 
   context "while editing a draft" do
     it "refuses an invented property and says what is available" do
       build_page
-      _, errors = render("{{ event.date }}", Revision.open_sandbox)
+      _, errors = render("{{ photo.caption }}", Revision.open_sandbox)
 
-      expect(errors.join).to match(/has no "date"/)
-      expect(errors.join).to match(/date_num/)
+      expect(errors.join).to match(/has no "caption"/)
+      expect(errors.join).to match(/alt/)
     end
 
     it "leaves real properties alone" do
       build_page
-      out, errors = render("{{ event.title }}", Revision.open_sandbox)
+      out, errors = render("{{ photo.alt }}", Revision.open_sandbox)
 
       expect(out).to eq("Vespers")
       expect(errors).to be_empty
@@ -35,7 +38,7 @@ RSpec.describe BaseDrop do
   # A live parish website must never 500 over a typo in a template.
   context "on the published site" do
     it "stays silent about an unknown property" do
-      out, errors = render("{{ event.date }}", test_revision)
+      out, errors = render("{{ photo.caption }}", test_revision)
 
       expect(out).to eq("")
       expect(errors).to be_empty

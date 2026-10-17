@@ -29,8 +29,15 @@ module Admin
 
       How the site is built: a page holds horizontal bands (sections); each band
       holds columns; each column holds blocks. A block is one heading, paragraph,
-      photo, list, button or widget. Widgets — calendar, upcoming, classes,
-      lectionary — render live data and take no content of their own.
+      photo, list or button.
+
+      Anything that lives somewhere else — the calendar, class recordings, the
+      daily readings — comes in through add_data_source: the server fetches the
+      address and hands the page the data as JSON, and YOUR JavaScript decides
+      what to show and how. There is no built-in calendar and nothing that knows
+      what "upcoming" ought to mean; that judgement is yours to write down, where
+      the next person can read it. peek_data shows you the shape of a feed before
+      you write anything against it.
 
       Say what you are doing as you go. A line before you look something up or
       make a change — "let me see what is on that page", "that photograph is the

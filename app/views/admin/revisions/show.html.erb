@@ -17,6 +17,27 @@
   <%= link_to "All revisions", admin_root_path, class: "btn ghost" %>
 </div>
 
+<%# A new outbound connection must never be invisible to whoever approves the
+    change. The list of allowed domains is deliberately open -- see
+    docs/TODO.md -- so this is the control that replaces an allowlist. %>
+<% fresh = @revision.new_domains %>
+<% if fresh.any? %>
+  <div class="card" style="border-color:#8B1A1A">
+    <strong>This change fetches data from somewhere new</strong>
+    <p style="margin:.7rem 0 0;padding:.6rem .8rem;background:#FBEAEA;border-radius:6px">
+      <% fresh.each do |domain| %>
+        <strong style="color:#8B1A1A"><%= domain %></strong><br>
+      <% end %>
+      <span class="muted" style="font-size:.85rem">
+        The site has not pulled data from
+        <%= fresh.size == 1 ? "this address" : "these addresses" %> before. Our server
+        fetches it and passes it to the page. Worth checking with whoever looks after
+        the technical side before approving.
+      </span>
+    </p>
+  </div>
+<% end %>
+
 <% changes = @revision.promise_changes %>
 <% if changes[:added].any? || changes[:removed].any? %>
   <div class="card" style="border-color:#8B1A1A">
