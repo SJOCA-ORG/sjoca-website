@@ -341,8 +341,13 @@
 
           if (window.stickToBottom) window.stickToBottom();
           if (d.usage && d.usage.calls) {
+            // Cached reads cost a tenth of fresh input, so showing them
+            // together would hide the whole point of caching.
+            var fresh = (d.usage.input + d.usage.output) / 1000;
+            var cached = (d.usage.cache_read || 0) / 1000;
             cost.textContent = "· " + d.usage.calls + " calls, " +
-              ((d.usage.input + d.usage.output) / 1000).toFixed(1) + "k tokens";
+              fresh.toFixed(1) + "k new" +
+              (cached >= 0.1 ? " + " + cached.toFixed(0) + "k cached" : "");
           }
           setTimeout(poll, 1500);
         })

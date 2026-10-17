@@ -99,6 +99,27 @@ will write to).
    a change log. See [`docs/liquid-vocabulary.md`](docs/liquid-vocabulary.md)
    for the whole surface in one page.
 
+### The model, and what a session costs
+
+The admin runs **Opus 5** (`ANTHROPIC_MODEL`, defaulting to `claude-opus-5`)
+with **prompt caching on**. Both were decided on 17 October against measured
+numbers, not preference.
+
+A 30-turn session before caching: **5,979,000 input tokens against 87,000
+output**. Almost all of that was re-reading its own past — the instructions,
+fifty-odd tool definitions, and a conversation that only grows — and a turn
+with ten tool calls re-sends the whole thing ten times. That session cost about
+**$19 on Sonnet** and would have been **$96 on Opus**.
+
+Caching changes the arithmetic rather than shaving it. Measured on a real call:
+the second request paid full price for **8 tokens instead of 11,300**. That
+puts Opus at roughly what uncached Sonnet used to cost, which is why the better
+model became affordable rather than a luxury.
+
+Watch `cache_read` in the usage line under each reply. If it is near zero,
+caching has broken — most likely because something that changes every turn got
+in front of a breakpoint, which puts the whole prefix on the wrong side of it.
+
 ### Three things to know before touching the AI admin
 
 - **It can see.** `check_appearance` opens a page in real Chrome at 390px and

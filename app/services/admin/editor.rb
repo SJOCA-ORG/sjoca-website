@@ -148,7 +148,7 @@ module Admin
       looked_once     = false
       truncated       = 0
       assumed_once    = false
-      spent           = { input: 0, output: 0, calls: 0 }
+      spent           = { input: 0, output: 0, cache_read: 0, cache_write: 0, calls: 0 }
 
       MAX_STEPS.times do
         response = @client.call(system: system_prompt, messages: conversation,
@@ -164,10 +164,14 @@ module Admin
                       .map { |c| c["text"].to_s.strip }.reject(&:blank?)
         said.each { |line| performed << { "say" => line } }
 
+        # Cached reads are counted separately so the saving is visible rather
+        # than asserted. cache_read is charged at a tenth of input.
         usage = response["usage"] || {}
-        spent[:input]  += usage["input_tokens"].to_i
-        spent[:output] += usage["output_tokens"].to_i
-        spent[:calls]  += 1
+        spent[:input]      += usage["input_tokens"].to_i
+        spent[:output]     += usage["output_tokens"].to_i
+        spent[:cache_read] += usage["cache_read_input_tokens"].to_i
+        spent[:cache_write] += usage["cache_creation_input_tokens"].to_i
+        spent[:calls]      += 1
         @working&.update_columns(progress: performed, usage: spent)
 
         # A reply that hits max_tokens stops MID-SENTENCE. What comes back can

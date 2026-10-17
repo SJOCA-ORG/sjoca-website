@@ -23,7 +23,7 @@ module Anthropic
         Rails.application.credentials.dig(:anthropic, :api_key)
     end
 
-    def self.model = ENV.fetch("ANTHROPIC_MODEL", "claude-sonnet-5")
+    def self.model = ENV.fetch("ANTHROPIC_MODEL", "claude-opus-5")
 
     # An account-level key is not tied to a workspace, and the API then requires
     # the workspace to be named explicitly. A workspace-scoped key does not need
@@ -50,11 +50,30 @@ module Anthropic
     # kind of output that runs long. This costs nothing unless it is used.
     MAX_TOKENS = 16_384
 
-    def call(system:, messages:, tools: [], max_tokens: MAX_TOKENS)
+    # Nearly all of what this app sends is the SAME every call. One editing
+    # session ran 30 turns for 5,979,000 input tokens and 87,000 output -- it
+    # was paying, over and over, to re-read its own past: the instructions, the
+    # 50-odd tool definitions, and a conversation that only ever grows. A turn
+    # with ten tool calls re-sends the whole thing ten times.
+    #
+    # Cached input reads at a tenth the price. Three breakpoints, in the order
+    # the API assembles a prompt:
+    #
+    #   tools      identical every call
+    #   system     changes only when the stylesheet does
+    #   messages   everything up to the newest exchange
+    #
+    # The last one is the real saving, because it grows: inside one turn, each
+    # step caches the step before it.
+    CACHE = { type: "ephemeral" }.freeze
+
+    def call(system:, messages:, tools: [], max_tokens: MAX_TOKENS, cache: true)
       raise Error, "no Anthropic API key configured" if @api_key.blank?
 
-      body = { model: @model, max_tokens: max_tokens, system: system, messages: messages }
-      body[:tools] = tools if tools.any?
+      body = { model: @model, max_tokens: max_tokens,
+               system: cache ? cacheable_system(system) : system,
+               messages: cache ? cacheable_messages(messages) : messages }
+      body[:tools] = cache ? cacheable_tools(tools) : tools if tools.any?
 
       response = Net::HTTP.start(ENDPOINT.host, ENDPOINT.port, use_ssl: true,
                                  open_timeout: TIMEOUT, read_timeout: TIMEOUT) do |http|
@@ -73,6 +92,48 @@ module Anthropic
       raise Error, parsed.dig("error", "message") || "HTTP #{response.code}" unless response.is_a?(Net::HTTPSuccess)
 
       parsed
+    end
+
+    private
+
+    # cache_control can only sit on a content BLOCK, so a plain string system
+    # prompt has to become one.
+    def cacheable_system(system)
+      return system unless system.is_a?(String)
+
+      [{ type: "text", text: system, cache_control: CACHE }]
+    end
+
+    # Marking the LAST tool caches the whole list: the breakpoint covers
+    # everything before it.
+    def cacheable_tools(tools)
+      return tools if tools.empty?
+
+      tools[0..-2] + [tools.last.merge(cache_control: CACHE)]
+    end
+
+    # Cache everything except the newest exchange, so the growing history is
+    # read from cache and only what is new is charged in full. A string content
+    # has to become a block for the same reason as the system prompt.
+    def cacheable_messages(messages)
+      return messages if messages.size < 2
+
+      marked = messages.dup
+      i = marked.size - 2
+      marked[i] = with_cache_breakpoint(marked[i])
+      marked
+    end
+
+    def with_cache_breakpoint(message)
+      content = message[:content] || message["content"]
+      blocks = content.is_a?(String) ? [{ type: "text", text: content }] : content.dup
+      return message unless blocks.is_a?(Array) && blocks.any?
+
+      last = blocks.last
+      return message unless last.is_a?(Hash)
+
+      blocks[-1] = last.merge(cache_control: CACHE)
+      message.merge(content: blocks).except("content")
     end
   end
 end
