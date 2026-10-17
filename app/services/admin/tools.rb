@@ -180,9 +180,14 @@ module Admin
         tool("peek_data",
              "Look at what a data source actually returned: its type, its size, the names of " \
              "its fields and a short sample. Call this BEFORE writing JavaScript to read it — " \
-             "guessing the shape of someone else's feed wastes a turn.",
+             "guessing the shape of someone else's feed wastes a turn. For anything that is " \
+             "not JSON you only get the first part, so use `find` to search the whole thing. " \
+             "That is also how to work out where a page gets ITS data: fetch the page and " \
+             "search it for the address it calls.",
              { name: str("The data source name"),
-               path: str("Optional: dig into the structure, e.g. \"items.0.title\"") },
+               path: str("Optional: dig into the structure of JSON, e.g. \"items.0.title\""),
+               find: str("Optional: search the whole body for this text and show what " \
+                         "surrounds each match — e.g. \"eventSources\", \".json\", \"api\"") },
              %w[name]),
         tool("remove_data_source",
              "Stop pulling in an outside data source. Anything in a template or script that " \
@@ -824,7 +829,7 @@ module Admin
     # fetched HTML. So: describe the structure, and show a small sample.
     PEEK_CHARS = 1200
 
-    def peek_data(name:, path: nil, **)
+    def peek_data(name:, path: nil, find: nil, **)
       source = revision.data_sources.find_by(name: name.to_s) or
         raise ToolError, "there is no data source called #{name.inspect}"
 
@@ -842,11 +847,41 @@ module Admin
                bytes: body.bytesize, fetched: row.age_text,
                addresses: source.url_list.size }
 
-      return base.merge(json: false, sample: body[0, PEEK_CHARS],
-                        note: "Not JSON. The sample is the first #{PEEK_CHARS} characters; " \
-                              "your script will have to pick what it needs out of this text.") if parsed.nil?
+      return base.merge(found: find_in(body, find), looked_for: find) if find.present?
+
+      if parsed.nil?
+        return base.merge(
+          json: false, sample: body[0, PEEK_CHARS],
+          note: "Not JSON, and this is only the FIRST #{PEEK_CHARS} of #{body.bytesize} " \
+                "characters. If what you need is not here, search the whole thing: " \
+                "peek_data with find: \"...\". A page that embeds a feed usually names " \
+                "the address and its parameters somewhere in its script."
+        )
+      end
 
       base.merge(json: true, shape: shape_of(parsed), sample: sample_of(parsed, path))
+    end
+
+    # Search the whole fetched body rather than its first page. Without this the
+    # AI was shown the first 1200 characters of a 6278-character page and had to
+    # GUESS the rest: asked to replace the ChurchTrac iframe, the address and
+    # parameters it needed sat at character 4123, it never saw them, and it spent
+    # its turn being refused by a server it was asking the wrong way.
+    FIND_CONTEXT = 400
+    FIND_HITS = 6
+
+    def find_in(body, needle)
+      offsets = []
+      at = 0
+      while (i = body.index(needle.to_s, at)) && offsets.size < FIND_HITS
+        offsets << i
+        at = i + 1
+      end
+      return { hits: 0, note: "#{needle.inspect} does not appear in this. It is #{body.bytesize} characters." } if offsets.empty?
+
+      { hits: offsets.size,
+        extracts: offsets.map { |i|
+          { at: i, text: body[[i - FIND_CONTEXT / 2, 0].max, FIND_CONTEXT] } } }
     end
 
     def shape_of(value, depth = 0)
