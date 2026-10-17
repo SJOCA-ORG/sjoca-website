@@ -683,9 +683,12 @@ judgment will be defensible. The danger is not one bad call, it is thirty
 reasonable ones: **a removal is the hardest change for a reviewer to notice**,
 because "removed a check that no longer applies" reads as tidying.
 
-So removals are deliberately louder than additions. A new promise is a line; a
-removed one names what it asserted and how long it stood — *"the home page shows
-the service times, promised since October 2026, is no longer checked."*
+Two things guard against it. A removal is agreed **with the editor, while they
+are editing** — see below — so nobody drops a promise without a person saying yes
+with it in front of them. And removals are louder than additions at approval: a
+new promise is a line, a removed one names what it asserted and how long it
+stood — *"the home page shows the service times, promised since October 2026, is
+no longer checked."*
 
 ### Where the first ones come from
 
@@ -697,10 +700,24 @@ deliberately.
 
 ### When a promise fails
 
-It never blocks publishing. The parish must never be unable to correct a service
-time because an assertion is stale. A failure is resolved during editing — the
-AI fixes the content or proposes changing the promise, with its reasoning — and
-anything unresolved is surfaced at approval as a question, not a refusal.
+**It is detected during editing, and settled by talking to the editor.** Not
+decided by the AI and caught later by the approver.
+
+The AI does not quietly fix the content, and does not quietly rewrite the
+promise. It says what happened and asks:
+
+> You have moved the service times to a Services page. There is a standing
+> promise that the home page shows them. Should I update the promise, or did you
+> want them on the home page as well?
+
+Whatever is agreed appears in the list of changes at approval — so **two people
+see any change to a promise**: the one who caused it, at the moment they caused
+it, and the one approving afterwards.
+
+Nothing blocks publishing, and nothing needs to: by the time a revision reaches
+approval there is nothing unresolved left in it. The parish must never be unable
+to correct a service time because an assertion has gone stale — but that is
+settled during the edit, not at the gate.
 
 ## The acceptance test: replay the whole site through the admin
 
