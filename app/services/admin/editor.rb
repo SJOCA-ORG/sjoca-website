@@ -75,10 +75,20 @@ module Admin
       sets out how to choose — read it before styling anything, and do not invent
       a new block kind when a class and one CSS rule would do.
 
-      The stylesheet is about 26KB — far too large to send back in one reply, so
-      do NOT reach for get_styles and set_styles. Use add_styles to append new
-      rules, find_styles to see what already exists, and edit_styles to change
-      one part. These send only what changes.
+      BEFORE writing any CSS, READ THE STYLESHEET with get_styles. It is about
+      17KB, which is nothing to read, and reading it is the only way to write
+      CSS that looks like it belongs in this file rather than beside it.
+      liquid_guide reports the conventions it actually follows — the naming, the
+      breakpoints, the colour and font variables — measured from the file.
+
+      Writing is the other way round. NEVER send the stylesheet back whole: a
+      reply is capped and set_styles will be silently cut short. Use add_styles
+      for new rules and edit_styles to change an existing one.
+
+      When you need to adjust something you wrote earlier in this same
+      conversation, EDIT THAT RULE. Do not append a second rule to correct the
+      first. Two rules for one thing is how a stylesheet becomes unmaintainable,
+      and it is the single most common way this goes wrong.
 
       House style, worth preserving:
       - British-influenced parish usage, sentence case for headings.
@@ -117,10 +127,11 @@ module Admin
       failures      = Hash.new(0)
       verified_once   = false
       promises_raised = false
+      looked_once     = false
       spent           = { input: 0, output: 0, calls: 0 }
 
       MAX_STEPS.times do
-        response = @client.call(system: SYSTEM, messages: conversation,
+        response = @client.call(system: system_prompt, messages: conversation,
                                 tools: Tools.definitions)
         content = response["content"] || []
         conversation << { role: "assistant", content: content }
@@ -158,6 +169,20 @@ module Admin
               "back as it was, or the promise updated to match what they have asked for. " \
               "Use list_promises to see what each one was for." }] }
             next
+          end
+
+          # Before the mechanical checks: let it see the thing it just made.
+          if !looked_once && (shot = look_at_it(performed))
+            looked_once = true
+            blocks = Tools.screenshot_blocks(shot[:screenshots])
+            if blocks.any?
+              conversation << { role: "user", content: [{ type: "text", text:
+                "Before you reply: here is the page you changed, as it now looks at phone " \
+                "and desktop width. Look at it as the person asking would. Is anything in " \
+                "the wrong place, badly spaced, or stranded where it does not belong? Fix " \
+                "it if so. If it looks right, say what you changed and stop." }] + blocks }
+              next
+            end
           end
 
           problems = verify(performed)
@@ -231,6 +256,33 @@ module Admin
 
     private
 
+    # The house CSS conventions belong in the SYSTEM PROMPT, not in liquid_guide
+    # where they started. Putting them there assumed it would call liquid_guide
+    # before writing CSS; the instruction to call liquid_guide is about writing
+    # LIQUID, so a pure styling request skipped it and the conventions went
+    # unread. It then wrote a max-width breakpoint into a mobile-first file,
+    # which is exactly what they were written to prevent.
+    #
+    # Measured from this revision's stylesheet every turn, so they cannot drift
+    # from the file they describe.
+    def system_prompt
+      conventions = CssConventions.call(@revision)
+      return SYSTEM if conventions[:note].present?
+
+      <<~PROMPT
+        #{SYSTEM}
+
+        HOW THIS SITE'S CSS IS WRITTEN — read this before writing any.
+        Measured from the stylesheet itself, so it is what the file actually does.
+
+        #{conventions.map { |k, v| "- #{k.to_s.tr('_', ' ').upcase}: #{v}" }.join("\n\n")}
+
+        Match all of it. CSS that works but does not look like the rest of the
+        file is how a stylesheet becomes unmaintainable, and the parish has no
+        developer to tidy it afterwards.
+      PROMPT
+    end
+
     # Render what was changed and look for breakage. This runs whether or not
     # the model thought to check, because a tool nobody calls is not a safeguard.
     def verify(performed)
@@ -243,6 +295,37 @@ module Admin
       rescue StandardError => e
         ["/#{slug}: could not be checked (#{e.class})"]
       end
+    end
+
+    # Show it the page before it says it is finished.
+    #
+    # It has had eyes since this morning and, over a four-request session that
+    # changed two templates, 2KB of CSS and 7KB of JavaScript, it called
+    # check_appearance exactly ZERO times. It reached for view_page and
+    # check_page instead -- both of which read markup, neither of which can see
+    # that something is in the wrong place.
+    #
+    # Same lesson as `verify` above, which carries the same comment: a tool
+    # nobody calls is not a safeguard. So this is not optional either. Only for
+    # changes that could alter how a page LOOKS, since it costs a browser launch
+    # and about 2,460 tokens a page.
+    LOOKS_CHANGED = %w[add_styles edit_styles set_styles add_template set_template
+                       add_script edit_script set_scripts add_block update_block
+                       move_block delete_block add_section update_section
+                       move_section delete_section].freeze
+
+    def look_at_it(performed)
+      names = performed.filter_map { |p| p["name"] unless p["failed"] }
+      return [] if (names & LOOKS_CHANGED).empty?
+      return [] if @tools.touched.empty?
+
+      # One page. Two widths is already two screenshots, and the point is to
+      # make it LOOK, not to narrate the whole site back to it.
+      slug = @tools.touched.to_a.first
+      @tools.call("check_appearance", { "slug" => slug })
+    rescue StandardError => e
+      Rails.logger.warn("automatic appearance check failed: #{e.message}")
+      nil
     end
 
     # A broken promise is NOT a problem for the AI to fix quietly. It is a

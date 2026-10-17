@@ -689,8 +689,13 @@ module Admin
 
     def add_styles(css:, note: nil, **)
       current = ThemeAsset.css_for(revision)
-      heading = note.present? ? "\n\n/* #{note.to_s.gsub(%r{[*/]}, '')} */\n" : "\n\n"
-      write_css(current + heading + css.to_s.strip + "\n")
+      body = css.to_s.strip
+      heading = if note.blank? || body.start_with?("/*")
+                  "\n\n"   # it wrote its own comment; two saying the same thing is noise
+                else
+                  "\n\n/* #{note.to_s.gsub(%r{[*/]}, '')} */\n"
+                end
+      write_css(current + heading + body + "\n")
       touched_everything!
       ok "added #{css.to_s.lines.count} lines of CSS#{note.present? ? " for #{note}" : ''}"
     end
@@ -732,8 +737,13 @@ module Admin
 
     def add_script(js:, note: nil, **)
       current = ThemeAsset.js_for(revision)
-      heading = note.present? ? "\n\n// #{note.to_s.delete("\n")}\n" : "\n\n"
-      write_js((current.presence || SCRIPT_HEADER) + heading + js.to_s.strip + "\n")
+      body = js.to_s.strip
+      heading = if note.blank? || body.start_with?("//", "/*")
+                  "\n\n"
+                else
+                  "\n\n// #{note.to_s.delete("\n")}\n"
+                end
+      write_js((current.presence || SCRIPT_HEADER) + heading + body + "\n")
       touched_everything!
       ok "added #{js.to_s.lines.count} lines of JavaScript#{note.present? ? " for #{note}" : ''}"
     end

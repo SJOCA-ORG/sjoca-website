@@ -16,7 +16,14 @@
       header.bar a { color:#fff; text-decoration:none; opacity:.85 }
       header.bar a:hover { opacity:1 }
       header.bar .grow { flex:1 }
-      main { max-width:1100px; margin:0 auto; padding:1.5rem 1.2rem 4rem }
+      /* The shell is a column: bar, then everything else. Pages that want the
+         whole viewport (the workbench) can then fill it without guessing how
+         tall the bar is. */
+      body { display:flex; flex-direction:column; height:100vh }
+      header.bar { flex:0 0 auto }
+      main { flex:1; min-height:0; overflow-y:auto;
+             max-width:1100px; width:100%; margin:0 auto; padding:1.5rem 1.2rem 4rem }
+      main.workbench { max-width:none; padding:0; overflow:hidden; display:flex }
       h1 { font-size:1.35rem; margin:.2rem 0 1rem }
       h2 { font-size:1.05rem; margin:2rem 0 .6rem }
       .card { border:1px solid var(--rule); border-radius:8px; padding:1rem; margin-bottom:.8rem }
@@ -35,11 +42,70 @@
       .notice { background:#EAF5EA; border:1px solid #BBD9BB; padding:.6rem 1rem;
                 border-radius:6px; margin-bottom:1rem }
       .chat { display:flex; flex-direction:column; gap:.7rem; margin:1rem 0 }
+
+      /* ---- the workbench: controls and conversation at the left, the actual
+         page at the right, because judging a change by reading about it is not
+         the same as looking at it. ---- */
+      .workbench .pane-left {
+        flex:0 0 27rem; min-width:21rem; display:flex; flex-direction:column;
+        min-height:0; border-right:1px solid var(--rule); background:#fff;
+      }
+      .workbench .pane-left > .fixed { flex:0 0 auto; padding:.9rem 1rem; }
+      .workbench .pane-left > .fixed.top { border-bottom:1px solid var(--rule) }
+      .workbench .pane-left > .fixed.bottom { border-top:1px solid var(--rule) }
+
+      /* The conversation scrolls; the panes themselves never do. Without this
+         a long turn pushed the newest step and the "working" indicator off the
+         bottom of the page at the same time. */
+      .workbench .scroller { flex:1; min-height:0; overflow-y:auto; padding:0 1rem; }
+      .workbench .chat { margin:.8rem 0 }
+      .workbench .msg { max-width:none }
+
+      /* Stays put while its own steps scroll past underneath. */
+      .working-head { position:sticky; top:0; z-index:2; background:var(--band);
+                      margin:-.7rem -1rem .4rem; padding:.55rem 1rem;
+                      border-bottom:1px solid var(--rule); border-radius:10px 10px 0 0 }
+
+      .workbench .pane-right { flex:1; min-width:0; display:flex; flex-direction:column;
+                               background:var(--band) }
+      .preview-bar { flex:0 0 auto; display:flex; align-items:center; gap:.6rem;
+                     padding:.5rem .9rem; border-bottom:1px solid var(--rule); background:#fff }
+      .preview-bar select { font:inherit; font-size:.88rem; padding:.3rem .4rem;
+                            border:1px solid var(--rule); border-radius:6px; max-width:16rem }
+      .seg { display:inline-flex; border:1px solid var(--rule); border-radius:6px; overflow:hidden }
+      .seg button { font:inherit; font-size:.85rem; padding:.3rem .7rem; border:0;
+                    background:#fff; cursor:pointer; color:var(--ink) }
+      .seg button[aria-pressed="true"] { background:var(--ink); color:#fff }
+
+      .stage { flex:1; min-height:0; overflow:auto; display:flex; justify-content:center;
+               padding:0 }
+      .stage.phone { padding:1.2rem }
+      .stage iframe { width:100%; height:100%; border:0; background:#fff }
+      /* 390px is the width the browser checks use, so what you see here is what
+         the automatic check sees. */
+      .stage.phone iframe { width:390px; flex:0 0 390px; height:844px; max-height:100%;
+                            border:1px solid var(--rule); border-radius:14px;
+                            box-shadow:0 2px 14px rgba(0,0,0,.13) }
+
+      @media (max-width: 900px) {
+        main.workbench { flex-direction:column; overflow-y:auto }
+        .workbench .pane-left { flex:0 0 auto; border-right:0; border-bottom:1px solid var(--rule) }
+        .workbench .scroller { overflow:visible }
+        .workbench .pane-right { min-height:70vh }
+      }
       .msg { padding:.7rem 1rem; border-radius:10px; max-width:46rem; white-space:pre-wrap }
       .msg.user { background:var(--ink); color:#fff; align-self:flex-end }
       .msg.assistant { background:var(--band); align-self:flex-start }
       .msg .tools { display:block; margin-top:.5rem; font-size:.8rem; color:#555;
                     border-top:1px solid var(--rule); padding-top:.4rem }
+      /* .msg is pre-wrap so a reply keeps its paragraphs. The step list is
+         markup, not prose, so every newline and indent in the template was
+         being rendered as blank space -- a column of six steps a screen tall. */
+      .msg .tools, .msg details { white-space:normal }
+      /* The working box is entirely markup -- no prose to preserve -- so the
+         template's own indentation was showing up as a gap under the clock. */
+      #working { white-space:normal }
+      .msg .tools span { display:block; line-height:1.5 }
       textarea { width:100%; font:inherit; padding:.7rem; border:1px solid var(--rule);
                  border-radius:8px; resize:vertical }
       .empty { color:#777; padding:2rem 0 }
@@ -53,9 +119,13 @@
       <span class="grow"></span>
       <%= link_to "View live site", root_path, target: "_blank", rel: "noopener" %>
     </header>
-    <main>
-      <% if notice %><p class="notice"><%= notice %></p><% end %>
-      <% if alert %><p class="notice" style="background:#FBEAEA;border-color:#E0B4B4"><%= alert %></p><% end %>
+    <% if notice || alert %>
+      <div style="flex:0 0 auto;padding:.6rem 1.2rem 0">
+        <% if notice %><p class="notice" style="margin:0"><%= notice %></p><% end %>
+        <% if alert %><p class="notice" style="margin:0;background:#FBEAEA;border-color:#E0B4B4"><%= alert %></p><% end %>
+      </div>
+    <% end %>
+    <main class="<%= content_for(:main_class) %>">
       <%= yield %>
     </main>
   </body>

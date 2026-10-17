@@ -27,7 +27,10 @@
   </head>
 
   <body class="<%= @page_class %>">
-    <% if respond_to?(:previewing?) && previewing? %>
+    <%# The banner is skipped inside the admin's preview pane. There it is
+        redundant -- the whole pane is labelled a draft -- and at phone width it
+        ate a sixth of the viewport, which is the part you are trying to judge. %>
+    <% if respond_to?(:previewing?) && previewing? && params[:bare].blank? %>
       <div style="background:#6D0606;color:#fff;padding:.5rem 1rem;font:14px system-ui;
                   display:flex;gap:1rem;align-items:center;position:sticky;top:0;z-index:999">
         <strong>Preview</strong>

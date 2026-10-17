@@ -1,4 +1,13 @@
 <% content_for :title, @revision.title %>
+<% content_for :main_class, "workbench" %>
+
+<%# Two panes. The controls and the conversation are narrow and on the left;
+    the right is the actual page, at full width or at phone width. Judging a
+    change by reading a description of it is not the same as looking at it, and
+    until now looking meant opening another tab and remembering to refresh. %>
+
+<aside class="pane-left">
+  <div class="fixed top">
 <div class="row">
   <h1 class="grow" style="margin:0"><%= @revision.title %></h1>
   <span class="muted"><%= @revision.summary %></span>
@@ -16,7 +25,9 @@
   <span class="grow"></span>
   <%= link_to "All revisions", admin_root_path, class: "btn ghost" %>
 </div>
+  </div>
 
+  <div class="scroller" id="scroller">
 <%# A new outbound connection must never be invisible to whoever approves the
     change. The list of allowed domains is deliberately open -- see
     docs/TODO.md -- so this is the control that replaces an allowlist. %>
@@ -66,7 +77,6 @@
     <% end %>
   </div>
 <% end %>
-
 <div class="chat">
   <% if @messages.empty? %>
     <p class="empty">
@@ -85,9 +95,10 @@
           <span id="working-cost" class="muted" style="font-size:.85rem"></span></em>
         <span class="tools" id="working-steps">
           <% Array(m.progress).each do |t| %>
-            <span style="<%= "color:#8B1A1A" if t["failed"] %>">
-              <%= t["read"] ? "·" : "→" %> <%= t["summary"].presence || t["name"] %>
-            </span><br>
+            <% label = t["say"].presence || t["summary"].presence || t["name"] %>
+            <% next if label.blank? %>
+            <span style="<%= "color:#8B1A1A" if t["failed"] %>"><%=
+              t["say"] ? "" : (t["read"] ? "· " : "→ ") %><%= label %></span>
           <% end %>
         </span>
       </div>
@@ -125,8 +136,141 @@
     <% end %>
   <% end %>
 </div>
+  </div>
+
+  <div class="fixed bottom">
+<%# Only a draft can be edited. Without this the box accepted a request on a
+    published or discarded revision, enqueued it, and failed a minute later
+    with "revision 47 is not a draft" -- which reads like a system fault
+    rather than "you are on the wrong page". %>
+<% if @revision.editable? %>
+  <%= form_with url: admin_revision_messages_path(@revision), method: :post do |f| %>
+    <%= f.text_area :content, rows: 3, autofocus: true,
+          placeholder: "What would you like to change?" %>
+    <p style="margin:.6rem 0 0"><%= f.submit "Send", class: "btn" %></p>
+  <% end %>
+<% else %>
+  <div class="card" style="border-color:#8B1A1A">
+    <strong>
+      <%= @revision.live? ? "This is the live site." : "This draft is closed." %>
+    </strong>
+    <p style="margin:.5rem 0 0" class="muted">
+      <%= if @revision.live?
+            "Published revisions are not edited directly — changes are made in a draft and published."
+          elsif @revision.state == "discarded"
+            "It was discarded, so it can be read but not changed."
+          else
+            "It has been superseded by a later revision."
+          end %>
+      Everything said here is kept.
+    </p>
+    <p style="margin:.8rem 0 0">
+      <%= button_to "Start a new draft from the live site", admin_revisions_path,
+            method: :post, class: "btn", form: { style: "display:inline" } %>
+    </p>
+  </div>
+<% end %>
+  </div>
+</aside>
+
+<section class="pane-right">
+  <div class="preview-bar">
+    <select id="preview-page" aria-label="Page to preview">
+      <% @revision.pages.order(:position, :slug).each do |pg| %>
+        <option value="<%= pg.slug %>"><%= pg.nav_title.presence || pg.title %></option>
+      <% end %>
+    </select>
+
+    <div class="seg" role="group" aria-label="Preview width">
+      <button type="button" id="w-wide" aria-pressed="true">Desktop</button>
+      <button type="button" id="w-phone" aria-pressed="false">Phone</button>
+    </div>
+
+    <button type="button" class="btn ghost" id="preview-reload" style="padding:.3rem .7rem;font-size:.85rem">Reload</button>
+    <span class="grow"></span>
+    <a class="muted" id="preview-open" href="#" target="_blank" rel="noopener">open in a tab ↗</a>
+  </div>
+
+  <div class="stage" id="stage">
+    <iframe id="preview" title="The draft as it looks now"></iframe>
+  </div>
+</section>
 
 <script>
+  // The preview pane. Which page and which width are remembered in this
+  // browser, because a finished turn reloads the whole page and losing your
+  // place on every reply would make the pane useless.
+  (function () {
+    var frame = document.getElementById("preview");
+    if (!frame) return;
+
+    var TOKEN = <%= @revision.preview_token.to_json.html_safe %>;
+    var KEY = "sjoca.preview.<%= @revision.id %>";
+    var select = document.getElementById("preview-page");
+    var stage = document.getElementById("stage");
+    var open = document.getElementById("preview-open");
+    var wide = document.getElementById("w-wide");
+    var phone = document.getElementById("w-phone");
+
+    function remembered() {
+      try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+    }
+    function remember(state) {
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private window */ }
+    }
+
+    var state = remembered();
+    if (state.slug) select.value = state.slug;
+    if (!select.value) select.selectedIndex = 0;
+
+    function path() {
+      var slug = select.value;
+      return "/" + (slug === "home" ? "" : slug);
+    }
+    // bare=1 drops the "you are looking at a draft" banner: this pane says so
+    // already, and at phone width the banner is a sixth of the screen.
+    function url() { return path() + "?preview=" + encodeURIComponent(TOKEN) + "&bare=1"; }
+    function tabUrl() { return path() + "?preview=" + encodeURIComponent(TOKEN); }
+
+    function show() {
+      frame.src = url();
+      open.href = tabUrl();   // a real tab keeps the banner
+      remember({ slug: select.value, phone: stage.classList.contains("phone") });
+    }
+
+    function setWidth(isPhone) {
+      stage.classList.toggle("phone", isPhone);
+      phone.setAttribute("aria-pressed", String(isPhone));
+      wide.setAttribute("aria-pressed", String(!isPhone));
+      remember({ slug: select.value, phone: isPhone });
+    }
+
+    setWidth(!!state.phone);
+    show();
+
+    select.addEventListener("change", show);
+    wide.addEventListener("click", function () { setWidth(false); });
+    phone.addEventListener("click", function () { setWidth(true); });
+    document.getElementById("preview-reload").addEventListener("click", show);
+
+    // Follow the conversation: when a reply says which pages it touched, show
+    // the first of them rather than making you hunt for it in the dropdown.
+    window.showTouched = function (slug) {
+      if (!slug) return;
+      select.value = slug;
+      show();
+    };
+  })();
+
+  // Keep the newest message in view. The conversation scrolls inside its pane
+  // now, so without this a long turn writes its steps off the bottom.
+  (function () {
+    var scroller = document.getElementById("scroller");
+    if (!scroller) return;
+    window.stickToBottom = function () { scroller.scrollTop = scroller.scrollHeight; };
+    stickToBottom();
+  })();
+
   // Polls while a turn is in flight. A turn can take eighty seconds, so the
   // page must visibly stay alive: the elapsed time ticks and each step appears
   // as it happens. A meta refresh in the body is not reliably honoured, which
@@ -161,6 +305,7 @@
             var colour = t.kind === "failed" ? "color:#8B1A1A" : "color:#666";
             return "<span style=\"" + colour + "\">" + mark + " " + t.text + "</span>";
           }).join("<br>");
+          if (window.stickToBottom) window.stickToBottom();
           if (d.usage && d.usage.calls) {
             cost.textContent = "· " + d.usage.calls + " calls, " +
               ((d.usage.input + d.usage.output) / 1000).toFixed(1) + "k tokens";
@@ -175,34 +320,3 @@
   })();
 </script>
 
-<%# Only a draft can be edited. Without this the box accepted a request on a
-    published or discarded revision, enqueued it, and failed a minute later
-    with "revision 47 is not a draft" -- which reads like a system fault
-    rather than "you are on the wrong page". %>
-<% if @revision.editable? %>
-  <%= form_with url: admin_revision_messages_path(@revision), method: :post do |f| %>
-    <%= f.text_area :content, rows: 3, autofocus: true,
-          placeholder: "What would you like to change?" %>
-    <p style="margin:.6rem 0 0"><%= f.submit "Send", class: "btn" %></p>
-  <% end %>
-<% else %>
-  <div class="card" style="border-color:#8B1A1A">
-    <strong>
-      <%= @revision.live? ? "This is the live site." : "This draft is closed." %>
-    </strong>
-    <p style="margin:.5rem 0 0" class="muted">
-      <%= if @revision.live?
-            "Published revisions are not edited directly — changes are made in a draft and published."
-          elsif @revision.state == "discarded"
-            "It was discarded, so it can be read but not changed."
-          else
-            "It has been superseded by a later revision."
-          end %>
-      Everything said here is kept.
-    </p>
-    <p style="margin:.8rem 0 0">
-      <%= button_to "Start a new draft from the live site", admin_revisions_path,
-            method: :post, class: "btn", form: { style: "display:inline" } %>
-    </p>
-  </div>
-<% end %>

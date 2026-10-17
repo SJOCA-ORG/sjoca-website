@@ -243,7 +243,8 @@ Mitch's idea, 14 October 2026. **Built 17 October 2026.**
 
 Noted by Mitch during the replay test, 17 October 2026. Not urgent.
 
-- [ ] **The progress box should be a fixed size and scroll inside itself.**
+- [x] **The progress box should be a fixed size and scroll inside itself.**
+      Done 17 October, along with the two-pane workbench below.
       Today it grows as the turn goes on, so the page gets longer and longer
       and the useful parts leave the screen.
 
@@ -258,6 +259,24 @@ Noted by Mitch during the replay test, 17 October 2026. Not urgent.
 
       A long turn is thirty steps. Watching one at the moment means scrolling
       down to find the end and losing the "working" indicator on the way.
+
+- [x] **Two panes: controls and conversation left, the actual page right.**
+      Also Mitch, same day. The left column is 27rem and holds the buttons, the
+      review cards, the conversation and the input; the right is an iframe of
+      the draft with a page selector and a Desktop/Phone toggle. Phone is 390px
+      — the same width the automatic browser check uses, so what you see is what
+      it saw.
+
+      Which page and which width are remembered per revision in localStorage,
+      because a finished turn reloads the page and losing your place on every
+      reply would make the pane useless. The preview iframe is loaded with
+      `bare=1`, which drops the "you are looking at a draft" banner: the pane
+      already says so, and at phone width the banner was a sixth of the screen
+      you are trying to judge.
+
+- [ ] **The preview pane does not follow the conversation yet.** When a reply
+      says which pages it touched, the pane should offer to show the first of
+      them. `window.showTouched(slug)` exists and nothing calls it.
 
 ## Known gaps
 

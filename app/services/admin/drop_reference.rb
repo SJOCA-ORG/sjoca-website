@@ -41,9 +41,12 @@ module Admin
                              "site's JavaScript then reads with JSON.parse"]
     }.freeze
 
-    def self.call
+    def self.call(revision = Current.revision)
       {
         choosing_how_to_style: CHOOSING,
+        # Measured off the stylesheet, not written down, so it describes the
+        # file as it is rather than as it was when someone last edited a doc.
+        house_css: revision ? CssConventions.call(revision) : nil,
         rules: RULES,
         # Learned in use rather than reviewed into the code. See Lesson.
         learned: Lesson.for_guide,
