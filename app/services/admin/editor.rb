@@ -128,6 +128,7 @@ module Admin
       verified_once   = false
       promises_raised = false
       looked_once     = false
+      truncated       = 0
       spent           = { input: 0, output: 0, calls: 0 }
 
       MAX_STEPS.times do
@@ -149,6 +150,32 @@ module Admin
         spent[:output] += usage["output_tokens"].to_i
         spent[:calls]  += 1
         @working&.update_columns(progress: performed, usage: spent)
+
+        # A reply that hits max_tokens stops MID-SENTENCE. What comes back can
+        # have no complete tool call and no text in it, and the loop then fell
+        # straight through to "(no reply)" -- a turn that silently did nothing
+        # and explained nothing. The code already knew this failure existed
+        # (see the repeated-failure message below) and only handled it there.
+        if response["stop_reason"] == "max_tokens"
+          truncated += 1
+          if truncated <= 2
+            conversation << { role: "user", content: [{ type: "text", text:
+              "Your last reply was cut off: it hit the length limit. Nothing in it was " \
+              "acted on. Do LESS in one go — take the next single step, keep what you " \
+              "write short, and do not list or restate things you have already seen. " \
+              "If the request is large, do the first part and say what remains." }] }
+            next
+          end
+
+          # Three in a row means it cannot say what it wants to say in the space
+          # available. Stop, and say so in a way that can be acted on.
+          message = "I could not finish this one. My replies kept running over the " \
+                    "length limit, which usually means the request is too big to do in " \
+                    "one go. Try splitting it — one page, or one person, at a time."
+          @working.update!(state: "done", content: message, tool_calls: performed,
+                           usage: spent, touched: (@tools.edited.presence || @tools.sampled).to_a)
+          return Result.new(reply: message, tool_calls: performed)
+        end
 
         uses = content.select { |c| c["type"] == "tool_use" }
         if uses.empty?
@@ -201,7 +228,18 @@ module Admin
             text = "#{text}\n\nStanding promises still broken: " \
                    "#{broken.map { |b| b[:summary] }.join('; ')}."
           end
-          @working.update!(state: "done", content: text.presence || "(no reply)",
+          # Never "(no reply)". If it genuinely said nothing, say what it DID,
+          # because a blank message reads as the system being broken.
+          if text.blank?
+            did = performed.reject { |p| p["failed"] || p["read"] || p["say"] }
+                           .filter_map { |p| p["summary"] }
+            text = did.any? ? "I made these changes: #{did.join('; ')}." : nil
+            text ||= "I looked into this but did not end up changing anything, and did " \
+                     "not say why — which is a fault at my end. Ask me again and I will " \
+                     "explain what I found."
+          end
+
+          @working.update!(state: "done", content: text,
                            tool_calls: performed, usage: spent,
                            # The pages a person would want to look at: the ones
                            # that were changed, not every page a stylesheet

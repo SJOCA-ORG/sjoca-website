@@ -43,7 +43,14 @@ module Anthropic
         source: { type: "base64", media_type: content_type, data: Base64.strict_encode64(bytes) } }
     end
 
-    def call(system:, messages:, tools: [], max_tokens: 4096)
+    # 4096 was the default and it was the direct cause of two different bugs: a
+    # stylesheet that could not be written back because 26KB is ~7,150 tokens,
+    # and a turn that ended in silence because the reply was cut off mid-tool
+    # call. The model is writing CSS and JavaScript here, which is exactly the
+    # kind of output that runs long. This costs nothing unless it is used.
+    MAX_TOKENS = 16_384
+
+    def call(system:, messages:, tools: [], max_tokens: MAX_TOKENS)
       raise Error, "no Anthropic API key configured" if @api_key.blank?
 
       body = { model: @model, max_tokens: max_tokens, system: system, messages: messages }
