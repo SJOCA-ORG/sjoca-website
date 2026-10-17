@@ -28,14 +28,30 @@ module RevisionScoped
   end
 
   def revision_from_token
-    params[:preview].present? && Revision.from_preview_token(params[:preview])
+    return nil if params[:preview].blank?
+
+    previewable(Revision.from_preview_token(params[:preview]))
   end
 
+  # The session flag is sticky by design -- an editor browses the whole site as
+  # the draft. That turned into a trap: the pin survived the draft being
+  # discarded, so the browser went on rendering a dead revision and the live
+  # site was simply unreachable. It showed an old template's empty state and
+  # looked, convincingly, like the calendar had broken.
+  #
+  # Clearing the pin is the fix, not just ignoring it, or it would be
+  # re-discovered on the next request.
   def revision_from_session
     return nil if session[:preview_revision_id].blank?
 
-    Revision.find_by(id: session[:preview_revision_id])
+    found = previewable(Revision.find_by(id: session[:preview_revision_id]))
+    session.delete(:preview_revision_id) if found.nil?
+    found
   end
+
+  # Only a draft can be previewed. A published revision IS the site, and a
+  # superseded or discarded one is history.
+  def previewable(revision) = revision&.editable? ? revision : nil
 
   def previewing? = preview_revision.present?
 end
