@@ -29,6 +29,7 @@ Rails.application.routes.draw do
       member do
         post "publish"
         get  "preview"
+        get  "status"
       end
       resources :messages, only: :create
     end

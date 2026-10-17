@@ -54,17 +54,16 @@
   <% @messages.each do |m| %>
     <% if m.working? %>
       <%# Still thinking. Shows each step as it happens, so it is visibly alive. %>
-      <div class="msg assistant" id="working">
-        <em class="muted">Working<span class="dots">…</span></em>
-        <% if Array(m.progress).any? %>
-          <span class="tools">
-            <% Array(m.progress).each do |t| %>
-              <span style="<%= "color:#8B1A1A" if t["failed"] %>">
-                <%= t["read"] ? "·" : "→" %> <%= t["summary"].presence || t["name"] %>
-              </span><br>
-            <% end %>
-          </span>
-        <% end %>
+      <div class="msg assistant" id="working" data-since="<%= m.created_at.to_i %>">
+        <em class="muted">Working<span class="dots">…</span>
+          <span id="working-clock" style="font-variant-numeric:tabular-nums">0s</span></em>
+        <span class="tools" id="working-steps">
+          <% Array(m.progress).each do |t| %>
+            <span style="<%= "color:#8B1A1A" if t["failed"] %>">
+              <%= t["read"] ? "·" : "→" %> <%= t["summary"].presence || t["name"] %>
+            </span><br>
+          <% end %>
+        </span>
       </div>
     <% else %>
       <div class="msg <%= m.role %>">
@@ -81,11 +80,44 @@
   <% end %>
 </div>
 
-<% if @working %>
-  <%# No websockets to maintain: a page this simple can just reload itself while
-      there is work in flight. %>
-  <meta http-equiv="refresh" content="3">
-<% end %>
+<script>
+  // Polls while a turn is in flight. A turn can take eighty seconds, so the
+  // page must visibly stay alive: the elapsed time ticks and each step appears
+  // as it happens. A meta refresh in the body is not reliably honoured, which
+  // is what left this looking dead.
+  (function () {
+    var box = document.getElementById("working");
+    if (!box) return;
+
+    var url = "<%= status_admin_revision_path(@revision) %>";
+    var started = Number(box.dataset.since) * 1000 || Date.now();
+    var steps = document.getElementById("working-steps");
+    var clock = document.getElementById("working-clock");
+
+    function tick() {
+      var s = Math.round((Date.now() - started) / 1000);
+      clock.textContent = s + "s";
+    }
+
+    function poll() {
+      fetch(url, { headers: { Accept: "application/json" } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d.working) { location.reload(); return; }
+          steps.innerHTML = d.steps.map(function (t) {
+            var mark = t.kind === "failed" ? "✗" : (t.kind === "read" ? "·" : "→");
+            var colour = t.kind === "failed" ? "color:#8B1A1A" : "";
+            return "<span style=\"" + colour + "\">" + mark + " " + t.text + "</span>";
+          }).join("<br>");
+          setTimeout(poll, 1500);
+        })
+        .catch(function () { setTimeout(poll, 4000); });
+    }
+
+    setInterval(tick, 1000); tick();
+    setTimeout(poll, 1200);
+  })();
+</script>
 
 <%= form_with url: admin_revision_messages_path(@revision), method: :post do |f| %>
   <%= f.text_area :content, rows: 3, autofocus: true,

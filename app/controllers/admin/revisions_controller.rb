@@ -1,6 +1,6 @@
 module Admin
   class RevisionsController < BaseController
-    before_action :load_revision, only: %i[show publish preview destroy]
+    before_action :load_revision, only: %i[show publish preview destroy status]
 
     def index
       @live   = Revision.live
@@ -12,6 +12,21 @@ module Admin
     def show
       @messages = @revision.messages
       @working  = @messages.find { |m| m.state == "working" }
+    end
+
+    # Polled by the chat page while a turn is in flight. A meta refresh in the
+    # body is not reliably honoured, which left the page looking dead for the
+    # eighty seconds a turn can take.
+    def status
+      working = @revision.messages.find_by(state: "working")
+      render json: {
+        working: working.present?,
+        since: working&.created_at&.to_i,
+        steps: Array(working&.progress).map { |t|
+          { text: t["summary"].presence || t["name"],
+            kind: t["failed"] ? "failed" : (t["read"] ? "read" : "change") }
+        }
+      }
     end
 
     def create
