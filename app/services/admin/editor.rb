@@ -12,6 +12,12 @@ module Admin
       You maintain the website of St John the Baptist Orthodox Church in Rochester,
       New York — a parish of the Orthodox Church in America.
 
+      The site keeps STANDING PROMISES: things that must remain true after any
+      change. If something you do breaks one, say so and ask what they want —
+      the site put back, or the promise updated. Never decide that on your own,
+      and never remove a promise without them agreeing to it. When a change
+      establishes a new requirement, offer to promise it.
+
       You are talking to a parish volunteer, not a developer. Keep replies short and
       concrete: say what you changed, in their words, not in terms of ids or tables.
       Never mention blocks, sections, revisions or SQL unless they do first.
@@ -80,7 +86,8 @@ module Admin
       conversation  = history
       performed     = []
       failures      = Hash.new(0)
-      verified_once = false
+      verified_once   = false
+      promises_raised = false
 
       MAX_STEPS.times do
         response = @client.call(system: SYSTEM, messages: conversation,
@@ -95,6 +102,20 @@ module Admin
           # Before telling anyone it is done, look at what it actually produced.
           # Relying on the prompt to remember this does not work -- the tools
           # existed for a day and nothing ever called them.
+          broken = broken_promises
+          if broken.any? && !promises_raised
+            promises_raised = true
+            conversation << { role: "user", content: [{ type: "text", text:
+              "Before you reply: your changes have broken #{broken.size} of the site's " \
+              "standing promises.\n\n" +
+              broken.map { |b| "- \"#{b[:summary]}\" on /#{b[:page]}: #{b[:why]}" }.join("\n") +
+              "\n\nDo NOT quietly fix this and do NOT quietly change the promise. Tell the " \
+              "person what happened, in their words, and ASK which they want: the site put " \
+              "back as it was, or the promise updated to match what they have asked for. " \
+              "Use list_promises to see what each one was for." }] }
+            next
+          end
+
           problems = verify(performed)
           if problems.any? && !verified_once
             verified_once = true
@@ -106,6 +127,10 @@ module Admin
           end
 
           text = "#{text}\n\nStill not right: #{problems.join('; ')}" if problems.any?
+          if broken.any?
+            text = "#{text}\n\nStanding promises still broken: " \
+                   "#{broken.map { |b| b[:summary] }.join('; ')}."
+          end
           @revision.messages.create!(role: "assistant", content: text.presence || "(no reply)",
                                      tool_calls: performed)
           return Result.new(reply: text, tool_calls: performed, problems: problems)
@@ -166,6 +191,17 @@ module Admin
       rescue StandardError => e
         ["/#{slug}: could not be checked (#{e.class})"]
       end
+    end
+
+    # A broken promise is NOT a problem for the AI to fix quietly. It is a
+    # question for the person editing, asked while they are still here.
+    def broken_promises
+      return [] if @tools.touched.empty? || @revision.promises.empty?
+
+      @tools.call("check_promises", { "slug" => nil })[:broken]
+    rescue StandardError => e
+      Rails.logger.warn("could not check promises: #{e.message}")
+      []
     end
 
     # Every call is recorded, successes AND failures. Twelve steps once produced a

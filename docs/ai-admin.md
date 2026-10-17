@@ -593,7 +593,7 @@ council than the fallback was.
 
 ## Standing promises
 
-Designed 15 October 2026, not yet built.
+Designed 15 October 2026, **built 17 October 2026**.
 
 Writing code, every change comes with a spec. The equivalent here is a **standing
 promise**: something about the site that should remain true after the next
@@ -672,9 +672,19 @@ A script returning `true` unconditionally also "works", and a promise that canno
 fail is **worse than none** — it manufactures confidence.
 
 So a new promise is proved twice: it passes **now**, and it fails when the thing
-it asserts is **removed**. For content that is usually cheap — delete the block,
-re-run, confirm red, put it back. Where it is not, the AI states plainly what
-would make it fail, and that sentence sits beside the summary at review.
+it asserts is **removed**.
+
+`add_promise` enforces the first leg — it runs the script before saving and
+refuses a promise that does not already hold. The second leg is currently the
+AI's word: it records, in `proof`, what would make the promise fail, and that
+sentence sits beside the summary at review.
+
+**That is not good enough, and here is the evidence.** Writing this feature, a
+promise was added asserting the parish is named on the home page. The name also
+appears in the hero title, so deleting the heading it was meant to protect left
+it green. A promise that cannot fail is worse than none, and the first leg
+cannot catch it — only actually removing the thing and confirming red can.
+Automating that is the obvious next improvement.
 
 ### The risk: erosion
 

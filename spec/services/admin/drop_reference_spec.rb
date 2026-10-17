@@ -60,6 +60,31 @@ RSpec.describe Admin::DropReference do
     end
   end
 
+  # One malformed definition is rejected by the API as a whole, so EVERY tool
+  # stops working -- not just the bad one. A `required: {}` instead of `[]` took
+  # out all 46 at once.
+  it "offers only well-formed tool definitions" do
+    Admin::Tools.definitions.each do |d|
+      expect(d[:name]).to match(/\A[a-z][a-z0-9_]*\z/)
+      expect(d[:description]).to be_present
+      expect(d[:input_schema][:type]).to eq("object")
+      expect(d[:input_schema][:properties]).to be_a(Hash)
+      expect(d[:input_schema][:required])
+        .to be_an(Array), "#{d[:name]} has required: #{d[:input_schema][:required].inspect}"
+      d[:input_schema][:required].each do |field|
+        expect(d[:input_schema][:properties].keys.map(&:to_s))
+          .to include(field.to_s), "#{d[:name]} requires #{field} but does not define it"
+      end
+    end
+  end
+
+  it "serialises to what the API will accept" do
+    json = JSON.parse(Admin::Tools.definitions.to_json)
+    json.each do |d|
+      expect(d["input_schema"]["required"]).to be_an(Array), "#{d['name']} required is not an array"
+    end
+  end
+
   # Every tool the AI is offered must actually be callable.
   it "offers no tool without a method behind it" do
     build_page   # so there is live content to branch from

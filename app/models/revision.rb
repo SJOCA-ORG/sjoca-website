@@ -11,6 +11,8 @@ class Revision < ApplicationRecord
   has_many :blocks,   dependent: :destroy
   has_many :theme_assets, dependent: :destroy
   has_many :templates,    dependent: :destroy
+  has_many :revision_promises, dependent: :destroy
+  has_many :promises, through: :revision_promises
   has_many :messages, -> { order(:created_at) },
            class_name: "RevisionMessage", dependent: :destroy, inverse_of: :revision
 
@@ -50,6 +52,12 @@ class Revision < ApplicationRecord
       # Templates first: a block's kind is only valid if block/<kind> exists in
       # the same revision, so copying content before templates fails validation.
       source.templates.find_each    { |t| t.dup.tap { |c| c.revision = draft }.save! }
+
+      # The promise LIST is copied; the promises themselves are shared and
+      # immutable, so there is nothing to duplicate.
+      source.revision_promises.find_each do |rp|
+        draft.revision_promises.create!(promise_id: rp.promise_id)
+      end
       source.theme_assets.find_each { |a| a.dup.tap { |c| c.revision = draft }.save! }
 
       pages    = source.pages.index_with    { |p| p.dup.tap { |c| c.revision = draft }.tap(&:save!) }
@@ -75,6 +83,20 @@ class Revision < ApplicationRecord
               created_by: created_by || by)
     end
     self
+  end
+
+  # What this revision changed about the site's standing promises, for the
+  # approval screen. Removals are reported in full -- they are the hardest
+  # change for a reviewer to notice, because "removed a check that no longer
+  # applies" reads as tidying.
+  def promise_changes
+    return { added: [], removed: [] } if based_on.nil?
+
+    mine   = promise_ids.to_set
+    before = based_on.promise_ids.to_set
+
+    { added:   Promise.where(id: (mine - before).to_a).to_a,
+      removed: Promise.where(id: (before - mine).to_a).to_a }
   end
 
   def summary = "#{pages.count} pages, #{sections.count} sections, #{blocks.count} blocks"

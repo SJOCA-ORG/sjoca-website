@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_15_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_17_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -155,6 +155,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_100000) do
     t.index ["human_name", "version"], name: "index_photos_on_human_name_and_version"
   end
 
+  create_table "promises", force: :cascade do |t|
+    t.string "summary", null: false
+    t.text "intent", null: false
+    t.text "script", null: false
+    t.string "page_slug"
+    t.string "created_by"
+    t.integer "introduced_in"
+    t.text "proof"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "revision_messages", force: :cascade do |t|
     t.bigint "revision_id", null: false
     t.string "role", null: false
@@ -163,6 +175,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["revision_id", "created_at"], name: "index_revision_messages_on_revision_id_and_created_at"
+  end
+
+  create_table "revision_promises", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.bigint "promise_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["promise_id"], name: "index_revision_promises_on_promise_id"
+    t.index ["revision_id", "promise_id"], name: "index_revision_promises_on_revision_id_and_promise_id", unique: true
   end
 
   create_table "revisions", force: :cascade do |t|

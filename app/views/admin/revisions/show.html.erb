@@ -13,6 +13,35 @@
   <%= link_to "All revisions", admin_root_path, class: "btn ghost" %>
 </div>
 
+<% changes = @revision.promise_changes %>
+<% if changes[:added].any? || changes[:removed].any? %>
+  <div class="card" style="border-color:#8B1A1A">
+    <strong>Changes to what this site promises</strong>
+
+    <% changes[:removed].each do |p| %>
+      <%# Louder than an addition, deliberately. %>
+      <p style="margin:.7rem 0 0;padding:.6rem .8rem;background:#FBEAEA;border-radius:6px">
+        <strong style="color:#8B1A1A">No longer checked:</strong>
+        <%= p.summary %>
+        <span class="muted">— <%= p.scope_text %>, <%= p.age_text %></span>
+        <br>
+        <span class="muted" style="font-size:.85rem"><%= p.intent %></span>
+      </p>
+    <% end %>
+
+    <% changes[:added].each do |p| %>
+      <p style="margin:.5rem 0 0">
+        <strong>Now promised:</strong> <%= p.summary %>
+        <span class="muted">— <%= p.scope_text %></span>
+        <details style="margin-top:.2rem">
+          <summary class="muted" style="font-size:.85rem;cursor:pointer">why</summary>
+          <span class="muted" style="font-size:.85rem"><%= p.intent %></span>
+        </details>
+      </p>
+    <% end %>
+  </div>
+<% end %>
+
 <div class="chat">
   <% if @messages.empty? %>
     <p class="empty">

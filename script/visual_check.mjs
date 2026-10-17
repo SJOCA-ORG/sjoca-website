@@ -19,6 +19,9 @@ const SHOTS = process.argv.includes("--shots");
 // more". Without this the check only ever sees a page in its resting state,
 // and the worst bug on this site was one that only appeared after a tap.
 const CLICK = (process.argv.find((a) => a.startsWith("--click=")) || "").slice(8);
+// Standing promises to evaluate, as JSON on stdin: [{id, summary, script}].
+// Every promise for a page is checked in ONE page load.
+const PROMISES = (process.argv.find((a) => a.startsWith("--promises=")) || "").slice(11);
 const OUT = process.env.SHOT_DIR || "/tmp/sjoca-shots";
 
 if (!URL_ARG) { console.error("usage: visual_check.mjs <url> [--shots]"); process.exit(1); }
@@ -142,6 +145,31 @@ const clickExpr = (sel) => `(() => {
   return true;
 })()`;
 
+// Promises are JavaScript returning { pass, message }. They run inside the page,
+// so the browser is the sandbox: they cannot reach the server, the database or
+// the filesystem. Each gets a time budget of its own so one bad loop cannot hang
+// the rest.
+const promiseExpr = (list) => `(() => {
+  const results = [];
+  for (const p of ${JSON.stringify(list)}) {
+    const started = Date.now();
+    try {
+      const fn = new Function(p.script);
+      const out = fn();
+      results.push({
+        id: p.id, summary: p.summary,
+        pass: !!(out && out.pass),
+        message: (out && out.message) || "",
+        ms: Date.now() - started,
+      });
+    } catch (e) {
+      results.push({ id: p.id, summary: p.summary, pass: false,
+                     message: "the check itself failed: " + e.message, broken: true });
+    }
+  }
+  return results;
+})()`;
+
 const result = { url: URL_ARG, widths: {} };
 
 try {
@@ -184,6 +212,17 @@ try {
         const extra = (after.value.findings || []).map(f => ({ ...f, what: f.what + label }));
         result.widths[w.name].findings.push(...extra);
         result.widths[w.name].clicked = selector;
+      }
+    }
+
+    // Promises are evaluated at desktop width unless they say otherwise; a
+    // promise about a phone can measure innerWidth for itself.
+    if (PROMISES && w.name === "desktop") {
+      const list = JSON.parse(PROMISES);
+      if (list.length) {
+        const { result: pr } = await send("Runtime.evaluate",
+          { expression: promiseExpr(list), returnByValue: true, timeout: 10000 }, sessionId);
+        result.promises = pr.value || [];
       }
     }
 

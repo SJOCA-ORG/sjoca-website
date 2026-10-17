@@ -156,6 +156,32 @@ module Admin
              { js: str("The complete JavaScript to use") }, %w[js]),
 
         # --- what you have worked out -----------------------------------------
+        tool("list_promises",
+             "The site's standing promises — things that should stay true after any change, " \
+             "with what each one is for.", {}),
+        tool("add_promise",
+             "Record something that should stay true from now on. Use this when a change " \
+             "establishes a REQUIREMENT, not a preference: 'the home page shows the service " \
+             "times' is a promise; 'the heading reads Financially Support' is not, because " \
+             "rewording it is legitimate. The script is JavaScript run in the rendered page, " \
+             "returning { pass, message }. It is checked before being saved.",
+             { summary: str("One short line, shown to whoever approves"),
+               intent: str("The full reasoning: what this is for and why it matters. You will " \
+                           "read this later when judging whether a failure means the site is " \
+                           "wrong or the promise is."),
+               script: str("JavaScript returning { pass: boolean, message: string }"),
+               page_slug: str("Which page, or leave empty for every page"),
+               proof: str("What would make this fail. If you cannot show it failing, say here " \
+                          "what would — a promise that cannot fail is worse than none.") },
+             %w[summary intent script]),
+        tool("remove_promise",
+             "Stop checking a promise. Only after agreeing it with the person you are talking " \
+             "to — never on your own judgement.",
+             { id: int("Promise id"), because: str("Why it no longer applies, in their words") },
+             %w[id because]),
+        tool("check_promises",
+             "Run the standing promises and report which are kept and which are broken.",
+             { slug: str("Optional: just this page") }),
         tool("record_lesson",
              "Write down something you worked out that would otherwise have to be worked " \
              "out again — a Liquid construct that behaved unexpectedly, a convention of " \
@@ -608,6 +634,56 @@ module Admin
     end
 
     # ---- photographs ---------------------------------------------------------
+
+    # ---- standing promises ---------------------------------------------------
+
+    def list_promises(**)
+      { promises: revision.promises.map { |p|
+          { id: p.id, summary: p.summary, applies_to: p.scope_text,
+            intent: p.intent, since: p.age_text } },
+        note: "A promise is only removed after agreeing it with the person you are talking to." }
+    end
+
+    def add_promise(summary:, intent:, script:, page_slug: nil, proof: nil, **)
+      promise = Promise.new(summary: summary, intent: intent, script: script,
+                            page_slug: page_slug.presence, proof: proof,
+                            created_by: revision.created_by, introduced_in: revision.id)
+      raise ToolError, promise.errors.full_messages.to_sentence unless promise.valid?
+
+      # It must pass NOW, or it is asserting something that is not true.
+      promise.save!
+      revision.revision_promises.create!(promise: promise)
+      results = PromiseRunner.new(revision).call(only: [page_slug.presence || revision.pages.first&.slug].compact)
+      mine = results.find { |r| r[:promise_id] == promise.id }
+
+      if mine && !mine[:pass]
+        revision.revision_promises.where(promise: promise).destroy_all
+        promise.destroy
+        raise ToolError, "that promise does not hold on the site as it is now: #{mine[:message]}. " \
+                         "Either the script is wrong, or the thing it promises is not there yet."
+      end
+
+      touched_everything!
+      ok "promised: #{summary}", promise: promise.id
+    end
+
+    def remove_promise(id:, because:, **)
+      link = revision.revision_promises.find_by(promise_id: id) or
+        raise ToolError, "promise #{id} is not on this revision"
+      promise = link.promise
+      link.destroy!
+      touched_everything!
+      ok "stopped checking \"#{promise.summary}\" (#{promise.age_text}) — #{because}"
+    end
+
+    def check_promises(slug: nil, **)
+      results = PromiseRunner.new(revision).call(only: slug.present? ? [slug] : nil)
+      broken = results.reject { |r| r[:pass] }
+      { kept: results.count { |r| r[:pass] },
+        broken: broken.map { |r| { id: r[:promise_id], summary: r[:summary],
+                                   page: r[:page], why: r[:message] } },
+        ok: broken.empty? }
+    end
 
     def images = @images ||= ImageTools.new(revision)
 
