@@ -157,7 +157,8 @@ module Admin
                    "#{broken.map { |b| b[:summary] }.join('; ')}."
           end
           @working.update!(state: "done", content: text.presence || "(no reply)",
-                           tool_calls: performed, usage: spent)
+                           tool_calls: performed, usage: spent,
+                           touched: @tools.touched.to_a)
           return Result.new(reply: text, tool_calls: performed, problems: problems)
         end
 

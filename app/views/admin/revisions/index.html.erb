@@ -26,7 +26,8 @@
       </div>
       <div class="row" style="margin-top:.7rem">
         <%= link_to "Open", admin_revision_path(r), class: "btn" %>
-        <%= link_to "Preview the site", preview_admin_revision_path(r), class: "btn ghost" %>
+        <%= link_to "View it ↗", "/?preview=#{r.preview_token}", class: "btn ghost",
+              target: "_blank", rel: "noopener" %>
         <%= button_to "Publish", publish_admin_revision_path(r), class: "btn",
               form: { style: "display:inline" },
               data: { turbo_confirm: "Publish this revision? The live site changes immediately." } %>

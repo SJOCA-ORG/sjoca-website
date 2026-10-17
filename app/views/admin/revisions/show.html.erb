@@ -5,7 +5,11 @@
 </div>
 
 <div class="row" style="margin:1rem 0">
-  <%= link_to "Preview the site", preview_admin_revision_path(@revision), class: "btn ghost" %>
+  <%# A signed link, opened in a new tab: looking at the draft should not take
+      you out of the conversation, and should not disturb the admin session. %>
+  <%= link_to "View this draft ↗", "/?preview=#{@revision.preview_token}",
+        class: "btn", target: "_blank", rel: "noopener" %>
+  <%= link_to "Browse it in place", preview_admin_revision_path(@revision), class: "btn ghost" %>
   <%= button_to "Publish", publish_admin_revision_path(@revision), class: "btn",
         form: { style: "display:inline" },
         data: { turbo_confirm: "Publish this revision? The live site changes immediately." } %>
@@ -69,6 +73,16 @@
     <% else %>
       <div class="msg <%= m.role %>">
         <%= m.content %>
+        <% if m.touched.present? %>
+          <span class="tools" style="border-top:0;padding-top:.3rem">
+            <% Array(m.touched).first(4).each do |slug| %>
+              <%= link_to "see /#{slug} ↗",
+                    "/#{slug == 'home' ? '' : slug}?preview=#{@revision.preview_token}",
+                    target: "_blank", rel: "noopener",
+                    style: "margin-right:.7rem" %>
+            <% end %>
+          </span>
+        <% end %>
         <% if m.tool_calls.present? %>
           <details class="tools">
             <summary style="cursor:pointer;color:#666">
