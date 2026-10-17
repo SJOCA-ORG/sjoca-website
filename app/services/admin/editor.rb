@@ -6,7 +6,7 @@ module Admin
   # The conversation is rebuilt from the database each turn, which is what makes
   # a session survive a reload, a logout, or coming back tomorrow.
   class Editor
-    MAX_STEPS = 12
+    MAX_STEPS = 30
 
     SYSTEM = <<~PROMPT.freeze
       You maintain the website of St John the Baptist Orthodox Church in Rochester,
@@ -86,12 +86,17 @@ module Admin
       @tools    = Tools.new(revision)
     end
 
-    def call(user_text)
-      @revision.messages.create!(role: "user", content: user_text)
-
-      # A placeholder the page can watch while the work happens.
-      @working = @revision.messages.create!(role: "assistant", state: "working",
-                                            content: "", progress: [])
+    def call(user_text, placeholder_id: nil)
+      # The caller usually creates both rows before enqueueing, so the page has
+      # something to poll the instant it loads. Create them here only when
+      # something calls this directly, such as a test.
+      if placeholder_id
+        @working = @revision.messages.find(placeholder_id)
+      else
+        @revision.messages.create!(role: "user", content: user_text)
+        @working = @revision.messages.create!(role: "assistant", state: "working",
+                                              content: "", progress: [])
+      end
 
       conversation  = history
       performed     = []
@@ -191,10 +196,10 @@ module Admin
       # Say what actually happened rather than "I stopped after 12 steps", which
       # tells the person nothing about whether their change was made.
       failed = performed.select { |p| p["failed"] }
-      done   = performed.reject { |p| p["failed"] || p["read"] }
+      done   = performed.reject { |p| p["failed"] || p["read"] || p["say"] }
       message = +"I ran out of steps before finishing."
-      message << " I did manage: #{done.map { |p| p['summary'] }.join('; ')}." if done.any?
-      message << " What kept failing: #{failed.map { |p| p['summary'] }.uniq.first(2).join('; ')}." if failed.any?
+      message << " I did manage: #{done.map { |p| p['summary'] }.compact_blank.join('; ')}." if done.any?
+      message << " What kept failing: #{failed.map { |p| p['summary'] }.compact_blank.uniq.first(2).join('; ')}." if failed.any?
       message << " Have a look at what is there, and tell me what still needs doing."
       @working.update!(state: "done", content: message, tool_calls: performed)
       Result.new(reply: message, tool_calls: performed)

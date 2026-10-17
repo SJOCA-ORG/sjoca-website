@@ -13,7 +13,11 @@ module Admin
 
       # Out of the request. A turn can take a minute, and a frozen page with no
       # sign of life is the difference between usable and not.
-      EditingTurnJob.perform_later(revision.id, text)
+      revision.messages.create!(role: "user", content: text)
+      placeholder = revision.messages.create!(role: "assistant", state: "working",
+                                              content: "", progress: [])
+
+      EditingTurnJob.perform_later(revision.id, text, placeholder.id)
       redirect_to admin_revision_path(revision)
     end
   end

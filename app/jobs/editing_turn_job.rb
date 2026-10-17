@@ -6,9 +6,9 @@
 class EditingTurnJob < ApplicationJob
   queue_as :default
 
-  def perform(revision_id, text)
+  def perform(revision_id, text, placeholder_id = nil)
     revision = Revision.find(revision_id)
-    Admin::Editor.new(revision).call(text)
+    Admin::Editor.new(revision).call(text, placeholder_id: placeholder_id)
   rescue StandardError => e
     Rails.logger.error("editing turn failed: #{e.class}: #{e.message}")
     revision&.messages&.create!(
