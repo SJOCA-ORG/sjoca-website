@@ -39,6 +39,34 @@
         <%= link_to "Exit preview", admin_exit_preview_path, style: "color:#fff" %>
       </div>
     <% end %>
+    <%# Only inside the admin's preview pane, which is what bare=1 means. The
+        public site never loads this.
+
+        Links in the page are ordinary ("/about-us"), so clicking one in the
+        pane would leave the draft and land on the live site. Carrying the
+        token in every link instead would mean the AI had to remember to add it
+        to every link it ever writes in a template -- which it would eventually
+        not do, silently. Rewriting on the way out needs nothing of anybody. %>
+    <% if previewing? && params[:bare].present? %>
+      <script>
+        (function () {
+          var keep = new URLSearchParams(location.search);
+          document.addEventListener("click", function (e) {
+            var a = e.target.closest && e.target.closest("a[href]");
+            if (!a || a.target === "_blank") return;
+
+            var to = new URL(a.getAttribute("href"), location.href);
+            if (to.origin !== location.origin) return;          // leave the parish's own links alone
+            if (to.pathname === location.pathname && to.hash) return;  // in-page anchor
+
+            e.preventDefault();
+            to.searchParams.set("preview", keep.get("preview"));
+            to.searchParams.set("bare", "1");
+            location.href = to.toString();
+          });
+        })();
+      </script>
+    <% end %>
     <a class="skip-link" href="#main">Skip to main content</a>
     <%= @header %>
     <main id="main"><%= yield %></main>

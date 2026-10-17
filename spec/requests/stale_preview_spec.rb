@@ -62,3 +62,41 @@ RSpec.describe "a stale preview pin", type: :request do
     expect(response.body).not_to include("Draft title")
   end
 end
+
+# The preview pane lets you click around the draft. Links in a page are
+# ordinary ("/about-us"), so without help a click lands on the LIVE site --
+# which looks like the draft silently losing your change.
+RSpec.describe "clicking around inside the preview pane", type: :request do
+  before { build_page(slug: "home", title: "Home") }
+
+  let(:draft) { Revision.open_sandbox }
+
+  it "carries the token through links, but only in the pane" do
+    get "/?preview=#{draft.preview_token}&bare=1"
+    expect(response.body).to include('searchParams.set("preview"')
+  end
+
+  it "adds nothing at all to the live site" do
+    get "/"
+    expect(response.body).not_to include('searchParams.set("preview"')
+  end
+
+  it "adds nothing to an ordinary preview opened in a real tab" do
+    get "/?preview=#{draft.preview_token}"
+    expect(response.body).not_to include('searchParams.set("preview"')
+  end
+
+  it "keeps the draft banner in a real tab and drops it in the pane" do
+    get "/?preview=#{draft.preview_token}"
+    expect(response.body).to include("You are looking at a draft")
+
+    get "/?preview=#{draft.preview_token}&bare=1"
+    expect(response.body).not_to include("You are looking at a draft")
+  end
+
+  it "ignores bare on the live site, so nobody can hide the banner with a query string" do
+    get "/?bare=1"
+    expect(response).to have_http_status(:ok)
+    expect(response.body).not_to include('searchParams.set("preview"')
+  end
+end

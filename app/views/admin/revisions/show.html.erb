@@ -248,6 +248,21 @@
     setWidth(!!state.phone);
     show();
 
+    // Clicking about inside the pane changes the page; the selector should say
+    // where you actually are, and coming back later should return you there.
+    frame.addEventListener("load", function () {
+      var here;
+      try { here = frame.contentWindow.location.pathname; } catch (e) { return; }
+
+      var slug = here === "/" ? "home" : here.replace(/^\/|\/$/g, "");
+      if (![].some.call(select.options, function (o) { return o.value === slug; })) return;
+      if (select.value === slug) return;
+
+      select.value = slug;
+      open.href = tabUrl();
+      remember({ slug: slug, phone: stage.classList.contains("phone") });
+    });
+
     select.addEventListener("change", show);
     wide.addEventListener("click", function () { setWidth(false); });
     phone.addEventListener("click", function () { setWidth(true); });
