@@ -239,6 +239,19 @@ Mitch's idea, 14 October 2026. **Built 17 October 2026.**
       moves and the site shows last month's services for a month. Wants a
       staleness bound, and something visible past it.
 
+## Before the parish sees the admin
+
+- [ ] **Take the cost meter off the admin page.** Added 17 October while the
+      question was "can a parish afford to edit its own website". A volunteer
+      editor should not be watching a till run while they fix a typo, and a
+      price per change is an invitation to hesitate over small corrections,
+      which is the opposite of what this is for.
+
+      Only the display comes out. The usage is kept on every message either
+      way, every turn writes a line to the Rails log, and `Admin::Cost` adds up
+      a revision — so whoever is answering to the council can still get a
+      figure without anyone having to watch one.
+
 ## The admin chat window
 
 Noted by Mitch during the replay test, 17 October 2026. Not urgent.

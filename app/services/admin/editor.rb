@@ -148,7 +148,8 @@ module Admin
       looked_once     = false
       truncated       = 0
       assumed_once    = false
-      spent           = { input: 0, output: 0, cache_read: 0, cache_write: 0, calls: 0 }
+      spent           = { input: 0, output: 0, cache_read: 0, cache_write: 0, calls: 0,
+                          model: Anthropic::Client.model }
 
       MAX_STEPS.times do
         response = @client.call(system: system_prompt, messages: conversation,
@@ -303,6 +304,13 @@ module Admin
                      "not say why — which is a fault at my end. Ask me again and I will " \
                      "explain what I found."
           end
+
+          Rails.logger.info(
+            "editing turn: revision #{@revision.id} · #{spent[:calls]} calls · " \
+            "#{spent[:input]} in, #{spent[:output]} out, #{spent[:cache_read]} cached · " \
+            "#{Cost.format(Cost.of(spent))} (uncached would be #{Cost.format(Cost.uncached(spent))}) · " \
+            "#{spent[:model]}"
+          )
 
           @working.update!(state: "done", content: text,
                            tool_calls: performed, usage: spent,

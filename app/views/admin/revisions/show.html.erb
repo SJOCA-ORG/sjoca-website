@@ -13,6 +13,27 @@
   <span class="muted"><%= @revision.summary %></span>
 </div>
 
+<%# A running total for this revision. Development only -- it comes out before
+    the parish sees this -- but while the question is "can a parish afford to
+    edit its own website", the answer should be a number on the screen rather
+    than a developer's recollection. The underlying usage is kept on every
+    message either way, so the log survives the meter being removed. %>
+<% spent = Admin::Cost.of_revision(@revision) %>
+<% if spent.positive? %>
+  <div class="row" style="margin:.6rem 0 0;padding:.45rem .7rem;border:1px dashed var(--rule);
+                          border-radius:8px;font-size:.85rem">
+    <span class="muted">This revision has cost</span>
+    <strong><%= Admin::Cost.format(spent) %></strong>
+    <% turns = @revision.messages.count { |m| m.usage.present? } %>
+    <span class="muted">over <%= pluralize(turns, "change") %>
+      (<%= Admin::Cost.format(spent / turns) %> each)</span>
+    <% saved = @revision.messages.filter_map(&:usage).sum { |u| Admin::Cost.uncached(u) } - spent %>
+    <% if saved > 0.005 %>
+      <span class="grow"></span>
+      <span class="muted">caching saved <%= Admin::Cost.format(saved) %></span>
+    <% end %>
+  </div>
+<% end %>
 <div class="row" style="margin:1rem 0">
   <%# A signed link, opened in a new tab: looking at the draft should not take
       you out of the conversation, and should not disturb the admin session. %>
@@ -130,7 +151,12 @@
             <summary style="cursor:pointer;color:#666">
               what it did<% if m.usage.present? %>
                 — <%= m.usage["calls"] %> calls,
-                <%= number_with_delimiter(m.usage["input"].to_i + m.usage["output"].to_i) %> tokens
+                <%= number_with_delimiter(m.usage["input"].to_i + m.usage["output"].to_i) %> new
+                <%- cached = m.usage["cache_read"].to_i -%>
+                <%= "+ #{number_with_delimiter(cached)} cached" if cached.positive? %>,
+                <strong><%= Admin::Cost.format(Admin::Cost.of(m.usage)) %></strong>
+                <%- saved = Admin::Cost.uncached(m.usage) - Admin::Cost.of(m.usage) -%>
+                <%= "(saved #{Admin::Cost.format(saved)})" if saved > 0.005 %>
               <% end %>
             </summary>
             <% Array(m.tool_calls).each do |t| %>
