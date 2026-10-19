@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_130109) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_183501) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -158,7 +158,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_130109) do
     t.string "self_nav_title"
     t.bigint "revision_id", null: false
     t.integer "hero_asset_version"
+    t.string "layout", default: "page", null: false
+    t.date "dated_on"
     t.index ["parent_slug", "position"], name: "index_pages_on_parent_slug_and_position"
+    t.index ["revision_id", "dated_on"], name: "index_pages_on_revision_id_and_dated_on"
+    t.index ["revision_id", "layout"], name: "index_pages_on_revision_id_and_layout"
     t.index ["revision_id", "slug"], name: "index_pages_on_revision_id_and_slug", unique: true
     t.index ["revision_id"], name: "index_pages_on_revision_id"
   end

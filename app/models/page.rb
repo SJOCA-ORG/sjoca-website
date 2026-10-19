@@ -12,6 +12,21 @@ class Page < ApplicationRecord
   # menu order between them was undefined -- the same class of bug that had
   # one photograph on the deployed site and another locally.
   scope :in_nav,      -> { where(show_in_nav: true).order(:position, :id) }
+
+  # What a page IS, as opposed to what is on it. "page" is the ordinary site
+  # page; "bulletin" is 5.5 x 8.5, dated, and printable.
+  LAYOUTS = %w[page bulletin].freeze
+
+  validates :layout, inclusion: { in: LAYOUTS }
+
+  scope :bulletins, -> { where(layout: "bulletin").order(dated_on: :desc, id: :desc) }
+  scope :ordinary,  -> { where(layout: "page") }
+
+  def bulletin? = layout == "bulletin"
+
+  # The Sunday a bulletin is for, which is what its readings and services are
+  # computed from -- not the day somebody edited it.
+  def bulletin_date = dated_on || created_at&.to_date
   scope :top_level,   -> { where(parent_slug: nil) }
 
   def self.find_by_path!(path, revision: Current.revision)

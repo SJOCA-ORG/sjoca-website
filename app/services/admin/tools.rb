@@ -787,6 +787,10 @@ module Admin
         ok: findings.none? { |f| f["severity"] == "broken" },
         findings: findings,
         checked: data["widths"].keys,
+        # A bulletin page is a fixed piece of paper and can actually fail to
+        # fit. Reported every time, not only when it overflows: knowing a page
+        # has four inches spare is how you decide what to move onto it.
+        sheets: data["sheets"],
         # Paths, not bytes. The editor reads them and builds the image blocks, so
         # nothing here is large enough to bloat the message log it is recorded in.
         screenshots: data["widths"].filter_map { |w, v| { "width" => w, "path" => v["screenshot"] } if v["screenshot"] } }

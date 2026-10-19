@@ -138,6 +138,43 @@ const INSPECT = `(() => {
            text: document.body.innerText.trim().length };
 })()`;
 
+// A bulletin page is 5.5 x 8.5 and can actually fail to fit -- a web page
+// cannot, because it scrolls. Content taller than the sheet does not overflow
+// visibly on screen; it silently spills onto an extra piece of paper, which
+// nobody discovers until the copier has made two hundred of them.
+//
+// 8.5in at 96 CSS pixels to the inch is 816px, less the sheet's own padding.
+const FITS = `(() => {
+  const sheets = [...document.querySelectorAll(".sheet")];
+  if (!sheets.length) return null;
+
+  const INCH = 96;
+  return sheets.map((sheet, i) => {
+    const style = getComputedStyle(sheet);
+    const padding = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    const room = 8.5 * INCH - padding;
+    // NOT the inner box's height: .sheet__inner is flex:1, so it stretches to
+    // fill the sheet and would always report fitting exactly -- which is what
+    // the first version of this did, reporting "739px of 739px" for four
+    // pages that were nearly empty.
+    //
+    // The real extent is from the top of the first thing on the page to the
+    // bottom of the last.
+    const inner = sheet.firstElementChild || sheet;
+    const kids = [...inner.children].filter(k => k.getBoundingClientRect().height > 0);
+    const used = kids.length
+      ? kids[kids.length - 1].getBoundingClientRect().bottom - kids[0].getBoundingClientRect().top
+      : 0;
+    return {
+      page: i + 1,
+      used: Math.round(used),
+      room: Math.round(room),
+      over: Math.max(0, Math.round(used - room)),
+      spare: Math.max(0, Math.round(room - used)),
+    };
+  });
+})()`;
+
 const clickExpr = (sel) => `(() => {
   const el = document.querySelector(${JSON.stringify(sel)});
   if (!el || getComputedStyle(el).display === "none") return false;
@@ -225,6 +262,26 @@ try {
         result.promises = pr.value || [];
       }
     }
+
+    // Measured at desktop width: the sheet is a fixed physical size, so the
+    // viewport it is measured in does not matter, and measuring twice would
+    // only invite two answers.
+    if (w.name === "desktop") {
+      const { result: fit } = await send("Runtime.evaluate",
+        { expression: FITS, returnByValue: true }, sessionId);
+      if (fit.value) {
+        result.sheets = fit.value;
+        fit.value.filter((s) => s.over > 0).forEach((s) => {
+          result.widths[w.name].findings.push({
+            severity: "broken",
+            what: `page ${s.page} of the bulletin does not fit`,
+            detail: `${s.over}px past the bottom of a 5.5 x 8.5 sheet — it will print `
+                  + `onto an extra page. Shorten it, or move something to the next page.`,
+          });
+        });
+      }
+    }
+
 
     if (SHOTS) {
       const shot = await send("Page.captureScreenshot",
