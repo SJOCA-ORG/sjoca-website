@@ -175,6 +175,18 @@ module Admin
       end
 
       conversation = history
+
+      # The API requires the conversation to end with something the person
+      # said. Every ordinary path satisfies that -- the controller writes the
+      # user's message before enqueueing, and a continuation appends its own
+      # instruction below -- but a history that ends on a reply would lose the
+      # whole turn to "does not support assistant message prefill", which names
+      # the symptom and not the cause.
+      if conversation.last && conversation.last[:role] != "user"
+        conversation << { role: "user", content: [{ type: "text", text: user_text.presence ||
+          "Carry on." }] }
+      end
+
       if round > 1
         conversation << { role: "user", content: [{ type: "text", text:
           "Carry on with the request above from where the last round stopped. What was " \
@@ -548,7 +560,14 @@ module Admin
     # one I am about to upload" reaches the model as a sentence about a
     # photograph it has no way to identify.
     def history
-      @revision.messages.order(:created_at).map do |m|
+      # Not the placeholder this turn is about to fill in. It is an assistant
+      # message with no content yet: nothing for the model to read, and the API
+      # refuses a cache breakpoint on an empty text block, which is how it
+      # surfaced -- "cache_control cannot be set for empty text blocks".
+      #
+      # Any other empty message is the remains of a turn that was interrupted
+      # before it could say anything, and is equally not worth sending.
+      @revision.messages.order(:created_at).reject { |m| m.content.to_s.strip.empty? }.map do |m|
         text = m.content.to_s
         attached = Array(m.attachments)
         if attached.any?

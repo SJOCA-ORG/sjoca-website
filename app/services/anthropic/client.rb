@@ -115,24 +115,46 @@ module Anthropic
     # Cache everything except the newest exchange, so the growing history is
     # read from cache and only what is new is charged in full. A string content
     # has to become a block for the same reason as the system prompt.
+    #
+    # The breakpoint walks BACKWARDS past anything empty. An empty text block
+    # cannot carry cache_control -- the API says so and refuses the whole
+    # request -- and an empty message is exactly what sits in the history while
+    # a turn is in flight.
     def cacheable_messages(messages)
       return messages if messages.size < 2
 
       marked = messages.dup
       i = marked.size - 2
+      i -= 1 while i >= 0 && !markable?(marked[i])
+      return marked if i.negative?
+
       marked[i] = with_cache_breakpoint(marked[i])
       marked
     end
 
+    def markable?(message)
+      content = message[:content] || message["content"]
+      return content.strip.present? if content.is_a?(String)
+      return false unless content.is_a?(Array) && content.any?
+
+      last = content.last
+      return false unless last.is_a?(Hash)
+
+      # Only a text block can be empty in the way that matters; an image or a
+      # tool result is never "empty text".
+      type = last[:type] || last["type"]
+      return true unless type.to_s == "text"
+
+      (last[:text] || last["text"]).to_s.strip.present?
+    end
+
     def with_cache_breakpoint(message)
+      return message unless markable?(message)
+
       content = message[:content] || message["content"]
       blocks = content.is_a?(String) ? [{ type: "text", text: content }] : content.dup
-      return message unless blocks.is_a?(Array) && blocks.any?
 
-      last = blocks.last
-      return message unless last.is_a?(Hash)
-
-      blocks[-1] = last.merge(cache_control: CACHE)
+      blocks[-1] = blocks.last.merge(cache_control: CACHE)
       message.merge(content: blocks).except("content")
     end
   end

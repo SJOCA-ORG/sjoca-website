@@ -69,6 +69,67 @@ RSpec.describe Anthropic::Client, "prompt caching" do
     expect(sent["messages"].first["content"]).to eq("only")
   end
 
+  # "cache_control cannot be set for empty text blocks" -- the API refuses the
+  # whole request. An empty message is exactly what sits in the history while a
+  # turn is in flight: the placeholder it is about to fill in.
+  describe "empty messages" do
+    it "never marks an empty string" do
+      history = [{ role: "user", content: "one" },
+                 { role: "assistant", content: "" },
+                 { role: "user", content: "three" }]
+      sent = body_sent { client.call(system: "s", messages: history) }
+
+      marked = sent["messages"].select { |m| m["content"].is_a?(Array) && m["content"].last["cache_control"] }
+      expect(marked.size).to eq(1)
+      expect(marked.first["content"].last["text"]).to eq("one")
+    end
+
+    it "never marks a whitespace-only message" do
+      history = [{ role: "user", content: "one" },
+                 { role: "assistant", content: "   \n  " },
+                 { role: "user", content: "three" }]
+      sent = body_sent { client.call(system: "s", messages: history) }
+
+      expect(sent["messages"][1]["content"]).not_to be_an(Array)
+    end
+
+    it "never marks an empty text block inside an array" do
+      history = [{ role: "user", content: "one" },
+                 { role: "assistant", content: [{ type: "text", text: "" }] },
+                 { role: "user", content: "three" }]
+      sent = body_sent { client.call(system: "s", messages: history) }
+
+      expect(sent["messages"][1]["content"].last).not_to have_key("cache_control")
+    end
+
+    it "walks back to the nearest message it CAN mark" do
+      history = [{ role: "user", content: "one" },
+                 { role: "assistant", content: "" },
+                 { role: "assistant", content: "" },
+                 { role: "user", content: "four" }]
+      sent = body_sent { client.call(system: "s", messages: history) }
+
+      expect(sent["messages"].first["content"].last["cache_control"]).to be_present
+    end
+
+    it "marks nothing at all rather than fail, when there is nothing to mark" do
+      history = [{ role: "user", content: "" }, { role: "assistant", content: "" }]
+      sent = body_sent { client.call(system: "s", messages: history) }
+
+      expect(sent["messages"].none? { |m| m["content"].is_a?(Array) }).to be(true)
+    end
+
+    it "still marks a message whose last block is an image" do
+      history = [{ role: "user", content: [{ type: "text", text: "look" },
+                                           { type: "image", source: { type: "base64" } }] },
+                 { role: "assistant", content: "seen" },
+                 { role: "user", content: "now" }]
+      sent = body_sent { client.call(system: "s", messages: history) }
+
+      expect(sent["messages"][1]["content"].last["cache_control"]).to be_present
+    end
+  end
+
   it "can be turned off" do
     sent = body_sent { client.call(system: "s", messages: [{ role: "user", content: "hi" }], cache: false) }
 

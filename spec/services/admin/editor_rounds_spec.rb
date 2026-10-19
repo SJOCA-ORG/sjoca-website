@@ -62,6 +62,20 @@ RSpec.describe Admin::Editor, "running out of steps" do
     expect(sent.map { |m| m[:content].to_s }.join).not_to include("Carry on with the request above")
   end
 
+  # The placeholder this turn is about to fill in is an empty assistant
+  # message. Sending it caused "cache_control cannot be set for empty text
+  # blocks" and lost the whole turn.
+  it "does not send the empty placeholder it is about to fill in" do
+    sent = []
+    allow(client).to receive(:call) { |args| sent.concat(args[:messages]); always_working }
+    revision.messages.create!(role: "user", content: "earlier")
+    revision.messages.create!(role: "assistant", state: "working", content: "")
+
+    editor.call("do something long")
+
+    expect(sent.map { |m| (m[:content] || m["content"]).to_s }).to all(be_present)
+  end
+
   it "records the cost of the round even when it did not finish" do
     expect(editor.call("do something long")).to be_present
     expect(revision.messages.last.usage).to be_present
