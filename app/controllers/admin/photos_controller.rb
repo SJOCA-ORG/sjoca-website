@@ -63,11 +63,10 @@ module Admin
 
     private
 
-    def tag_list
-      raw = params[:tags]
-      list = raw.is_a?(Array) ? raw : raw.to_s.split(",")
-      list.map(&:strip).compact_blank
-    end
+    # "clergy, Pascha 2026" is one field holding two tags, and the checkbox menu
+    # sends an array. Both arrive here, and a typed entry inside that array can
+    # itself hold commas -- so split every element, never just the string case.
+    def tag_list = Admin::PhotoIntake.tags_from(params[:tags])
 
     # A rename has to carry the references with it, or the page it was on goes
     # blank. Every version of the name moves together: they are the same subject.

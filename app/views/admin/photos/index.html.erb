@@ -12,7 +12,7 @@
   <strong>Add photographs</strong>
   <%= form_with url: admin_photos_path, multipart: true, class: "upload" do |f| %>
     <p style="margin:.6rem 0">
-      <%= f.file_field :files, multiple: true, accept: "image/*", id: "files" %>
+      <%= f.file_field :files, multiple: true, accept: "image/*,video/mp4,video/quicktime,video/mpeg,video/webm,video/x-m4v,video/x-msvideo,video/3gpp,.mp4,.mov,.mpeg,.mpg,.m4v,.webm,.avi,.3gp", id: "files" %>
     </p>
 
     <p style="margin:.6rem 0">
@@ -35,7 +35,8 @@
       <%= f.submit "Upload", class: "btn" %>
       <span class="muted" style="margin-left:.6rem">
         Location data is removed from every photograph as it arrives, and a description
-        is written for it automatically.
+        is written for it automatically. Drop a video in and you get a still picture
+        from it — the clip itself is not kept.
       </span>
     </p>
   <% end %>

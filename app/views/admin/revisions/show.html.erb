@@ -249,8 +249,8 @@
     <p style="margin:.6rem 0 0;display:flex;align-items:center;gap:.6rem">
       <%= f.submit "Send", class: "btn" %>
       <label class="btn ghost" style="cursor:pointer;margin:0">
-        Add photographs
-        <%= f.file_field :files, multiple: true, accept: "image/*",
+        Add photos or video
+        <%= f.file_field :files, multiple: true, accept: "image/*,video/mp4,video/quicktime,video/mpeg,video/webm,video/x-m4v,video/x-msvideo,video/3gpp,.mp4,.mov,.mpeg,.mpg,.m4v,.webm,.avi,.3gp",
               id: "files", style: "display:none" %>
       </label>
       <span class="grow"></span>
@@ -282,7 +282,14 @@
         panel.hidden = !files || !files.length;
         if (panel.hidden) return;
         var one = files.length === 1;
-        count.textContent = one ? "1 photograph attached:" : files.length + " photographs attached:";
+        var clips = [].filter.call(files, function (f) {
+          return f.type.indexOf("video/") === 0 ||
+                 /\.(mp4|mov|mpe?g|m4v|webm|avi|3gp)$/i.test(f.name);
+        }).length;
+        count.textContent = (one ? "1 file attached" : files.length + " files attached") +
+          (clips ? " (" + (clips === 1 ? "one is a video — it becomes a still picture"
+                                       : clips + " are videos — each becomes a still picture") + ")"
+                 : "") + ":";
         names.textContent = [].map.call(files, function (f) { return f.name; }).join(", ");
         [].forEach.call(document.querySelectorAll("#attached-them, .attached-them"),
           function (el) { el.textContent = one ? "it" : "them"; });
@@ -313,8 +320,11 @@
         });
       });
       drop.addEventListener("drop", function (ev) {
+        // Videos too: one becomes a still picture. A phone drops .mov with an
+        // empty type often enough that the extension has to be trusted as well.
         var dropped = [].filter.call(ev.dataTransfer.files, function (f) {
-          return f.type.indexOf("image/") === 0;
+          if (f.type.indexOf("image/") === 0 || f.type.indexOf("video/") === 0) return true;
+          return /\.(jpe?g|png|gif|webp|heic|heif|mp4|mov|mpe?g|m4v|webm|avi|3gp)$/i.test(f.name);
         });
         if (!dropped.length) return;
 

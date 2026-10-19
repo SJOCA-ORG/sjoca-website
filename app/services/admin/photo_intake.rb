@@ -30,6 +30,13 @@ module Admin
       def ok? = photo.present?
     end
 
+    # Tags as a person types them: "clergy, Pascha 2026" in one field, or an
+    # array from the menu whose entries may themselves hold commas. Split every
+    # element, never just the string case.
+    def self.tags_from(raw)
+      Array(raw).flat_map { |t| t.to_s.split(",") }.map(&:strip).compact_blank.uniq
+    end
+
     def self.call(uploads, tags: [], uploaded_at: Time.current)
       Array(uploads).compact_blank.map { |u| new(u, tags: tags, uploaded_at: uploaded_at).call }
     end

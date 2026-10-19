@@ -18,7 +18,8 @@ module Admin
       # with the one I am about to upload" only works if the upload and the
       # sentence arrive together -- otherwise the turn starts first and the
       # model is left guessing which photographs are the new ones.
-      uploads = Admin::PhotoIntake.call(params[:files], tags: Array(params[:tags]).compact_blank)
+      uploads = Admin::PhotoIntake.call(params[:files],
+                                        tags: Admin::PhotoIntake.tags_from(params[:tags]))
       taken = uploads.select(&:ok?)
       taken.each { |r| DescribePhotoJob.perform_later(r.photo.id) }
       refused = uploads.reject(&:ok?)

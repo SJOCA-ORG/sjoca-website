@@ -109,6 +109,37 @@ RSpec.describe Admin::PhotoIntake do
     expect(Photo.recently_uploaded).to include(photo)
   end
 
+  # Told this was fixed once and it was not: the edit was lost when a later
+  # assertion in the same block failed before the file was written. Tags were
+  # arriving as one string -- "Parish Picnic, outreach" was a single tag -- for
+  # a day after it was reported fixed.
+  describe "tags as a person types them" do
+    it "splits one field holding several" do
+      expect(described_class.tags_from(["Parish Picnic, outreach"]))
+        .to eq(["Parish Picnic", "outreach"])
+    end
+
+    it "splits a typed entry inside the array the menu sends" do
+      expect(described_class.tags_from(["clergy", "Pascha 2026, feast days"]))
+        .to eq(["clergy", "Pascha 2026", "feast days"])
+    end
+
+    it "takes a plain string too" do
+      expect(described_class.tags_from("clergy, outreach")).to eq(%w[clergy outreach])
+    end
+
+    it "drops blanks and repeats" do
+      expect(described_class.tags_from(["clergy", "clergy, , outreach"]))
+        .to eq(%w[clergy outreach])
+    end
+
+    it "reaches a photograph through the upload" do
+      photo = take(a_real_jpeg, tags: described_class.tags_from(["clergy, Feast Days"])).photo
+
+      expect(photo.tag_labels).to contain_exactly("clergy", "Feast Days")
+    end
+  end
+
   it "applies the tags the batch was given" do
     photo = take(a_real_jpeg, tags: ["Feast Days", "clergy"]).photo
 
