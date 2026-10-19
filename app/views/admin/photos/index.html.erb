@@ -79,21 +79,26 @@
 </div>
 
 <script>
-  // A field that saves only on Enter, with nothing on screen saying so, is a
-  // field people type into and walk away from. The button appears as soon as
-  // there is something to save, and goes again when there is not.
+  // Saves when you leave the field. Typing a name and clicking away is what
+  // people actually do, and before this it silently discarded the name and
+  // left the "needs a proper name" warning standing.
+  //
+  // Enter still works -- it is an ordinary single-field form -- and leaving a
+  // field you did not change submits nothing.
   (function () {
-    document.addEventListener("input", function (e) {
+    document.addEventListener("focusout", function (e) {
       var field = e.target;
       if (!field.matches(".shot input[type=text]")) return;
 
-      var button = field.form && field.form.querySelector(".save");
-      if (!button) return;
+      var value = field.value.trim();
+      if (value === (field.dataset.original || "")) return;
+      if (value === "" && field.classList.contains("name-field")) {
+        field.value = field.dataset.original;   // a photograph must keep a name
+        return;
+      }
 
-      var original = field.dataset.original;
-      var changed = original === undefined ? field.value.trim() !== ""
-                                           : field.value.trim() !== original;
-      button.hidden = !changed;
+      field.dataset.original = value;   // so a second blur does not save again
+      field.form.requestSubmit();
     });
   })();
 </script>
@@ -116,9 +121,6 @@
   .shot .rename { margin-bottom:.1rem }
   .linky { border:0; background:none; color:var(--maroon); cursor:pointer;
            font:inherit; font-size:.78rem; text-decoration:underline; padding:0 }
-  .shot .save { margin-top:.3rem; font:inherit; font-size:.75rem; padding:.2rem .6rem;
-                border:1px solid var(--ink); background:var(--ink); color:#fff;
-                border-radius:5px; cursor:pointer }
   .shot form { margin:0 }
   .tagpicker { display:flex; flex-wrap:wrap; gap:.4rem }
   .tagchip { border:1px solid var(--rule); border-radius:99px; padding:.2rem .6rem;

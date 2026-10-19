@@ -10,11 +10,10 @@
       <%= text_field_tag :human_name, photo.human_name, class: "name-field",
             data: { original: photo.human_name },
             "aria-label": "Name of this photograph" %>
-      <button type="submit" class="save" hidden>Save name</button>
     <% end %>
 
     <% if photo.provisional_name? %>
-      <p class="needs">needs a proper name — type one above and save</p>
+      <p class="needs">needs a proper name — type one above</p>
     <% end %>
 
     <% if photo.versions_count > 1 %>
@@ -45,10 +44,9 @@
 
     <%# Several at once, comma separated, which is how anybody types them. %>
     <%= form_with url: admin_photo_path(photo), method: :patch, class: "tagging" do %>
-      <%= text_field_tag :tags, nil, list: "known-tags",
+      <%= text_field_tag :tags, nil, list: "known-tags", data: { original: "" },
             placeholder: "add tags, comma separated…",
             "aria-label": "Add tags to this photograph" %>
-      <button type="submit" class="save" hidden>Add</button>
     <% end %>
   </div>
 </div>
