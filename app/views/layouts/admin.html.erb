@@ -141,6 +141,93 @@
       .dots { animation: blink 1.4s infinite }
       @keyframes blink { 0%,100% { opacity:.3 } 50% { opacity:1 } }
     </style>
+    <script>
+      // Take the frame HERE, before anything is uploaded.
+      //
+      // A 4K phone video is hundreds of megabytes and the frame out of it is
+      // about forty kilobytes. Sending the whole clip to get one picture back
+      // is a long wait on a parish broadband connection, and it is the entire
+      // reason the server cap exists. The browser can already decode the video
+      // -- it is the same decoder that plays it -- so it can hand us the frame
+      // without the file ever leaving the machine.
+      //
+      // The server still knows how (ffmpeg), for a format the browser cannot
+      // play and for anyone with JavaScript off. This is the fast path, not
+      // the only one.
+      window.frameFromVideo = function (file) {
+        return new Promise(function (resolve) {
+          var url = URL.createObjectURL(file);
+          var video = document.createElement("video");
+          var done = false;
+
+          function give(value) {
+            if (done) return;
+            done = true;
+            URL.revokeObjectURL(url);
+            resolve(value);
+          }
+
+          // If anything at all goes wrong, fall back to uploading the clip.
+          video.addEventListener("error", function () { give(null); });
+          setTimeout(function () { give(null); }, 15000);
+
+          video.addEventListener("loadeddata", function () {
+            // Not frame zero: the first frame of a phone video is very often
+            // black or a blurred hand. A second in, or halfway through a clip
+            // shorter than that.
+            var at = Math.min(1, (video.duration || 2) / 2);
+            video.currentTime = isFinite(at) ? at : 0;
+          });
+
+          video.addEventListener("seeked", function () {
+            try {
+              var canvas = document.createElement("canvas");
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+              if (!canvas.width || !canvas.height) return give(null);
+
+              canvas.getContext("2d").drawImage(video, 0, 0);
+              canvas.toBlob(function (blob) {
+                if (!blob) return give(null);
+                var name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+                give(new File([blob], name, { type: "image/jpeg" }));
+              }, "image/jpeg", 0.9);
+            } catch (e) {
+              give(null);
+            }
+          });
+
+          video.muted = true;
+          video.playsInline = true;
+          video.preload = "auto";
+          video.src = url;
+        });
+      };
+
+      window.isVideoFile = function (file) {
+        return (file.type || "").indexOf("video/") === 0 ||
+               /\.(mp4|mov|mpe?g|m4v|webm|avi|3gp)$/i.test(file.name);
+      };
+
+      // Replace every video in a file input with the still taken from it.
+      // Returns what happened, so the page can say so.
+      window.stillsFromVideos = async function (input) {
+        var files = [].slice.call(input.files || []);
+        if (!files.some(window.isVideoFile)) return { converted: [], uploaded: [] };
+
+        var box = new DataTransfer(), converted = [], uploaded = [];
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          if (!window.isVideoFile(file)) { box.items.add(file); continue; }
+
+          var still = await window.frameFromVideo(file);
+          if (still) { box.items.add(still); converted.push(file.name); }
+          else { box.items.add(file); uploaded.push(file.name); }
+        }
+        input.files = box.files;
+        return { converted: converted, uploaded: uploaded };
+      };
+    </script>
   </head>
   <body>
     <header class="bar">

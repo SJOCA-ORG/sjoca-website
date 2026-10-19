@@ -277,19 +277,37 @@
       var names = document.getElementById("attached-names");
       if (!input || !drop) return;
 
+      // Turn any videos into stills first, then describe what is attached.
       function show() {
+        if (window.stillsFromVideos) {
+          window.stillsFromVideos(input).then(function (what) {
+            if (what.converted.length) {
+              lastConverted = what.converted;
+              lastUploaded = what.uploaded;
+            }
+            describe();
+          });
+        } else {
+          describe();
+        }
+      }
+
+      var lastConverted = [], lastUploaded = [];
+
+      function describe() {
         var files = input.files;
         panel.hidden = !files || !files.length;
         if (panel.hidden) return;
         var one = files.length === 1;
-        var clips = [].filter.call(files, function (f) {
-          return f.type.indexOf("video/") === 0 ||
-                 /\.(mp4|mov|mpe?g|m4v|webm|avi|3gp)$/i.test(f.name);
-        }).length;
-        count.textContent = (one ? "1 file attached" : files.length + " files attached") +
-          (clips ? " (" + (clips === 1 ? "one is a video — it becomes a still picture"
-                                       : clips + " are videos — each becomes a still picture") + ")"
-                 : "") + ":";
+        count.textContent = (one ? "1 photograph attached" : files.length + " photographs attached") +
+          (lastConverted.length
+            ? " (" + (lastConverted.length === 1 ? "one is a still taken from a video"
+                                                 : lastConverted.length + " are stills taken from videos") +
+              " — the video itself is not uploaded)"
+            : "") +
+          (lastUploaded.length
+            ? " (" + lastUploaded.length + " could not be read here, so the whole file will be sent)"
+            : "") + ":";
         names.textContent = [].map.call(files, function (f) { return f.name; }).join(", ");
         [].forEach.call(document.querySelectorAll("#attached-them, .attached-them"),
           function (el) { el.textContent = one ? "it" : "them"; });
@@ -303,7 +321,8 @@
       document.getElementById("attached-clear").addEventListener("click", function () {
         input.value = "";
         document.getElementById("attach-tags").value = "";
-        show();
+        lastConverted = []; lastUploaded = [];
+        describe();
       });
 
       // Dropping onto the box you are typing in is the obvious gesture, and it

@@ -80,6 +80,35 @@
 </div>
 
 <script>
+  // Videos become stills before the form is sent, so a huge clip never leaves
+  // this machine. See the layout for why.
+  (function () {
+    var input = document.getElementById("files");
+    if (!input || !window.stillsFromVideos) return;
+
+    var note = document.createElement("p");
+    note.className = "muted";
+    note.style.margin = ".4rem 0 0";
+    input.parentNode.appendChild(note);
+
+    input.addEventListener("change", function () {
+      note.textContent = "";
+      window.stillsFromVideos(input).then(function (what) {
+        if (what.converted.length) {
+          note.textContent = what.converted.length + " video" +
+            (what.converted.length === 1 ? "" : "s") +
+            " turned into still pictures here — the clips are not uploaded.";
+        }
+        if (what.uploaded.length) {
+          note.textContent += " " + what.uploaded.length +
+            " could not be read in this browser, so the whole file will be sent.";
+        }
+      });
+    });
+  })();
+</script>
+
+<script>
   // Saves when you leave the field. Typing a name and clicking away is what
   // people actually do, and before this it silently discarded the name and
   // left the "needs a proper name" warning standing.
