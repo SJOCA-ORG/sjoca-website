@@ -25,7 +25,8 @@ class EditingTurnJob < ApplicationJob
 
   def perform(revision_id, text, placeholder_id = nil, round = 1)
     revision = Revision.find(revision_id)
-    result = Admin::Editor.new(revision).call(text, placeholder_id: placeholder_id, round: round)
+    editor = Admin::Editor.new(revision)
+    result = editor.call(text, placeholder_id: placeholder_id, round: round)
 
     continue(revision, text, round, result) if result&.unfinished && round < MAX_ROUNDS
     result
@@ -52,7 +53,13 @@ class EditingTurnJob < ApplicationJob
     # working. A turn killed mid-flight -- a restart, a deploy -- used to be
     # marked done with EMPTY content, which reads as the system having nothing
     # to say about twenty-five calls' worth of work. Say what it managed.
-    revision&.messages&.where(state: "working")&.find_each do |message|
+    # ONLY this turn's own message. Sweeping every "working" message on the
+    # revision also swept the placeholder the controller had just created for a
+    # QUEUED request -- so queueing a second request while the first was
+    # running showed "I was interrupted before I could do anything. Nothing was
+    # changed", and then the queued turn ran and did the work perfectly. Twice.
+    mine = editor&.working || (placeholder_id && revision&.messages&.find_by(id: placeholder_id))
+    Array(mine).select { |m| m.reload.state == "working" }.each do |message|
       done = Array(message.progress).reject { |t| t["failed"] || t["read"] || t["say"] }
                                     .filter_map { |t| t["summary"] }
       message.update!(

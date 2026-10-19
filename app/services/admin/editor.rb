@@ -151,6 +151,11 @@ module Admin
     # than leaving a person to read "I ran out of steps" and type "carry on".
     Result = Struct.new(:reply, :tool_calls, :error, :problems, :unfinished, keyword_init: true)
 
+    # The message this turn is filling in. The job needs it to know which
+    # message is its own when cleaning up -- sweeping every "working" message on
+    # the revision also swept the placeholder belonging to a QUEUED request.
+    attr_reader :working
+
     def initialize(revision, client: Anthropic::Client.new)
       @revision = revision
       @client   = client

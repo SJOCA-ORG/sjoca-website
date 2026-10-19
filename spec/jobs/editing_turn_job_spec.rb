@@ -77,28 +77,67 @@ RSpec.describe EditingTurnJob do
     end
   end
 
+  # Queueing a second request while the first was running showed "I was
+  # interrupted before I could do anything. Nothing was changed" -- and then
+  # the queued turn ran and did the work perfectly. The cleanup was sweeping
+  # EVERY working message on the revision, including the placeholder the
+  # controller had just created for the request still waiting its turn.
+  describe "a request waiting its turn" do
+    it "is left alone when the running turn finishes" do
+      editor = instance_double(Admin::Editor, call: Admin::Editor::Result.new(reply: "done"),
+                                              working: nil)
+      allow(Admin::Editor).to receive(:new).and_return(editor)
+      queued = revision.messages.create!(role: "assistant", state: "working",
+                                         content: "", progress: [])
+
+      described_class.perform_now(revision.id, "the first request")
+
+      expect(queued.reload.state).to eq("working")
+      expect(queued.content).to be_blank
+    end
+
+    it "is left alone even when the running turn is killed" do
+      mine = revision.messages.create!(role: "assistant", state: "working",
+                                       content: "", progress: [])
+      queued = revision.messages.create!(role: "assistant", state: "working",
+                                         content: "", progress: [])
+      allow(Admin::Editor).to receive(:new).and_raise(Interrupt)
+
+      begin
+        described_class.perform_now(revision.id, "the first request", mine.id)
+      rescue Exception # rubocop:disable Lint/RescueException
+        nil
+      end
+
+      expect(mine.reload.state).to eq("done")
+      expect(queued.reload.state).to eq("working")
+    end
+  end
+
   describe "carrying on" do
     def result(unfinished:) = Admin::Editor::Result.new(reply: "x", unfinished: unfinished)
 
+    def stub_editor(unfinished:)
+      instance_double(Admin::Editor, call: result(unfinished: unfinished), working: nil)
+        .tap { |e| allow(Admin::Editor).to receive(:new).and_return(e) }
+    end
+
     it "queues another round when the work is unfinished" do
-      editor = instance_double(Admin::Editor, call: result(unfinished: true))
-      allow(Admin::Editor).to receive(:new).and_return(editor)
+      stub_editor(unfinished: true)
 
       expect { described_class.perform_now(revision.id, "long job") }
         .to have_enqueued_job(described_class).with(revision.id, "long job", nil, 2)
     end
 
     it "stops at the last round rather than going round forever" do
-      editor = instance_double(Admin::Editor, call: result(unfinished: true))
-      allow(Admin::Editor).to receive(:new).and_return(editor)
+      stub_editor(unfinished: true)
 
       expect { described_class.perform_now(revision.id, "long job", nil, described_class::MAX_ROUNDS) }
         .not_to have_enqueued_job(described_class)
     end
 
     it "does not queue anything when the work finished" do
-      editor = instance_double(Admin::Editor, call: result(unfinished: false))
-      allow(Admin::Editor).to receive(:new).and_return(editor)
+      stub_editor(unfinished: false)
 
       expect { described_class.perform_now(revision.id, "short job") }
         .not_to have_enqueued_job(described_class)
