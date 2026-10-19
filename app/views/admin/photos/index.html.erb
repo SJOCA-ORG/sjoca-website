@@ -78,6 +78,26 @@
   <% end %>
 </div>
 
+<script>
+  // A field that saves only on Enter, with nothing on screen saying so, is a
+  // field people type into and walk away from. The button appears as soon as
+  // there is something to save, and goes again when there is not.
+  (function () {
+    document.addEventListener("input", function (e) {
+      var field = e.target;
+      if (!field.matches(".shot input[type=text]")) return;
+
+      var button = field.form && field.form.querySelector(".save");
+      if (!button) return;
+
+      var original = field.dataset.original;
+      var changed = original === undefined ? field.value.trim() !== ""
+                                           : field.value.trim() !== original;
+      button.hidden = !changed;
+    });
+  })();
+</script>
+
 <style>
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem }
   .shot { border:1px solid var(--rule); border-radius:8px; overflow:hidden; background:#fff }
@@ -96,6 +116,10 @@
   .shot .rename { margin-bottom:.1rem }
   .linky { border:0; background:none; color:var(--maroon); cursor:pointer;
            font:inherit; font-size:.78rem; text-decoration:underline; padding:0 }
+  .shot .save { margin-top:.3rem; font:inherit; font-size:.75rem; padding:.2rem .6rem;
+                border:1px solid var(--ink); background:var(--ink); color:#fff;
+                border-radius:5px; cursor:pointer }
+  .shot form { margin:0 }
   .tagpicker { display:flex; flex-wrap:wrap; gap:.4rem }
   .tagchip { border:1px solid var(--rule); border-radius:99px; padding:.2rem .6rem;
              font-size:.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:.3rem }

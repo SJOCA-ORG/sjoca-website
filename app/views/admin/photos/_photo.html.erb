@@ -3,17 +3,24 @@
        alt="<%= photo.alt_text %>">
   <div class="meta">
     <%# The name is a slug pages point at, so renaming carries every reference
-        with it. Editing it in place is the only way anyone would find it. %>
+        with it. It was a bare field with no save and no feedback: you typed a
+        name, clicked away, nothing happened, and the warning was still there
+        -- correctly, because nothing had been saved. %>
     <%= form_with url: admin_photo_path(photo), method: :patch, class: "rename" do %>
       <%= text_field_tag :human_name, photo.human_name, class: "name-field",
+            data: { original: photo.human_name },
             "aria-label": "Name of this photograph" %>
-      <% if photo.versions_count > 1 %>
-        <span class="muted">v<%= photo.version %> of <%= photo.versions_count %></span>
-      <% end %>
+      <button type="submit" class="save" hidden>Save name</button>
     <% end %>
 
-    <% if photo.human_name.start_with?("new-") %>
-      <p class="needs">needs a proper name — type one above</p>
+    <% if photo.provisional_name? %>
+      <p class="needs">needs a proper name — type one above and save</p>
+    <% end %>
+
+    <% if photo.versions_count > 1 %>
+      <p class="muted" style="font-size:.75rem;margin:.1rem 0 0">
+        version <%= photo.version %> of <%= photo.versions_count %>
+      </p>
     <% end %>
 
     <% if photo.alt_text == DescribePhotoJob::UNDESCRIBED %>
@@ -37,10 +44,11 @@
     <% end %>
 
     <%# Several at once, comma separated, which is how anybody types them. %>
-    <%= form_with url: admin_photo_path(photo), method: :patch do %>
+    <%= form_with url: admin_photo_path(photo), method: :patch, class: "tagging" do %>
       <%= text_field_tag :tags, nil, list: "known-tags",
             placeholder: "add tags, comma separated…",
             "aria-label": "Add tags to this photograph" %>
+      <button type="submit" class="save" hidden>Add</button>
     <% end %>
   </div>
 </div>

@@ -214,16 +214,22 @@
       <span id="attached-names" class="muted"></span>
       <button type="button" id="attached-clear" class="linky">remove</button>
 
-      <%# Dropping photographs and then not knowing what is expected of you is
-          the confusing moment. Say what the two choices are, and make the
-          quiet one a button rather than something you have to phrase. %>
-      <p style="margin:.45rem 0 0">
-        Say what you would like done with
-        <span id="attached-them">them</span> — or
-        <%= button_to "just add to the library", admin_photos_path,
+      <%# The confusing moment is after the drop: nothing says a choice is
+          waiting, so the next thing you type silently arrives carrying the
+          photographs. Say so, and make "just save them" a button rather than
+          a sentence somebody has to compose. %>
+      <p class="attached-ask">
+        <strong>These are waiting.</strong>
+        Tell me what to do with <span id="attached-them">them</span> in the box above
+        — or
+        <%= button_to "just save them to the library", admin_photos_path,
               multipart: true, form: { id: "just-add", style: "display:inline" },
               params: { return_to: request.fullpath },
-              class: "linky" %>
+              class: "linky" %>.
+      </p>
+      <p class="muted" style="margin:.3rem 0 0;font-size:.78rem">
+        Until you do one or the other, whatever you send next will be about
+        <span class="attached-them">them</span>.
       </p>
       <div style="margin-top:.4rem">
         <%= text_field_tag "tags[]", nil, id: "attach-tags",
@@ -250,8 +256,9 @@
 
   <style>
     #drop.over textarea { outline:2px dashed var(--maroon); outline-offset:2px }
-    #attached { margin-top:.5rem; padding:.45rem .6rem; border:1px solid var(--rule);
-                border-radius:8px; font-size:.85rem; background:var(--band) }
+    #attached { margin-top:.5rem; padding:.55rem .7rem; border:1px solid #E6D9A8;
+                border-radius:8px; font-size:.85rem; background:#FDF6E3 }
+    .attached-ask { margin:.5rem 0 0 }
     .linky { border:0; background:none; color:var(--maroon); cursor:pointer;
              font:inherit; text-decoration:underline; padding:0 }
   </style>
@@ -272,7 +279,8 @@
         var one = files.length === 1;
         count.textContent = one ? "1 photograph attached:" : files.length + " photographs attached:";
         names.textContent = [].map.call(files, function (f) { return f.name; }).join(", ");
-        document.getElementById("attached-them").textContent = one ? "it" : "them";
+        [].forEach.call(document.querySelectorAll("#attached-them, .attached-them"),
+          function (el) { el.textContent = one ? "it" : "them"; });
 
         // "Just add to the library" is a different form, so the files and the
         // tags have to be handed to it. Without this it would post nothing and

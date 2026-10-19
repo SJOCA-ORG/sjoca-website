@@ -88,6 +88,13 @@ class Photo < ApplicationRecord
 
   def versions_count = self.class.where(human_name: human_name).count
 
+  # A name PhotoIntake made up from a filename, which no page should point at.
+  # Matching "new-" alone would keep nagging about a photograph somebody
+  # deliberately called "new-years-2026".
+  PROVISIONAL = /\Anew-(upload|img|dsc|dscn|pxl|photo|image|screenshot|\d)/i
+
+  def provisional_name? = PROVISIONAL.match?(human_name.to_s)
+
   def assign_next_version
     return if version.present? && self.class.where(human_name: human_name, version: version).none?
 
