@@ -14,8 +14,22 @@ class EditingTurnJob < ApplicationJob
   # both edited the same pages, and the page only ever showed the first one as
   # working -- so the second request looked like it had been swallowed. It had
   # not; it was running underneath, racing the first.
+  # The duration is how long the lock survives its holder. It has to exceed the
+  # longest a turn can take, or a slow turn's lock expires and a second one
+  # starts alongside it -- the race this exists to prevent. Four rounds of
+  # thirty steps is the bound, and in practice a round runs two to four
+  # minutes.
+  #
+  # It also has to be SHORT enough that a leaked lock is not a disaster. One
+  # leaked -- Stop deleted a queued job row outright, and SolidQueue releases
+  # its semaphore when a job FINISHES, which a deleted row never does. The next
+  # request sat blocked behind a lock nobody held, showing "Working..." for 256
+  # seconds with no steps and no feedback.
+  #
+  # Stop releases the lock itself now, so this is the backstop rather than the
+  # mechanism.
   limits_concurrency to: 1, key: ->(revision_id, *) { "editing-revision-#{revision_id}" },
-                     duration: 20.minutes
+                     duration: 12.minutes
 
   # A long request does not fit in one turn, and stopping to say so wastes the
   # person's time: they only ever answer "yes, carry on". So it carries on by

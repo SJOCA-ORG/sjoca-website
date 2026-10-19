@@ -19,9 +19,18 @@ module Admin
     # eighty seconds a turn can take.
     def status
       working = @revision.messages.where(state: %w[working stopping]).first
+
+      # A turn with no steps after a minute is not thinking, it is waiting --
+      # usually behind another turn, occasionally behind a lock whose holder
+      # has gone. Either way the page should say so rather than animating.
+      stalled = working.present? && Array(working.progress).empty? &&
+                working.created_at < 60.seconds.ago
+
       render json: {
         working: working.present?,
         stopping: working&.stopping? || false,
+        stalled: stalled,
+        queued_behind: stalled ? @revision.messages.where(state: "working").where("id < ?", working.id).count : 0,
         since: working&.created_at&.to_i,
         steps: Array(working&.progress).map { |t|
           if t["say"]
@@ -46,9 +55,20 @@ module Admin
 
       # A queued turn has a placeholder of its own; discard the job and close
       # the placeholder, or the page waits for something that will never run.
-      discarded = SolidQueue::Job.where(finished_at: nil, class_name: "EditingTurnJob")
-                                 .select { |j| Array(j.arguments.dig("arguments")).first == @revision.id }
-      discarded.each(&:destroy)
+      #
+      # discard, not destroy. Destroying the row leaves SolidQueue's semaphore
+      # held -- the concurrency limit is a counter released when a job FINISHES,
+      # and a row deleted underneath it never finishes. The next request then
+      # sits blocked behind a lock nothing holds, for the twenty minutes until
+      # it expires, showing "Working..." the whole time. That is exactly what
+      # happened: 256 seconds of silence waiting on a semaphore at value 0.
+      SolidQueue::Job.where(finished_at: nil, class_name: "EditingTurnJob")
+                     .select { |j| Array(j.arguments&.dig("arguments")).first == @revision.id }
+                     .each { |j| j.discard rescue j.destroy }
+
+      # Whatever is left holding the lock for this revision is stale by
+      # definition: everything running or queued for it has just been stopped.
+      release_concurrency_lock
 
       redirect_to admin_revision_path(@revision),
                   notice: running.any? ? "Stopping — it will finish the step it is on." :
@@ -84,6 +104,14 @@ module Admin
     end
 
     private
+
+    # Belt and braces. A lock whose holder was stopped, killed or restarted out
+    # of existence must not keep the next request waiting.
+    def release_concurrency_lock
+      SolidQueue::Semaphore.where(key: "EditingTurnJob/editing-revision-#{@revision.id}").destroy_all
+    rescue StandardError => e
+      Rails.logger.warn("could not release the editing lock: #{e.message}")
+    end
 
     def load_revision = @revision = Revision.find(params[:id])
   end

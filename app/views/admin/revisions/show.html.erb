@@ -553,9 +553,19 @@
           }).join("<br>");
           // The newest step, repeated in the pinned bar, so something is
           // visible even when you have scrolled back through the history.
-          if (d.stopping) {
-            var word = document.getElementById("working-word");
-            if (word) word.firstChild.nodeValue = "Stopping";
+          var word = document.getElementById("working-word");
+          if (d.stopping && word) {
+            word.firstChild.nodeValue = "Stopping";
+          } else if (d.stalled && word) {
+            // Nothing has happened for a minute. Say which it is, because
+            // "Working..." with an animated ellipsis and no steps is the most
+            // misleading thing this page can show.
+            word.firstChild.nodeValue = d.queued_behind > 0 ? "Waiting its turn" : "Waiting";
+            if (latest && !latest.textContent) {
+              latest.textContent = d.queued_behind > 0
+                ? "Another request is still running."
+                : "Nothing has started yet. If this stays here, press Stop and send it again.";
+            }
           }
 
           var last = d.steps[d.steps.length - 1];
