@@ -239,6 +239,25 @@ Mitch's idea, 14 October 2026. **Built 17 October 2026.**
       moves and the site shows last month's services for a month. Wants a
       staleness bound, and something visible past it.
 
+## Binaries the admin needs, which the server may not have
+
+- [ ] **ffmpeg and ImageMagick are not in Render's native Ruby runtime, as far
+      as we know.** Both are used by the admin and neither is a gem:
+      ImageMagick for every photo operation, ffmpeg to take a still out of an
+      uploaded video.
+
+      Both fail gracefully rather than crashing -- the upload is refused with
+      "video cannot be read on this server" and photo editing says what it
+      cannot do -- but on a server without them half the admin is quietly
+      unavailable, which is worse than it sounds because nobody would know why.
+
+      This is the same decision as the browser checks: `runtime: ruby` cannot
+      install system packages, so it means the Docker runtime, which Mitch has
+      already noted needs 2GB. Worth settling once for all three rather than
+      three times.
+
+      Until then: a developer machine has them, and the replay test runs there.
+
 ## Before the parish sees the admin
 
 - [ ] **Take the cost meter off the admin page.** Added 17 October while the

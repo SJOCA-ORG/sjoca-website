@@ -17,6 +17,15 @@ module Admin
 
       refused = results.reject(&:ok?)
       notice = "#{helpers.pluralize(taken.size, 'photograph')} added."
+
+      # A video quietly turning into a picture would be baffling. Say so.
+      from_video = taken.select(&:from_video)
+      if from_video.any?
+        notice += " #{helpers.pluralize(from_video.size, 'video')} became a still picture — " \
+                  "the clip itself is not kept. To show the video, put it on the parish " \
+                  "YouTube channel and ask me to add it."
+      end
+
       notice += " #{refused.map { |r| "#{r.filename}: #{r.error}" }.join('; ')}" if refused.any?
 
       # Back where you were. Adding photographs from the editing pane should

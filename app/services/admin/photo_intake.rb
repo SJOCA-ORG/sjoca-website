@@ -19,12 +19,14 @@ module Admin
     MAX_BYTES = 20.megabytes
     MAX_PIXELS = 50_000_000         # a 50MP cap: anything larger is a mistake
     TYPES = %w[image/jpeg image/png image/webp image/gif image/heic image/heif].freeze
+    # Accepted, but never stored: a video is turned into one still frame.
+    VIDEO_TYPES = VideoFrame::TYPES
     # Stored as PNG or JPEG whatever arrives: HEIC is an Apple format that
     # browsers do not reliably render, and a photograph nobody can see is worse
     # than one that took a moment to convert.
     CONVERT_TO = { "image/heic" => "image/jpeg", "image/heif" => "image/jpeg" }.freeze
 
-    Result = Struct.new(:photo, :filename, :error, keyword_init: true) do
+    Result = Struct.new(:photo, :filename, :error, :from_video, keyword_init: true) do
       def ok? = photo.present?
     end
 
@@ -43,6 +45,15 @@ module Admin
       bytes = @upload.read
       type = declared_type
 
+      # A video becomes a still. The clip itself is not stored -- putting video
+      # on this site is a bad trade (see docs/TODO.md) -- but a frame from it is
+      # an ordinary photograph, and a parish with phone videos of a picnic has
+      # pictures of that picnic whether or not anyone realised it.
+      if VideoFrame.video?(type)
+        bytes, @from_video = frame_from(bytes, filename)
+        type = "image/jpeg"
+      end
+
       check!(bytes, type)
       clean, final_type = strip_metadata(bytes, type)
 
@@ -56,21 +67,33 @@ module Admin
       )
       photo.tag_with(@tags) if @tags.any?
 
-      Result.new(photo: photo, filename: filename)
+      Result.new(photo: photo, filename: filename, from_video: @from_video)
     rescue Rejected, ActiveRecord::RecordInvalid, ImageTools::ToolError => e
       Result.new(filename: @upload.try(:original_filename).to_s, error: e.message)
     end
 
     private
 
+    def frame_from(bytes, filename)
+      frame, facts = VideoFrame.call(bytes, extension: File.extname(filename).delete("."))
+      [frame, facts.merge(filename: filename)]
+    rescue VideoFrame::Failed => e
+      raise Rejected, e.message
+    end
+
     def declared_type
       type = @upload.content_type.to_s.split(";").first.to_s.strip.downcase
       return type if TYPES.include?(type)
 
       # Browsers sometimes send nothing useful for HEIC.
+      return type if VIDEO_TYPES.include?(type)
+
       by_extension = { "heic" => "image/heic", "heif" => "image/heif", "jpg" => "image/jpeg",
                        "jpeg" => "image/jpeg", "png" => "image/png", "webp" => "image/webp",
-                       "gif" => "image/gif" }
+                       "gif" => "image/gif",
+                       "mp4" => "video/mp4", "m4v" => "video/x-m4v", "mov" => "video/quicktime",
+                       "mpeg" => "video/mpeg", "mpg" => "video/mpeg", "webm" => "video/webm",
+                       "avi" => "video/x-msvideo", "3gp" => "video/3gpp" }
       by_extension[File.extname(@upload.original_filename.to_s).delete(".").downcase] || type
     end
 

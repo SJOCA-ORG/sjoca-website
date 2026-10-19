@@ -29,6 +29,15 @@ module Admin
         # photographs, what now?
         text = "I have uploaded #{helpers.pluralize(taken.size, 'photograph')}."
       end
+
+      # The model should know a picture came out of a video, because the person
+      # will talk about it as a video and wonder why it does not play.
+      stills = taken.select(&:from_video)
+      if stills.any? && text.present?
+        text += "\n\n(#{helpers.pluralize(stills.size, 'of these')} is a still frame taken " \
+                "from a video — #{stills.map { |s| s.from_video[:filename] }.join(', ')}. " \
+                "The video itself is not on the site.)"
+      end
       if text.blank?
         alert = refused.map { |r| "#{r.filename}: #{r.error}" }.join("; ").presence
         return redirect_to admin_revision_path(revision), alert: alert
