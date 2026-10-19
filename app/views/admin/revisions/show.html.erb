@@ -180,11 +180,104 @@
     with "revision 47 is not a draft" -- which reads like a system fault
     rather than "you are on the wrong page". %>
 <% if @revision.editable? %>
-  <%= form_with url: admin_revision_messages_path(@revision), method: :post do |f| %>
-    <%= f.text_area :content, rows: 3, autofocus: true,
-          placeholder: "What would you like to change?" %>
-    <p style="margin:.6rem 0 0"><%= f.submit "Send", class: "btn" %></p>
+  <%# Photographs go WITH the message, not before it. "Replace Fr David's photo
+      with the one I am about to upload" only works if the upload and the
+      sentence arrive together -- otherwise the turn starts first and has to
+      guess which photographs are the new ones. %>
+  <%= form_with url: admin_revision_messages_path(@revision), method: :post,
+                multipart: true, id: "say" do |f| %>
+    <div id="drop">
+      <%= f.text_area :content, rows: 3, autofocus: true,
+            placeholder: "What would you like to change? Drop photographs here to add them." %>
+    </div>
+
+    <div id="attached" hidden>
+      <span class="muted" id="attached-count"></span>
+      <span id="attached-names" class="muted"></span>
+      <button type="button" id="attached-clear" class="linky">remove</button>
+      <div style="margin-top:.4rem">
+        <%= text_field_tag "tags[]", nil, id: "attach-tags",
+              placeholder: "tag these photographs…", list: "known-tags",
+              style: "font-size:.85rem;padding:.3rem .5rem;width:100%" %>
+        <datalist id="known-tags">
+          <% Tag.in_menu.each { |t| %><option value="<%= t.label %>"><% } %>
+        </datalist>
+      </div>
+    </div>
+
+    <p style="margin:.6rem 0 0;display:flex;align-items:center;gap:.6rem">
+      <%= f.submit "Send", class: "btn" %>
+      <label class="btn ghost" style="cursor:pointer;margin:0">
+        Add photographs
+        <%= f.file_field :files, multiple: true, accept: "image/*",
+              id: "files", style: "display:none" %>
+      </label>
+      <span class="grow"></span>
+      <%= link_to "Photo library ↗", admin_photos_path, class: "muted",
+            target: "_blank", rel: "noopener" %>
+    </p>
   <% end %>
+
+  <style>
+    #drop.over textarea { outline:2px dashed var(--maroon); outline-offset:2px }
+    #attached { margin-top:.5rem; padding:.45rem .6rem; border:1px solid var(--rule);
+                border-radius:8px; font-size:.85rem; background:var(--band) }
+    .linky { border:0; background:none; color:var(--maroon); cursor:pointer;
+             font:inherit; text-decoration:underline; padding:0 }
+  </style>
+
+  <script>
+    (function () {
+      var input = document.getElementById("files");
+      var drop = document.getElementById("drop");
+      var panel = document.getElementById("attached");
+      var count = document.getElementById("attached-count");
+      var names = document.getElementById("attached-names");
+      if (!input || !drop) return;
+
+      function show() {
+        var files = input.files;
+        panel.hidden = !files || !files.length;
+        if (panel.hidden) return;
+        count.textContent = files.length === 1 ? "1 photograph attached:" : files.length + " photographs attached:";
+        names.textContent = [].map.call(files, function (f) { return f.name; }).join(", ");
+      }
+
+      input.addEventListener("change", show);
+
+      document.getElementById("attached-clear").addEventListener("click", function () {
+        input.value = "";
+        document.getElementById("attach-tags").value = "";
+        show();
+      });
+
+      // Dropping onto the box you are typing in is the obvious gesture, and it
+      // keeps the photographs attached to the sentence rather than sent ahead
+      // of it.
+      ["dragenter", "dragover"].forEach(function (e) {
+        drop.addEventListener(e, function (ev) {
+          ev.preventDefault(); drop.classList.add("over");
+        });
+      });
+      ["dragleave", "drop"].forEach(function (e) {
+        drop.addEventListener(e, function (ev) {
+          ev.preventDefault(); drop.classList.remove("over");
+        });
+      });
+      drop.addEventListener("drop", function (ev) {
+        var dropped = [].filter.call(ev.dataTransfer.files, function (f) {
+          return f.type.indexOf("image/") === 0;
+        });
+        if (!dropped.length) return;
+
+        var box = new DataTransfer();
+        [].forEach.call(input.files, function (f) { box.items.add(f); });
+        dropped.forEach(function (f) { box.items.add(f); });
+        input.files = box.files;
+        show();
+      });
+    })();
+  </script>
 <% else %>
   <div class="card" style="border-color:#8B1A1A">
     <strong>

@@ -304,6 +304,46 @@ module Admin
              %w[subject lesson]),
 
         # --- photographs ------------------------------------------------------
+        # --- photographs that have just arrived --------------------------------
+        tool("recent_uploads",
+             "Photographs somebody has just uploaded, newest first, with their provisional " \
+             "names and tags. Call this when someone mentions a photograph they have added, " \
+             "or when you are asked what to do with 'these'.",
+             { hours: int("How far back to look. 24 by default.") }, []),
+        tool("rename_photo",
+             "Give a photograph a real name. Uploads arrive as new-img-4821 and the like, " \
+             "which no page should point at. Every reference moves with it, and every " \
+             "version of that name moves together — they are the same subject.",
+             { from: str("The name now"), to: str("The name it should have, e.g. \"fr-david-2026\"") },
+             %w[from to]),
+        tool("add_photo_version",
+             "REPLACE a photograph: add an uploaded picture as a new version of an existing " \
+             "name. This is what to do when someone says \"replace Fr David's photo with " \
+             "this\" — the page goes on pointing at leadership-fr-david and simply shows " \
+             "the newer picture, and the old one stays recoverable. Then use repoint_photo " \
+             "to show it.",
+             { name: str("The existing photo name to add a version to"),
+               from_upload: str("The uploaded photo to take the picture from") },
+             %w[name from_upload]),
+        tool("photo_versions",
+             "Every version of a photograph, oldest to newest, with what each shows and " \
+             "which is in use. This is how to answer \"can we get the old picture back?\" — " \
+             "show them, then repoint_photo to the one they want.",
+             { name: str("Photo name") }, %w[name]),
+        tool("list_tags",
+             "The tags in use, with how many photographs carry each.", {}),
+        tool("tag_photo",
+             "Add or remove tags on a photograph. Typing a tag that does not exist creates " \
+             "it — that is how new tags are made.",
+             { name: str("Photo name"),
+               tags: { type: "array", items: { type: "string" },
+                       description: "Tags to add, e.g. [\"clergy\", \"Pascha 2026\"]" },
+               remove: { type: "array", items: { type: "string" },
+                         description: "Tags to take off" } },
+             %w[name]),
+        tool("find_by_tag",
+             "Every photograph carrying a tag.",
+             { tag: str("The tag") }, %w[tag]),
         tool("describe_photo",
              "LOOK AT a photograph: it is sent to you as a picture, along with its " \
              "dimensions, its alt text and which versions of that name exist. Use this " \
@@ -841,6 +881,110 @@ module Admin
                          note: rows.size > 1 ? "#{rows.size} versions — point at whichever you want" : nil
                        }.compact },
         reminder: "A reference is a PAIR: asset_name AND asset_version. A name alone renders nothing." }
+    end
+
+    # ---- photographs: naming, tagging, replacing, restoring ----------------
+
+    def recent_uploads(hours: 24, **)
+      rows = Photo.recently_uploaded(hours.to_i.hours.ago)
+      return { uploads: [], note: "nothing has been uploaded in the last #{hours} hours" } if rows.empty?
+
+      { uploads: rows.map { |p|
+          { name: p.human_name, version: p.version, from: p.original_filename,
+            uploaded: ActionController::Base.helpers.time_ago_in_words(p.uploaded_at) + " ago",
+            tags: p.tag_labels,
+            shows: p.alt_text.presence || "(not described yet — it is written a moment after upload)",
+            provisional: p.human_name.start_with?("new-") } },
+        note: "Names beginning \"new-\" came from filenames. Propose better ones." }
+    end
+
+    # A page points at the NAME, so renaming has to carry every reference with
+    # it or the page goes blank. Every version moves together: they are the same
+    # subject photographed more than once.
+    def rename_photo(from:, to:, **)
+      slug = Tag.canonical(to)
+      raise ToolError, "#{to.inspect} does not reduce to a usable name" if slug.blank?
+      raise ToolError, "there is already a photograph called #{slug}. Use add_photo_version " \
+                       "if this is another picture of the same thing." if Photo.exists?(human_name: slug)
+
+      versions = Photo.where(human_name: from)
+      raise ToolError, "there is no photograph called #{from.inspect}" if versions.empty?
+
+      moved = 0
+      Photo.transaction do
+        moved += blocks.where(asset_name: from).update_all(asset_name: slug)
+        moved += pages.where(hero_asset_name: from).update_all(hero_asset_name: slug)
+        Photo.where(human_name: from).update_all(human_name: slug)
+      end
+      touched_everything! if moved.positive?
+
+      ok "renamed #{from} to #{slug}#{" and moved #{moved} #{'reference'.pluralize(moved)}" if moved.positive?}"
+    end
+
+    # Replacing a photograph is a NEW VERSION of the same name, which is what
+    # lets someone ask for the old one back later. The page keeps pointing at
+    # the name and simply shows the newer picture.
+    def add_photo_version(name:, from_upload:, **)
+      source = Photo.newest(from_upload) or
+        raise ToolError, "there is no photograph called #{from_upload.inspect}. " \
+                         "recent_uploads shows what has just arrived."
+      existing = Photo.newest(name) or
+        raise ToolError, "there is no photograph called #{name.inspect} to add a version to. " \
+                         "Use rename_photo if this is a new subject."
+
+      added = Photo.create!(human_name: name, data: source.data,
+                            content_type: source.content_type, byte_size: source.byte_size,
+                            sha256: source.sha256, alt_text: source.alt_text,
+                            status: "published", uploaded_at: source.uploaded_at,
+                            original_filename: source.original_filename)
+      source.tags.each { |t| added.photo_tags.create!(tag: t) }
+      source.destroy   # it lives on as this version; two copies would confuse every search
+
+      ok "#{name} now has a version #{added.version}. Nothing points at it yet — " \
+         "use repoint_photo to show it.", photo: name, version: added.version
+    end
+
+    # Every version of a name, so "put the old picture back" can be answered.
+    def photo_versions(name:, **)
+      rows = Photo.versions_of(name)
+      raise ToolError, "there is no photograph called #{name.inspect}" if rows.empty?
+
+      in_use = blocks.where(asset_name: name).pluck(:asset_version).uniq +
+               pages.where(hero_asset_name: name).pluck(:hero_asset_version).uniq
+
+      { name: name,
+        versions: rows.map { |p|
+          { version: p.version, added: p.created_at.to_date.to_s,
+            in_use: in_use.include?(p.version),
+            shows: p.alt_text.presence&.truncate(140) } },
+        note: "describe_photo with a version shows you the picture itself. " \
+              "repoint_photo moves every reference to a version." }
+    end
+
+    def list_tags(**)
+      rows = Tag.in_menu
+      return { tags: [], note: "no tags yet — tag_photo creates one by using it" } if rows.empty?
+
+      { tags: rows.map { |t| { label: t.label, name: t.name, photos: t.photos.count } } }
+    end
+
+    def tag_photo(name:, tags: nil, remove: nil, **)
+      photo = Photo.newest(name) or raise ToolError, "there is no photograph called #{name.inspect}"
+
+      added = photo.tag_with(Array(tags)) if tags.present?
+      gone  = photo.untag(Array(remove)) if remove.present?
+
+      ok [("tagged #{name} #{Array(added).map(&:label).join(', ')}" if Array(added).any?),
+          ("removed #{Array(gone).map(&:label).join(', ')} from #{name}" if Array(gone).any?)]
+           .compact.join("; ").presence || "#{name} already had those tags"
+    end
+
+    def find_by_tag(tag:, **)
+      rows = Photo.published.tagged(tag).order(:human_name)
+      return { matches: [], note: "nothing is tagged #{tag.inspect}. list_tags shows what exists." } if rows.empty?
+
+      { matches: rows.map { |p| { name: p.human_name, version: p.version,
+                                  shows: p.alt_text.presence&.truncate(100) } } }
     end
 
     # Replacing a photograph everywhere is a real operation now, not invisible

@@ -100,7 +100,12 @@ module Admin
     def provisional_name(filename)
       stem = File.basename(filename.to_s, ".*").downcase
                  .gsub(/[^a-z0-9]+/, "-").gsub(/\A-|-\z/, "")
-      stem = "upload" if stem.blank? || stem.length < 3
+
+      # "....jpg" has no extension as far as Ruby is concerned -- a leading dot
+      # means a hidden file -- so the stem came out as "jpg", which is a valid
+      # name and a useless one.
+      stem = "upload" if stem.blank? || stem.length < 3 ||
+                         %w[jpg jpeg png gif webp heic heif image photo img].include?(stem)
       candidate = "new-#{stem}".first(60)
 
       return candidate unless Photo.exists?(human_name: candidate)

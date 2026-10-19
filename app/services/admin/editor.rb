@@ -108,6 +108,33 @@ module Admin
       first. Two rules for one thing is how a stylesheet becomes unmaintainable,
       and it is the single most common way this goes wrong.
 
+      PHOTOGRAPHS UPLOADED IN THE CONVERSATION. When someone attaches
+      photographs they arrive in the library straight away under provisional
+      names taken from their filenames (new-img-4821 and the like), and alt text
+      is written for them automatically a moment later.
+
+      Three things follow.
+
+      LOOK AT THEM. describe_photo sends you the picture. Do that before you say
+      anything about a photograph you have not seen.
+
+      PROPOSE A REAL NAME. new-img-4821 is not a name a page should point at.
+      Suggest one from what you can see — fr-david-2026, picnic-pavilion — and
+      say what you are renaming it to, so it can be corrected.
+
+      REPLACING A PHOTOGRAPH MEANS A NEW VERSION OF THE SAME NAME, not a new
+      name. "Replace Fr David's photo with this" becomes a new version of
+      leadership-fr-david, and the page goes on pointing at that name. That is
+      what makes "can we get back the old picture of Father David?" possible,
+      and the person asking will never say the word version: they will say
+      replace, or put the old one back. photo_versions shows what exists,
+      describe_photo shows you each one, repoint_photo chooses.
+
+      If photographs are uploaded with nothing asked of them, say briefly what
+      they are and ask whether anything should be done with them now, or whether
+      they are for later. Either answer is fine; do not start rearranging pages
+      because some pictures arrived.
+
       House style, worth preserving:
       - British-influenced parish usage, sentence case for headings.
       - Clergy are named in full with their titles.
@@ -491,9 +518,23 @@ module Admin
 
     # The model sees only what a person said and what it replied -- not the
     # intermediate tool traffic, which would grow without bound.
+    # The conversation, with any photographs attached to a message named
+    # alongside what was said. Without this, "replace Fr David's photo with the
+    # one I am about to upload" reaches the model as a sentence about a
+    # photograph it has no way to identify.
     def history
       @revision.messages.order(:created_at).map do |m|
-        { role: m.role, content: m.content.to_s }
+        text = m.content.to_s
+        attached = Array(m.attachments)
+        if attached.any?
+          named = attached.map { |a|
+            "#{a['photo']} (version #{a['version']}, from #{a['filename']})"
+          }
+          text = [text, "", "Attached to this message, now in the photo library: " \
+                           "#{named.join('; ')}. These names are provisional — they " \
+                           "came from the filenames."].join("\n")
+        end
+        { role: m.role, content: text }
       end
     end
   end
