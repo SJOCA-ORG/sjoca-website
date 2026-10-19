@@ -52,7 +52,9 @@
           broken one. The steps stream below; this says it is still going. %>
       <% queued = @messages.count { |m| m.state == "working" } - 1 %>
       <div class="working-bar" id="working-bar" data-since="<%= @working.created_at.to_i %>">
-        <strong>Working<span class="dots">…</span></strong>
+        <strong id="working-word">
+          <%= @working.stopping? ? "Stopping" : "Working" %><span class="dots">…</span>
+        </strong>
         <%# A request typed while another is running waits its turn. It used to
             start a second job on the same revision, racing the first, and the
             page only showed one of them -- so the second looked swallowed. %>
@@ -61,6 +63,12 @@
         <% end %>
         <span id="working-clock" style="font-variant-numeric:tabular-nums">0s</span>
         <span id="working-cost" class="muted"></span>
+        <span class="grow"></span>
+        <%# Visible the whole time a turn runs. Realising it has misunderstood
+            you and having to watch it work anyway is the worst minute in this
+            whole interface. %>
+        <%= button_to "Stop", stop_admin_revision_path(@revision),
+              class: "linky", form: { style: "display:inline" } %>
         <span class="latest" id="working-latest"></span>
       </div>
     <% end %>
@@ -205,6 +213,18 @@
       <span class="muted" id="attached-count"></span>
       <span id="attached-names" class="muted"></span>
       <button type="button" id="attached-clear" class="linky">remove</button>
+
+      <%# Dropping photographs and then not knowing what is expected of you is
+          the confusing moment. Say what the two choices are, and make the
+          quiet one a button rather than something you have to phrase. %>
+      <p style="margin:.45rem 0 0">
+        Say what you would like done with
+        <span id="attached-them">them</span> — or
+        <%= button_to "just add to the library", admin_photos_path,
+              multipart: true, form: { id: "just-add", style: "display:inline" },
+              params: { return_to: request.fullpath },
+              class: "linky" %>
+      </p>
       <div style="margin-top:.4rem">
         <%= text_field_tag "tags[]", nil, id: "attach-tags",
               placeholder: "tag these photographs…", list: "known-tags",
@@ -249,8 +269,23 @@
         var files = input.files;
         panel.hidden = !files || !files.length;
         if (panel.hidden) return;
-        count.textContent = files.length === 1 ? "1 photograph attached:" : files.length + " photographs attached:";
+        var one = files.length === 1;
+        count.textContent = one ? "1 photograph attached:" : files.length + " photographs attached:";
         names.textContent = [].map.call(files, function (f) { return f.name; }).join(", ");
+        document.getElementById("attached-them").textContent = one ? "it" : "them";
+
+        // "Just add to the library" is a different form, so the files and the
+        // tags have to be handed to it. Without this it would post nothing and
+        // report that nothing had been added.
+        var quiet = document.getElementById("just-add");
+        if (!quiet) return;
+        var clone = input.cloneNode();
+        clone.id = "";
+        clone.style.display = "none";
+        clone.files = input.files;
+        var old = quiet.querySelector("input[type=file]");
+        if (old) quiet.removeChild(old);
+        quiet.appendChild(clone);
       }
 
       input.addEventListener("change", show);
@@ -510,6 +545,11 @@
           }).join("<br>");
           // The newest step, repeated in the pinned bar, so something is
           // visible even when you have scrolled back through the history.
+          if (d.stopping) {
+            var word = document.getElementById("working-word");
+            if (word) word.firstChild.nodeValue = "Stopping";
+          }
+
           var last = d.steps[d.steps.length - 1];
           if (last && latest) latest.textContent = last.text;
 

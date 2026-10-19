@@ -19,7 +19,9 @@ module Admin
       notice = "#{helpers.pluralize(taken.size, 'photograph')} added."
       notice += " #{refused.map { |r| "#{r.filename}: #{r.error}" }.join('; ')}" if refused.any?
 
-      redirect_to admin_photos_path, notice: notice
+      # Back where you were. Adding photographs from the editing pane should
+      # not take you out of the conversation you are having.
+      redirect_to(params[:return_to].presence || admin_photos_path, notice: notice)
     end
 
     # Renaming, tagging and untagging -- the things an editor does to a
@@ -37,6 +39,17 @@ module Admin
                     notice: "Updated #{photo.reload.human_name}."
     rescue ActiveRecord::RecordInvalid => e
       redirect_back fallback_location: admin_photos_path, alert: e.record.errors.full_messages.to_sentence
+    end
+
+    # A description can fail -- the model has a bad minute, or thinks for so
+    # long it runs out of room to answer. Asking again should not mean
+    # uploading the photograph a second time.
+    def describe
+      photo = Photo.find(params[:id])
+      photo.update_columns(alt_text: nil)
+      DescribePhotoJob.perform_later(photo.id)
+      redirect_back fallback_location: admin_photos_path,
+                    notice: "Writing a description for #{photo.human_name}…"
     end
 
     private

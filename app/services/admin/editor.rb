@@ -211,6 +211,13 @@ module Admin
                           model: Anthropic::Client.model }
 
       MAX_STEPS.times do
+        # Asked to stop. Between steps, not mid-step: a turn killed in the
+        # middle of a tool call would leave the draft half-changed with nothing
+        # written down about what had happened to it.
+        if stop_requested?
+          return stopped(performed, spent)
+        end
+
         response = @client.call(system: system_prompt, messages: conversation,
                                 tools: Tools.definitions)
         content = response["content"] || []
@@ -439,6 +446,22 @@ module Admin
     end
 
     private
+
+    # Checked between steps. The state is set by the controller, so this is a
+    # read of what somebody just clicked.
+    def stop_requested? = @working&.reload&.state == "stopping"
+
+    def stopped(performed, spent)
+      done = performed.reject { |p| p["failed"] || p["read"] || p["say"] }
+                      .filter_map { |p| p["summary"] }
+      text = +"Stopped."
+      text << (done.any? ? " I had already done: #{done.join('; ')}. Those changes are still " \
+                           "there — tell me if you want them undone." : " Nothing was changed.")
+
+      @working.update!(state: "done", content: text, tool_calls: performed, usage: spent,
+                       touched: (@tools.edited.presence || @tools.sampled).to_a)
+      Result.new(reply: text, tool_calls: performed)
+    end
 
     # The house CSS conventions belong in the SYSTEM PROMPT, not in liquid_guide
     # where they started. Putting them there assumed it would call liquid_guide

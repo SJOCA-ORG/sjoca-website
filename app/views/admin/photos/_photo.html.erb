@@ -2,19 +2,45 @@
   <img src="<%= "/media/#{photo.human_name}/#{photo.version}" %>" loading="lazy"
        alt="<%= photo.alt_text %>">
   <div class="meta">
-    <div class="name"><%= photo.human_name %>
-      <span class="muted">v<%= photo.version %></span></div>
-
-    <% if photo.human_name.start_with?("new-") %>
-      <p class="muted" style="margin:.2rem 0 0">needs a proper name</p>
+    <%# The name is a slug pages point at, so renaming carries every reference
+        with it. Editing it in place is the only way anyone would find it. %>
+    <%= form_with url: admin_photo_path(photo), method: :patch, class: "rename" do %>
+      <%= text_field_tag :human_name, photo.human_name, class: "name-field",
+            "aria-label": "Name of this photograph" %>
+      <% if photo.versions_count > 1 %>
+        <span class="muted">v<%= photo.version %> of <%= photo.versions_count %></span>
+      <% end %>
     <% end %>
 
-    <p class="alt">
-      <%= photo.alt_text.presence || content_tag(:em, "description being written…") %>
-    </p>
+    <% if photo.human_name.start_with?("new-") %>
+      <p class="needs">needs a proper name — type one above</p>
+    <% end %>
 
-    <%= form_with url: admin_photo_path(photo), method: :patch, style: "margin-top:.4rem" do %>
-      <%= text_field_tag :tags, nil, placeholder: photo.tag_labels.any? ? photo.tag_labels.join(", ") : "add a tag…" %>
+    <% if photo.alt_text == DescribePhotoJob::UNDESCRIBED %>
+      <p class="needs">
+        no description —
+        <%= button_to "try again", describe_admin_photo_path(photo),
+              class: "linky", form: { style: "display:inline" } %>
+      </p>
+    <% elsif photo.alt_text.blank? %>
+      <p class="alt"><em>description being written…</em></p>
+    <% else %>
+      <p class="alt" title="<%= photo.alt_text %>"><%= photo.alt_text %></p>
+    <% end %>
+
+    <% if photo.tag_labels.any? %>
+      <p class="tags">
+        <% photo.tag_labels.each do |label| %>
+          <span class="pill"><%= label %></span>
+        <% end %>
+      </p>
+    <% end %>
+
+    <%# Several at once, comma separated, which is how anybody types them. %>
+    <%= form_with url: admin_photo_path(photo), method: :patch do %>
+      <%= text_field_tag :tags, nil, list: "known-tags",
+            placeholder: "add tags, comma separated…",
+            "aria-label": "Add tags to this photograph" %>
     <% end %>
   </div>
 </div>

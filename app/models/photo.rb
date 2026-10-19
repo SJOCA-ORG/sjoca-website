@@ -86,6 +86,8 @@ class Photo < ApplicationRecord
 
   def tag_labels = tags.order(:label).pluck(:label)
 
+  def versions_count = self.class.where(human_name: human_name).count
+
   def assign_next_version
     return if version.present? && self.class.where(human_name: human_name, version: version).none?
 

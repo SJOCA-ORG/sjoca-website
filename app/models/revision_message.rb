@@ -9,5 +9,8 @@ class RevisionMessage < ApplicationRecord
 
   scope :for_model, -> { order(:created_at) }
 
-  def working? = state == "working"
+  # "stopping" is still in flight -- the turn finishes its current step and
+  # bows out -- so anything asking "is this running" must count it.
+  def working? = state.in?(%w[working stopping])
+  def stopping? = state == "stopping"
 end

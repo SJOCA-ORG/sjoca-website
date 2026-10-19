@@ -68,6 +68,10 @@
   <% end %>
 </div>
 
+<datalist id="known-tags">
+  <% Tag.in_menu.each { |t| %><option value="<%= t.label %>"><% } %>
+</datalist>
+
 <div class="grid">
   <% @photos.each do |photo| %>
     <%= render "photo", photo: photo %>
@@ -82,6 +86,16 @@
   .shot .name { font-weight:600; word-break:break-all }
   .shot .alt { color:#666; margin:.3rem 0 0; max-height:3.6em; overflow:hidden }
   .shot input[type=text] { font-size:.8rem; padding:.25rem .4rem; width:100% }
+  .shot .name-field { font-weight:600; border:1px solid transparent; background:transparent;
+                      padding:.15rem .25rem; margin:-.15rem -.25rem }
+  .shot .name-field:hover { border-color:var(--rule); background:#fff }
+  .shot .name-field:focus { border-color:var(--ink); background:#fff; outline:none }
+  .shot .needs { color:var(--maroon); font-size:.78rem; margin:.25rem 0 0 }
+  .shot .tags { margin:.35rem 0 .3rem; display:flex; flex-wrap:wrap; gap:.25rem }
+  .shot .pill { background:var(--band); border-radius:99px; padding:.05rem .45rem; font-size:.75rem }
+  .shot .rename { margin-bottom:.1rem }
+  .linky { border:0; background:none; color:var(--maroon); cursor:pointer;
+           font:inherit; font-size:.78rem; text-decoration:underline; padding:0 }
   .tagpicker { display:flex; flex-wrap:wrap; gap:.4rem }
   .tagchip { border:1px solid var(--rule); border-radius:99px; padding:.2rem .6rem;
              font-size:.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:.3rem }

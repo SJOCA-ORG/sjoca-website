@@ -25,11 +25,14 @@ Rails.application.routes.draw do
   namespace :admin do
     root "revisions#index"
     get "exit-preview" => "revisions#exit_preview", as: :exit_preview
-    resources :photos, only: %i[index create update]
+    resources :photos, only: %i[index create update] do
+      member { post "describe" }
+    end
     resources :tags, only: %i[create destroy]
     resources :revisions, only: %i[index show create destroy] do
       member do
         post "publish"
+        post "stop"
         get  "preview"
         get  "status"
       end
