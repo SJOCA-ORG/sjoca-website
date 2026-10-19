@@ -222,10 +222,15 @@
         <strong>These are waiting.</strong>
         Tell me what to do with <span id="attached-them">them</span> in the box above
         — or
-        <%= button_to "just save them to the library", admin_photos_path,
-              multipart: true, form: { id: "just-add", style: "display:inline" },
-              params: { return_to: request.fullpath },
-              class: "linky" %>.
+        <%# A button, not another form. button_to builds a <form>, and a form
+            inside a form is invalid HTML: the parser closes the outer one at
+            the inner, orphaning the textarea and Send button so that NOTHING
+            submitted. formaction sends this one button somewhere else and
+            carries the same files and tags with it. %>
+        <button type="submit" class="linky"
+                formaction="<%= admin_photos_path %>" formmethod="post"
+                formenctype="multipart/form-data">just save them to the library</button>.
+        <%= hidden_field_tag :return_to, request.fullpath %>
       </p>
       <p class="muted" style="margin:.3rem 0 0;font-size:.78rem">
         Until you do one or the other, whatever you send next will be about
@@ -282,18 +287,8 @@
         [].forEach.call(document.querySelectorAll("#attached-them, .attached-them"),
           function (el) { el.textContent = one ? "it" : "them"; });
 
-        // "Just add to the library" is a different form, so the files and the
-        // tags have to be handed to it. Without this it would post nothing and
-        // report that nothing had been added.
-        var quiet = document.getElementById("just-add");
-        if (!quiet) return;
-        var clone = input.cloneNode();
-        clone.id = "";
-        clone.style.display = "none";
-        clone.files = input.files;
-        var old = quiet.querySelector("input[type=file]");
-        if (old) quiet.removeChild(old);
-        quiet.appendChild(clone);
+        // Nothing to copy anywhere: "just save them" is a button in THIS form
+        // that posts to a different address, so it already has the files.
       }
 
       input.addEventListener("change", show);
