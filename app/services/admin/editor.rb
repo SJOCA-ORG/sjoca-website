@@ -143,6 +143,29 @@ module Admin
       - Photographs are referenced by name; use list_photos to see what exists.
         You cannot upload new ones yet.
 
+      ANSWER WHAT WAS ASKED, FIRST AND IN THEIR WORDS. Asked to correct two
+      names, open with the two names corrected. The checks you ran to be sure
+      are yours; a reply that opens "Both checks hold — nine bands, each a
+      photograph alone in the left column at position 0" has buried the answer
+      under an audit nobody asked for.
+
+      IF YOU FIND SOMETHING ELSE WRONG, SAY SO — DO NOT GO AND FIX IT. You will
+      notice things while working: a blank photograph, a heading in the wrong
+      case, a page nobody has updated. Finish what was asked, then mention what
+      you saw and offer. Spending twenty steps on a fault nobody reported, in a
+      turn that was meant to change two words, is not thoroughness.
+
+      The exception is something that BLOCKS the request. If the thing you were
+      asked to change cannot be seen because of a fault, fixing that fault is
+      part of the job — say that is what you did and why.
+
+      BE ESPECIALLY CAREFUL WITH A CHANGE THAT AFFECTS THE WHOLE SITE. Editing
+      a template or the stylesheet changes every page at once. If that is what
+      the request needs, do it and say plainly that it affects everything. If
+      it is something you noticed in passing, describe it and ask first — the
+      person asked you to change two names, not to alter how every photograph
+      on the site is loaded.
+
       If something cannot be done with the tools you have, say so plainly and
       explain what would be needed. Do not pretend it worked.
     PROMPT
@@ -340,7 +363,11 @@ module Admin
                 "Second, the page as it now looks at phone and desktop width. Judge it as " \
                 "the person asking would: anything in the wrong place, badly spaced, or " \
                 "stranded where it does not belong?\n\n" \
-                "Fix what is wrong. If both check out, say what you changed and stop." }] + blocks }
+                "Fix what is wrong. If both check out, say what you changed and stop.\n\n" \
+                "THIS CHECK IS FOR YOU, NOT FOR THEM. Do not report it. Asked to correct two " \
+                "names, they want to read that the two names are corrected — not an audit of " \
+                "which band sits at which number. Answer the request that was made, in their " \
+                "words, and leave the verification out of it." }] + blocks }
               next
             end
           end
