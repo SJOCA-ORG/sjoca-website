@@ -36,6 +36,39 @@ module Admin
     # the browser-check screenshots, which are not photos and never become rows,
     # so this is the one operation that takes a path instead of a photo name. It
     # goes through the same hardened policy as everything else here.
+    # What an image actually IS, read off the bytes rather than trusted from
+    # whatever the browser claimed. A file renamed to .jpg is not a jpg.
+    def self.identify(bytes)
+      env = { "MAGICK_CONFIGURE_PATH" => Rails.root.join("config/imagemagick").to_s }
+      out, _err, status = Open3.capture3(env, BINARIES[:magick], "-", "-format", "%w %h %m",
+                                         "info:", stdin_data: bytes, binmode: true)
+      return nil unless status&.success?
+
+      w, h, format = out.split
+      return nil if w.blank? || h.blank?
+
+      { width: w.to_i, height: h.to_i, pixels: w.to_i * h.to_i, format: format }
+    rescue StandardError
+      nil
+    end
+
+    # Remove EXIF and every other profile. A phone photograph carries where it
+    # was taken, to within a few metres. A parish would never decide to publish
+    # the coordinates of a parishioner's house; it would simply happen.
+    def self.strip(bytes, format)
+      env = { "MAGICK_CONFIGURE_PATH" => Rails.root.join("config/imagemagick").to_s }
+      out, err, status = nil
+      Timeout.timeout(TIMEOUT) do
+        out, err, status = Open3.capture3(env, BINARIES[:magick], "-", "-strip",
+                                          "#{format}:-", stdin_data: bytes, binmode: true)
+      end
+      raise ToolError, "could not read that image: #{err.to_s.lines.first&.strip}" unless status&.success?
+
+      out
+    rescue Timeout::Error
+      raise ToolError, "that image took too long to process and was stopped"
+    end
+
     # The same, for bytes already in hand rather than a file on disk.
     def self.fit_bytes(bytes, geometry)
       env = { "MAGICK_CONFIGURE_PATH" => Rails.root.join("config/imagemagick").to_s }

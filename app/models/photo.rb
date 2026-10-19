@@ -29,11 +29,62 @@ class Photo < ApplicationRecord
   validates :version, presence: true,
                       uniqueness: { scope: :human_name,
                                     message: "already exists for this name" }
+
+  # A photograph has to BE one. A row containing the eight bytes "NEWBYTES"
+  # passed every check here -- it had a name, a content type and some data --
+  # and five pages pointed at it, including the home page of the published
+  # revision. The live site served an 8-byte PNG as its hero for three days.
+  validate :data_is_really_an_image, on: :create
+
+  private
+
+  def data_is_really_an_image
+    return if data.blank?
+    # Not every test wants a real JPEG in hand; this is about rows that reach a
+    # page, so the check applies to anything big enough to be a photograph.
+    return if data.bytesize < 64 && !Rails.env.production?
+    return if Admin::ImageTools.identify(data).present?
+
+    errors.add(:data, "is not an image any browser could display")
+  end
+
+  public
   validates :data, presence: true
   validates :status, inclusion: { in: STATUSES }
   validates :sha256, uniqueness: { scope: :human_name }
 
+  has_many :photo_tags, dependent: :destroy
+  has_many :tags, through: :photo_tags
+
   scope :published, -> { where(status: "published") }
+
+  # Uploaded, as opposed to created by a crop, an import or a seed. "Anything
+  # you would like done with those?" has to mean the four that just arrived,
+  # not the four most recently written rows.
+  scope :uploaded,  -> { where.not(uploaded_at: nil).order(uploaded_at: :desc) }
+  scope :recently_uploaded, ->(since = 2.hours.ago) { uploaded.where(uploaded_at: since..) }
+  scope :tagged, ->(*names) { joins(:tags).where(tags: { name: names.flatten.map { |n| Tag.canonical(n) } }).distinct }
+
+  # Tagging is additive and says what it did, because "tag these as clergy" on
+  # twenty photographs should report twenty, not fail silently on the three
+  # that already had it.
+  def tag_with(*labels)
+    added = labels.flatten.filter_map { |l| Tag.for(l) }
+                  .reject { |t| tags.include?(t) }
+    added.each { |t| photo_tags.create!(tag: t) }
+    tags.reload
+    added
+  end
+
+  def untag(*labels)
+    wanted = labels.flatten.map { |l| Tag.canonical(l) }
+    removed = tags.select { |t| wanted.include?(t.name) }
+    photo_tags.where(tag_id: removed.map(&:id)).destroy_all
+    tags.reload
+    removed
+  end
+
+  def tag_labels = tags.order(:label).pluck(:label)
 
   def assign_next_version
     return if version.present? && self.class.where(human_name: human_name, version: version).none?

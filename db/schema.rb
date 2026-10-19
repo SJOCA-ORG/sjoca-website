@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_17_190923) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_125728) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -163,6 +163,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_190923) do
     t.index ["revision_id"], name: "index_pages_on_revision_id"
   end
 
+  create_table "photo_tags", force: :cascade do |t|
+    t.bigint "photo_id", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["photo_id", "tag_id"], name: "index_photo_tags_on_photo_id_and_tag_id", unique: true
+    t.index ["photo_id"], name: "index_photo_tags_on_photo_id"
+    t.index ["tag_id"], name: "index_photo_tags_on_tag_id"
+  end
+
   create_table "photos", force: :cascade do |t|
     t.string "human_name", null: false
     t.binary "data", null: false
@@ -175,9 +185,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_190923) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "version", null: false
+    t.datetime "uploaded_at"
+    t.string "original_filename"
     t.index ["human_name", "created_at"], name: "index_photos_on_human_name_and_created_at"
     t.index ["human_name", "sha256"], name: "index_photos_on_human_name_and_sha256", unique: true
     t.index ["human_name", "version"], name: "index_photos_on_human_name_and_version", unique: true
+    t.index ["uploaded_at"], name: "index_photos_on_uploaded_at"
   end
 
   create_table "promises", force: :cascade do |t|
@@ -390,6 +403,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_190923) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "tags", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "label", null: false
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
+  end
+
   create_table "templates", force: :cascade do |t|
     t.bigint "revision_id", null: false
     t.string "name", null: false
@@ -411,6 +433,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_190923) do
   add_foreign_key "blocks", "sections"
   add_foreign_key "data_sources", "revisions"
   add_foreign_key "lectionary_readings", "lectionary_days"
+  add_foreign_key "photo_tags", "photos"
+  add_foreign_key "photo_tags", "tags"
   add_foreign_key "sections", "pages"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
