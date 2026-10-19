@@ -329,9 +329,19 @@
   </div>
 
   <% last = @messages.reverse.find { |m| m.role == "assistant" && m.touched.present? } %>
+
+  <%# Which pages the last reply changed. One is the common case; a sweeping
+      request touches several, and flicking between them should not mean
+      hunting through the site. %>
+  <div class="changed" id="changed" hidden>
+    <span class="muted">Changed:</span>
+    <span id="changed-list"></span>
+  </div>
+
   <div class="stage" id="stage"
        data-latest-id="<%= last&.id %>"
-       data-latest-slug="<%= Array(last&.touched).first %>">
+       data-latest-slug="<%= Array(last&.touched).first %>"
+       data-latest-all="<%= Array(last&.touched).to_json %>">
     <iframe id="preview" title="The draft as it looks now"></iframe>
   </div>
 </section>
@@ -373,8 +383,10 @@
     // stay there, because the reply's id is remembered as already followed.
     var latestId = stage.dataset.latestId;
     var latestSlug = stage.dataset.latestSlug;
+    var followedNow = false;
     if (latestSlug && latestId && latestId !== state.followed) {
       slug = latestSlug;
+      followedNow = true;
       remember({ followed: latestId, slug: slug });
     }
 
@@ -382,12 +394,24 @@
     function url(s) { return pathFor(s) + "?preview=" + encodeURIComponent(TOKEN) + "&bare=1"; }
     function tabUrl(s) { return pathFor(s) + "?preview=" + encodeURIComponent(TOKEN); }
 
-    function show(s) {
+    function show(s, flash) {
       slug = s;
+      // Reload even when the path has not changed: the draft underneath it has.
       frame.src = url(slug);
       open.href = tabUrl(slug);
       where.textContent = pathFor(slug);
       remember({ slug: slug });
+
+      if (!flash) return;
+      // Dim and come back up once the new content is actually there, so the
+      // eye is drawn to the finished page rather than to a blank frame.
+      frame.addEventListener("load", function once() {
+        frame.removeEventListener("load", once);
+        stage.classList.remove("noticing");
+        void stage.offsetWidth;          // restart the animation if it is already running
+        stage.classList.add("noticing");
+        setTimeout(function () { stage.classList.remove("noticing"); }, 1200);
+      });
     }
 
     function setWidth(isPhone) {
@@ -397,8 +421,29 @@
       remember({ phone: isPhone });
     }
 
+    // The pages this reply changed, as buttons, so several are one click apart.
+    var changed = [];
+    try { changed = JSON.parse(stage.dataset.latestAll || "[]"); } catch (e) { changed = []; }
+    if (changed.length) {
+      var list = document.getElementById("changed-list");
+      list.innerHTML = "";
+      changed.forEach(function (s) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "changed-link";
+        // A bare "/" is a cryptic thing to ask someone to click.
+        b.textContent = s === "home" ? "home" : "/" + s;
+        b.addEventListener("click", function () { show(s, true); });
+        list.appendChild(b);
+      });
+      document.getElementById("changed").hidden = false;
+    }
+
     setWidth(!!state.phone);
-    show(slug);
+
+    // A reply that has just landed gets the flash; coming back to the page
+    // later does not, or it would blink at you every time you opened a tab.
+    show(slug, followedNow);
 
     // Clicking about inside the pane changes the page; say where you are, and
     // come back here next time.
