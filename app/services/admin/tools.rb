@@ -115,6 +115,19 @@ module Admin
                after: str("Put it immediately after this page's slug"),
                before: str("Put it immediately before this page's slug") },
              %w[slug]),
+        # --- the weekly bulletin ----------------------------------------------
+        tool("add_bulletin",
+             "Make a bulletin for a given Sunday. If there is an earlier one it is COPIED, " \
+             "which is the point: a new bulletin is last week's with the dated parts " \
+             "recomputed, so the only thing to compose is what is genuinely new. " \
+             "A bulletin is four 5.5 x 8.5 pages in reading order — the printer folds them, " \
+             "you never do — and each section is one page. check_appearance measures every " \
+             "page and tells you what does not fit, which a web page can never do.",
+             { for_date: str("The Sunday it is for, e.g. \"2026-10-26\""),
+               pages_wanted: int("How many pages. 4 unless asked otherwise; more is fine.") },
+             %w[for_date]),
+        tool("list_bulletins",
+             "Every bulletin, newest first, with how many pages and blocks each has.", {}),
         tool("delete_page", "Remove a page and everything on it. Existing links to it will 404.",
              { slug: str("Page slug") }, %w[slug]),
         tool("move_section", "Move a band to a different page, or to a different position.",
@@ -676,6 +689,76 @@ module Admin
                         parent_slug: attrs[:parent_slug],
                         position: attrs[:position] || (pages.maximum(:position).to_i + 1))
       ok "created the page /#{p.slug}"
+    end
+
+    # ---- the weekly bulletin -----------------------------------------------
+
+    # A bulletin is a page with a layout and a date. Making one is its own tool
+    # because of what it does when a previous one exists: it copies it. That is
+    # the whole design -- a new bulletin is last week's with the dated parts
+    # recomputed, so the only thing anybody composes is what is genuinely new.
+    def add_bulletin(for_date:, pages_wanted: 4, **)
+      on = Date.parse(for_date.to_s)
+      slug = "bulletins/#{on.iso8601}"
+      raise ToolError, "there is already a bulletin for #{on.to_fs(:long)} at /#{slug}" if pages.exists?(slug: slug)
+
+      previous = pages.bulletins.where.not(slug: slug).first
+
+      page = pages.create!(
+        slug: slug, title: "Bulletin — #{on.strftime('%-d %B %Y')}",
+        nav_title: on.strftime("%-d %B %Y"), show_in_nav: false,
+        layout: "bulletin", dated_on: on,
+        position: (pages.maximum(:position).to_i + 1)
+      )
+
+      sheets = previous ? copy_bulletin(previous, page) : blank_bulletin(page, pages_wanted.to_i)
+      @edited << slug
+
+      if previous
+        ok "made /#{slug} from the bulletin of #{previous.dated_on&.to_fs(:long)} — #{sheets} pages " \
+           "copied. Now recompute the dated parts for #{on.to_fs(:long)}: the commemoration and " \
+           "readings for that day, and the services that week. Leave the masthead, the address, " \
+           "the giving line and the standing reminders alone.",
+          page: slug
+      else
+        ok "made /#{slug} with #{sheets} empty pages of 5.5 x 8.5. There is no earlier bulletin to " \
+           "copy, so this first one sets the pattern every later one inherits — lay it out with " \
+           "care. A folded bulletin usually reads: page 1 the parish name, the date and the day's " \
+           "commemoration; pages 2 and 3 the readings, the services and the announcements; page 4 " \
+           "the address, contact and giving. check_appearance measures every page and says what " \
+           "does not fit.",
+          page: slug
+      end
+    end
+
+    def list_bulletins(**)
+      rows = pages.bulletins
+      return { bulletins: [], note: "none yet — add_bulletin makes the first" } if rows.empty?
+
+      { bulletins: rows.map { |b|
+          { slug: b.slug, for: b.dated_on&.to_fs(:long), pages: b.sections.count,
+            blocks: b.sections.sum { |s| s.blocks.count } } } }
+    end
+
+    def copy_bulletin(from, to)
+      from.sections.order(:position, :id).each_with_index do |section, i|
+        copy = to.sections.create!(revision: revision, position: i,
+                                   style: section.style, column_widths: section.column_widths)
+        section.blocks.order(:column, :position, :id).each do |b|
+          copy.blocks.create!(revision: revision, kind: b.kind, content: b.content,
+                              asset_name: b.asset_name, asset_version: b.asset_version,
+                              url: b.url, align: b.align, width: b.width,
+                              css_class: b.css_class, row: b.row,
+                              column: b.column, position: b.position)
+        end
+      end
+      to.sections.count
+    end
+
+    def blank_bulletin(page, wanted)
+      count = wanted.clamp(2, 16)
+      count.times { |i| page.sections.create!(revision: revision, position: i, style: "plain") }
+      count
     end
 
     def view_page(slug:, find: nil, **)
