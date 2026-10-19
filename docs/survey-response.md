@@ -1,124 +1,172 @@
-# What the survey asked for, and where it stands
+# The survey, and what we did about it
 
-Every free-text comment from the parish survey, what has been done about it, and
-what has not. Compiled 19 October 2026, against the draft about to be published.
+One document: the parish's own words, where each thing stands against the draft
+about to be published, and what is left. Compiled 19 October 2026.
 
-The survey had 22 respondents and 5 free-text questions. Four themes run through
-the written comments, and the first of them is much louder than the rest.
+Mitch's assessment is in his words; the comment analysis and the flags are mine.
 
-**The site is out of date, and that is the whole problem.** Two people said it in
-so many words:
+---
+
+## 1. The five rated topics
+
+The survey asked each topic twice — *how important is this* and *how well does
+the site do it*. The gap is the finding.
+
+| Topic | Said to matter | Done today | Where it stands now |
+|---|---|---|---|
+| **Accurate schedule** | Very important | Negative | **Fixed.** The calendar comes from ChurchTrac, starts at today and runs forward. **But it requires people to be diligent in updating ChurchTrac.** |
+| **Keeping in touch** | Very important | Terrible | **Not much done yet** — but the tools are in place to add any amount of event information, pictures and so on, easily. |
+| **Learning the faith** | Important | Weak | **Partly.** Daily scripture and the Zoom class videos are in. The resources page **needs filling with links**. Should also add a "thought for the day" that updates regularly. |
+| **Parish info and leadership** | Important | Weak | **Fixed.** Future: a whole history timeline with photographs — the 50th anniversary book is the source. |
+| **Online giving** | Important | Acceptable | **The best that can be done.** It still steps out to ChurchTrac, but the site now makes clear how. |
+
+---
+
+## 2. What the written comments actually say
+
+22 respondents, 5 free-text questions, 50 written answers. Four themes, and the
+first is much louder than the rest.
+
+### Theme one: the site is out of date, and that is the whole problem
 
 > "The website is obviously not kept up to date. The biggest downside to this is
-> it can harm outreach... If the website is clearly not current, it causes people
-> to question whether the organization is even available."
+> it can harm outreach. A website is one of the most fundamental ways people look
+> to get basic information about a place... If the website is clearly not
+> current, it causes people to question whether the organization is even
+> available."
 
 > "No one updates the website. I would not like the parish to invest in another
 > website unless someone was dedicated to updating it weekly. **It's not a system
 > problem that we have, it's an operator problem.**"
 
-That second comment is the one to answer at the AGM. The reply is not "the new
-site is nicer" — it is that updating it no longer takes a developer, or any
-technical skill at all. You describe the change in a sentence and it is made.
+**This is the comment to answer at the AGM, and it is not about design.** The
+answer: updating is now as easy as it can be made — a natural language
+interface that keeps the style consistent while allowing flexibility in
+authoring and updating pages. You describe the change in a sentence; it is made.
+
+The second respondent is right that a prettier site would not have helped. What
+changed is that keeping it current no longer requires a developer, or any
+technical skill.
+
+### Theme two: show us the parish, and show us it is alive
+
+Photographs of real parish life, the outreach we actually do, event pictures,
+who the council are. Mentioned by five people in different words.
+
+### Theme three: connect us outward
+
+Links to the wider Orthodox world, diocesan events shown on our own site,
+saints commemorated this week, social media. Four people.
+
+### Theme four: keep it plain and fast
+
+One respondent at length, and worth quoting in full further down. Nobody asked
+for a glossy site; one person explicitly warned against it.
 
 ---
 
-## The five rated topics
-
-| Topic | Said to matter | Done today | Where it stands |
-|---|---|---|---|
-| Accurate schedule | Very important | Poorly | **Fixed** — the calendar comes straight from ChurchTrac, starts from today and runs forward. *Depends on people keeping ChurchTrac up to date.* |
-| Keeping in touch | Very important | Badly | **Tools in place, little content yet** — events, photographs and news can now be added easily. Nothing has been added at scale. |
-| Learning the faith | Important | Weak | **Partly** — daily scripture and the adult-education videos are on the site. The Orthodox Resources page exists but is **still empty**. |
-| Parish info and leadership | Important | Weak | **Fixed** — clergy and council members are current, with new photographs. |
-| Online giving | Important | Acceptable | **As good as it can be** — still steps out to ChurchTrac, but the site now makes clear how to do it. |
-
----
-
-## Every written comment
+## 3. Every written request, and where it stands
 
 ### Done
 
-| What was asked for | Who asked | Where it stands |
+| Asked for | Asked by | Where it stands |
 |---|---|---|
-| Calendar only showed one month — no way to see next week at month end | 1 person, plus a second citing Holy Spirit's site as the example | The schedule now runs forward from today, not to the end of the month |
+| Calendar only showed one month — at month end you could not see next week | 1, plus another citing Holy Spirit's site as the example to copy | Runs forward from today now |
 | Delete Deacon Stephen, add Deacon Mitch | 1 | Done |
-| "Please if nothing else, update the staff profiles" | 1 | Done — all clergy and council members current |
-| "Updated photos of parish council members" | 2 | Done |
-| Parish council members could not be found at all | 1 | Done — on the Leadership page |
-| Daily scripture / fasting and feast days | 1 | Daily Lectionary page added |
-| Homilies, reflections, teaching | 1 | Adult-education recordings added |
+| "Please if nothing else, update the staff profiles" | 1 | Done |
+| Updated photographs of parish council members | 2 | Done |
+| Council members could not be found on the site at all | 1 | On the Leadership page |
+| Daily scripture, fasting and feast days | 1 | Daily Lectionary page |
+| Homilies, reflections, teaching material | 1 | Adult-education recordings |
 
 ### Partly done
 
-| What was asked for | Where it stands |
+| Asked for | Where it stands |
 |---|---|
-| The St John icon on the home page is from Monastery Icons, "run by a pagan cult" — replace it with a photo of the large icon at the front of the church | **The icon has been changed.** Worth confirming the new one is the parish's own icon and not another bought image — I cannot tell from the file. It is also still filed under the wrong name (`weekly-bulletin-hero`) |
-| "Don't have the extra large headings/pictures — I have to scroll to find the important information" | Hero sizes have been made consistent; whether they are now *small enough* is a judgement to make by looking |
-| Links to the wider Orthodox world, organised under a menu tab | The page exists. **It has nothing on it yet** |
+| "I'm pretty sure the icon of St. John the Baptist on our main page is from Monastery Icons, which is run by a pagan cult. It should be replaced by a photo of the large icon at the front of the church." | **The icon has been changed.** Two things to check: that the replacement is the parish's own icon and not another bought image — I cannot tell that from the file — and that it gets a proper name, as it is still filed as `weekly-bulletin-hero` |
+| "Don't have the extra large headings/pictures — I have to scroll down to find the important information on a desktop" | Hero sizes are consistent now. Whether they are *small enough* is a judgement to make by looking, not something I can settle |
+| Links to the larger Orthodox world, organised under a menu tab, "to connect us in search engines via relevance" | The page exists. **It is empty** |
 
 ### Not started
 
-| What was asked for | Who asked | Note |
+| Asked for | Asked by | Note |
 |---|---|---|
-| Project Mexico, PB&J Factory and other outreach — "a comprehensive list of how we serve" | 1, and you flagged it as missed | Add this year's Project Mexico photographs to Community Outreach. Mountain Men's retreat photographs too |
-| Updated photographs of parish life generally | 2 | The library and upload now exist; the photographs have not been added |
-| Connect the site to social media | 2 | One respondent argues social media is the better place for event highlights, with the website for durable information |
-| An iCal or Google Calendar feed to subscribe to on a phone | 1 | Would answer the schedule complaint a second way |
-| Diocesan events shown on the parish site itself, not as a link away | 1 | |
-| Who to contact for flowers, donations, sick visits, rides | 1 | Needs the parish to decide the names before it can be built |
-| Saints commemorated in the coming week or month | 1 | Partly adjacent to the lectionary page |
-| Parishioner biographies | 1 | Worth a decision: this is personal information about living people |
-| "Thought for the day", regularly updated | Your note | |
-| History timeline with photographs, from the 50th anniversary book | Your note | |
+| Project Mexico, PB&J Factory, donation drives — "a comprehensive list of how we serve" | 1, and Mitch flagged it as missed | Add this year's Project Mexico photographs to Community Outreach. Mountain Men's retreat photographs too |
+| Updated photographs of parish life generally | 2 | Library and upload exist; the photographs have not been added |
+| Connect the site to social media | 2 | One argues social media is the better home for event highlights, the website for durable information |
+| An iCal or Google Calendar feed to subscribe to on a phone | 1 | Would answer the schedule complaint a second way, independently of anyone updating anything |
+| Diocesan events on the parish site itself, not a link away | 1 | |
+| Saints commemorated in the coming week or month | 1 | Adjacent to the lectionary page |
+| Who to contact for flowers, donations, sick visits, rides | 1 | **Needs the parish to name people first** |
+| Parishioner biographies | 1 | **Needs a decision** — personal information about living people |
+| "Thought for the day", regularly updated | Mitch | |
+| History timeline with photographs | Mitch | 50th anniversary book is the source |
 
 ---
 
-## Three things the survey asked us NOT to do
+## 4. Three things the survey asked us NOT to do
 
-Worth writing down, because they are easy to breach by accident.
+Easy to breach by accident, so worth writing down.
 
-**"Don't use AI generated images please."** Every photograph on the site is a real
-parish photograph.
+**"Don't use AI generated images please."** Every photograph on the site is a
+real parish photograph. Keep it that way.
 
-**Keep it fast and plain.** One respondent, at length:
+**Keep it fast and plain.**
 
 > "It's important that the website's priority is to be functional and load
-> quickly... The website should be modern, but concise in terms of design, code,
-> and information. I think that simply adding updated photos would go a long way,
-> and a major redesign would be largely unnecessary."
+> quickly, so adding lots of additional graphics can be a turn off for some
+> people, especially if they're new... The website should be modern, but concise
+> in terms of design, code, and information. I think that simply adding updated
+> photos would go a long way for updating the site, and a major redesign would be
+> largely unnecessary, especially if it interferes with the performance of the
+> site, which loads very well and works for both mobile and desktop."
 
 **Do not out-market the Protestant churches.** The same respondent warned that
-visitors looking for something different from a "marketable" church may be put
-off by a glossy site.
+someone looking for something different from a "marketable" church may be put
+off by a glossy site. That is an argument for restraint, from the audience we
+most want to reach.
 
 ---
 
-## Two numbers worth quoting at the AGM
+## 5. Numbers worth quoting
 
-**13 of 22 read the site on a phone.** More than computer and tablet together.
+| | |
+|---|---|
+| **13 of 22** read the site on a **phone** | More than computer and tablet together |
+| **12 of 22** would visit **weekly** if it were kept current | Against 2 who would still visit rarely |
+| **21 of 22** prefer **email** for communications | One prefers text. Nobody chose anything else |
+| On frequency, opinion splits **10 / 10** | "Once a week is enough" against "several times a week is fine". Nobody asked for less |
 
-**12 of 22 would visit weekly if it were kept current**, against 2 who said they
-would still visit rarely. The appetite is there; the content has to be.
-
-And on communications, which the survey asked about separately: **21 of 22 prefer
-email**, and opinion splits evenly between "once a week is enough" and "several
-times a week is fine". Nobody asked for less than that.
+The appetite is there. The content has to be.
 
 ---
 
-## The honest summary for the council
+## 6. What needs a decision, not building
 
-Of the fourteen distinct things people asked for in writing:
+Three of the outstanding items cannot be built until the parish decides
+something. Worth raising at the AGM rather than leaving them to drift.
 
-- **seven are done**
-- **three are partly done** — and two of those are empty pages waiting for
-  content rather than work waiting for a developer
-- **four have not been started**, three of which need a decision from the parish
-  before anyone can build them
+1. **Who is named as the contact** for flowers, donations, sick visits and rides?
+2. **Do we want parishioner biographies?** It is personal information about
+   living people, on a public site.
+3. **Social media or the website** for event highlights? One respondent argues
+   firmly for social media, with the website carrying what is durable.
 
-None of the remaining items need technical work. They need somebody to write the
-content, choose the photographs, and decide who is named as the contact for what.
+And one that is ours, not theirs: **who keeps ChurchTrac current?** The schedule
+is fixed only as far as that person is diligent. It is the single dependency the
+whole "accurate schedule" claim rests on.
 
-Which brings it back to the comment at the top: it was never a system problem.
-What has changed is that it is no longer a technical one either.
+---
+
+## 7. The honest summary
+
+Of the fourteen distinct things asked for in writing: **seven done, three partly,
+four not started.** Two of the three "partly" are empty pages waiting for
+content rather than work waiting for a developer.
+
+**None of what remains needs technical work.** It needs somebody to write the
+content, choose the photographs, and decide who is named as the contact for
+what.
+
+Which is the same point the survey made, turned around. It was never a system
+problem. What has changed is that it is no longer a technical one either.
