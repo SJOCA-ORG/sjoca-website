@@ -50,8 +50,15 @@
       <%# Pinned, deliberately. A thirty-step turn scrolls its own progress out
           of sight, and a page with no sign of life is indistinguishable from a
           broken one. The steps stream below; this says it is still going. %>
+      <% queued = @messages.count { |m| m.state == "working" } - 1 %>
       <div class="working-bar" id="working-bar" data-since="<%= @working.created_at.to_i %>">
         <strong>Working<span class="dots">…</span></strong>
+        <%# A request typed while another is running waits its turn. It used to
+            start a second job on the same revision, racing the first, and the
+            page only showed one of them -- so the second looked swallowed. %>
+        <% if queued.positive? %>
+          <span class="muted">(<%= pluralize(queued, "more request") %> waiting)</span>
+        <% end %>
         <span id="working-clock" style="font-variant-numeric:tabular-nums">0s</span>
         <span id="working-cost" class="muted"></span>
         <span class="latest" id="working-latest"></span>
@@ -134,7 +141,10 @@
         </span>
       </div>
     <% else %>
-      <div class="msg <%= m.role %>">
+      <%# A round that ran on into another is not a finished reply, and showing
+          it the same way makes a long job look like a series of failures. %>
+      <% carrying_on = m.role == "assistant" && m.content.to_s.end_with?("Carrying on.") %>
+      <div class="msg <%= m.role %><%= " interim" if carrying_on %>">
         <%= m.content %>
         <% if m.touched.present? %>
           <span class="tools" style="border-top:0;padding-top:.3rem">

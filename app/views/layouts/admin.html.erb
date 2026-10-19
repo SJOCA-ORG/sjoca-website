@@ -100,6 +100,10 @@
       .msg { padding:.7rem 1rem; border-radius:10px; max-width:46rem; white-space:pre-wrap }
       .msg.user { background:var(--ink); color:#fff; align-self:flex-end }
       .msg.assistant { background:var(--band); align-self:flex-start }
+      /* Still going, not finished: a long job should not read as a run of
+         failed attempts. */
+      .msg.assistant.interim { background:#FDF6E3; border:1px solid #E6D9A8;
+                               font-size:.88rem; color:#555 }
       .msg .tools { display:block; margin-top:.5rem; font-size:.8rem; color:#555;
                     border-top:1px solid var(--rule); padding-top:.4rem }
       /* .msg is pre-wrap so a reply keeps its paragraphs. The step list is

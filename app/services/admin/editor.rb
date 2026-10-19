@@ -147,7 +147,9 @@ module Admin
       explain what would be needed. Do not pretend it worked.
     PROMPT
 
-    Result = Struct.new(:reply, :tool_calls, :error, :problems, keyword_init: true)
+    # `unfinished` is how the job knows to pick this up in another turn rather
+    # than leaving a person to read "I ran out of steps" and type "carry on".
+    Result = Struct.new(:reply, :tool_calls, :error, :problems, :unfinished, keyword_init: true)
 
     def initialize(revision, client: Anthropic::Client.new)
       @revision = revision
@@ -155,19 +157,32 @@ module Admin
       @tools    = Tools.new(revision)
     end
 
-    def call(user_text, placeholder_id: nil)
+    def call(user_text, placeholder_id: nil, round: 1)
       # The caller usually creates both rows before enqueueing, so the page has
       # something to poll the instant it loads. Create them here only when
       # something calls this directly, such as a test.
+      @round = round
+
       if placeholder_id
         @working = @revision.messages.find(placeholder_id)
       else
-        @revision.messages.create!(role: "user", content: user_text)
+        # A continuation is the SAME request being carried on, so it does not
+        # repeat what the person said -- that is already in the conversation,
+        # and echoing it would read as though they had asked twice.
+        @revision.messages.create!(role: "user", content: user_text) if round == 1
         @working = @revision.messages.create!(role: "assistant", state: "working",
                                               content: "", progress: [])
       end
 
-      conversation  = history
+      conversation = history
+      if round > 1
+        conversation << { role: "user", content: [{ type: "text", text:
+          "Carry on with the request above from where the last round stopped. What was " \
+          "already done is written in your own previous message — do not repeat it. Look " \
+          "at the current state before assuming anything is still as you left it, finish " \
+          "what remains, and when it is finished say what changed overall rather than " \
+          "narrating the steps." }] }
+      end
       performed     = []
       failures      = Hash.new(0)
       verified_once   = false
@@ -381,16 +396,26 @@ module Admin
         conversation << { role: "user", content: results }
       end
 
-      # Say what actually happened rather than "I stopped after 12 steps", which
-      # tells the person nothing about whether their change was made.
+      # Out of steps for THIS round. Three requests in a row ended here -- each
+      # one a photograph to rotate, crop and place -- and every time the person
+      # read "I ran out of steps" and typed some version of "carry on". That is
+      # a question with one answer, so stop asking it: write down what was done
+      # and pick it up in another turn.
       failed = performed.select { |p| p["failed"] }
       done   = performed.reject { |p| p["failed"] || p["read"] || p["say"] }
-      message = +"I ran out of steps before finishing."
-      message << " I did manage: #{done.map { |p| p['summary'] }.compact_blank.join('; ')}." if done.any?
+      summary = done.map { |p| p["summary"] }.compact_blank.join("; ")
+
+      more = @round < EditingTurnJob::MAX_ROUNDS
+      message = +""
+      message << "Still going. So far: #{summary}." if done.any?
+      message << " Nothing yet." if done.none?
       message << " What kept failing: #{failed.map { |p| p['summary'] }.compact_blank.uniq.first(2).join('; ')}." if failed.any?
-      message << " Have a look at what is there, and tell me what still needs doing."
-      @working.update!(state: "done", content: message, tool_calls: performed)
-      Result.new(reply: message, tool_calls: performed)
+      message << (more ? " Carrying on." : " That is as far as I can take this in one go — " \
+                                           "have a look at what is there and tell me what still needs doing.")
+
+      @working.update!(state: "done", content: message.strip, tool_calls: performed,
+                       usage: spent, touched: (@tools.edited.presence || @tools.sampled).to_a)
+      Result.new(reply: message.strip, tool_calls: performed, unfinished: more)
     rescue Anthropic::Client::Error, Tools::ToolError, ImageTools::ToolError => e
       @working&.update!(state: "done", content: "Something went wrong: #{e.message}")
       Result.new(reply: nil, tool_calls: performed || [], error: e.message)
