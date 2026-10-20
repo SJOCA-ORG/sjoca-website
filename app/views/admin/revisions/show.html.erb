@@ -56,16 +56,14 @@
   </div>
 <% end %>
 <div class="row" style="margin:1rem 0">
-  <%# A signed link, opened in a new tab: looking at the draft should not take
-      you out of the conversation, and should not disturb the admin session. %>
-  <%= link_to "View this draft ↗", "/?preview=#{@revision.preview_token}",
-        class: "btn", target: "_blank", rel: "noopener" %>
-  <%= link_to "Browse it in place", preview_admin_revision_path(@revision), class: "btn ghost" %>
+  <%# No "view this draft" and no "browse it in place": the pane on the right
+      IS the draft, at whichever width you have chosen, and two more ways in
+      only raised the question of which one was the real one. %>
   <%= button_to "Publish", publish_admin_revision_path(@revision), class: "btn",
         form: { style: "display:inline" },
         data: { turbo_confirm: "Publish this revision? The live site changes immediately." } %>
   <span class="grow"></span>
-  <%= link_to "All revisions", admin_root_path, class: "btn ghost" %>
+  <%= link_to "Show All Revisions", admin_root_path, class: "btn ghost" %>
 </div>
     <% if @working %>
       <%# Pinned, deliberately. A thirty-step turn scrolls its own progress out
@@ -418,6 +416,7 @@
 
     <div class="seg" role="group" aria-label="Preview width">
       <button type="button" id="w-wide" aria-pressed="true">Desktop</button>
+      <button type="button" id="w-tablet" aria-pressed="false">Tablet</button>
       <button type="button" id="w-phone" aria-pressed="false">Phone</button>
     </div>
 
@@ -431,7 +430,7 @@
     <button type="button" class="btn ghost" id="edit-on-page" aria-pressed="false"
             style="padding:.3rem .7rem;font-size:.85rem"
             title="Select or click any text, or click a picture, to edit it.">
-      Click to edit
+      Edit In Place
     </button>
 
     <%# Only for a bulletin, and only the two things you actually do with one. %>
@@ -500,6 +499,7 @@
     var where = document.getElementById("preview-where");
     var open = document.getElementById("preview-open");
     var wide = document.getElementById("w-wide");
+    var tablet = document.getElementById("w-tablet");
     var phone = document.getElementById("w-phone");
 
     function remembered() {
@@ -555,11 +555,15 @@
       });
     }
 
-    function setWidth(isPhone) {
-      stage.classList.toggle("phone", isPhone);
-      phone.setAttribute("aria-pressed", String(isPhone));
-      wide.setAttribute("aria-pressed", String(!isPhone));
-      remember({ phone: isPhone });
+    // Three widths now, so the remembered value is a name rather than a flag.
+    // Sessions that remember the old boolean still open where they left off.
+    function setWidth(mode) {
+      stage.classList.toggle("phone", mode === "phone");
+      stage.classList.toggle("tablet", mode === "tablet");
+      wide.setAttribute("aria-pressed", String(mode === "desktop"));
+      tablet.setAttribute("aria-pressed", String(mode === "tablet"));
+      phone.setAttribute("aria-pressed", String(mode === "phone"));
+      remember({ width: mode, phone: mode === "phone" });
     }
 
     // The pages this reply changed, as buttons, so several are one click apart.
@@ -580,7 +584,7 @@
       document.getElementById("changed").hidden = false;
     }
 
-    setWidth(!!state.phone);
+    setWidth(state.width || (state.phone ? "phone" : "desktop"));
 
     // A reply that has just landed gets the flash; coming back to the page
     // later does not, or it would blink at you every time you opened a tab.
@@ -600,8 +604,9 @@
       if (window.showBulletinExports) window.showBulletinExports(at);
     });
 
-    wide.addEventListener("click", function () { setWidth(false); });
-    phone.addEventListener("click", function () { setWidth(true); });
+    wide.addEventListener("click", function () { setWidth("desktop"); });
+    tablet.addEventListener("click", function () { setWidth("tablet"); });
+    phone.addEventListener("click", function () { setWidth("phone"); });
     document.getElementById("preview-reload").addEventListener("click", function () { show(slug); });
   })();
 
@@ -624,7 +629,7 @@
 
     function paint() {
       button.setAttribute("aria-pressed", String(on));
-      button.textContent = on ? "Done editing" : "Click to edit";
+      button.textContent = on ? "Cancel Edit In Place" : "Edit In Place";
       button.classList.toggle("armed", on);
       var hint = document.getElementById("edit-hint");
       if (hint) hint.hidden = !on;
