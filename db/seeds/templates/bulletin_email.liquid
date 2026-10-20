@@ -1,0 +1,76 @@
+{%- comment -%}
+  The bulletin as an email.
+
+  A separate template, not the print one with its styles rewritten. Mail
+  clients throw away <style> blocks -- Gmail does -- so every rule has to sit
+  on the element that needs it. And an email is not four sheets of paper: it is
+  one column read on a phone, so the page breaks that matter in print are just
+  rules here.
+
+  No classes at all, on purpose: a class that resolves to nothing is worse than
+  no class.
+{%- endcomment -%}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+       style="background:#f4f4f4;padding:16px 0;margin:0">
+  <tr><td align="center">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+           style="width:600px;max-width:100%;background:#ffffff;border-radius:4px">
+      <tr><td style="padding:24px 28px;font-family:Georgia,'Times New Roman',serif;color:#212121">
+
+        {% for section in page.sections %}
+          {% for column in section.columns %}
+            {% for block in column %}
+              {% case block.kind %}
+
+              {% when 'heading' %}
+                <h2 style="margin:18px 0 6px;font-size:19px;line-height:1.3;color:#6D0606;font-family:Georgia,'Times New Roman',serif">{{ block.content }}</h2>
+
+              {% when 'subheading' %}
+                <p style="margin:10px 0 4px;font-size:16px;font-weight:bold;color:#212121">{{ block.content }}</p>
+
+              {% when 'text' %}
+                <p style="margin:0 0 10px;font-size:15px;line-height:1.55;color:#212121">{{ block.content }}</p>
+
+              {% when 'quote' %}
+                <blockquote style="margin:12px 0;padding:0 0 0 14px;border-left:3px solid #D3D3D3;font-style:italic;color:#444;font-size:15px">{{ block.content }}</blockquote>
+
+              {% when 'list' %}
+                <ul style="margin:0 0 12px;padding-left:20px;font-size:15px;line-height:1.55">
+                  {% for item in block.items %}<li style="margin:0 0 4px">{{ item }}</li>{% endfor %}
+                </ul>
+
+              {% when 'button' %}
+                <p style="margin:14px 0">
+                  <a href="{{ block.url }}" style="display:inline-block;padding:9px 18px;background:#6D0606;color:#ffffff;text-decoration:none;border-radius:4px;font-size:15px">{{ block.content }}</a>
+                </p>
+
+              {% when 'image' %}
+                {% if block.photo %}
+                  <p style="margin:0 0 12px">
+                    <img src="{{ site.url }}{{ block.photo.url }}" alt="{{ block.photo.alt }}" width="544" style="width:100%;max-width:544px;height:auto;display:block;border:0">
+                  </p>
+                {% endif %}
+
+              {% else %}
+                {% if block.content %}
+                  <p style="margin:0 0 10px;font-size:15px;line-height:1.55">{{ block.content }}</p>
+                {% endif %}
+              {% endcase %}
+            {% endfor %}
+          {% endfor %}
+
+          {%- comment -%} A page break in print is only a rule here. {%- endcomment -%}
+          {% unless forloop.last %}
+            <hr style="border:0;border-top:1px solid #e3e3e3;margin:22px 0">
+          {% endunless %}
+        {% endfor %}
+
+        <p style="margin:24px 0 0;padding-top:14px;border-top:1px solid #e3e3e3;font-size:13px;color:#666">
+          {{ site.name }}<br>{{ site.address }}<br>
+          <a href="mailto:{{ site.email }}" style="color:#6D0606">{{ site.email }}</a>
+        </p>
+
+      </td></tr>
+    </table>
+  </td></tr>
+</table>

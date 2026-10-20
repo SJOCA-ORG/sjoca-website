@@ -10,6 +10,11 @@ class SiteDrop < BaseDrop
   def address = "855 S. Goodman St. Rochester, NY 14620"
   def email   = "fr.david@sjoca.org"
 
+  # Where this site lives, with no trailing slash. Needed wherever a link has
+  # nothing to be relative TO: an email has no page, so "/media/home-hero" in
+  # it resolves against the mail client and shows a broken picture.
+  def url = ENV.fetch("SITE_URL", "http://localhost:3000").sub(%r{/+\z}, "")
+
   # Outside data, by whatever name it was given. One primitive instead of a drop
   # per feed: see DataDrop.
   def data = @data ||= DataDrop.new(Current.revision)

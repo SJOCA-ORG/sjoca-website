@@ -37,6 +37,11 @@ Rails.application.routes.draw do
         get  "status"
       end
       resources :messages, only: :create
+
+      # Getting a bulletin out: a PDF for the printer, HTML for the mailing
+      # list. Both from the same page and the same blocks.
+      get "bulletin/pdf",   to: "bulletins#pdf",   as: :bulletin_pdf
+      get "bulletin/email", to: "bulletins#email", as: :bulletin_email
     end
   end
 

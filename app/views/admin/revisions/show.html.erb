@@ -391,6 +391,37 @@
     </div>
 
     <button type="button" class="btn ghost" id="preview-reload" style="padding:.3rem .7rem;font-size:.85rem">Reload</button>
+
+    <%# Only for a bulletin, and only the two things you actually do with one. %>
+    <% bulletins = @revision.pages.bulletins.pluck(:slug) %>
+    <% if bulletins.any? %>
+      <span id="bulletin-exports" hidden>
+        <%= link_to "PDF", "#", id: "download-pdf", class: "btn ghost",
+              style: "padding:.3rem .7rem;font-size:.85rem" %>
+        <%= link_to "Email", "#", id: "download-email", class: "btn ghost",
+              style: "padding:.3rem .7rem;font-size:.85rem" %>
+      </span>
+      <script>
+        // The buttons follow the pane: they appear when what you are looking
+        // at is a bulletin, and point at that bulletin.
+        (function () {
+          var slugs = <%= bulletins.to_json.html_safe %>;
+          var box = document.getElementById("bulletin-exports");
+          var pdf = document.getElementById("download-pdf");
+          var email = document.getElementById("download-email");
+          var base = "<%= "/admin/revisions/#{@revision.id}/bulletin" %>";
+
+          window.showBulletinExports = function (slug) {
+            var is = slugs.indexOf(slug) >= 0;
+            box.hidden = !is;
+            if (!is) return;
+            var q = "?slug=" + encodeURIComponent(slug);
+            pdf.href = base + "/pdf" + q;
+            email.href = base + "/email" + q;
+          };
+        })();
+      </script>
+    <% end %>
     <span class="grow"></span>
     <a class="muted" id="preview-open" href="#" target="_blank" rel="noopener">open in a tab ↗</a>
   </div>
@@ -468,6 +499,7 @@
       open.href = tabUrl(slug);
       where.textContent = pathFor(slug);
       remember({ slug: slug });
+      if (window.showBulletinExports) window.showBulletinExports(slug);
 
       if (!flash) return;
       // Dim and come back up once the new content is actually there, so the
@@ -523,6 +555,7 @@
       where.textContent = here;
       open.href = tabUrl(at);
       remember({ slug: at });
+      if (window.showBulletinExports) window.showBulletinExports(at);
     });
 
     wide.addEventListener("click", function () { setWidth(false); });
