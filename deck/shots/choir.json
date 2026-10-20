@@ -23,12 +23,12 @@
     },
     {
       "box": [
-        0.06,
-        0.638,
-        0.94,
-        0.932
+        0.055,
+        0.57,
+        0.945,
+        0.64
       ],
-      "text": "Empty. The page now carries an invitation to join the choir."
+      "text": "The members list was the end of the page. An invitation to join the choir now follows it."
     }
   ]
 }

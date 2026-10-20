@@ -4,22 +4,20 @@
   "title": "Donate \u2014 the site as it is today",
   "callouts": [
     {
+      "point": [
+        0.757,
+        0.0115
+      ],
+      "text": "Donate. Now Giving, which is more welcoming."
+    },
+    {
       "box": [
         0.08,
         0.228,
         0.92,
         0.452
       ],
-      "text": "One fund and one button. The menu item is now Giving, and the page is in two parts: Financial Giving, and Giving of your Time and Talent."
-    },
-    {
-      "box": [
-        0.08,
-        0.47,
-        0.92,
-        0.93
-      ],
-      "text": "Empty. This is where giving of time and talent now sits."
+      "text": "A button with no explanation beside it. The unneeded button has gone, replaced with a clear explanation of how giving actually works \u2014 and the page is now in two parts: financially, and in time and talent."
     }
   ]
 }
