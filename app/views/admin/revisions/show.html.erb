@@ -39,7 +39,7 @@
   </details>
 <% end %>
 
-<% spent = Admin::Cost.of_revision(@revision) %>
+<% spent = Demo.on? ? 0 : Admin::Cost.of_revision(@revision) %>
 <% if spent.positive? %>
   <div class="row" style="margin:.6rem 0 0;padding:.45rem .7rem;border:1px dashed var(--rule);
                           border-radius:8px;font-size:.85rem">
@@ -83,7 +83,7 @@
           <span class="muted">(<%= pluralize(queued, "more request") %> waiting)</span>
         <% end %>
         <span id="working-clock" style="font-variant-numeric:tabular-nums">0s</span>
-        <span id="working-cost" class="muted"></span>
+        <% unless Demo.on? %><span id="working-cost" class="muted"></span><% end %>
         <span class="grow"></span>
         <%# Visible the whole time a turn runs. Realising it has misunderstood
             you and having to watch it work anyway is the worst minute in this
@@ -756,7 +756,7 @@
           if (last && latest) latest.textContent = last.text;
 
           if (window.stickToBottom) window.stickToBottom();
-          if (d.usage && d.usage.calls) {
+          if (cost && d.usage && d.usage.calls) {
             // Cached reads cost a tenth of fresh input, so showing them
             // together would hide the whole point of caching.
             var fresh = (d.usage.input + d.usage.output) / 1000;

@@ -1450,6 +1450,9 @@ module Admin
       end
 
       touched_everything!
+      return ok "promised: #{summary} (NOT verified -- checking is paused for the demo)",
+                promise: promise.id, paused: true if Demo.on?
+
       ok "promised: #{summary}", promise: promise.id
     end
 
@@ -1464,6 +1467,16 @@ module Admin
 
     def check_promises(slug: nil, **)
       results = PromiseRunner.new(revision).call(only: slug.present? ? [slug] : nil)
+
+      # Paused for a demo is not the same as kept, and must never be reported
+      # as though the browser had been and looked.
+      if results.any? && results.all? { |r| r[:paused] }
+        return { paused: true, ok: nil,
+                 promises: results.map { |r| { id: r[:promise_id], summary: r[:summary] } },
+                 note: "Promise checking is paused for the demo, so these were NOT " \
+                       "checked. Say so rather than reporting them as kept." }
+      end
+
       broken = results.reject { |r| r[:pass] }
       { kept: results.count { |r| r[:pass] },
         broken: broken.map { |r| { id: r[:promise_id], summary: r[:summary],

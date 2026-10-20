@@ -78,3 +78,6 @@ reference/rebuild-shots/
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+
+# The demo switch is a local, per-machine thing.
+tmp/demo_mode

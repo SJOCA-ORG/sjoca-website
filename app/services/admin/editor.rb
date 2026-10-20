@@ -597,9 +597,11 @@ module Admin
     # A broken promise is NOT a problem for the AI to fix quietly. It is a
     # question for the person editing, asked while they are still here.
     def broken_promises
-      return [] if @tools.touched.empty? || @revision.promises.empty?
+      return [] if Demo.on? || @tools.touched.empty? || @revision.promises.empty?
 
-      @tools.call("check_promises", { "slug" => nil })[:broken]
+      # Array(), because a paused check returns no :broken key at all and a bare
+      # nil here would blow up the turn rather than the check.
+      Array(@tools.call("check_promises", { "slug" => nil })[:broken])
     rescue StandardError => e
       Rails.logger.warn("could not check promises: #{e.message}")
       []

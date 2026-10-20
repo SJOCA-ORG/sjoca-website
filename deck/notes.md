@@ -149,3 +149,12 @@ original wording here means nothing gets smoothed away in the filing.
 - The address has driving directions.
 - The Google map works properly.
 - Removed the dead live-streaming link.
+
+### For the demo itself
+
+- IMMEDIATE TODO (before tonight): show the standing promises, but do not
+  actually execute them. It is great that they work and people should see
+  that — but running them takes time and we do not want to be twiddling our
+  thumbs in front of the meeting.
+- IMMEDIATE TODO (before tonight): remove the cost meter from the admin screen.
+  It is fine in itself, but it will distract people.
