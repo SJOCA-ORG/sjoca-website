@@ -124,6 +124,18 @@ Split into four pages: **Calendar, Visitors, Recent Events, Bulletins.**
 
 ---
 
+## Five new pages — pages that did not exist at all
+
+| Page | Why |
+|---|---|
+| Recent Events | Separated out, so the Calendar was clear. |
+| Visitors | Visitors need to be welcomed. |
+| Adult Education | Needed its own page, so people can find the Zoom link. |
+| Daily Lectionary | You asked to be able to find out more about the faith on the site. |
+| Orthodox Resources | The same request — somewhere to go and learn. |
+
+---
+
 ## Live, if there is time
 
 - Fix the **"PBJ&J Factory"** typo on Serving Others. Small, visible, and the

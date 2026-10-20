@@ -12,6 +12,23 @@
            padding:10px }
   .stage img { max-width:100%; max-height:100%; object-fit:contain; background:#fff }
 
+  /* The five "new pages" slides are the same list five times over, with one
+     line lit and its reason underneath. Built here rather than captured, so
+     they stay sharp and the wording stays editable. */
+  .newpages { background:#fff; width:min(1180px, 95%); padding:46px 56px; border-radius:4px }
+  .newpages h1 { font-size:32px; margin:0 0 30px; color:var(--maroon) }
+  .newpages ol { list-style:none; margin:0; padding:0; counter-reset:np }
+  .newpages li { font-size:27px; line-height:1.35; padding:11px 0 11px 54px; position:relative;
+                 color:#b4b4b4; border-bottom:1px solid #eee; transition:none }
+  .newpages li::before { counter-increment:np; content:counter(np); position:absolute; left:0;
+                         top:12px; width:34px; height:34px; border-radius:50%;
+                         background:#ececec; color:#9a9a9a; font-size:18px; font-weight:bold;
+                         display:flex; align-items:center; justify-content:center }
+  .newpages li.on { color:var(--ink); font-weight:bold }
+  .newpages li.on::before { background:var(--cyan); color:#fff }
+  .newpages li .why { display:block; font-size:20px; font-weight:normal; color:#444;
+                      margin-top:7px; border-left:4px solid var(--cyan); padding-left:14px }
+
   /* The opening slide is words, not a picture, so it stays sharp at any size. */
   .titleslide { background:#fff; width:min(1100px, 94%); padding:54px 60px; border-radius:4px }
   .titleslide h1 { font-size:34px; margin:0 0 22px; color:var(--maroon) }
@@ -63,7 +80,25 @@
     { img: "shots/giving-before.png",          name: "Giving",            path: "/donate" },
     { img: "shots/serving-others-before.png",  name: "Serving Others",    path: "/community-outreach" },
     { img: "shots/contact-before.png",         name: "Contact",           path: "/contact" },
-    { img: "shots/grid.png",                   name: "What it adds up to" }
+
+    // Five pages that did not exist at all, so there is no "before" to show.
+    // One list, five times, with a different line lit each time.
+    { kind: "new", at: 0, name: "Recent Events",      path: "/events-services/recent-events" },
+    { kind: "new", at: 1, name: "Visitors",           path: "/events-services/visitors" },
+    { kind: "new", at: 2, name: "Adult Education",    path: "/education-resources/adult-education" },
+    { kind: "new", at: 3, name: "Daily Lectionary",   path: "/education-resources/daily-lectionary" },
+    { kind: "new", at: 4, name: "Orthodox Resources", path: "/education-resources/orthodox-resources" },
+
+    { img: "shots/grid.png", name: "What it adds up to",
+      path: "/admin", linkText: "Now let me change something \u2014 live \u2192" }
+  ];
+
+  var NEW_PAGES = [
+    ["Recent Events",      "Separated out, so the Calendar was clear."],
+    ["Visitors",           "Visitors need to be welcomed."],
+    ["Adult Education",    "Needed its own page, so people can find the Zoom link."],
+    ["Daily Lectionary",   "You asked to be able to find out more about the faith on the site."],
+    ["Orthodox Resources", "The same request \u2014 somewhere to go and learn."]
   ];
   var SITE = "http://localhost:3000";
 
@@ -94,6 +129,16 @@
         '<p class="after">Each slide is the site as it is <strong>today</strong>, with the ' +
         'changes marked. The button below opens the new version of that same page.</p>';
       stage.appendChild(d);
+    } else if (s.kind === "new") {
+      var d = document.createElement("div");
+      d.className = "newpages";
+      var html = "<h1>Five new pages</h1><ol>";
+      NEW_PAGES.forEach(function (row, n) {
+        html += '<li class="' + (n === s.at ? "on" : "") + '">' + row[0] +
+                (n === s.at ? '<span class="why">' + row[1] + "</span>" : "") + "</li>";
+      });
+      d.innerHTML = html + "</ol>";
+      stage.appendChild(d);
     } else {
       var img = document.createElement("img");
       img.src = s.img;
@@ -108,7 +153,7 @@
     if (s.path) {
       go.hidden = false;
       go.href = SITE + s.path;
-      go.textContent = "See " + s.name + " on the new site →";
+      go.textContent = s.linkText || ("See " + s.name + " on the new site →");
     } else {
       go.hidden = true;
     }
