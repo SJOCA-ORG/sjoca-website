@@ -129,6 +129,18 @@ in front of a breakpoint, which puts the whole prefix on the wrong side of it.
   looked wrong, and it had no way to perceive that. If a layout judgement goes
   wrong, check that the screenshots are still arriving before blaming the model.
 
+  **And check what the eyes actually saw before believing a fault they report.**
+  On 20 October the admin said, twice and in good faith, that Pani Jan's
+  photograph was missing from the Leadership page. It was not. Every photograph
+  carries `loading="lazy"`, and the screenshot is taken with
+  `captureBeyondViewport` -- the whole page at once, without the viewport ever
+  moving down it -- so Chrome never loaded the LAST picture on a 3,292px page
+  and it was captured as an empty box. `script/visual_check.mjs` now forces
+  every image to load before it measures or photographs anything, and states it
+  as a finding when one genuinely will not load. A tool that invents faults is
+  worse than one that misses them, because somebody then goes and fixes the
+  thing that was right.
+
 - **There are no feed-specific drops, deliberately.** `site.calendar`,
   `site.upcoming`, `site.recordings` and `site.lectionary` were deleted on 17
   October. Outside data comes in through `add_data_source` → the server fetches
