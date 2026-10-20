@@ -1,365 +1,351 @@
 <%# Clicking the site to change it.
 
-    Mitch had to reword a long paragraph by copying it into a document, editing
-    it there, and pasting it back -- while the text was on screen the whole
-    time. This is the short way round.
+    Mitch's shape, after two worse ones of mine. Arm the page, then either
+    click a thing or select across several -- both open the same dialog. There
+    is no intermediate button to hunt for, which also deletes the bug that had:
+    a drag ends in a click, and the click handler dismissed the offer the drag
+    had just produced.
 
-    It runs ONLY inside the admin's preview pane (bare=1 and a draft). The
-    public site renders none of it.
+    The dialog shows the thing, lets you ask the AI about it, and has Cancel
+    and Save. For text you can simply type over it; for a photograph there is
+    nothing to type, so asking is the only way in.
 
-    Two things on the menu, because there are only two things to do: change the
-    words yourself, or describe a change to the AI. The first does not go
-    through the AI at all -- somebody who knows the words they want should not
-    have to describe them to anybody first. %>
+    Renders ONLY inside the admin's preview pane, for a draft. The public site
+    gets none of it. %>
 <style>
-  [data-block] { position: relative; }
   html.editing [data-block] { outline: 1px dashed rgba(109,6,6,.5); outline-offset: 3px;
-                              cursor: pointer; transition: background .12s; }
-  html.editing [data-block]:hover { outline: 2px solid #6D0606; outline-offset: 3px;
-                                    background: rgba(109,6,6,.07); }
-
-  /* A strip along the top, so there is no doubt the page is listening. */
+                              cursor: pointer; }
+  html.editing [data-block]:hover { outline: 2px solid #6D0606; background: rgba(109,6,6,.07); }
   html.editing::before {
-    content: "Click any text to edit it";
+    content: "Click anything to edit it, or select across several";
     position: fixed; top: 0; left: 0; right: 0; z-index: 2147482000;
-    background: #6D0606; color: #fff; text-align: center;
-    padding: .25rem; font: 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    letter-spacing: .03em;
+    background: #6D0606; color: #fff; text-align: center; padding: .25rem;
+    font: 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   }
   html.editing body { padding-top: 1.4rem; }
 
-  #edit-menu { position: absolute; z-index: 2147483000; background: #fff; border: 1px solid #ccc;
-               border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,.22); padding: .3rem;
-               font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
-  #edit-menu button { display: block; width: 100%; text-align: left; border: 0; background: none;
-                      padding: .45rem .8rem; cursor: pointer; font: inherit; border-radius: 5px;
-                      white-space: nowrap; color: #212121; }
-  #edit-menu button:hover { background: #f0f0f0; }
-  #edit-menu .what { padding: .3rem .8rem; color: #777; font-size: 12px; border-bottom: 1px solid #eee;
-                     margin-bottom: .2rem; }
+  #sj-back { position: fixed; inset: 0; z-index: 2147483100; background: rgba(0,0,0,.45);
+             display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+             font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  #sj-box { background: #fff; border-radius: 10px; width: min(820px, 100%); max-height: 88vh;
+            display: flex; flex-direction: column; overflow: hidden; }
+  #sj-box h3 { margin: 0; padding: .8rem 1rem; border-bottom: 1px solid #e3e3e3;
+               font-size: 15px; font-weight: 600; }
+  #sj-box h3 span { font-weight: 400; color: #777; }
+  #sj-body { flex: 1; overflow: auto; display: flex; flex-direction: column; min-height: 220px; }
+  #sj-text { flex: 1; min-height: 240px; border: 0; padding: 1rem; font: inherit; resize: none;
+             outline: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+             font-size: 14px; }
+  #sj-photo { padding: 1rem; display: flex; gap: 1rem; align-items: flex-start; }
+  #sj-photo img { width: 220px; border-radius: 6px; border: 1px solid #ddd; }
+  #sj-photo dl { margin: 0; font-size: 14px; }
+  #sj-photo dt { color: #777; font-size: 12px; margin-top: .5rem; }
+  #sj-photo dd { margin: 0; }
 
-  /* Offered where the selection ended, so the hand is already there. */
-  #edit-selection { position: absolute; z-index: 2147483000; background: #6D0606; color: #fff;
-                    border: 0; border-radius: 6px; padding: .4rem .8rem; cursor: pointer;
-                    box-shadow: 0 2px 10px rgba(0,0,0,.3); white-space: nowrap;
-                    font: 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
-
-  #edit-back { position: fixed; inset: 0; z-index: 2147483100; background: rgba(0,0,0,.45);
-               display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
-  #edit-box { background: #fff; border-radius: 10px; width: min(760px, 100%); max-height: 86vh;
-              display: flex; flex-direction: column; overflow: hidden;
-              font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
-  #edit-box header { padding: .8rem 1rem; border-bottom: 1px solid #e3e3e3; font-weight: 600; }
-  #edit-box header span { font-weight: 400; color: #777; font-size: 13px; }
-  #edit-box textarea { flex: 1; min-height: 300px; border: 0; padding: 1rem; font: inherit;
-                       resize: none; outline: none; font-family: ui-monospace, SFMono-Regular,
-                       Menlo, monospace; font-size: 14px; }
-  #edit-box footer { padding: .7rem 1rem; border-top: 1px solid #e3e3e3; display: flex;
-                     align-items: center; gap: .6rem; }
-  #edit-box .btn { border: 1px solid #212121; background: #212121; color: #fff; padding: .4rem 1rem;
-                   border-radius: 6px; cursor: pointer; font: inherit; }
-  #edit-box .btn.ghost { background: #fff; color: #212121; }
-  #edit-box .grow { flex: 1; }
-  #edit-box .note { color: #777; font-size: 13px; }
-  #edit-box .note.bad { color: #8B1A1A; }
+  #sj-ask { border-top: 1px solid #e3e3e3; padding: .7rem 1rem; background: #FDF6E3; }
+  #sj-ask label { display: block; font-size: 12px; color: #666; margin-bottom: .3rem; }
+  #sj-ask .line { display: flex; gap: .5rem; }
+  #sj-ask input { flex: 1; font: inherit; font-size: 14px; padding: .45rem .6rem;
+                  border: 1px solid #ccc; border-radius: 6px; }
+  #sj-foot { padding: .7rem 1rem; border-top: 1px solid #e3e3e3; display: flex;
+             align-items: center; gap: .6rem; }
+  #sj-foot .grow { flex: 1; }
+  .sj-btn { border: 1px solid #212121; background: #212121; color: #fff; padding: .4rem 1rem;
+            border-radius: 6px; cursor: pointer; font: inherit; font-size: 14px; }
+  .sj-btn.ghost { background: #fff; color: #212121; }
+  .sj-btn[disabled] { opacity: .5; cursor: default; }
+  #sj-note { color: #777; font-size: 13px; }
+  #sj-note.bad { color: #8B1A1A; }
 </style>
 
 <script>
   (function () {
     var REVISION = <%= @revision_id_for_editing.to_json.html_safe %>;
-    var menu, modal;
+    var back, state;
 
-    // Armed by the pane, or by holding shift. Shift alone means you can reach
-    // one paragraph without turning a mode on and forgetting it is on.
     function armed() { return document.documentElement.classList.contains("editing"); }
 
     window.addEventListener("message", function (e) {
       if (!e.data || e.data.sjoca !== "editing") return;
       document.documentElement.classList.toggle("editing", !!e.data.on);
-      close();
+      shut();
     });
 
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Shift") document.documentElement.classList.add("editing");
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") shut();
     });
-    document.addEventListener("keyup", function (e) {
-      // Only drop it again if the pane did not arm it deliberately.
-      if (e.key === "Shift" && !window.__sjocaEditMode) {
-        document.documentElement.classList.remove("editing");
+
+    // One gesture, two readings. Mouseup rather than click, because a drag
+    // ends in both and the click is where the previous version went wrong.
+    document.addEventListener("mouseup", function (e) {
+      if (!armed() || back) return;
+      if (e.target.closest("#sj-back")) return;
+
+      // Let the selection settle before reading it.
+      setTimeout(function () { decide(e); }, 10);
+    });
+
+    function decide(e) {
+      var sel = document.getSelection();
+      var blocks;
+
+      if (sel && !sel.isCollapsed && sel.toString().trim() && sel.rangeCount) {
+        blocks = inRange(sel.getRangeAt(0));
+      } else {
+        var one = e.target.closest("[data-block]");
+        blocks = one ? [one] : [];
       }
-    });
+      if (!blocks.length) return;
 
-    document.addEventListener("click", function (e) {
-      if (!armed()) return;
-
-      // Clicks inside our own menu or editor are not clicks on the page. This
-      // listener runs in the CAPTURE phase, so without this it tore down the
-      // modal before the Save button inside it could handle its own click --
-      // the save never fired and the editor simply vanished.
-      if (e.target.closest("#edit-menu, #edit-back, #edit-selection")) return;
-      dropOffer();
-
-      var el = e.target.closest("[data-block]");
-      if (!el) { close(); return; }
-
-      e.preventDefault();
-      e.stopPropagation();
-      openMenu(el, e.pageX, e.pageY);
-    }, true);
-
-    function close() {
-      if (menu) { menu.remove(); menu = null; }
-      if (modal) { modal.remove(); modal = null; }
+      // Whole blocks, never the literal selection: half a sentence to edit
+      // produces text that joins up at neither end.
+      open(blocks.map(function (el) { return el.dataset.block; }));
+      if (sel) sel.removeAllRanges();
     }
 
-    function openMenu(el, x, y) {
-      close();
-      var id = el.dataset.block;
-
-      menu = document.createElement("div");
-      menu.id = "edit-menu";
-      menu.style.left = Math.min(x, innerWidth - 230) + "px";
-      menu.style.top = y + "px";
-      menu.style.position = "absolute";
-
-      fetch("/admin/revisions/" + REVISION + "/blocks/" + id, { headers: { Accept: "application/json" } })
-        .then(function (r) { return r.json(); })
-        .then(function (block) {
-          menu.innerHTML = "";
-          var what = document.createElement("div");
-          what.className = "what";
-          what.textContent = block.kind + (block.photo ? " — " + block.photo : "");
-          menu.appendChild(what);
-
-          if (block.editable) {
-            add("Edit this text", function () { openEditor(block); });
-          }
-          add(block.photo ? "Ask about this photograph" : "Ask about this",
-              function () { ask(block); });
-        });
-
-      document.body.appendChild(menu);
-    }
-
-    function add(label, go) {
-      var b = document.createElement("button");
-      b.type = "button";
-      b.textContent = label;
-      b.addEventListener("click", function (e) { e.stopPropagation(); go(); });
-      menu.appendChild(b);
-    }
-
-    function openEditor(block) {
-      close();
-      modal = document.createElement("div");
-      modal.id = "edit-back";
-      modal.innerHTML =
-        '<div id="edit-box">' +
-          '<header>Edit this <span>— ' + block.kind + ', on /' + block.page + '</span></header>' +
-          '<textarea spellcheck="true"></textarea>' +
-          '<footer><span class="note" id="edit-note"></span><span class="grow"></span>' +
-            '<button type="button" class="btn ghost" id="edit-cancel">Cancel</button>' +
-            '<button type="button" class="btn" id="edit-save">Save</button>' +
-          '</footer>' +
-        '</div>';
-      document.body.appendChild(modal);
-
-      var box = modal.querySelector("textarea");
-      box.value = block.content;
-      box.focus();
-      box.setSelectionRange(box.value.length, box.value.length);
-
-      modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
-      modal.querySelector("#edit-cancel").addEventListener("click", close);
-      modal.querySelector("#edit-save").addEventListener("click", function () { save(block, box); });
-
-      // Save without reaching for the mouse.
-      box.addEventListener("keydown", function (e) {
-        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") save(block, box);
-      });
-    }
-
-    function save(block, box) {
-      var note = modal.querySelector("#edit-note");
-      note.className = "note";
-      note.textContent = "Saving…";
-
-      fetch("/admin/revisions/" + REVISION + "/blocks/" + block.id, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": (document.querySelector("meta[name=csrf-token]") || {}).content || "",
-        },
-        body: JSON.stringify({ content: box.value }),
-      })
-        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
-        .then(function (r) {
-          if (!r.ok) {
-            note.className = "note bad";
-            note.textContent = r.body.error || "It would not save.";
-            return;
-          }
-          close();
-          // Reload so the page shows what was actually stored, rather than
-          // what was typed: they are not always the same.
-          location.reload();
-        })
-        .catch(function () {
-          note.className = "note bad";
-          note.textContent = "It would not save.";
-        });
-    }
-
-    // ---- selecting across several blocks ---------------------------------
-    //
-    // Clicking one block at a time was the wrong shape: a thought somebody
-    // wants to reword is rarely one paragraph. Select whatever it covers --
-    // across headings, paragraphs, a whole section -- and edit it as prose.
-    //
-    // WHOLE blocks, always. Selecting half a sentence and being given half a
-    // sentence to edit would produce text that does not join up at either end.
-    // The selection says which blocks; the blocks say what you edit.
-    var offer;
-
-    function blocksIn(range) {
-      return [].filter.call(document.querySelectorAll("[data-block]"), function (el) {
-        try { return range.intersectsNode(el); } catch (e) { return false; }
-      }).filter(function (el, i, all) {
-        // A block inside another block would be edited twice.
+    function inRange(range) {
+      var all = [].slice.call(document.querySelectorAll("[data-block]"));
+      return all.filter(function (el) {
+        try { return range.intersectsNode(el); } catch (err) { return false; }
+      }).filter(function (el) {
         return !all.some(function (other) { return other !== el && other.contains(el); });
       });
     }
 
-    document.addEventListener("selectionchange", function () {
-      if (!armed()) return;
-      clearTimeout(offerTimer);
-      offerTimer = setTimeout(showOffer, 180);
-    });
-    var offerTimer;
-
-    function dropOffer() { if (offer) { offer.remove(); offer = null; } }
-
-    function showOffer() {
-      dropOffer();
-      var sel = document.getSelection();
-      if (!sel || sel.isCollapsed || !sel.rangeCount) return;
-      if (!sel.toString().trim()) return;
-
-      var range = sel.getRangeAt(0);
-      var blocks = blocksIn(range);
-      if (!blocks.length) return;
-
-      var box = range.getBoundingClientRect();
-      offer = document.createElement("button");
-      offer.id = "edit-selection";
-      offer.type = "button";
-      offer.textContent = blocks.length === 1
-        ? "Edit this text"
-        : "Edit these " + blocks.length + " pieces as one";
-      offer.style.left = (box.left + scrollX) + "px";
-      offer.style.top = (box.bottom + scrollY + 8) + "px";
-      offer.addEventListener("mousedown", function (e) { e.preventDefault(); });
-      offer.addEventListener("click", function (e) {
-        e.stopPropagation();
-        editTogether(blocks.map(function (el) { return el.dataset.block; }));
-      });
-      document.body.appendChild(offer);
+    function shut() {
+      if (back) { back.remove(); back = null; }
+      state = null;
     }
 
-    function editTogether(ids) {
-      dropOffer();
+    function open(ids) {
       Promise.all(ids.map(function (id) {
         return fetch("/admin/revisions/" + REVISION + "/blocks/" + id,
                      { headers: { Accept: "application/json" } }).then(function (r) { return r.json(); });
       })).then(function (blocks) {
-        openJoined(blocks);
+        // What it said when we opened it, so Cancel means something even after
+        // the AI has been at it.
+        state = { blocks: blocks, ids: blocks.map(function (b) { return b.id; }),
+                  original: blocks.map(function (b) { return b.content; }) };
+        draw();
       });
     }
 
-    function openJoined(blocks) {
-      close();
+    function draw() {
+      shutOnly();
+      var blocks = state.blocks;
+      var photo = blocks.length === 1 && blocks[0].photo;
       var many = blocks.length > 1;
-      modal = document.createElement("div");
-      modal.id = "edit-back";
-      modal.innerHTML =
-        '<div id="edit-box">' +
-          '<header>Edit this text <span>— ' +
-            (many ? blocks.length + " pieces on /" : blocks[0].kind + " on /") + blocks[0].page +
-            (many ? ", which may end up as a different number" : "") + '</span></header>' +
-          '<textarea spellcheck="true"></textarea>' +
-          '<footer><span class="note" id="edit-note">' +
-            (many ? "Saving hands this to the conversation, which will lay it out again."
-                  : "") + '</span><span class="grow"></span>' +
-            '<button type="button" class="btn ghost" id="edit-cancel">Cancel</button>' +
-            '<button type="button" class="btn" id="edit-save">Replace the text</button>' +
-          '</footer>' +
+
+      back = document.createElement("div");
+      back.id = "sj-back";
+      back.innerHTML =
+        '<div id="sj-box">' +
+          '<h3>' + (photo ? "This photograph" : "This text") +
+            ' <span>— ' + (many ? blocks.length + " pieces" : blocks[0].kind) +
+            " on /" + blocks[0].page + (many ? ", which may end up as a different number" : "") +
+          '</span></h3>' +
+          '<div id="sj-body"></div>' +
+          '<div id="sj-ask">' +
+            '<label>' + (photo ? "Ask for a change — “crop this square”, “find a sharper one”"
+                               : "Or ask for a change — “make this shorter”, “say it more warmly”") + '</label>' +
+            '<div class="line">' +
+              '<input id="sj-instruction" placeholder="what would you like done?">' +
+              '<button type="button" class="sj-btn" id="sj-send">Ask</button>' +
+            '</div>' +
+          '</div>' +
+          '<div id="sj-foot">' +
+            '<span id="sj-note"></span><span class="grow"></span>' +
+            '<button type="button" class="sj-btn ghost" id="sj-cancel">Cancel</button>' +
+            '<button type="button" class="sj-btn" id="sj-save">Save</button>' +
+          '</div>' +
         '</div>';
-      document.body.appendChild(modal);
+      document.body.appendChild(back);
 
-      var box = modal.querySelector("textarea");
-      box.value = blocks.map(function (b) { return b.content; }).join("\n\n");
-      box.focus();
+      var body = back.querySelector("#sj-body");
+      if (photo) {
+        body.innerHTML =
+          '<div id="sj-photo">' +
+            '<img src="/media/' + blocks[0].photo + '/' + blocks[0].version + '" alt="">' +
+            '<dl>' +
+              '<dt>Name</dt><dd>' + blocks[0].photo + '</dd>' +
+              '<dt>Version</dt><dd>' + blocks[0].version + '</dd>' +
+              '<dt>On</dt><dd>/' + blocks[0].page + '</dd>' +
+            '</dl>' +
+          '</div>';
+        back.querySelector("#sj-save").disabled = true;   // nothing to type over
+      } else {
+        body.innerHTML = '<textarea id="sj-text" spellcheck="true"></textarea>';
+        var box = body.querySelector("#sj-text");
+        box.value = blocks.map(function (b) { return readable(b.content); }).join("\n\n");
+        box.focus();
+        box.addEventListener("keydown", function (e) {
+          if ((e.metaKey || e.ctrlKey) && e.key === "Enter") save();
+        });
+      }
 
-      modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
-      modal.querySelector("#edit-cancel").addEventListener("click", close);
-      modal.querySelector("#edit-save").addEventListener("click", function () {
-        replace(blocks.map(function (b) { return b.id; }), box);
-      });
-      box.addEventListener("keydown", function (e) {
-        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-          replace(blocks.map(function (b) { return b.id; }), box);
-        }
+      back.addEventListener("click", function (e) { if (e.target === back) cancel(); });
+      back.querySelector("#sj-cancel").addEventListener("click", cancel);
+      back.querySelector("#sj-save").addEventListener("click", save);
+      back.querySelector("#sj-send").addEventListener("click", ask);
+      back.querySelector("#sj-instruction").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") ask();
       });
     }
 
-    function replace(ids, box) {
-      var note = modal.querySelector("#edit-note");
-      note.className = "note";
-      note.textContent = "Saving…";
+    function shutOnly() { if (back) { back.remove(); back = null; } }
+
+    // "New York &amp; the Diocese" is not something to ask a parish volunteer
+    // to understand, let alone preserve. The few entities that actually turn
+    // up in this content are shown as the characters they stand for; a plain
+    // "&" typed back renders correctly, so nothing needs re-encoding.
+    //
+    // Only these five. Decoding everything would turn markup somebody meant to
+    // write -- a &lt; they wanted on the page -- into markup that acts.
+    function readable(text) {
+      return String(text)
+        .replace(/&amp;/g, "&")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&rsquo;/g, "\u2019");
+    }
+
+    function note(text, bad) {
+      var el = back && back.querySelector("#sj-note");
+      if (!el) return;
+      el.className = bad ? "bad" : "";
+      el.textContent = text;
+    }
+
+    // Cancel puts back what it said when the dialog opened -- including undoing
+    // anything the AI changed while it was open. Otherwise "Cancel" would mean
+    // "cancel my typing but keep everything else", which is not what the word
+    // means.
+    function cancel() {
+      var changed = state && state.blocks.some(function (b, i) {
+        return b.content !== state.original[i];
+      });
+      if (!changed) { shut(); return; }
+
+      note("Putting it back…");
+      Promise.all(state.ids.map(function (id, i) {
+        return fetch("/admin/revisions/" + REVISION + "/blocks/" + id, {
+          method: "PATCH", headers: headers(),
+          body: JSON.stringify({ content: state.original[i] }),
+        });
+      })).then(function () { shut(); location.reload(); });
+    }
+
+    function headers() {
+      return {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": (document.querySelector("meta[name=csrf-token]") || {}).content || "",
+      };
+    }
+
+    function save() {
+      var box = back.querySelector("#sj-text");
+      if (!box) return;
+      note("Saving…");
 
       fetch("/admin/revisions/" + REVISION + "/blocks/rewrite", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": (document.querySelector("meta[name=csrf-token]") || {}).content || "",
-        },
-        body: JSON.stringify({ block_ids: ids, content: box.value }),
+        method: "POST", headers: headers(),
+        body: JSON.stringify({ block_ids: state.ids, content: box.value }),
       })
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
         .then(function (r) {
-          if (!r.ok) {
-            note.className = "note bad";
-            note.textContent = r.body.error || "It would not save.";
-            return;
-          }
-          close();
+          if (!r.ok) return note(r.body.error || "It would not save.", true);
+          shut();
           if (r.body.handled === "conversation") {
-            // The conversation is doing the laying out; the pane should show
-            // it happening rather than a stale page.
             parent.postMessage({ sjoca: "working" }, location.origin);
           } else {
             location.reload();
           }
         })
-        .catch(function () {
-          note.className = "note bad";
-          note.textContent = "It would not save.";
+        .catch(function () { note("It would not save.", true); });
+    }
+
+    // Ask, and WAIT -- the dialog stays open and refills itself when the turn
+    // finishes, so the text can be looked at, edited again, saved or thrown
+    // away. Closing the dialog to go and read the chat would lose the thread.
+    function ask() {
+      var input = back.querySelector("#sj-instruction");
+      var said = input.value.trim();
+      if (!said) return;
+
+      input.disabled = true;
+      back.querySelector("#sj-send").disabled = true;
+      note("Asking…");
+
+      fetch("/admin/revisions/" + REVISION + "/blocks/discuss", {
+        method: "POST", headers: headers(),
+        body: JSON.stringify({ block_ids: state.ids, instruction: said }),
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+        .then(function (r) {
+          if (!r.ok) {
+            input.disabled = false;
+            back.querySelector("#sj-send").disabled = false;
+            return note(r.body.error || "It would not ask.", true);
+          }
+          input.value = "";
+          watch();
         });
     }
 
-    // Hand it to the conversation rather than doing it here. Changing a
-    // photograph is a request, not an edit.
-    function ask(block) {
-      close();
-      parent.postMessage({
-        sjoca: "ask",
-        blockId: block.id,
-        kind: block.kind,
-        photo: block.photo,
-        page: block.page,
-        excerpt: (block.content || "").replace(/<[^>]*>/g, " ").trim().slice(0, 60),
-      }, location.origin);
+    function watch() {
+      var since = Date.now();
+      note("Working…");
+
+      (function again() {
+        if (!back) return;
+        fetch("/admin/revisions/" + REVISION + "/status", { headers: { Accept: "application/json" } })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!back) return;
+            if (d.working) {
+              var step = d.steps && d.steps.length ? d.steps[d.steps.length - 1].text : "";
+              note("Working… " + Math.round((Date.now() - since) / 1000) + "s " +
+                   (step ? "· " + step : ""));
+              return setTimeout(again, 1500);
+            }
+            refill();
+          })
+          .catch(function () { setTimeout(again, 3000); });
+      })();
+    }
+
+    function refill() {
+      var query = state.ids.map(function (id) { return "ids[]=" + id; }).join("&");
+      fetch("/admin/revisions/" + REVISION + "/blocks/current?" + query,
+            { headers: { Accept: "application/json" } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!back) return;
+
+          // Blocks can be gone entirely -- the AI may have replaced three
+          // paragraphs with two. Say so rather than showing half an answer.
+          if (!d.blocks.length) { shut(); location.reload(); return; }
+
+          var input = back.querySelector("#sj-instruction");
+          var send = back.querySelector("#sj-send");
+          var box = back.querySelector("#sj-text");
+
+          state.blocks = d.blocks.map(function (b, i) {
+            return { id: b.id, kind: b.kind, content: b.content, photo: b.photo,
+                     version: b.version, page: state.blocks[0].page };
+          });
+          if (box) box.value = d.blocks.map(function (b) { return readable(b.content); }).join("\n\n");
+          if (input) { input.disabled = false; input.focus(); }
+          if (send) send.disabled = false;
+          note("Done — look it over, then Save or Cancel.");
+
+          // A photograph changed under us: show the new one.
+          var img = back.querySelector("#sj-photo img");
+          if (img && d.blocks[0].photo) {
+            img.src = "/media/" + d.blocks[0].photo + "/" + d.blocks[0].version + "?t=" + Date.now();
+          }
+        });
     }
   })();
 </script>

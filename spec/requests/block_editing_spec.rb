@@ -153,19 +153,19 @@ RSpec.describe "editing a block by clicking it", type: :request do
     it "is in the preview pane" do
       get "/?preview=#{revision.preview_token}&bare=1"
 
-      expect(response.body).to include("edit-menu")
+      expect(response.body).to include("sj-back")
     end
 
     it "is NOT on the live site" do
       get "/"
 
-      expect(response.body).not_to include("edit-menu")
+      expect(response.body).not_to include("sj-back")
     end
 
     it "is not in an ordinary preview opened in a real tab" do
       get "/?preview=#{revision.preview_token}"
 
-      expect(response.body).not_to include("edit-menu")
+      expect(response.body).not_to include("sj-back")
     end
   end
 

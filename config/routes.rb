@@ -44,7 +44,11 @@ Rails.application.routes.draw do
       # Editing one block by clicking it in the preview.
       resources :blocks, only: %i[show update] do
         # Several blocks at once, as one piece of prose.
-        collection { post "rewrite" }
+        collection do
+          post "rewrite"
+          post "discuss"   # ask the AI about these particular blocks
+          get  "current"   # what they say now, after it has finished
+        end
       end
 
       # Getting a bulletin out: a PDF for the printer, HTML for the mailing
