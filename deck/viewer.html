@@ -1,0 +1,163 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>SJOCA — what has changed</title>
+<style>
+  :root { --ink:#141414; --muted:#6a6a6a; --rule:#d8d8d8; --maroon:#8B1A1A; --cyan:#00A8E8 }
+  * { box-sizing:border-box }
+  html, body { height:100% }
+  body { margin:0; background:#111; color:var(--ink);
+         font:16px/1.45 Arial, Helvetica, sans-serif; display:flex; flex-direction:column }
+
+  .stage { flex:1; min-height:0; display:flex; align-items:center; justify-content:center;
+           padding:10px }
+  .stage img { max-width:100%; max-height:100%; object-fit:contain; background:#fff }
+
+  /* The opening slide is words, not a picture, so it stays sharp at any size. */
+  .titleslide { background:#fff; width:min(1100px, 94%); padding:54px 60px; border-radius:4px }
+  .titleslide h1 { font-size:34px; margin:0 0 22px; color:var(--maroon) }
+  .titleslide blockquote { margin:0; font-size:26px; line-height:1.5;
+                           border-left:5px solid var(--cyan); padding-left:22px }
+  .titleslide p.after { margin:26px 0 0; color:var(--muted); font-size:18px }
+
+  .bar { flex:0 0 auto; background:#1c1c1c; color:#eee; display:flex; align-items:center;
+         gap:14px; padding:9px 16px; font-size:15px }
+  .bar button, .bar a.gobtn {
+      font:inherit; border:1px solid #555; background:#2a2a2a; color:#eee;
+      padding:6px 13px; border-radius:6px; cursor:pointer; text-decoration:none }
+  .bar button:hover, .bar a.gobtn:hover { border-color:#999 }
+  .bar a.gobtn { background:var(--cyan); border-color:var(--cyan); color:#06232e; font-weight:bold }
+  .bar a.gobtn[hidden] { display:none }
+  .grow { flex:1 }
+  .where { color:#9a9a9a; font-variant-numeric:tabular-nums }
+  .name { color:#fff }
+  label.auto { color:#bbb; display:flex; align-items:center; gap:6px; cursor:pointer;
+               font-size:14px }
+  .hint { color:#8a8a8a; font-size:13px }
+</style>
+
+<div class="stage" id="stage"></div>
+
+<div class="bar">
+  <button id="prev" title="Left arrow">‹ Back</button>
+  <button id="next" title="Right arrow or space">Next ›</button>
+  <span class="where"><span id="n"></span> / <span id="total"></span></span>
+  <span class="name" id="name"></span>
+  <a class="gobtn" id="go" href="#" hidden>See it on the new site →</a>
+  <span class="grow"></span>
+  <label class="auto"><input type="checkbox" id="autoadv" checked> advance when I come back</label>
+  <span class="hint">← → to move · B for black</span>
+</div>
+
+<script>
+(function () {
+  // Order follows the menu on the site: home first, contact last. Our Story and
+  // the Education pages have no "before" slide -- one did not change and the
+  // others did not exist.
+  var SLIDES = [
+    { kind: "title" },
+    { img: "shots/home-before.png",            name: "Home",              path: "/" },
+    { img: "shots/leadership-before.png",      name: "Leadership",        path: "/about-us/leadership" },
+    { img: "shots/choir-before.png",           name: "Choir",             path: "/about-us/choir" },
+    { img: "shots/events-services-before.png", name: "Events & Services", path: "/events-services" },
+    { img: "shots/bulletin-before.png",        name: "Bulletin",          path: "/events-services/bulletins" },
+    { img: "shots/giving-before.png",          name: "Giving",            path: "/donate" },
+    { img: "shots/serving-others-before.png",  name: "Serving Others",    path: "/community-outreach" },
+    { img: "shots/contact-before.png",         name: "Contact",           path: "/contact" },
+    { img: "shots/grid.png",                   name: "What it adds up to" }
+  ];
+  var SITE = "http://localhost:3000";
+
+  var stage = document.getElementById("stage");
+  var go    = document.getElementById("go");
+  var auto  = document.getElementById("autoadv");
+  var i = 0, blacked = false;
+
+  // Remembering across the trip out to the site. sessionStorage is per origin,
+  // so going to localhost:3000 and coming back hands this page its own store
+  // again, untouched.
+  function remember(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+  function recall(k)      { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+
+  function draw() {
+    stage.innerHTML = "";
+    var s = SLIDES[i];
+
+    if (s.kind === "title") {
+      var d = document.createElement("div");
+      d.className = "titleslide";
+      d.innerHTML =
+        '<h1>Saint John the Baptist — what has changed</h1>' +
+        '<blockquote>This is not the final or approved version. This is only to ' +
+        'show progress. Please do not worry about typos in titles, or names — ' +
+        'part of what I will show you tonight is how easy it will be to fix ' +
+        'these problems going forward.</blockquote>' +
+        '<p class="after">Each slide is the site as it is <strong>today</strong>, with the ' +
+        'changes marked. The button below opens the new version of that same page.</p>';
+      stage.appendChild(d);
+    } else {
+      var img = document.createElement("img");
+      img.src = s.img;
+      img.alt = s.name;
+      stage.appendChild(img);
+    }
+
+    document.getElementById("n").textContent = i + 1;
+    document.getElementById("total").textContent = SLIDES.length;
+    document.getElementById("name").textContent = s.name || "";
+
+    if (s.path) {
+      go.hidden = false;
+      go.href = SITE + s.path;
+      go.textContent = "See " + s.name + " on the new site →";
+    } else {
+      go.hidden = true;
+    }
+    remember("slide", String(i));
+  }
+
+  function at(n) {
+    i = Math.max(0, Math.min(SLIDES.length - 1, n));
+    draw();
+  }
+
+  // Leaving for the site: note which slide we left from, in the same tab, so
+  // Back brings us straight here.
+  go.addEventListener("click", function () { remember("left", String(i)); });
+
+  function resumed() {
+    var left = recall("left");
+    if (left === null) return;
+    remember("left", "");
+    try { sessionStorage.removeItem("left"); } catch (e) {}
+    if (auto.checked) at(parseInt(left, 10) + 1); else at(parseInt(left, 10));
+  }
+
+  // Two ways back, because browsers differ: a restored page fires pageshow with
+  // persisted set, and a re-fetched one simply loads again.
+  window.addEventListener("pageshow", function (e) {
+    var start = parseInt(recall("slide") || "0", 10);
+    if (!e.persisted) at(isNaN(start) ? 0 : start);
+    resumed();
+  });
+
+  document.getElementById("next").addEventListener("click", function () { at(i + 1); });
+  document.getElementById("prev").addEventListener("click", function () { at(i - 1); });
+
+  stage.addEventListener("click", function () { at(i + 1); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); at(i + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); at(i - 1); }
+    else if (e.key === "Home") at(0);
+    else if (e.key === "End") at(SLIDES.length - 1);
+    else if (e.key === "Enter" && !go.hidden) go.click();
+    else if (e.key.toLowerCase() === "b") {
+      blacked = !blacked;
+      stage.style.visibility = blacked ? "hidden" : "visible";
+      document.body.style.background = blacked ? "#000" : "#111";
+    }
+  });
+
+  at(0);
+})();
+</script>
