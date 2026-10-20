@@ -15,6 +15,15 @@
     {
       "box": [
         0.03,
+        0.124,
+        0.97,
+        0.418
+      ],
+      "text": "Getting this to the printer meant re-typing the whole thing into a Google Doc and converting that to a PDF by hand. It is one button now \u2014 four 5.5 x 8.5 pages, ready as they are."
+    },
+    {
+      "box": [
+        0.03,
         0.426,
         0.97,
         0.494

@@ -77,6 +77,7 @@ original wording here means nothing gets smoothed away in the filing.
 ### Choir
 
 - Updated the main picture.
+- The member list was out of date. Updated.
 - TODO: update the hero picture with a current picture.
 - Added an invitation to join the choir.
 
@@ -108,6 +109,9 @@ original wording here means nothing gets smoothed away in the filing.
 - Bulletins are filled in automatically, and can then be edited and updated
   before publishing.
 - A list of past bulletins is shown.
+- The PDF for the printer is one button. Until now the bulletin was
+  re-typed into a Google Doc and that was converted to a PDF by hand.
+  It comes out as four 5.5 x 8.5 pages, ready for the printer as they are.
 
 ### Education & Resources (new tab)
 

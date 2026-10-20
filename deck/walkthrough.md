@@ -47,6 +47,7 @@ if it comes up rather than hoping nobody looks.
 ## About Us → Choir
 
 - Updated the main picture.
+- The member list was out of date. Updated.
 - Added an invitation to join the choir.
 - **TODO:** a current hero picture.
 
@@ -80,6 +81,10 @@ Split into four pages: **Calendar, Visitors, Recent Events, Bulletins.**
 - Shows the bulletin exactly as it is printed.
 - Filled in automatically, then edited and updated before publishing.
 - Past bulletins are listed; the page opens on the most recent.
+- **The PDF for the printer is one button.** Until now it was re-typed into a
+  Google Doc and that was converted by hand. It comes out as four 5.5 x 8.5
+  pages, ready for the printer as they are. There is an HTML version for the
+  mailing list from the same page.
 
 ## Education & Resources — new
 
