@@ -85,6 +85,8 @@ Split into four pages: **Calendar, Visitors, Recent Events, Bulletins.**
   Google Doc and that was converted by hand. It comes out as four 5.5 x 8.5
   pages, ready for the printer as they are. There is an HTML version for the
   mailing list from the same page.
+- **If we ever wanted an eight-page bulletin, that is automatic as well.** It
+  prints as many pages as there are; nothing is fixed at four.
 
 ## Education & Resources — new
 

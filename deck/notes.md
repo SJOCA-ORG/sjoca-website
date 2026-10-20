@@ -112,6 +112,8 @@ original wording here means nothing gets smoothed away in the filing.
 - The PDF for the printer is one button. Until now the bulletin was
   re-typed into a Google Doc and that was converted to a PDF by hand.
   It comes out as four 5.5 x 8.5 pages, ready for the printer as they are.
+- If we ever wanted an eight-page bulletin, that is automatic as well —
+  it prints as many pages as there are.
 
 ### Education & Resources (new tab)
 
