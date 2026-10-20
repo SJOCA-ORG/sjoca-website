@@ -13,13 +13,23 @@ module Admin
     def create
       results = PhotoIntake.call(params[:files], tags: tag_list)
       taken = results.select(&:ok?)
-      taken.each { |r| DescribePhotoJob.perform_later(r.photo.id) }
+
+      # A photograph already in the library needs no second description, and
+      # queueing one for every repeat is how a double-submitted form turned
+      # into hundreds of jobs.
+      fresh = taken.reject(&:already_here)
+      fresh.each { |r| DescribePhotoJob.perform_later(r.photo.id) }
+      again = taken.select(&:already_here)
 
       refused = results.reject(&:ok?)
-      notice = "#{helpers.pluralize(taken.size, 'photograph')} added."
+      notice = "#{helpers.pluralize(fresh.size, 'photograph')} added."
+      if again.any?
+        notice += " #{helpers.pluralize(again.size, 'was')} already in the library " \
+                  "and #{again.size == 1 ? 'was' : 'were'} not added twice."
+      end
 
       # A video quietly turning into a picture would be baffling. Say so.
-      from_video = taken.select(&:from_video)
+      from_video = fresh.select(&:from_video)
       if from_video.any?
         notice += " #{helpers.pluralize(from_video.size, 'video')} became a still picture — " \
                   "the clip itself is not kept. To show the video, put it on the parish " \

@@ -26,7 +26,7 @@ module Admin
     # than one that took a moment to convert.
     CONVERT_TO = { "image/heic" => "image/jpeg", "image/heif" => "image/jpeg" }.freeze
 
-    Result = Struct.new(:photo, :filename, :error, :from_video, keyword_init: true) do
+    Result = Struct.new(:photo, :filename, :error, :from_video, :already_here, keyword_init: true) do
       def ok? = photo.present?
     end
 
@@ -63,11 +63,25 @@ module Admin
 
       check!(bytes, type)
       clean, final_type = strip_metadata(bytes, type)
+      digest = Digest::SHA256.hexdigest(clean)
+
+      # The same BYTES are the same photograph, whatever the file was called.
+      #
+      # Without this, a form submitted twice -- a double click, a browser
+      # retrying, a back button -- made a second copy under a -2 name, because
+      # the only uniqueness rule was on (name, bytes) and the name had just
+      # been changed to dodge it. Fifty-four pictures sent five times became
+      # 270 rows and 270 queued description jobs.
+      existing = Photo.find_by(sha256: digest)
+      if existing
+        existing.tag_with(@tags) if @tags.any?
+        return Result.new(photo: existing, filename: filename, already_here: true)
+      end
 
       photo = Photo.create!(
         human_name: provisional_name(filename),
         data: clean, content_type: final_type, byte_size: clean.bytesize,
-        sha256: Digest::SHA256.hexdigest(clean),
+        sha256: digest,
         status: "published", uploaded_at: @uploaded_at,
         original_filename: filename,
         alt_text: nil                       # written by DescribePhotoJob, which can see it

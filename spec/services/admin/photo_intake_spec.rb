@@ -22,6 +22,17 @@ RSpec.describe Admin::PhotoIntake do
     end
   end
 
+  # A second, visibly different picture, for the cases that turn on the bytes
+  # rather than on the filename.
+  def another_photo
+    @another_photo ||= begin
+      out, _err, _status = Open3.capture3(
+        "magick", "-size", "120x90", "gradient:darkgreen-yellow", "jpg:-", binmode: true
+      )
+      out
+    end
+  end
+
   def upload(bytes, filename:, type: "image/jpeg")
     Rack::Test::UploadedFile.new(StringIO.new(bytes), type, true, original_filename: filename)
   end
@@ -86,14 +97,35 @@ RSpec.describe Admin::PhotoIntake do
       expect(take(a_real_jpeg, filename: "IMG_4821.JPG").photo.human_name).to eq("new-img-4821")
     end
 
-    # Two photographs called IMG_4821 are not the same subject, so this must
-    # never become a new VERSION of the first.
-    it "keeps two uploads of the same filename apart" do
+    # Two DIFFERENT photographs both called IMG_4821 are not the same subject,
+    # so this must never become a new VERSION of the first.
+    it "keeps two different pictures with the same filename apart" do
       first = take(a_real_jpeg, filename: "IMG_4821.JPG")
-      second = take(a_real_jpeg, filename: "IMG_4821.JPG")
+      second = take(a_real_jpeg(bytes: Admin::ImageTools.strip(another_photo, "jpg")),
+                    filename: "IMG_4821.JPG")
 
       expect(second.photo.human_name).not_to eq(first.photo.human_name)
       expect(second.photo.human_name).to match(/\Anew-img-4821-\d+\z/)
+    end
+
+    # The other half of that rule, and the one that cost us. The same bytes are
+    # the same photograph whatever the file was called, so a form submitted
+    # twice must not make a second copy under a -2 name. Fifty-four pictures
+    # sent five times became 270 rows and 270 queued description jobs.
+    it "returns the photograph already held rather than copying it" do
+      first = take(a_real_jpeg, filename: "IMG_4821.JPG")
+      second = take(a_real_jpeg, filename: "something-else.jpg")
+
+      expect(second.photo.id).to eq(first.photo.id)
+      expect(second.already_here).to be(true)
+      expect(Photo.count).to eq(1)
+    end
+
+    it "still applies new tags to a photograph that was already held" do
+      take(a_real_jpeg, filename: "IMG_4821.JPG", tags: ["choir"])
+      again = take(a_real_jpeg, filename: "IMG_4821.JPG", tags: ["pascha 2026"])
+
+      expect(again.photo.reload.tags.map(&:name)).to include("choir", "pascha-2026")
     end
 
     it "copes with a filename that has nothing usable in it" do
