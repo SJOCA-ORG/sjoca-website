@@ -1,0 +1,15 @@
+{
+  "image": "reference/current-site/shots-desktop/home.png",
+  "out": "deck/shots/home-before.png",
+  "title": "Home page — the site as it is today",
+  "callouts": [
+    {"box": [0.470, 0.002, 0.988, 0.023],
+     "text": "The menu. Donate is now Giving, Community Outreach has moved under it as Serving Others, and a new Education & Resources section has been added."},
+    {"box": [0.085, 0.492, 0.430, 0.715],
+     "text": "A generic icon of St John. Replaced with a more fitting one. Still to do: photograph our own icon and use that."},
+    {"box": [0.080, 0.722, 0.920, 0.936],
+     "text": "This space was empty. It now carries our service times — Vespers, the Hours, the Divine Liturgy, Evening Prayers — and a list of what is coming up in the next week."},
+    {"box": [0.700, 0.941, 0.908, 0.960],
+     "text": "The address, in small type in the footer, and nothing else. The home page now shows the address, where we are relative to I-490, and a working link to driving directions."}
+  ]
+}
