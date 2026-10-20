@@ -258,6 +258,42 @@ Mitch's idea, 14 October 2026. **Built 17 October 2026.**
 
       Until then: a developer machine has them, and the replay test runs there.
 
+## Being found in a search
+
+Built 20 October 2026 — see [`docs/seo.md`](seo.md) for what the site now does
+and why. These are the parts that need somebody other than a developer.
+
+- [ ] **Claim and keep the Google Business Profile.** This outranks everything
+      the website can do. For "near me" the map pack sits above the ordinary
+      results and is populated from that listing, not from any markup. A parish
+      with an accurate, photographed listing and a mediocre site is found ahead
+      of a parish with an excellent site and no listing. Address, service times,
+      photographs, and parishioner reviews.
+
+- [ ] **Set `SJOCA_LATITUDE` and `SJOCA_LONGITUDE`.** The structured data omits
+      coordinates rather than guessing them — coordinates nobody checked put the
+      pin in the wrong street and no one notices for a year. They are already
+      correct on the Business Profile; copy them from there.
+
+- [ ] **Put a telephone number on the site.** There is none anywhere today. For
+      a local search it is a strong signal, and for a visitor deciding whether
+      to come on Sunday it is often the thing they actually want.
+
+- [ ] **Find the parish's other addresses for `sameAs`** — Facebook, the
+      YouTube channel, the Business Profile listing. These tell a search engine
+      that the website, the listing and the social accounts are one
+      organisation. The YouTube playlist is already known; the rest are not.
+
+- [ ] **The home page title says "Saint John the BaptistOrthodox Church"** — no
+      space, and that is the parish's own page title rather than anything the
+      code does. Left alone deliberately: it is content, not a bug, and not
+      mine to rewrite silently. One sentence to the admin fixes it.
+
+- [ ] **Twenty-five findability problems are listed on the editing page**
+      before every publish, most of them pages with no description of their own.
+      `Site::SeoCheck` reports and does not fix, because a description is parish
+      writing. "Give every page its own description" is a sentence that works.
+
 ## Before the parish sees the admin
 
 - [ ] **Take the cost meter off the admin page.** Added 17 October while the
