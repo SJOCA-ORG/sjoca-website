@@ -158,3 +158,6 @@ original wording here means nothing gets smoothed away in the filing.
   thumbs in front of the meeting.
 - IMMEDIATE TODO (before tonight): remove the cost meter from the admin screen.
   It is fine in itself, but it will distract people.
+- Good quick demo: the Serving Others page says "PBJ&J Factory". Ask it to fix
+  the typo live — small, visible, and exactly the kind of thing people in the
+  room will have been waiting months to get changed.
