@@ -52,7 +52,11 @@
       }
       .workbench .pane-left > .fixed { flex:0 0 auto; padding:.9rem 1rem; }
       .workbench .pane-left > .fixed.top { border-bottom:1px solid var(--rule) }
-      .workbench .pane-left > .fixed.bottom { border-top:1px solid var(--rule) }
+      /* Whatever ends up in here, the Send button has to stay reachable. It
+         did not: attaching fifty-four photographs listed all fifty-four names
+         and pushed Send off the bottom of a pane that does not scroll. */
+      .workbench .pane-left > .fixed.bottom { border-top:1px solid var(--rule);
+                                              max-height:60vh; overflow-y:auto }
 
       /* The conversation scrolls; the panes themselves never do. Without this
          a long turn pushed the newest step and the "working" indicator off the

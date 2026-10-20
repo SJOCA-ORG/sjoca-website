@@ -283,7 +283,9 @@
   <style>
     #drop.over textarea { outline:2px dashed var(--maroon); outline-offset:2px }
     #attached { margin-top:.5rem; padding:.55rem .7rem; border:1px solid #E6D9A8;
-                border-radius:8px; font-size:.85rem; background:#FDF6E3 }
+                border-radius:8px; font-size:.85rem; background:#FDF6E3;
+                max-height:14rem; overflow-y:auto }
+    #attached-names { word-break:break-all }
     .attached-ask { margin:.5rem 0 0 }
     .linky { border:0; background:none; color:var(--maroon); cursor:pointer;
              font:inherit; text-decoration:underline; padding:0 }
@@ -329,7 +331,15 @@
           (lastUploaded.length
             ? " (" + lastUploaded.length + " could not be read here, so the whole file will be sent)"
             : "") + ":";
-        names.textContent = [].map.call(files, function (f) { return f.name; }).join(", ");
+        // Name a few and count the rest. Fifty-four filenames is not a list
+        // anybody reads, and it pushed the Send button off the bottom of a
+        // pane that does not scroll -- with no way out but reloading.
+        var all = [].map.call(files, function (f) { return f.name; });
+        var SHOW = 4;
+        names.textContent = all.length <= SHOW
+          ? all.join(", ")
+          : all.slice(0, SHOW).join(", ") + " and " + (all.length - SHOW) + " more";
+        names.title = all.join("\n");
         [].forEach.call(document.querySelectorAll("#attached-them, .attached-them"),
           function (el) { el.textContent = one ? "it" : "them"; });
 
