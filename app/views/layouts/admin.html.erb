@@ -152,6 +152,22 @@
       .empty { color:#777; padding:2rem 0 }
       .dots { animation: blink 1.4s infinite }
       @keyframes blink { 0%,100% { opacity:.3 } 50% { opacity:1 } }
+
+      /* Sending. Fifty-odd photographs take several seconds to read, strip and
+         store before the server answers, and with the Send button still sitting
+         there looking ready the only sensible reading is that the click missed.
+         So it was clicked again, four more times, and every click uploaded the
+         whole set afresh. */
+      .spinner { display:inline-block; width:1em; height:1em; vertical-align:-.15em;
+                 border:2px solid currentColor; border-right-color:transparent;
+                 border-radius:50%; animation:spin .7s linear infinite }
+      @keyframes spin { to { transform:rotate(360deg) } }
+      @media (prefers-reduced-motion: reduce) { .spinner { animation-duration:2.4s } }
+
+      form.is-sending input[type=submit], form.is-sending button[type=submit] {
+        opacity:.55; pointer-events:none; cursor:default }
+      .sending-note { display:none; align-items:center; gap:.45rem; font-size:.88rem }
+      form.is-sending .sending-note { display:inline-flex }
     </style>
     <script>
       // Take the frame HERE, before anything is uploaded.
@@ -258,5 +274,67 @@
     <main class="<%= content_for(:main_class) %>">
       <%= yield %>
     </main>
+
+    <script>
+      // One submit per form, for every form on every admin page.
+      //
+      // Fifty photographs take several seconds to read, strip of EXIF and
+      // store before the server answers. During that wait nothing moved and
+      // the Send button still looked ready, so it was pressed again -- four
+      // more times -- and each press uploaded the whole set afresh. 54
+      // pictures became 270, with a description job queued behind each one.
+      //
+      // The guard is a flag plus preventDefault rather than disabling the
+      // button: a disabled submit contributes neither its name nor its
+      // formaction, and "just save them to the library" rides on a formaction.
+      (function () {
+        document.addEventListener("submit", function (e) {
+          var form = e.target;
+          if (!form || form.dataset.noBusy === "true") return;
+
+          if (form.dataset.sending === "true") { e.preventDefault(); return; }
+          form.dataset.sending = "true";
+          form.classList.add("is-sending");
+
+          // Say what is happening, next to the button that was pressed.
+          var pressed = e.submitter ||
+                        form.querySelector('input[type=submit], button[type=submit]');
+          var note = form.querySelector(".sending-note");
+          if (!note && pressed && pressed.parentNode) {
+            note = document.createElement("span");
+            note.className = "sending-note";
+            note.innerHTML = '<span class="spinner"></span><span></span>';
+            pressed.parentNode.insertBefore(note, pressed.nextSibling);
+          }
+          if (note) {
+            var files = form.querySelector('input[type=file]');
+            var n = files && files.files ? files.files.length : 0;
+            note.lastChild.textContent = n > 1
+              ? "Sending " + n + " photographs — this takes a moment…"
+              : "Sending…";
+          }
+        }, true);
+
+        // Turbo can finish a submission without replacing the page -- a
+        // validation error rendered back in place. Release the guard, or the
+        // form is dead and the only way on is a reload.
+        document.addEventListener("turbo:submit-end", function (e) {
+          var form = e.target;
+          if (!form || !form.dataset) return;
+          form.dataset.sending = "false";
+          form.classList.remove("is-sending");
+        });
+
+        // Coming back with the back button hands you the page exactly as it
+        // was, guard flag and all, and the form would be dead for good.
+        window.addEventListener("pageshow", function (e) {
+          if (!e.persisted) return;
+          document.querySelectorAll("form[data-sending=true]").forEach(function (f) {
+            f.dataset.sending = "false";
+            f.classList.remove("is-sending");
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
