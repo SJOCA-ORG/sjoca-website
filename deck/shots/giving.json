@@ -1,0 +1,25 @@
+{
+  "image": "reference/current-site/shots-desktop/donate.png",
+  "out": "deck/shots/giving-before.png",
+  "title": "Donate \u2014 the site as it is today",
+  "callouts": [
+    {
+      "box": [
+        0.08,
+        0.228,
+        0.92,
+        0.452
+      ],
+      "text": "One fund and one button. The menu item is now Giving, and the page is in two parts: Financial Giving, and Giving of your Time and Talent."
+    },
+    {
+      "box": [
+        0.08,
+        0.47,
+        0.92,
+        0.93
+      ],
+      "text": "Empty. This is where giving of time and talent now sits."
+    }
+  ]
+}

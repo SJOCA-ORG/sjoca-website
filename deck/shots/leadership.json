@@ -1,0 +1,25 @@
+{
+  "image": "reference/current-site/shots-desktop/about-us--leadership.png",
+  "out": "deck/shots/leadership-before.png",
+  "title": "Leadership \u2014 the site as it is today",
+  "callouts": [
+    {
+      "box": [
+        0.082,
+        0.358,
+        0.402,
+        0.9
+      ],
+      "text": "The photographs: some formal portraits, some crops out of group shots, at different sizes and against different backgrounds. Replaced with pictures taken during our own services \u2014 approved by Fr Alexi."
+    },
+    {
+      "box": [
+        0.418,
+        0.358,
+        0.982,
+        0.9
+      ],
+      "text": "Names and titles. Updated."
+    }
+  ]
+}

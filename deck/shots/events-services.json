@@ -1,0 +1,43 @@
+{
+  "image": "reference/current-site/shots-desktop/events-services.png",
+  "out": "deck/shots/events-services-before.png",
+  "title": "Events & Services \u2014 the site as it is today",
+  "callouts": [
+    {
+      "box": [
+        0.098,
+        0.0455,
+        0.325,
+        0.0635
+      ],
+      "text": "Three service times, typed in by hand. They are now on the home page, from the parish calendar."
+    },
+    {
+      "box": [
+        0.698,
+        0.0465,
+        0.855,
+        0.066
+      ],
+      "text": "The dead Live Streaming link again."
+    },
+    {
+      "box": [
+        0.428,
+        0.0645,
+        0.914,
+        0.129
+      ],
+      "text": "The calendar. It says October 2026 \u2014 No events to display. This is the single thing the survey complained about most."
+    },
+    {
+      "box": [
+        0.028,
+        0.133,
+        0.972,
+        0.981
+      ],
+      "text": "Everything else on one endless page, with St Nicholas Day 2023 still at the top of it. Now four pages: Calendar, Visitors, Recent Events and Bulletins."
+    }
+  ]
+}

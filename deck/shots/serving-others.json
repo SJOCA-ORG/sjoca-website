@@ -1,0 +1,34 @@
+{
+  "image": "reference/current-site/shots-desktop/community-outreach.png",
+  "out": "deck/shots/serving-others-before.png",
+  "title": "Community Outreach \u2014 the site as it is today",
+  "callouts": [
+    {
+      "box": [
+        0.02,
+        0.004,
+        0.98,
+        0.202
+      ],
+      "text": "A stock banner, with the title running up underneath the menu."
+    },
+    {
+      "box": [
+        0.075,
+        0.212,
+        0.925,
+        0.588
+      ],
+      "text": "The South Wedge Food Program \u2014 the only ministry on the page."
+    },
+    {
+      "box": [
+        0.075,
+        0.6,
+        0.925,
+        0.946
+      ],
+      "text": "Empty. The page is now Serving Others, under Giving, and carries the PB&J Factory, Project Mexico and the Alfred Mission."
+    }
+  ]
+}

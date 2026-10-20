@@ -1,0 +1,34 @@
+{
+  "image": "reference/current-site/shots-desktop/events-services--weekly-bulletin.png",
+  "out": "deck/shots/bulletin-before.png",
+  "title": "Weekly Bulletin \u2014 the site as it is today",
+  "callouts": [
+    {
+      "box": [
+        0.03,
+        0.008,
+        0.97,
+        0.117
+      ],
+      "text": "Only ever this week's. There is now a Bulletins page listing the past ones, which opens on the most recent."
+    },
+    {
+      "box": [
+        0.03,
+        0.426,
+        0.97,
+        0.494
+      ],
+      "text": "Service times, typed in each week. Filled in automatically now."
+    },
+    {
+      "box": [
+        0.058,
+        0.566,
+        0.942,
+        0.714
+      ],
+      "text": "The Epistle and Gospel, looked up and typed in each week. Taken from the OCA lectionary automatically now."
+    }
+  ]
+}
