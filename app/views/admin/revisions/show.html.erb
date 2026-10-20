@@ -641,7 +641,14 @@
     // named, and leave the person to say what they want done. It is not sent
     // for them -- they have not said anything yet.
     window.addEventListener("message", function (e) {
-      if (e.origin !== location.origin || !e.data || e.data.sjoca !== "ask") return;
+      if (e.origin !== location.origin || !e.data) return;
+
+      // A rewrite that spans several blocks is handed to the conversation.
+      // Reload so the turn is visible, rather than leaving the person looking
+      // at a page that has not changed yet.
+      if (e.data.sjoca === "working") { location.reload(); return; }
+
+      if (e.data.sjoca !== "ask") return;
 
       var box = document.querySelector("#say textarea");
       if (!box) return;

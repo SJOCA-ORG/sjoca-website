@@ -42,7 +42,10 @@ Rails.application.routes.draw do
       resources :messages, only: :create
 
       # Editing one block by clicking it in the preview.
-      resources :blocks, only: %i[show update]
+      resources :blocks, only: %i[show update] do
+        # Several blocks at once, as one piece of prose.
+        collection { post "rewrite" }
+      end
 
       # Getting a bulletin out: a PDF for the printer, HTML for the mailing
       # list. Both from the same page and the same blocks.

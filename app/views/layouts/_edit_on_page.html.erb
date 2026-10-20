@@ -38,6 +38,12 @@
   #edit-menu .what { padding: .3rem .8rem; color: #777; font-size: 12px; border-bottom: 1px solid #eee;
                      margin-bottom: .2rem; }
 
+  /* Offered where the selection ended, so the hand is already there. */
+  #edit-selection { position: absolute; z-index: 2147483000; background: #6D0606; color: #fff;
+                    border: 0; border-radius: 6px; padding: .4rem .8rem; cursor: pointer;
+                    box-shadow: 0 2px 10px rgba(0,0,0,.3); white-space: nowrap;
+                    font: 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+
   #edit-back { position: fixed; inset: 0; z-index: 2147483100; background: rgba(0,0,0,.45);
                display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
   #edit-box { background: #fff; border-radius: 10px; width: min(760px, 100%); max-height: 86vh;
@@ -91,7 +97,8 @@
       // listener runs in the CAPTURE phase, so without this it tore down the
       // modal before the Save button inside it could handle its own click --
       // the save never fired and the editor simply vanished.
-      if (e.target.closest("#edit-menu, #edit-back")) return;
+      if (e.target.closest("#edit-menu, #edit-back, #edit-selection")) return;
+      dropOffer();
 
       var el = e.target.closest("[data-block]");
       if (!el) { close(); return; }
@@ -197,6 +204,143 @@
           // Reload so the page shows what was actually stored, rather than
           // what was typed: they are not always the same.
           location.reload();
+        })
+        .catch(function () {
+          note.className = "note bad";
+          note.textContent = "It would not save.";
+        });
+    }
+
+    // ---- selecting across several blocks ---------------------------------
+    //
+    // Clicking one block at a time was the wrong shape: a thought somebody
+    // wants to reword is rarely one paragraph. Select whatever it covers --
+    // across headings, paragraphs, a whole section -- and edit it as prose.
+    //
+    // WHOLE blocks, always. Selecting half a sentence and being given half a
+    // sentence to edit would produce text that does not join up at either end.
+    // The selection says which blocks; the blocks say what you edit.
+    var offer;
+
+    function blocksIn(range) {
+      return [].filter.call(document.querySelectorAll("[data-block]"), function (el) {
+        try { return range.intersectsNode(el); } catch (e) { return false; }
+      }).filter(function (el, i, all) {
+        // A block inside another block would be edited twice.
+        return !all.some(function (other) { return other !== el && other.contains(el); });
+      });
+    }
+
+    document.addEventListener("selectionchange", function () {
+      if (!armed()) return;
+      clearTimeout(offerTimer);
+      offerTimer = setTimeout(showOffer, 180);
+    });
+    var offerTimer;
+
+    function dropOffer() { if (offer) { offer.remove(); offer = null; } }
+
+    function showOffer() {
+      dropOffer();
+      var sel = document.getSelection();
+      if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+      if (!sel.toString().trim()) return;
+
+      var range = sel.getRangeAt(0);
+      var blocks = blocksIn(range);
+      if (!blocks.length) return;
+
+      var box = range.getBoundingClientRect();
+      offer = document.createElement("button");
+      offer.id = "edit-selection";
+      offer.type = "button";
+      offer.textContent = blocks.length === 1
+        ? "Edit this text"
+        : "Edit these " + blocks.length + " pieces as one";
+      offer.style.left = (box.left + scrollX) + "px";
+      offer.style.top = (box.bottom + scrollY + 8) + "px";
+      offer.addEventListener("mousedown", function (e) { e.preventDefault(); });
+      offer.addEventListener("click", function (e) {
+        e.stopPropagation();
+        editTogether(blocks.map(function (el) { return el.dataset.block; }));
+      });
+      document.body.appendChild(offer);
+    }
+
+    function editTogether(ids) {
+      dropOffer();
+      Promise.all(ids.map(function (id) {
+        return fetch("/admin/revisions/" + REVISION + "/blocks/" + id,
+                     { headers: { Accept: "application/json" } }).then(function (r) { return r.json(); });
+      })).then(function (blocks) {
+        openJoined(blocks);
+      });
+    }
+
+    function openJoined(blocks) {
+      close();
+      var many = blocks.length > 1;
+      modal = document.createElement("div");
+      modal.id = "edit-back";
+      modal.innerHTML =
+        '<div id="edit-box">' +
+          '<header>Edit this text <span>— ' +
+            (many ? blocks.length + " pieces on /" : blocks[0].kind + " on /") + blocks[0].page +
+            (many ? ", which may end up as a different number" : "") + '</span></header>' +
+          '<textarea spellcheck="true"></textarea>' +
+          '<footer><span class="note" id="edit-note">' +
+            (many ? "Saving hands this to the conversation, which will lay it out again."
+                  : "") + '</span><span class="grow"></span>' +
+            '<button type="button" class="btn ghost" id="edit-cancel">Cancel</button>' +
+            '<button type="button" class="btn" id="edit-save">Replace the text</button>' +
+          '</footer>' +
+        '</div>';
+      document.body.appendChild(modal);
+
+      var box = modal.querySelector("textarea");
+      box.value = blocks.map(function (b) { return b.content; }).join("\n\n");
+      box.focus();
+
+      modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
+      modal.querySelector("#edit-cancel").addEventListener("click", close);
+      modal.querySelector("#edit-save").addEventListener("click", function () {
+        replace(blocks.map(function (b) { return b.id; }), box);
+      });
+      box.addEventListener("keydown", function (e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          replace(blocks.map(function (b) { return b.id; }), box);
+        }
+      });
+    }
+
+    function replace(ids, box) {
+      var note = modal.querySelector("#edit-note");
+      note.className = "note";
+      note.textContent = "Saving…";
+
+      fetch("/admin/revisions/" + REVISION + "/blocks/rewrite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": (document.querySelector("meta[name=csrf-token]") || {}).content || "",
+        },
+        body: JSON.stringify({ block_ids: ids, content: box.value }),
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+        .then(function (r) {
+          if (!r.ok) {
+            note.className = "note bad";
+            note.textContent = r.body.error || "It would not save.";
+            return;
+          }
+          close();
+          if (r.body.handled === "conversation") {
+            // The conversation is doing the laying out; the pane should show
+            // it happening rather than a stale page.
+            parent.postMessage({ sjoca: "working" }, location.origin);
+          } else {
+            location.reload();
+          }
         })
         .catch(function () {
           note.className = "note bad";

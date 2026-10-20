@@ -79,6 +79,70 @@ RSpec.describe "editing a block by clicking it", type: :request do
     end
   end
 
+  # Mitch's correction: clicking one block at a time was the wrong shape,
+  # because a thought somebody wants to reword is rarely one paragraph.
+  describe "rewriting several blocks as one piece of prose" do
+    it "hands a multi-block rewrite to the conversation, not straight to the database" do
+      first = block(content: "One.")
+      second = section.blocks.create!(revision: revision, kind: "text",
+                                      content: "Two.", position: 1)
+
+      expect {
+        post "/admin/revisions/#{revision.id}/blocks/rewrite",
+             params: { block_ids: [first.id, second.id], content: "One and two, rewritten." }
+      }.to change { revision.messages.count }.by(2)
+
+      expect(response.parsed_body["handled"]).to eq("conversation")
+    end
+
+    # Deciding where paragraphs fall is judgement. Writing the text straight
+    # into the blocks it came from would assume the shape never changes.
+    it "leaves the blocks alone until the conversation has looked at them" do
+      first = block(content: "One.")
+      second = section.blocks.create!(revision: revision, kind: "text",
+                                      content: "Two.", position: 1)
+
+      post "/admin/revisions/#{revision.id}/blocks/rewrite",
+           params: { block_ids: [first.id, second.id], content: "Rewritten." }
+
+      expect(first.reload.content).to eq("One.")
+      expect(second.reload.content).to eq("Two.")
+    end
+
+    it "tells the conversation what was there and what it should say" do
+      first = block(content: "The old words.")
+
+      post "/admin/revisions/#{revision.id}/blocks/rewrite",
+           params: { block_ids: [first.id, block(content: "More old words.").id],
+                     content: "The new words." }
+
+      asked = revision.messages.where(role: "user").last.content
+      expect(asked).to include("The old words.")
+      expect(asked).to include("The new words.")
+      expect(asked).to include("/home")
+    end
+
+    # One paragraph in, one paragraph out: no judgement needed, so no turn.
+    it "saves a single block directly, without troubling the conversation" do
+      only = block(content: "Just this one.")
+
+      expect {
+        post "/admin/revisions/#{revision.id}/blocks/rewrite",
+             params: { block_ids: [only.id], content: "Reworded." }
+      }.not_to change { revision.messages.count }
+
+      expect(only.reload.content).to eq("Reworded.")
+      expect(response.parsed_body["handled"]).to eq("directly")
+    end
+
+    it "refuses an empty selection" do
+      post "/admin/revisions/#{revision.id}/blocks/rewrite",
+           params: { block_ids: [], content: "words" }
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+  end
+
   # The overlay belongs to the admin's preview pane. The public site must
   # render none of it.
   describe "where the overlay appears" do
