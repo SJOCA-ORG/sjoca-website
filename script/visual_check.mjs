@@ -186,6 +186,31 @@ const clickExpr = (sel) => `(() => {
 // so the browser is the sandbox: they cannot reach the server, the database or
 // the filesystem. Each gets a time budget of its own so one bad loop cannot hang
 // the rest.
+// Lazy images never load, because this never scrolls.
+//
+// Every photograph on the site carries loading="lazy", and the screenshot is
+// taken with captureBeyondViewport -- the whole page at once, without the
+// viewport ever moving down it. Chrome therefore never loads an image that sits
+// well below the fold, and it is captured and measured as an empty box.
+//
+// It cost us a real afternoon: the admin reported, twice and in good faith,
+// that Pani Jan's photograph was missing from the Leadership page. It was not.
+// It was simply the LAST picture on a 3,292px page, and these eyes had never
+// looked that far down. A tool that invents faults is worse than one that
+// misses them, because somebody then goes and fixes the thing that was right.
+const LOAD_IMAGES = `(async () => {
+  for (const i of document.querySelectorAll('img[loading="lazy"]')) i.loading = "eager";
+  const pending = Array.from(document.images).filter((i) => !i.complete);
+  await Promise.race([
+    Promise.all(pending.map((i) => new Promise((r) => { i.onload = i.onerror = r; }))),
+    new Promise((r) => setTimeout(r, 4000)),
+  ]);
+  const broken = Array.from(document.images)
+    .filter((i) => !i.complete || i.naturalWidth === 0)
+    .map((i) => i.getAttribute("src"));
+  return { total: document.images.length, broken: broken };
+})()`;
+
 const promiseExpr = (list) => `(() => {
   const results = [];
   for (const p of ${JSON.stringify(list)}) {
@@ -229,9 +254,26 @@ try {
     await send("Page.navigate", { url: URL_ARG }, sessionId);
     await sleep(900);
 
+    // Before measuring anything, make every picture actually load.
+    const { result: imgs } = await send("Runtime.evaluate",
+      { expression: LOAD_IMAGES, awaitPromise: true, returnByValue: true }, sessionId);
+    const broken = (imgs.value && imgs.value.broken) || [];
+
     const { result: r } = await send("Runtime.evaluate",
       { expression: INSPECT, returnByValue: true }, sessionId);
     result.widths[w.name] = r.value;
+
+    // A picture that really will not load is said OUT LOUD, as a finding, not
+    // left as a gap in a screenshot for someone to interpret. Interpreting a
+    // gap is exactly what went wrong before, and the interpretation was wrong.
+    if (broken.length) {
+      result.widths[w.name].findings.push({
+        severity: "broken",
+        what: broken.length === 1 ? "a picture does not load" : broken.length + " pictures do not load",
+        detail: "Even after waiting, the browser could not load: " + broken.join(", ") +
+                ". This is the picture itself, not the layout.",
+      });
+    }
 
     // A closed menu hides its own bugs. The original fault on this site -- 790px
     // of menu in a 611px window with no way to scroll -- only appeared once you
