@@ -83,6 +83,44 @@ cutover, and neither is in our hands yet.
       it is on auto-renew with a card that has not expired. Parishes lose
       domains this way.
 
+### Clearing pre-flight findings — before DNS cutover
+
+A pre-flight run over a draft (render every page, resolve every photo
+reference, check the data sources) reports things that are *latent* rather than
+broken. Two came up against draft 54 on 20 October, both invisible on screen:
+
+- **`/education-resources` renders 3 bytes.** A real page with a nav entry, no
+  hero, no sections, no blocks. Nothing on the site links to it — the header
+  template routes a childed parent with a blank `self_nav_title` straight to
+  `item.children.first.path`, so the menu points at
+  `/education-resources/adult-education` instead. It is reachable only by
+  typing the address. **But `sitemap.xml` lists every page unconditionally**, at
+  priority 0.8 for a top-level one, so publishing hands Google a blank page as a
+  high-priority URL. That cuts against "Being found in a search" below.
+- **A hero reference pointing at nothing.** `/education-resources/daily-lectionary`
+  carries `hero_asset_name = ""` with `hero_asset_version = 54`. The *name* does
+  the lookup, so `hero_photo` is nil, the `{% if page.hero_photo %}` guard drops
+  the `style` attribute, and the hero falls back to the default gradient —
+  which looks deliberate. The orphan is the version number with no name beside
+  it.
+
+Neither matters while the site is on a machine or a preview URL. Both matter
+the day `sjoca.org` points here. What needs deciding:
+
+- [ ] **A page with no content should not reach the sitemap.** Either skip
+      empty pages when building `sitemap.xml`, or make "empty + in nav" a thing
+      the editor must resolve before publishing. Leaning towards the first:
+      a nav-only parent is a legitimate shape, it just isn't a destination.
+- [ ] **`hero_asset_version` without a `hero_asset_name` should not be
+      storable.** Clear it when the name is cleared, or validate the pair. Right
+      now it survives as a reference that every future check will report.
+- [ ] **Pre-flight needs a way to say "known, accepted."** Otherwise the same
+      two findings are read and re-reasoned about on every publish, and the
+      real one gets lost among the ones already judged harmless. A suppression
+      list keyed by page and finding, recorded with *who* accepted it and
+      *when*, is probably enough — the point is that a finding either gets
+      fixed or gets a signature, never just ignored.
+
 ### sjoca.org does not resolve without the www
 
 A live fault on the current site, not something we introduced:
