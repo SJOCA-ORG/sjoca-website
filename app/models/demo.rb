@@ -15,15 +15,19 @@
 # A file rather than only an environment variable, so it can be turned on and
 # off during a meeting without restarting the server:
 #
-#   touch tmp/demo_mode     # on
-#   rm    tmp/demo_mode     # off
+#   touch tmp/demo_mode-development     # on
+#   rm    tmp/demo_mode-development      # off
+#
+# Named for the environment, because it is a real file and the test suite
+# shares the filesystem with the running server. A spec that turned the switch
+# off at the end of an example turned it off for the person about to present.
 module Demo
-  FLAG = "tmp/demo_mode".freeze
+  def self.flag = Rails.root.join("tmp", "demo_mode-#{Rails.env}")
 
   def self.on?
-    ENV["SJOCA_DEMO"] == "1" || Rails.root.join(FLAG).exist?
+    ENV["SJOCA_DEMO"] == "1" || flag.exist?
   end
 
-  def self.on!  = FileUtils.touch(Rails.root.join(FLAG))
-  def self.off! = FileUtils.rm_f(Rails.root.join(FLAG))
+  def self.on!  = FileUtils.touch(flag)
+  def self.off! = FileUtils.rm_f(flag)
 end

@@ -186,7 +186,7 @@
         <% if m.tool_calls.present? %>
           <details class="tools">
             <summary style="cursor:pointer;color:#666">
-              what it did<% if m.usage.present? %>
+              what it did<% if m.usage.present? && !Demo.on? %>
                 — <%= m.usage["calls"] %> calls,
                 <%= number_with_delimiter(m.usage["input"].to_i + m.usage["output"].to_i) %> new
                 <%- cached = m.usage["cache_read"].to_i -%>

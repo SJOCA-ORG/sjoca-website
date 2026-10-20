@@ -80,4 +80,4 @@ reference/rebuild-shots/
 
 
 # The demo switch is a local, per-machine thing.
-tmp/demo_mode
+tmp/demo_mode-*
