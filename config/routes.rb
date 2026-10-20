@@ -44,11 +44,9 @@ Rails.application.routes.draw do
       # Editing one block by clicking it in the preview.
       resources :blocks, only: %i[show update] do
         # Several blocks at once, as one piece of prose.
-        collection do
-          post "rewrite"
-          post "discuss"   # ask the AI about these particular blocks
-          get  "current"   # what they say now, after it has finished
-        end
+        # One path to the server for anything conversational: the dialog puts
+        # its request in the ordinary chat box. This is only the direct save.
+        collection { post "rewrite" }
       end
 
       # Getting a bulletin out: a PDF for the printer, HTML for the mailing

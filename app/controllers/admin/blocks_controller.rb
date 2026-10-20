@@ -9,7 +9,7 @@ module Admin
   # somebody else first.
   class BlocksController < BaseController
     before_action :load_block, except: %i[rewrite]
-    before_action :load_revision, only: %i[rewrite discuss current]
+    before_action :load_revision, only: %i[rewrite]
 
     def show
       render json: {
@@ -64,67 +64,7 @@ module Admin
       render json: { ok: true, handled: "conversation", message: hand_to_conversation(blocks, page, text) }
     end
 
-    # Asking the AI to change these particular blocks, from inside the dialog.
-    #
-    # The same turn machinery as the chat -- it is the same conversation, and
-    # the transcript should show it -- but scoped: the request names the blocks
-    # and says to touch nothing else.
-    def discuss
-      ids = Array(params[:block_ids]).map(&:to_i)
-      blocks = @revision.blocks.where(id: ids).to_a
-      return render json: { error: "nothing selected" }, status: :unprocessable_entity if blocks.empty?
-
-      asked = params[:instruction].to_s.strip
-      return render json: { error: "say what to change" }, status: :unprocessable_entity if asked.blank?
-
-      page = blocks.first.section.page
-      said = scoped_request(blocks, page, asked)
-
-      @revision.messages.create!(role: "user", content: said)
-      placeholder = @revision.messages.create!(role: "assistant", state: "working",
-                                               content: "", progress: [])
-      EditingTurnJob.perform_later(@revision.id, said, placeholder.id)
-
-      render json: { ok: true, watching: placeholder.id }
-    end
-
-    # What the blocks say now, so a dialog can show the result of a turn
-    # without reloading the page underneath it.
-    def current
-      ids = Array(params[:ids]).map(&:to_i)
-      blocks = @revision.blocks.where(id: ids).index_by(&:id)
-      render json: {
-        blocks: ids.filter_map { |id|
-          b = blocks[id]
-          next unless b
-
-          { id: b.id, kind: b.kind, content: b.content.to_s,
-            photo: b.asset_name, version: b.asset_version }
-        }
-      }
-    end
-
     private
-
-    def scoped_request(blocks, page, asked)
-      described = blocks.map { |b|
-        if b.asset_name.present?
-          "#{b.kind} (photograph #{b.asset_name}, version #{b.asset_version}), id #{b.id}"
-        else
-          "#{b.kind}, id #{b.id}: #{b.content.to_s.truncate(300)}"
-        end
-      }.join("\n")
-
-      <<~ASK
-        About #{blocks.one? ? 'this' : 'these'} on /#{page.slug}:
-
-        #{described}
-
-        #{asked}
-
-        Change only #{blocks.one? ? 'that' : 'those'} — leave the rest of the page alone.
-      ASK
-    end
 
     # Written as the editor speaking, because that is what happened: they
     # rewrote it. The old text goes along so the model can see what changed

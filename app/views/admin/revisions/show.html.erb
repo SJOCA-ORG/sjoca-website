@@ -653,15 +653,30 @@
       var box = document.querySelector("#say textarea");
       if (!box) return;
 
-      var subject = e.data.photo
-        ? "the photograph " + e.data.photo + " on /" + e.data.page
-        : "the " + e.data.kind + " on /" + e.data.page +
-          (e.data.excerpt ? " that begins \u201c" + e.data.excerpt + "\u201d" : "");
+      // The dialog says WHAT is being talked about; the person has already
+      // said what they want done with it. Put both in the box as one request
+      // and send it, so the whole thing runs through the ordinary turn -- with
+      // the working bar, the steps, the cost and the transcript that go with
+      // it.
+      var subject;
+      if (e.data.photo) {
+        subject = "the photograph " + e.data.photo + " on /" + e.data.page;
+      } else if (e.data.count > 1) {
+        subject = "these " + e.data.count + " pieces on /" + e.data.page +
+                  (e.data.excerpt ? ", beginning \u201c" + e.data.excerpt + "\u201d" : "");
+      } else {
+        subject = "the " + e.data.kind + " on /" + e.data.page +
+                  (e.data.excerpt ? " that reads \u201c" + e.data.excerpt + "\u201d" : "");
+      }
 
-      box.value = (box.value ? box.value.trimEnd() + "\n\n" : "") + "About " + subject + ": ";
-      box.focus();
-      box.setSelectionRange(box.value.length, box.value.length);
+      box.value = "About " + subject + " (block" + (e.data.count > 1 ? "s " : " ") +
+                  e.data.ids.join(", ") + "): " + e.data.instruction +
+                  "\n\nChange only that — leave the rest of the page alone.";
+
       box.scrollIntoView({ block: "center" });
+      // Sent, not left sitting: they have said what they want. Anything they
+      // wanted to add, they would have added in the dialog.
+      box.form.requestSubmit();
     });
   })();
 

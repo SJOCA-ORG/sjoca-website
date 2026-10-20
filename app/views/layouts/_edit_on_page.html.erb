@@ -265,87 +265,35 @@
         .catch(function () { note("It would not save.", true); });
     }
 
-    // Ask, and WAIT -- the dialog stays open and refills itself when the turn
-    // finishes, so the text can be looked at, edited again, saved or thrown
-    // away. Closing the dialog to go and read the chat would lose the thread.
+    // Ask by putting it in the ordinary chat box.
+    //
+    // Mitch's suggestion, and it is the right one: the dialog had grown its own
+    // conversation with the server -- its own request, its own polling, its own
+    // refilling -- which duplicated everything the chat already does and had
+    // none of its feedback. Worse, when that request 404'd the dialog simply
+    // sat at "Asking..." for ever, because a second path means a second set of
+    // ways to fail.
+    //
+    // So the dialog does what it is actually for: it says WHICH thing is being
+    // talked about. The talking happens where talking happens.
     function ask() {
       var input = back.querySelector("#sj-instruction");
       var said = input.value.trim();
       if (!said) return;
 
-      input.disabled = true;
-      back.querySelector("#sj-send").disabled = true;
-      note("Asking…");
+      parent.postMessage({
+        sjoca: "ask",
+        ids: state.ids,
+        page: state.blocks[0].page,
+        photo: state.blocks[0].photo,
+        kind: state.blocks[0].kind,
+        count: state.blocks.length,
+        excerpt: readable(state.blocks[0].content || "").replace(/<[^>]*>/g, " ").trim().slice(0, 80),
+        instruction: said,
+      }, location.origin);
 
-      fetch("/admin/revisions/" + REVISION + "/blocks/discuss", {
-        method: "POST", headers: headers(),
-        body: JSON.stringify({ block_ids: state.ids, instruction: said }),
-      })
-        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
-        .then(function (r) {
-          if (!r.ok) {
-            input.disabled = false;
-            back.querySelector("#sj-send").disabled = false;
-            return note(r.body.error || "It would not ask.", true);
-          }
-          input.value = "";
-          watch();
-        });
+      shut();
     }
 
-    function watch() {
-      var since = Date.now();
-      note("Working…");
-
-      (function again() {
-        if (!back) return;
-        fetch("/admin/revisions/" + REVISION + "/status", { headers: { Accept: "application/json" } })
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
-            if (!back) return;
-            if (d.working) {
-              var step = d.steps && d.steps.length ? d.steps[d.steps.length - 1].text : "";
-              note("Working… " + Math.round((Date.now() - since) / 1000) + "s " +
-                   (step ? "· " + step : ""));
-              return setTimeout(again, 1500);
-            }
-            refill();
-          })
-          .catch(function () { setTimeout(again, 3000); });
-      })();
-    }
-
-    function refill() {
-      var query = state.ids.map(function (id) { return "ids[]=" + id; }).join("&");
-      fetch("/admin/revisions/" + REVISION + "/blocks/current?" + query,
-            { headers: { Accept: "application/json" } })
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          if (!back) return;
-
-          // Blocks can be gone entirely -- the AI may have replaced three
-          // paragraphs with two. Say so rather than showing half an answer.
-          if (!d.blocks.length) { shut(); location.reload(); return; }
-
-          var input = back.querySelector("#sj-instruction");
-          var send = back.querySelector("#sj-send");
-          var box = back.querySelector("#sj-text");
-
-          state.blocks = d.blocks.map(function (b, i) {
-            return { id: b.id, kind: b.kind, content: b.content, photo: b.photo,
-                     version: b.version, page: state.blocks[0].page };
-          });
-          if (box) box.value = d.blocks.map(function (b) { return readable(b.content); }).join("\n\n");
-          if (input) { input.disabled = false; input.focus(); }
-          if (send) send.disabled = false;
-          note("Done — look it over, then Save or Cancel.");
-
-          // A photograph changed under us: show the new one.
-          var img = back.querySelector("#sj-photo img");
-          if (img && d.blocks[0].photo) {
-            img.src = "/media/" + d.blocks[0].photo + "/" + d.blocks[0].version + "?t=" + Date.now();
-          }
-        });
-    }
   })();
 </script>
