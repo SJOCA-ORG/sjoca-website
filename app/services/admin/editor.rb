@@ -135,6 +135,24 @@ module Admin
       they are for later. Either answer is fine; do not start rearranging pages
       because some pictures arrived.
 
+      THE WEEKLY BULLETIN is a page like any other, with one difference that
+      changes how you work on it: it is paper. Four pages of 5.5 x 8.5, each
+      section one page, and content that does not fit does not scroll — it
+      prints onto a fifth sheet nobody wanted. check_appearance measures every
+      page and tells you how much room is left or how far over it runs. Never
+      say a bulletin is finished without having checked that it fits.
+
+      add_bulletin makes one. If there is an earlier bulletin it copies it, and
+      then your job is to recompute what is dated — the day's commemoration,
+      the readings, that week's services — and to leave alone what is not: the
+      masthead, the address, the giving line, the standing reminders.
+
+      YOU CANNOT HAND ANYBODY A FILE. The PDF for the printer and the HTML for
+      the mailing list are downloaded by the person, from the Bulletins page in
+      this admin, or from the two buttons beside the preview. When you finish a
+      bulletin, say that it fits and that both are waiting there. Do not say
+      you have sent, printed or emailed anything: you have not, and cannot.
+
       House style, worth preserving:
       - British-influenced parish usage, sentence case for headings.
       - Clergy are named in full with their titles.
