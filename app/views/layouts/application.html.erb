@@ -1,10 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for(:title) || "Saint John the Baptist Orthodox Church" %></title>
+    <title><%= content_for(:title) || Site::Seo::NAME %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="<%= content_for(:description) ||
-      "Saint John the Baptist Orthodox Church, Rochester NY — a parish of the Orthodox Church in America (OCA), Diocese of New York and New Jersey. Services entirely in English." %>">
+    <meta name="description" content="<%= content_for(:description) || @seo&.description %>">
+    <%# Everything a search engine is told about this page. @seo is set by the
+        pages controller; anything else rendered through this layout simply
+        does without. %>
+    <% unless @indexable %>
+      <%# A preview, an error page, anything without SEO: keep it out of the
+          index. A draft at a signed address is not for the public. %>
+      <meta name="robots" content="noindex, nofollow">
+    <% end %>
+
+    <% if @indexable %>
+      <link rel="canonical" href="<%= @seo.canonical %>">
+      <% @seo.open_graph.each do |property, content| %>
+        <meta property="<%= property %>" content="<%= content %>">
+      <% end %>
+      <meta name="twitter:card" content="summary_large_image">
+
+      <%# A church, its address, and when it actually meets -- the service
+          times taken from the calendar the parish already keeps, so they
+          cannot drift from what is published. %>
+      <script type="application/ld+json">
+        <%= @seo.structured_data.to_json.html_safe %>
+      </script>
+    <% end %>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 

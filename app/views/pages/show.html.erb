@@ -1,4 +1,5 @@
-<% content_for :title, "#{@page.title} — Saint John the Baptist Orthodox Church" %>
+<% content_for :title, @seo.title %>
+<% content_for :description, @seo.description %>
 <%# The page body comes from Liquid templates stored in the database, so the
     parish can change how pages look without a deploy. See docs/ai-admin.md. %>
 <%= @body %>

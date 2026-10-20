@@ -48,6 +48,12 @@ Rails.application.routes.draw do
     end
   end
 
+  # Generated from the published revision, not kept as a file: a file nobody
+  # maintains goes stale, and a sitemap naming pages that no longer exist is
+  # worse than none.
+  get "sitemap.xml" => "sitemap#show", as: :sitemap, defaults: { format: "xml" }
+  get "robots.txt"  => "sitemap#robots", as: :robots
+
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 

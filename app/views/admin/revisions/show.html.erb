@@ -18,6 +18,27 @@
     edit its own website", the answer should be a number on the screen rather
     than a developer's recollection. The underlying usage is kept on every
     message either way, so the log survives the meter being removed. %>
+<%# How this revision will present itself to a search engine. Shown before
+    publishing, every time, because these go wrong silently and stay wrong for
+    months. It reports and does not block: a description is parish writing. %>
+<% seo = Site::SeoCheck.call(@revision) %>
+<% if seo[:problems].any? %>
+  <details class="card" style="margin-top:.6rem;border-color:#E6D9A8;background:#FDF6E3">
+    <summary style="cursor:pointer">
+      <strong><%= pluralize(seo[:problems].size, "thing") %></strong> that would make this site
+      harder to find <span class="muted">— across <%= seo[:checked] %> pages</span>
+    </summary>
+    <ul style="margin:.6rem 0 0;padding-left:1.1rem;font-size:.85rem;line-height:1.5">
+      <% seo[:problems].first(20).each do |problem| %>
+        <li><%= problem %></li>
+      <% end %>
+    </ul>
+    <p class="muted" style="margin:.6rem 0 0;font-size:.8rem">
+      Ask the admin to fix any of these — "give every page its own description" works.
+    </p>
+  </details>
+<% end %>
+
 <% spent = Admin::Cost.of_revision(@revision) %>
 <% if spent.positive? %>
   <div class="row" style="margin:.6rem 0 0;padding:.45rem .7rem;border:1px dashed var(--rule);

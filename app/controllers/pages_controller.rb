@@ -4,6 +4,16 @@ class PagesController < ApplicationController
   rescue_from Site::Renderer::Error, with: :template_error
 
   def show
+    # /home and / served the same page at two addresses. A search engine reads
+    # that as two pages with identical content and has to pick one; better to
+    # pick for it. The canonical tag says / as well, but a redirect is the
+    # unambiguous version and costs nothing.
+    # On the REQUEST PATH, not on params[:path]: the root route supplies
+    # "home" as a default, so testing the parameter redirected / to itself for
+    # ever. The first version of this did exactly that.
+    return redirect_to(root_path, status: :moved_permanently) if request.path == "/home" &&
+                                                                 params[:preview].blank?
+
     @page = Page.in_revision(Current.revision).includes(sections: :blocks)
                 .find_by(slug: params[:path])
 
@@ -22,6 +32,13 @@ class PagesController < ApplicationController
     @footer  = renderer.chrome("footer", @page)
 
     @page_class = @page ? "page-#{@page.slug.tr('/', '-')}" : "page-not-found"
+
+    # Always built -- a preview wants a sensible title in the tab like anything
+    # else. What a preview does NOT get is the indexable half: canonical, Open
+    # Graph, structured data. A draft is at a signed address and contains words
+    # the parish has not agreed to publish.
+    @seo = Site::Seo.new(@page, revision: Current.revision) if @page
+    @indexable = @page.present? && !previewing?
 
     if @page
       @body = renderer.body(@page)

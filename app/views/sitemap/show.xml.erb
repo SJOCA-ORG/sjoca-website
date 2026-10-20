@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <% base = SiteDrop.new.url %>
+  <% @pages.each do |page| %>
+    <url>
+      <loc><%= base %><%= page.slug == "home" ? "/" : "/#{page.slug}" %></loc>
+      <lastmod><%= page.updated_at.to_date.iso8601 %></lastmod>
+      <%# The home page and the pages a visitor lands on first, weighted above
+          the ones they reach from those. %>
+      <priority><%= page.slug == "home" ? "1.0" : (page.parent_slug ? "0.5" : "0.8") %></priority>
+    </url>
+  <% end %>
+  <% @bulletins.each do |bulletin| %>
+    <url>
+      <loc><%= base %>/<%= bulletin.slug %></loc>
+      <lastmod><%= bulletin.updated_at.to_date.iso8601 %></lastmod>
+      <priority>0.4</priority>
+    </url>
+  <% end %>
+</urlset>

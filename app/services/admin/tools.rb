@@ -126,6 +126,19 @@ module Admin
              { for_date: str("The Sunday it is for, e.g. \"2026-10-26\""),
                pages_wanted: int("How many pages. 4 unless asked otherwise; more is fine.") },
              %w[for_date]),
+        # --- being found ------------------------------------------------------
+        tool("check_findability",
+             "What would make this parish hard to find in a search: pages with no " \
+             "description of their own, descriptions that will be cut off or are shared " \
+             "between pages, titles too long, photographs with nothing said about them.",
+             {}),
+        tool("set_page_description",
+             "Give a page the sentence a search engine shows beneath its name. Say what " \
+             "THAT page is — not the parish in general, which every page already falls " \
+             "back to. Around 120 to 155 characters; longer is cut off.",
+             { slug: str("Page slug"),
+               description: str("One sentence about this page") },
+             %w[slug description]),
         tool("list_bulletins",
              "Every bulletin, newest first, with how many pages and blocks each has.", {}),
         tool("delete_page", "Remove a page and everything on it. Existing links to it will 404.",
@@ -729,6 +742,26 @@ module Admin
            "does not fit.",
           page: slug
       end
+    end
+
+    # ---- being found --------------------------------------------------------
+
+    def check_findability(**)
+      Site::SeoCheck.call(revision).merge(
+        note: "These are what makes a parish hard to find. A description is the one " \
+              "sentence the parish gets in front of somebody searching, so it should say " \
+              "what THAT page is -- not repeat the parish blurb."
+      )
+    end
+
+    def set_page_description(slug:, description:, **)
+      page = find_page(slug)
+      text = description.to_s.strip
+      raise ToolError, "a description of #{text.length} characters will be cut off; " \
+                       "#{Site::SeoCheck::DESCRIPTION_LIMIT} is the room there is" if text.length > Site::SeoCheck::DESCRIPTION_LIMIT
+
+      page.update!(description: text)
+      ok "described /#{slug} as #{text.truncate(60).inspect}"
     end
 
     def list_bulletins(**)
