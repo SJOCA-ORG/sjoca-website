@@ -413,6 +413,15 @@
 
     <button type="button" class="btn ghost" id="preview-reload" style="padding:.3rem .7rem;font-size:.85rem">Reload</button>
 
+    <%# Click the page to change it. Holding shift does the same for one
+        click, so a single paragraph does not need a mode turned on and then
+        left on. %>
+    <button type="button" class="btn ghost" id="edit-on-page" aria-pressed="false"
+            style="padding:.3rem .7rem;font-size:.85rem"
+            title="Click any text on the page to edit it. Holding Shift does the same without turning this on.">
+      Click to edit
+    </button>
+
     <%# Only for a bulletin, and only the two things you actually do with one. %>
     <% bulletins = @revision.pages.bulletins.pluck(:slug) %>
     <% if bulletins.any? %>
@@ -582,6 +591,55 @@
     wide.addEventListener("click", function () { setWidth(false); });
     phone.addEventListener("click", function () { setWidth(true); });
     document.getElementById("preview-reload").addEventListener("click", function () { show(slug); });
+  })();
+
+  // Clicking the page to change it.
+  //
+  // The pane and the page inside it are the same origin, so they can simply
+  // talk: the button arms the overlay, and the overlay hands back anything
+  // that belongs in the conversation instead.
+  (function () {
+    var frame = document.getElementById("preview");
+    var button = document.getElementById("edit-on-page");
+    if (!frame || !button) return;
+
+    var on = false;
+
+    function tell() {
+      try {
+        frame.contentWindow.postMessage({ sjoca: "editing", on: on }, location.origin);
+        frame.contentWindow.__sjocaEditMode = on;
+      } catch (e) { /* not loaded yet; the load handler repeats it */ }
+    }
+
+    button.addEventListener("click", function () {
+      on = !on;
+      button.setAttribute("aria-pressed", String(on));
+      button.textContent = on ? "Done editing" : "Click to edit";
+      tell();
+    });
+
+    frame.addEventListener("load", tell);
+
+    // "Ask about this" from the page: put it in the box, with the subject
+    // named, and leave the person to say what they want done. It is not sent
+    // for them -- they have not said anything yet.
+    window.addEventListener("message", function (e) {
+      if (e.origin !== location.origin || !e.data || e.data.sjoca !== "ask") return;
+
+      var box = document.querySelector("#say textarea");
+      if (!box) return;
+
+      var subject = e.data.photo
+        ? "the photograph " + e.data.photo + " on /" + e.data.page
+        : "the " + e.data.kind + " on /" + e.data.page +
+          (e.data.excerpt ? " that begins \u201c" + e.data.excerpt + "\u201d" : "");
+
+      box.value = (box.value ? box.value.trimEnd() + "\n\n" : "") + "About " + subject + ": ";
+      box.focus();
+      box.setSelectionRange(box.value.length, box.value.length);
+      box.scrollIntoView({ block: "center" });
+    });
   })();
 
   // Keep the newest message in view. The conversation scrolls inside its pane

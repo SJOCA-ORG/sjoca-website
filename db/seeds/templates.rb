@@ -96,26 +96,26 @@ LIQUID
   </section>
 LIQUID
 
-"block/heading"    => %(<h2 class="b b-heading b--{{ block.align }} {{ block.css_class }}">{{ block.content }}</h2>\n),
-"block/subheading" => %(<p class="b b-subheading b--{{ block.align }} {{ block.css_class }}">{{ block.content }}</p>\n),
-"block/text"       => %(<p class="b b-text b--{{ block.align }} {{ block.css_class }}">{{ block.content }}</p>\n),
-"block/quote"      => %(<blockquote class="b b-quote b--{{ block.align }} {{ block.css_class }}">{{ block.content }}</blockquote>\n),
+"block/heading"    => %(<h2 class="b b-heading b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}">{{ block.content }}</h2>\n),
+"block/subheading" => %(<p class="b b-subheading b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}">{{ block.content }}</p>\n),
+"block/text"       => %(<p class="b b-text b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}">{{ block.content }}</p>\n),
+"block/quote"      => %(<blockquote class="b b-quote b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}">{{ block.content }}</blockquote>\n),
 
 "block/button" => <<~'LIQUID',
-  <p class="b b--{{ block.align }} {{ block.css_class }}">
+  <p class="b b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}">
     <a class="button" href="{{ block.url }}">{{ block.content }}</a>
   </p>
 LIQUID
 
 "block/list" => <<~'LIQUID',
-  <ul class="b b-list b--{{ block.align }} {{ block.css_class }}">
+  <ul class="b b-list b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}">
     {% for item in block.items %}<li>{{ item }}</li>{% endfor %}
   </ul>
 LIQUID
 
 "block/image" => <<~'LIQUID',
   {% if block.photo %}
-    <figure class="b b-image b--{{ block.align }} {{ block.css_class }}"
+    <figure class="b b-image b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}"
             {% if block.width %}style="max-width:{{ block.width }}px"{% endif %}>
       {% if block.url %}<a href="{{ block.url }}">{% endif %}
         <img src="{{ block.photo.url }}" alt="{{ block.photo.alt }}" loading="lazy">
@@ -125,7 +125,7 @@ LIQUID
 LIQUID
 
 "block/embed" => <<~'LIQUID',
-  <div class="b b-embed {% if block.is_map %}b-embed--map{% else %}b-embed--video{% endif %}"
+  <div class="b b-embed {% if block.is_map %}b-embed--map{% else %}b-embed--video{% endif %}" data-block="{{ block.id }}"
        {% if block.is_map %}data-controller="embed" data-action="click->embed#activate"{% endif %}>
     <iframe src="{{ block.url }}"
             title="{% if block.is_map %}Map of the parish{% else %}Adult education class recordings{% endif %}"

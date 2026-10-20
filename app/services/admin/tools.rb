@@ -281,7 +281,10 @@ module Admin
              %w[name source]),
         tool("add_template",
              "Create a new Liquid template. Naming it block/<something> creates a new " \
-             "kind of block, usable immediately with add_block — no developer needed.",
+             "kind of block, usable immediately with add_block — no developer needed. " \
+             "A block template's outermost element must carry class=\"b ...\" AND " \
+             "data-block=\"{{ block.id }}\": the second is how somebody clicking that " \
+             "block in the preview edits it, and without it their click lands on nothing.",
              { name: str("New template name, e.g. \"block/scripture\" or \"partial/card\""),
                source: str("The complete Liquid source") }, %w[name source]),
 

@@ -41,6 +41,9 @@ Rails.application.routes.draw do
       end
       resources :messages, only: :create
 
+      # Editing one block by clicking it in the preview.
+      resources :blocks, only: %i[show update]
+
       # Getting a bulletin out: a PDF for the printer, HTML for the mailing
       # list. Both from the same page and the same blocks.
       get "bulletin/pdf",   to: "bulletins#pdf",   as: :bulletin_pdf

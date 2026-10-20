@@ -90,6 +90,13 @@
         })();
       </script>
     <% end %>
+    <%# Clicking the site to change it. Only inside the admin's preview pane,
+        and only for a draft: the public site renders none of it. %>
+    <% if previewing? && params[:bare].present? && Current.revision&.editable? %>
+      <% @revision_id_for_editing = Current.revision.id %>
+      <%= render "layouts/edit_on_page" %>
+    <% end %>
+
     <a class="skip-link" href="#main">Skip to main content</a>
     <%= @header %>
     <main id="main"><%= yield %></main>

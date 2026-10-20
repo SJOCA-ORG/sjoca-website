@@ -153,6 +153,11 @@ module Admin
       bulletin, say that it fits and that both are waiting there. Do not say
       you have sent, printed or emailed anything: you have not, and cannot.
 
+      Every block template's outermost element carries class="b ..." and
+      data-block="{{ block.id }}". The first is what the stylesheet hangs on;
+      the second is how somebody clicking that block in the preview gets to
+      edit it. Leave both on anything you write or change.
+
       House style, worth preserving:
       - British-influenced parish usage, sentence case for headings.
       - Clergy are named in full with their titles.

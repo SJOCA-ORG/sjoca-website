@@ -1,0 +1,209 @@
+<%# Clicking the site to change it.
+
+    Mitch had to reword a long paragraph by copying it into a document, editing
+    it there, and pasting it back -- while the text was on screen the whole
+    time. This is the short way round.
+
+    It runs ONLY inside the admin's preview pane (bare=1 and a draft). The
+    public site renders none of it.
+
+    Two things on the menu, because there are only two things to do: change the
+    words yourself, or describe a change to the AI. The first does not go
+    through the AI at all -- somebody who knows the words they want should not
+    have to describe them to anybody first. %>
+<style>
+  [data-block] { position: relative; }
+  html.editing [data-block] { outline: 1px dashed rgba(109,6,6,.35); outline-offset: 2px; cursor: pointer; }
+  html.editing [data-block]:hover { outline: 2px solid #6D0606; background: rgba(109,6,6,.04); }
+
+  #edit-menu { position: absolute; z-index: 2147483000; background: #fff; border: 1px solid #ccc;
+               border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,.22); padding: .3rem;
+               font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  #edit-menu button { display: block; width: 100%; text-align: left; border: 0; background: none;
+                      padding: .45rem .8rem; cursor: pointer; font: inherit; border-radius: 5px;
+                      white-space: nowrap; color: #212121; }
+  #edit-menu button:hover { background: #f0f0f0; }
+  #edit-menu .what { padding: .3rem .8rem; color: #777; font-size: 12px; border-bottom: 1px solid #eee;
+                     margin-bottom: .2rem; }
+
+  #edit-back { position: fixed; inset: 0; z-index: 2147483100; background: rgba(0,0,0,.45);
+               display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+  #edit-box { background: #fff; border-radius: 10px; width: min(760px, 100%); max-height: 86vh;
+              display: flex; flex-direction: column; overflow: hidden;
+              font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  #edit-box header { padding: .8rem 1rem; border-bottom: 1px solid #e3e3e3; font-weight: 600; }
+  #edit-box header span { font-weight: 400; color: #777; font-size: 13px; }
+  #edit-box textarea { flex: 1; min-height: 300px; border: 0; padding: 1rem; font: inherit;
+                       resize: none; outline: none; font-family: ui-monospace, SFMono-Regular,
+                       Menlo, monospace; font-size: 14px; }
+  #edit-box footer { padding: .7rem 1rem; border-top: 1px solid #e3e3e3; display: flex;
+                     align-items: center; gap: .6rem; }
+  #edit-box .btn { border: 1px solid #212121; background: #212121; color: #fff; padding: .4rem 1rem;
+                   border-radius: 6px; cursor: pointer; font: inherit; }
+  #edit-box .btn.ghost { background: #fff; color: #212121; }
+  #edit-box .grow { flex: 1; }
+  #edit-box .note { color: #777; font-size: 13px; }
+  #edit-box .note.bad { color: #8B1A1A; }
+</style>
+
+<script>
+  (function () {
+    var REVISION = <%= @revision_id_for_editing.to_json.html_safe %>;
+    var menu, modal;
+
+    // Armed by the pane, or by holding shift. Shift alone means you can reach
+    // one paragraph without turning a mode on and forgetting it is on.
+    function armed() { return document.documentElement.classList.contains("editing"); }
+
+    window.addEventListener("message", function (e) {
+      if (!e.data || e.data.sjoca !== "editing") return;
+      document.documentElement.classList.toggle("editing", !!e.data.on);
+      close();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Shift") document.documentElement.classList.add("editing");
+      if (e.key === "Escape") close();
+    });
+    document.addEventListener("keyup", function (e) {
+      // Only drop it again if the pane did not arm it deliberately.
+      if (e.key === "Shift" && !window.__sjocaEditMode) {
+        document.documentElement.classList.remove("editing");
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!armed()) return;
+
+      // Clicks inside our own menu or editor are not clicks on the page. This
+      // listener runs in the CAPTURE phase, so without this it tore down the
+      // modal before the Save button inside it could handle its own click --
+      // the save never fired and the editor simply vanished.
+      if (e.target.closest("#edit-menu, #edit-back")) return;
+
+      var el = e.target.closest("[data-block]");
+      if (!el) { close(); return; }
+
+      e.preventDefault();
+      e.stopPropagation();
+      openMenu(el, e.pageX, e.pageY);
+    }, true);
+
+    function close() {
+      if (menu) { menu.remove(); menu = null; }
+      if (modal) { modal.remove(); modal = null; }
+    }
+
+    function openMenu(el, x, y) {
+      close();
+      var id = el.dataset.block;
+
+      menu = document.createElement("div");
+      menu.id = "edit-menu";
+      menu.style.left = Math.min(x, innerWidth - 230) + "px";
+      menu.style.top = y + "px";
+      menu.style.position = "absolute";
+
+      fetch("/admin/revisions/" + REVISION + "/blocks/" + id, { headers: { Accept: "application/json" } })
+        .then(function (r) { return r.json(); })
+        .then(function (block) {
+          menu.innerHTML = "";
+          var what = document.createElement("div");
+          what.className = "what";
+          what.textContent = block.kind + (block.photo ? " — " + block.photo : "");
+          menu.appendChild(what);
+
+          if (block.editable) {
+            add("Edit this text", function () { openEditor(block); });
+          }
+          add(block.photo ? "Ask about this photograph" : "Ask about this",
+              function () { ask(block); });
+        });
+
+      document.body.appendChild(menu);
+    }
+
+    function add(label, go) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label;
+      b.addEventListener("click", function (e) { e.stopPropagation(); go(); });
+      menu.appendChild(b);
+    }
+
+    function openEditor(block) {
+      close();
+      modal = document.createElement("div");
+      modal.id = "edit-back";
+      modal.innerHTML =
+        '<div id="edit-box">' +
+          '<header>Edit this <span>— ' + block.kind + ', on /' + block.page + '</span></header>' +
+          '<textarea spellcheck="true"></textarea>' +
+          '<footer><span class="note" id="edit-note"></span><span class="grow"></span>' +
+            '<button type="button" class="btn ghost" id="edit-cancel">Cancel</button>' +
+            '<button type="button" class="btn" id="edit-save">Save</button>' +
+          '</footer>' +
+        '</div>';
+      document.body.appendChild(modal);
+
+      var box = modal.querySelector("textarea");
+      box.value = block.content;
+      box.focus();
+      box.setSelectionRange(box.value.length, box.value.length);
+
+      modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
+      modal.querySelector("#edit-cancel").addEventListener("click", close);
+      modal.querySelector("#edit-save").addEventListener("click", function () { save(block, box); });
+
+      // Save without reaching for the mouse.
+      box.addEventListener("keydown", function (e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") save(block, box);
+      });
+    }
+
+    function save(block, box) {
+      var note = modal.querySelector("#edit-note");
+      note.className = "note";
+      note.textContent = "Saving…";
+
+      fetch("/admin/revisions/" + REVISION + "/blocks/" + block.id, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": (document.querySelector("meta[name=csrf-token]") || {}).content || "",
+        },
+        body: JSON.stringify({ content: box.value }),
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+        .then(function (r) {
+          if (!r.ok) {
+            note.className = "note bad";
+            note.textContent = r.body.error || "It would not save.";
+            return;
+          }
+          close();
+          // Reload so the page shows what was actually stored, rather than
+          // what was typed: they are not always the same.
+          location.reload();
+        })
+        .catch(function () {
+          note.className = "note bad";
+          note.textContent = "It would not save.";
+        });
+    }
+
+    // Hand it to the conversation rather than doing it here. Changing a
+    // photograph is a request, not an edit.
+    function ask(block) {
+      close();
+      parent.postMessage({
+        sjoca: "ask",
+        blockId: block.id,
+        kind: block.kind,
+        photo: block.photo,
+        page: block.page,
+        excerpt: (block.content || "").replace(/<[^>]*>/g, " ").trim().slice(0, 60),
+      }, location.origin);
+    }
+  })();
+</script>
