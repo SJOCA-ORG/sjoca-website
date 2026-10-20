@@ -416,6 +416,8 @@
     <%# Click the page to change it. Holding shift does the same for one
         click, so a single paragraph does not need a mode turned on and then
         left on. %>
+    <span id="edit-hint" class="muted" hidden
+          style="font-size:.8rem">click any text on the page below</span>
     <button type="button" class="btn ghost" id="edit-on-page" aria-pressed="false"
             style="padding:.3rem .7rem;font-size:.85rem"
             title="Click any text on the page to edit it. Holding Shift does the same without turning this on.">
@@ -603,7 +605,20 @@
     var button = document.getElementById("edit-on-page");
     if (!frame || !button) return;
 
+    // Remembered, because the admin page reloads after every turn and the mode
+    // was silently turning itself off. "I did it once and cannot do it again"
+    // is what that feels like from the outside.
+    var KEY = "sjoca.editmode.<%= @revision.id %>";
     var on = false;
+    try { on = localStorage.getItem(KEY) === "1"; } catch (e) { on = false; }
+
+    function paint() {
+      button.setAttribute("aria-pressed", String(on));
+      button.textContent = on ? "Done editing" : "Click to edit";
+      button.classList.toggle("armed", on);
+      var hint = document.getElementById("edit-hint");
+      if (hint) hint.hidden = !on;
+    }
 
     function tell() {
       try {
@@ -614,11 +629,12 @@
 
     button.addEventListener("click", function () {
       on = !on;
-      button.setAttribute("aria-pressed", String(on));
-      button.textContent = on ? "Done editing" : "Click to edit";
+      try { localStorage.setItem(KEY, on ? "1" : "0"); } catch (e) { /* private window */ }
+      paint();
       tell();
     });
 
+    paint();
     frame.addEventListener("load", tell);
 
     // "Ask about this" from the page: put it in the box, with the subject

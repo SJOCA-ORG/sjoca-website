@@ -82,6 +82,9 @@
       .seg button { font:inherit; font-size:.85rem; padding:.3rem .7rem; border:0;
                     background:#fff; cursor:pointer; color:var(--ink) }
       .seg button[aria-pressed="true"] { background:var(--ink); color:#fff }
+      /* Armed should look armed. A button whose only change was its label was
+         not telling anybody anything. */
+      .btn.armed { background:var(--maroon); border-color:var(--maroon); color:#fff }
 
       .changed { flex:0 0 auto; display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;
                  padding:.4rem .9rem; border-bottom:1px solid var(--rule); background:#FDF6E3;
