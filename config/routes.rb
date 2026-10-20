@@ -25,6 +25,9 @@ Rails.application.routes.draw do
   namespace :admin do
     root "revisions#index"
     get "exit-preview" => "revisions#exit_preview", as: :exit_preview
+    # Every bulletin, whichever revision it is in, with its PDF and its email.
+    resources :bulletins, only: :index
+
     resources :photos, only: %i[index create update] do
       member { post "describe" }
     end

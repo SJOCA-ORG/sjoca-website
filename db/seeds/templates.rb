@@ -140,11 +140,23 @@ LIQUID
 
   }.freeze
 
+  # The bulletin templates live in files rather than heredocs. They are long,
+  # and the email one is dense enough with Liquid that a heredoc fights it.
+  FROM_FILES = %w[bulletin bulletin_email].freeze
+
+  def self.all
+    TEMPLATES.merge(
+      FROM_FILES.to_h { |name|
+        [name, Rails.root.join("db/seeds/templates/#{name}.liquid").read]
+      }
+    )
+  end
+
   def self.install!(revision)
-    TEMPLATES.each do |name, source|
+    all.each do |name, source|
       t = revision.templates.find_or_initialize_by(name: name)
       t.update!(source: source)
     end
-    TEMPLATES.size
+    all.size
   end
 end

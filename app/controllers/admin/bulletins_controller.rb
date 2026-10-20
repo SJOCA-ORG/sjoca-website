@@ -6,7 +6,20 @@ module Admin
   # documents -- they are one document rendered for two different things, which
   # is why neither is built by hand.
   class BulletinsController < BaseController
-    before_action :load_revision_and_page
+    before_action :load_revision_and_page, except: :index
+
+    # Every bulletin there is, from whichever revision it lives in.
+    #
+    # The exports began life as buttons in the editing pane, which answered
+    # "how do I get the PDF" only while you happened to be editing that draft.
+    # A bulletin is wanted again later -- reprinted, re-sent, checked against
+    # what went out -- and after publishing the draft it was made in is gone.
+    def index
+      revisions = [Revision.live, *Revision.drafts].compact.uniq
+      @bulletins = revisions.flat_map { |r|
+        r.pages.bulletins.map { |page| [page, r] }
+      }.sort_by { |page, _| [page.dated_on || Date.new(1900), page.id] }.reverse
+    end
 
     # Chrome prints it, over the same connection that drives the layout checks.
     # No wkhtmltopdf, no Prawn: the browser that renders the page is the one

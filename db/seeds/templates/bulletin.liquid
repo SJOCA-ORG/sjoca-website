@@ -1,0 +1,13 @@
+<article class="bulletin">
+  {% for section in page.sections %}
+    <section class="sheet">
+      <div class="sheet__inner">
+        {% for column in section.columns %}
+          <div class="col">
+            {% for block in column %}{% include block.template %}{% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+</article>

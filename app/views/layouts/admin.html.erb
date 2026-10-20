@@ -232,6 +232,8 @@
   <body>
     <header class="bar">
       <strong><%= link_to "Site admin", admin_root_path %></strong>
+      <%= link_to "Photographs", admin_photos_path %>
+      <%= link_to "Bulletins", admin_bulletins_path %>
       <span class="grow"></span>
       <%= link_to "View live site", root_path, target: "_blank", rel: "noopener" %>
     </header>

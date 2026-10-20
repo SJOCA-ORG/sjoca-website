@@ -1,0 +1,63 @@
+<% content_for :title, "Bulletins" %>
+
+<div class="row">
+  <h1 class="grow" style="margin:0">Bulletins</h1>
+  <span class="muted"><%= pluralize(@bulletins.size, "bulletin") %></span>
+</div>
+
+<% if @bulletins.empty? %>
+  <p class="empty">
+    None yet. Ask the admin to make one — "make the bulletin for Sunday the 26th" —
+    and it will copy the last one and recompute the readings and services.
+  </p>
+<% else %>
+  <table class="bulletins">
+    <thead>
+      <tr><th>For</th><th>Pages</th><th>Where</th><th>Download</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% @bulletins.each do |page, revision| %>
+        <tr>
+          <td>
+            <strong><%= page.dated_on ? page.dated_on.strftime("%-d %B %Y") : page.title %></strong>
+            <% if page.dated_on %>
+              <div class="muted"><%= page.dated_on.strftime("%A") %></div>
+            <% end %>
+          </td>
+          <td><%= page.sections.count %></td>
+          <td>
+            <%# Which revision it is in decides whether the parish can see it
+                yet. Worth saying, because "I downloaded it" and "it is on the
+                website" are different things. %>
+            <% if revision.live? %>
+              <span class="tag live">published</span>
+            <% else %>
+              <span class="tag">draft</span>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to "PDF", admin_revision_bulletin_pdf_path(revision, slug: page.slug),
+                  class: "btn ghost small" %>
+            <%= link_to "Email", admin_revision_bulletin_email_path(revision, slug: page.slug),
+                  class: "btn ghost small" %>
+          </td>
+          <td>
+            <%= link_to "look at it ↗",
+                  "/#{page.slug}?preview=#{revision.preview_token}",
+                  target: "_blank", rel: "noopener", class: "muted" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<style>
+  .bulletins { width:100%; border-collapse:collapse; margin-top:1rem }
+  .bulletins th { text-align:left; font-size:.8rem; text-transform:uppercase;
+                  letter-spacing:.05em; color:#666; padding:.4rem .6rem;
+                  border-bottom:1px solid var(--rule) }
+  .bulletins td { padding:.7rem .6rem; border-bottom:1px solid var(--rule); vertical-align:top }
+  .bulletins .muted { font-size:.82rem }
+  .btn.small { padding:.25rem .7rem; font-size:.85rem }
+</style>
