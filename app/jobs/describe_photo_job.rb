@@ -22,6 +22,15 @@ class DescribePhotoJob < ApplicationJob
     Do not begin with "a photograph of" or "an image of". Do not guess at names of
     people. Do not invent detail you cannot see. If it does not depict parish life
     at all, say so plainly and briefly.
+
+    Say "a person", "someone", "a parishioner", "a server" — not "a man" or "a
+    woman" — unless you are VERY sure, and say nothing about age either. These
+    are real people in a small parish who will read their own description, and
+    being called the wrong thing on your own church's website is a small, public
+    unkindness. Clergy are the exception: a deacon, priest or bishop serving in
+    vestments can be named by his office, because the office is what is visible
+    and what the picture is about. When in doubt, describe what the person is
+    DOING and leave out what you think they are.
   ASK
 
   # 300 was not enough and failed in the worst way. The model thinks before it
