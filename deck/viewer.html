@@ -12,6 +12,13 @@
            padding:10px }
   .stage img { max-width:100%; max-height:100%; object-fit:contain; background:#fff }
 
+  /* The slide the whole thing hangs off: three lines, building to the ask. */
+  .problem { background:#fff; width:min(1100px, 94%); padding:66px 64px; border-radius:4px }
+  .problem p { margin:0 0 30px; font-size:38px; line-height:1.3 }
+  .problem p.q { color:var(--muted); font-size:32px }
+  .problem p.last { margin:0; font-weight:bold; color:var(--maroon);
+                    border-top:2px solid var(--rule); padding-top:30px }
+
   /* The five "new pages" slides are the same list five times over, with one
      line lit and its reason underneath. Built here rather than captured, so
      they stay sharp and the wording stays editable. */
@@ -71,6 +78,7 @@
   // the Education pages have no "before" slide -- one did not change and the
   // others did not exist.
   var SLIDES = [
+    { kind: "problem" },
     { kind: "title" },
     { img: "shots/home-before.png",            name: "Home",              path: "/" },
     { img: "shots/leadership-before.png",      name: "Leadership",        path: "/about-us/leadership" },
@@ -117,7 +125,15 @@
     stage.innerHTML = "";
     var s = SLIDES[i];
 
-    if (s.kind === "title") {
+    if (s.kind === "problem") {
+      var d = document.createElement("div");
+      d.className = "problem";
+      d.innerHTML =
+        '<p>The key problem is that the site is <strong>not kept up to date</strong>.</p>' +
+        '<p class="q">Why? Because it is hard to update.</p>' +
+        '<p class="last">We do not need to change the site. We need to keep it updated.</p>';
+      stage.appendChild(d);
+    } else if (s.kind === "title") {
       var d = document.createElement("div");
       d.className = "titleslide";
       d.innerHTML =

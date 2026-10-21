@@ -8,7 +8,19 @@ if it comes up rather than hoping nobody looks.
 
 ---
 
-## Say this first
+## Slide one — the whole argument
+
+> The key problem is that the site is **not kept up to date**.
+>
+> Why? Because it is hard to update.
+>
+> **We do not need to change the site. We need to keep it updated.**
+
+Everything after this is evidence for that last line.
+
+---
+
+## Say this second
 
 > This is not the final or approved version. This is only to show progress.
 > Please do not worry about typos in titles, or names — part of what I will show
