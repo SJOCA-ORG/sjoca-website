@@ -16,10 +16,21 @@
 services:
   - type: web
     name: sjoca
-    runtime: ruby
-    plan: starter            # free sleeps after inactivity; a church site should not
+    # Docker, not the plain Ruby runtime. The editor shells out to ImageMagick,
+    # Chromium, ffmpeg, rsvg-convert and potrace, and that runtime has none of
+    # them: photographs could not be uploaded, the AI could not see the page it
+    # had just changed, and no bulletin PDF could be made.
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # 2GB. Headless Chromium takes a few hundred megabytes on its own, and on
+    # 512MB the container is killed mid-screenshot -- which looks like the
+    # editor dying halfway through a change rather than like running out of room.
+    plan: standard
     branch: main
-    buildCommand: "./bin/render-build.sh"
+    # Migrations run here, not in the build: a Docker build has no database.
+    # Render runs this after the image is built and before it goes live, so a
+    # failed migration does not take the site down with it.
+    preDeployCommand: "./bin/rails db:prepare"
     startCommand: "bundle exec puma -C config/puma.rb"
     healthCheckPath: /up
     envVars:
@@ -45,12 +56,12 @@ services:
   # ChurchTrac calendar: a few times a day is plenty, and it is a light call.
   - type: cron
     name: sjoca-calendar-sync
-    runtime: ruby
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: starter
     branch: main
     schedule: "17 */6 * * *"
-    buildCommand: "./bin/render-build.sh"
-    startCommand: "bundle exec rake churchtrac:sync"
+    dockerCommand: "bundle exec rake churchtrac:sync"
     envVars:
       - key: DATABASE_URL
         fromDatabase: { name: sjoca-db, property: connectionString }
@@ -62,12 +73,12 @@ services:
   # Scripture readings: each date is fetched once ever, so daily is ample.
   - type: cron
     name: sjoca-lectionary-sync
-    runtime: ruby
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: starter
     branch: main
     schedule: "40 5 * * *"
-    buildCommand: "./bin/render-build.sh"
-    startCommand: "bundle exec rake lectionary:sync"
+    dockerCommand: "bundle exec rake lectionary:sync"
     envVars:
       - key: DATABASE_URL
         fromDatabase: { name: sjoca-db, property: connectionString }
@@ -79,12 +90,12 @@ services:
   # Class recordings: Fr David posts one a week, so once a day is generous.
   - type: cron
     name: sjoca-classes-sync
-    runtime: ruby
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: starter
     branch: main
     schedule: "55 5 * * *"
-    buildCommand: "./bin/render-build.sh"
-    startCommand: "bundle exec rake classes:sync"
+    dockerCommand: "bundle exec rake classes:sync"
     envVars:
       - key: DATABASE_URL
         fromDatabase: { name: sjoca-db, property: connectionString }

@@ -4,6 +4,12 @@ class PagesController < ApplicationController
   rescue_from Site::Renderer::Error, with: :template_error
 
   def show
+    # Nothing published at all. That is not an error -- it is a site whose first
+    # revision has not been made live yet, which is exactly how a new parish's
+    # instance starts. Without this it rendered a 500 with a backtrace, which
+    # says "broken" when the truth is "not started".
+    return render_unpublished if Current.revision.nil?
+
     # /home and / served the same page at two addresses. A search engine reads
     # that as two pages with identical content and has to pick one; better to
     # pick for it. The canonical tag says / as well, but a redirect is the
@@ -49,6 +55,11 @@ class PagesController < ApplicationController
   end
 
   private
+
+  def render_unpublished
+    render "pages/unpublished", layout: false, status: :service_unavailable
+  end
+
 
   # A broken template must not take the whole site down with a stack trace. In
   # development it shows what is wrong; in production it is a 500 page.

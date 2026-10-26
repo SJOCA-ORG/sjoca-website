@@ -1,0 +1,17 @@
+.git
+.github
+node_modules
+tmp/*
+!tmp/.keep
+log/*
+!log/.keep
+spec
+deck
+docs
+reference
+data
+# db/seeds is NOT excluded: it is 184K, and db/seeds.rb loads from it, so
+# db:prepare dies on a fresh database without it.
+*.dump
+.env*
+config/master.key

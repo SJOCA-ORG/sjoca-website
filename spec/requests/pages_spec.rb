@@ -44,3 +44,18 @@ RSpec.describe "Rendering pages" do
     expect(response.body).not_to include(">Secret<")
   end
 end
+
+# A brand new instance -- the second parish's, say -- has no published
+# revision. That is a site which has not started, not a site which is broken,
+# and it used to answer with a 500 and a backtrace.
+RSpec.describe "a site with nothing published", type: :request do
+  it "says so plainly instead of failing" do
+    Revision.update_all(state: "draft")
+
+    get "/"
+
+    expect(response).to have_http_status(:service_unavailable)
+    expect(response.body).to include("Nothing has been published yet")
+    expect(response.body).to include("noindex")
+  end
+end
