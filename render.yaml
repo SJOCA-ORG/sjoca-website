@@ -35,6 +35,12 @@ services:
         value: 2
       - key: RAILS_LOG_LEVEL
         value: info
+      # Where this site answers. Password-reset links are built from it, and so
+      # are the addresses the editor's browser checks visit. Left unset it
+      # falls back to localhost, and a reset email would send people nowhere.
+      # Change to https://sjoca.org at cutover.
+      - key: SITE_URL
+        value: https://sjoca.onrender.com
 
   # ChurchTrac calendar: a few times a day is plenty, and it is a light call.
   - type: cron
