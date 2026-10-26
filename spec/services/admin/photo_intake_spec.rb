@@ -41,6 +41,35 @@ RSpec.describe Admin::PhotoIntake do
     described_class.call([upload(bytes, filename: filename)], **opts).first
   end
 
+  # A phone takes 4000x3000 at six or seven megabytes and the site never draws a
+  # picture wider than about 1280. Two hundred and sixty arrived at full size and
+  # made a 400MB database out of what should have been about fifty.
+  describe "size" do
+    def a_large_jpeg
+      out, _e, _s = Open3.capture3("magick", "-size", "4000x3000", "gradient:navy-white",
+                                   "jpg:-", binmode: true)
+      out
+    end
+
+    it "shrinks a photograph bigger than the site can ever show" do
+      photo = take(a_large_jpeg, filename: "PXL_0001.jpg").photo
+      info = Admin::ImageTools.identify(photo.data)
+
+      expect([info[:width], info[:height]].max).to eq(2000)
+    end
+
+    # Only ever shrink. Blowing a small picture up produces a larger, blurrier
+    # one and helps nobody.
+    it "leaves a small photograph exactly as it is" do
+      small, _e, _s = Open3.capture3("magick", "-size", "300x200", "gradient:red-white",
+                                     "jpg:-", binmode: true)
+      photo = take(small, filename: "small.jpg").photo
+      info = Admin::ImageTools.identify(photo.data)
+
+      expect([info[:width], info[:height]]).to eq([300, 200])
+    end
+  end
+
   describe "metadata" do
     it "removes EXIF before the bytes are ever stored" do
       with_exif, _e, _s = Open3.capture3(

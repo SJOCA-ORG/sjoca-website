@@ -55,11 +55,23 @@ module Admin
     # Remove EXIF and every other profile. A phone photograph carries where it
     # was taken, to within a few metres. A parish would never decide to publish
     # the coordinates of a parishioner's house; it would simply happen.
-    def self.strip(bytes, format)
+    # The longest side a stored photograph may have.
+    #
+    # A phone takes 4000x3000 at six or seven megabytes. The widest this site
+    # ever draws a picture is about 1280 points, so at 2000 there is room for a
+    # retina screen and for someone cropping later, and nothing beyond that is
+    # ever seen by anybody. Two hundred and sixty photographs arrived at full
+    # size and made a 400MB database out of what should be about fifty.
+    MAX_SIDE = 2000
+
+    def self.strip(bytes, format, max_side: MAX_SIDE)
       env = { "MAGICK_CONFIGURE_PATH" => Rails.root.join("config/imagemagick").to_s }
       out, err, status = nil
+      # ">" means only ever shrink. A small photograph is left exactly as it is
+      # rather than being blown up into a blurry larger one.
+      resize = max_side ? ["-resize", "#{max_side}x#{max_side}>"] : []
       Timeout.timeout(TIMEOUT) do
-        out, err, status = Open3.capture3(env, BINARIES[:magick], "-", "-strip",
+        out, err, status = Open3.capture3(env, BINARIES[:magick], "-", "-strip", *resize,
                                           "#{format}:-", stdin_data: bytes, binmode: true)
       end
       raise ToolError, "could not read that image: #{err.to_s.lines.first&.strip}" unless status&.success?

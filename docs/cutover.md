@@ -87,3 +87,47 @@ In the admin, the same thing is "Roll back to this" on a previously published
 revision. Rolling back does not discard anything: the revision you leave becomes
 `superseded` and can be rolled forward to again, which is exactly what this
 rehearsal did.
+
+---
+
+## Shrinking the database before it goes to a server
+
+Done 26 October 2026, before the first copy up.
+
+**843 MB, of which 827 MB was photographs** — on a Postgres plan whose storage
+is measured in gigabytes. Two separate problems behind that figure:
+
+- **Photographs stored at phone resolution.** 4000x3000 at six or seven
+  megabytes each, 56 of them over 4 MB. The site never draws a picture wider
+  than about 1280 points, so every one of these was roughly ten times larger
+  than anybody would ever see — and every page view pulled the whole file.
+- **Dead rows.** 408 MB of live photo bytes sat in an 827 MB table. Most of the
+  difference was the 216 duplicate uploads deleted a week earlier, whose space
+  Postgres had not reclaimed.
+
+### What was done, in this order
+
+1. **`script/export_photo_originals.rb`** wrote all 261 photographs out at full
+   resolution to `~/sjoca-photo-library/from-database/`, with a manifest naming
+   each one's original size, hash and alt text. **This matters:** for anything
+   uploaded through the editor the database was the only copy, so reducing it
+   without this would have destroyed the originals of parish photographs.
+2. **Intake now shrinks on arrival** — longest side 2000, and only ever
+   shrinks, so a small picture is left exactly as it is rather than blown up
+   into a blurry larger one. Two specs pin both halves.
+3. **`script/shrink_stored_photos.rb`** did the same to what was already there:
+   90 of 261 reduced, 408 MB to 169 MB, in place rather than as new versions —
+   it is the same photograph, so a page pointing at version 2 should go on
+   meaning version 2.
+4. **`VACUUM FULL`** reclaimed the dead space.
+
+### The result
+
+| | |
+|---|---|
+| Database | **843 MB → 189 MB** |
+| Photographs | 408 MB → 169 MB of bytes, 827 MB → 177 MB of table |
+| Pages | all 20 still render, all photo references still resolve |
+| Originals | 409 MB, safe in the photo library with a manifest |
+
+Checked by looking at the pictures afterwards, not only by counting bytes.
