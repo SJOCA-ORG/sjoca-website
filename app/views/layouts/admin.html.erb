@@ -153,6 +153,19 @@
       .dots { animation: blink 1.4s infinite }
       @keyframes blink { 0%,100% { opacity:.3 } 50% { opacity:1 } }
 
+      /* Showing a password while you type it. Not a nicety: the people who
+         will use this are typing a long password into a field of dots, on a
+         laptop, often with reading glasses. */
+      .pw-wrap { position:relative; display:block }
+      .pw-wrap input { padding-right:4.4rem !important }
+      .pw-peek { position:absolute; right:.35rem; top:50%; transform:translateY(-50%);
+                 display:flex; align-items:center; gap:.3rem;
+                 border:1px solid var(--rule); background:#fff; color:var(--ink);
+                 border-radius:6px; padding:.25rem .45rem; cursor:pointer;
+                 font:inherit; font-size:.8rem; line-height:1 }
+      .pw-peek:hover { border-color:var(--ink) }
+      .pw-peek svg { width:1.05rem; height:1.05rem; display:block }
+
       /* Sending. Fifty-odd photographs take several seconds to read, strip and
          store before the server answers, and with the Send button still sitting
          there looking ready the only sensible reading is that the click missed.
@@ -293,6 +306,67 @@
       // The guard is a flag plus preventDefault rather than disabling the
       // button: a disabled submit contributes neither its name nor its
       // formaction, and "just save them to the library" rides on a formaction.
+      // Show the password. Every password field on every admin page gets one,
+      // so a field added later is covered without anybody remembering.
+      (function () {
+        var EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+                  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                  '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+        var EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+                  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                  '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>' +
+                  '<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>' +
+                  '<path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+        function peek(input) {
+          if (input.dataset.peekable === "true") return;
+          input.dataset.peekable = "true";
+
+          var wrap = document.createElement("span");
+          wrap.className = "pw-wrap";
+          input.parentNode.insertBefore(wrap, input);
+          wrap.appendChild(input);
+
+          var button = document.createElement("button");
+          button.type = "button";                 // never a submit
+          button.className = "pw-peek";
+          button.setAttribute("aria-pressed", "false");
+          button.setAttribute("aria-controls", input.id || "");
+
+          function paint(showing) {
+            button.innerHTML = (showing ? EYE_OFF : EYE) + "<span>" + (showing ? "Hide" : "Show") + "</span>";
+            button.setAttribute("aria-label", showing ? "Hide the password" : "Show the password");
+            button.title = button.getAttribute("aria-label");
+            button.setAttribute("aria-pressed", String(showing));
+          }
+          paint(false);
+
+          button.addEventListener("click", function () {
+            var showing = input.type === "text";
+            // Keep the cursor where it was: changing the type moves it to the
+            // end, which is infuriating halfway through a long password.
+            var at = input.selectionStart;
+            input.type = showing ? "password" : "text";
+            paint(!showing);
+            try { input.setSelectionRange(at, at); } catch (e) { /* some browsers refuse */ }
+            input.focus();
+          });
+
+          wrap.appendChild(button);
+        }
+
+        function peekAll() {
+          document.querySelectorAll('input[type="password"]').forEach(peek);
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", peekAll);
+        } else {
+          peekAll();
+        }
+        document.addEventListener("turbo:load", peekAll);
+      })();
+
       (function () {
         document.addEventListener("submit", function (e) {
           var form = e.target;

@@ -90,6 +90,22 @@ This page was missing for the first few hours after the login was built — rese
 by email and a rake task existed, but nothing for somebody already signed in,
 which is the first thing anyone looks for.
 
+## Showing the password
+
+Every password field on every admin page carries a **Show / Hide** control —
+an eye and a word, because an unlabelled icon is a guess. Added at Mitch's
+request, in his words, "for us old people that have a hard time typing".
+
+Not a nicety. These are eight-character passwords with a capital and a symbol,
+typed into a field of dots, on a laptop, often through reading glasses. The
+alternative to showing it is three failed attempts and a rate limit.
+
+It is applied by script to `input[type=password]` across the whole admin, so a
+password field added later is covered without anyone remembering. It is
+`type="button"` — a submit button here would sign you in every time you tried
+to look — and it puts the cursor back where it was, because changing an input's
+type sends it to the end, which is infuriating halfway through typing.
+
 ## Forgetting a password
 
 "Forgotten your password?" on the sign-in page sends a link. Built 26 October
