@@ -264,6 +264,11 @@
       <%= link_to "Bulletins", admin_bulletins_path %>
       <span class="grow"></span>
       <%= link_to "View live site", root_path, target: "_blank", rel: "noopener" %>
+      <% if respond_to?(:signed_in?) && signed_in? %>
+        <span class="muted" style="margin-left:1rem"><%= current_user.display_name %></span>
+        <%= button_to "Sign out", admin_logout_path, method: :delete, class: "linky",
+              form: { style: "display:inline" } %>
+      <% end %>
     </header>
     <% if notice || alert %>
       <div style="flex:0 0 auto;padding:.6rem 1.2rem 0">

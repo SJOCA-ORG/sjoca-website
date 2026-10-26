@@ -22,6 +22,11 @@ Rails.application.configure do
   config.consider_all_requests_local = true
   config.cache_store = :null_store
 
+  # ...but the sign-in rate limiter counts through a cache, and it captures the
+  # store when the controller class loads -- so a null store makes it a silent
+  # no-op that still looks present. Give that one thing somewhere real to count.
+  config.action_controller.cache_store = :memory_store
+
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
 

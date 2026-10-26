@@ -1,23 +1,24 @@
 module Admin
-  # There is no authentication yet, deliberately: this runs locally while the
-  # editing loop is built. What there IS, is a refusal to serve in production,
-  # so an accidental deploy cannot expose an unauthenticated admin with write
-  # access to the parish site.
+  # Everything behind the login.
   #
-  # When login arrives it replaces this guard; nothing else here changes.
+  # Two locks, deliberately. The login is the real one. ADMIN_ENABLED is a
+  # switch, so the app can be deployed -- and the database copied up -- while
+  # the admin stays completely dark, and so there is a way to turn it off in a
+  # hurry that does not involve changing anyone's password.
   class BaseController < ApplicationController
     include RevisionScoped
+    include Authentication
 
-    before_action :refuse_in_production
+    before_action :refuse_when_switched_off
 
     layout "admin"
 
     private
 
-    def refuse_in_production
+    def refuse_when_switched_off
       return if Rails.env.local? || ENV["ADMIN_ENABLED"] == "true"
 
-      render plain: "The admin is not available on this deployment.", status: :forbidden
+      render plain: "The editor is not switched on for this site.", status: :forbidden
     end
   end
 end

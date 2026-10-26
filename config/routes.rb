@@ -23,6 +23,11 @@ Rails.application.routes.draw do
   # Must come before the catch-all below: "*path" matches "manifest" and
   # "service-worker" too, which is why these had never resolved.
   namespace :admin do
+    # Signing in is the only part of the admin a stranger may reach.
+    get  "login",  to: "sessions#new",     as: :login
+    post "login",  to: "sessions#create"
+    delete "logout", to: "sessions#destroy", as: :logout
+
     root "revisions#index"
     get "exit-preview" => "revisions#exit_preview", as: :exit_preview
     # Every bulletin, whichever revision it is in, with its PDF and its email.

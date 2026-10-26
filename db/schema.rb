@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_20_052145) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_145840) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -434,6 +434,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_052145) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["revision_id", "name"], name: "index_theme_assets_on_revision_id_and_name", unique: true
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.string "role", default: "superadmin", null: false
+    t.string "name"
+    t.datetime "last_signed_in_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
   end
 
   add_foreign_key "blocks", "sections"

@@ -44,7 +44,11 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
 
   # Replace the default in-process memory cache store with a durable alternative.
-  # config.cache_store = :mem_cache_store
+  # Stated rather than left to a default, because the sign-in rate limiter
+  # counts attempts through Rails.cache. Get this wrong and the limiter is a
+  # no-op that still looks like it is there. A file store is shared across
+  # Puma workers on one machine, which is what we run.
+  config.cache_store = :file_store, Rails.root.join("tmp/cache")
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :solid_queue

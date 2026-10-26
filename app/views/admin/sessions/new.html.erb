@@ -1,0 +1,20 @@
+<% content_for :title, "Sign in" %>
+
+<div style="max-width:24rem;margin:3rem auto">
+  <h1 style="margin-top:0">Sign in</h1>
+  <p class="muted">The parish website editor.</p>
+
+  <%= form_with url: admin_login_path, scope: :session, method: :post do |f| %>
+    <p>
+      <%= f.label :email, "Email", style: "display:block;margin-bottom:.2rem" %>
+      <%= f.email_field :email, value: @email, autofocus: true, autocomplete: "username",
+            required: true, style: "width:100%;padding:.5rem" %>
+    </p>
+    <p>
+      <%= f.label :password, "Password", style: "display:block;margin-bottom:.2rem" %>
+      <%= f.password_field :password, autocomplete: "current-password",
+            required: true, style: "width:100%;padding:.5rem" %>
+    </p>
+    <p><%= f.submit "Sign in", class: "btn" %></p>
+  <% end %>
+</div>
