@@ -1,24 +1,20 @@
 module Admin
   # Everything behind the login.
   #
-  # Two locks, deliberately. The login is the real one. ADMIN_ENABLED is a
-  # switch, so the app can be deployed -- and the database copied up -- while
-  # the admin stays completely dark, and so there is a way to turn it off in a
-  # hurry that does not involve changing anyone's password.
+  # There used to be a second lock here -- ADMIN_ENABLED, an environment
+  # variable production had to be given before the editor would answer at all.
+  # It was built when there was no login, when it was the ONLY protection, and
+  # it was kept for a while out of caution.
+  #
+  # Removed on 26 October 2026. With a real login it bought almost nothing, and
+  # it brought its own bug: the sign-in and password-reset pages are separate
+  # controllers and never inherited it, so "switched off" quietly did not mean
+  # switched off. A second mechanism that is nearly right is worse than one
+  # mechanism that is right.
   class BaseController < ApplicationController
     include RevisionScoped
     include Authentication
 
-    before_action :refuse_when_switched_off
-
     layout "admin"
-
-    private
-
-    def refuse_when_switched_off
-      return if Rails.env.local? || ENV["ADMIN_ENABLED"] == "true"
-
-      render plain: "The editor is not switched on for this site.", status: :forbidden
-    end
   end
 end

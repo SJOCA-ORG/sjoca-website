@@ -8,16 +8,28 @@ which was enough while it ran on one laptop, and is not enough the day
 
 ---
 
-## Two locks
+## One lock
 
-**The login** is the real one. Every page under `/admin` requires it.
+The login. Every page under `/admin` requires it, everywhere, including locally.
 
-**`ADMIN_ENABLED`** is a switch, and production needs it set to `true` before the
-editor answers at all. It exists so the app can be deployed — and the database
-copied up — while the editor stays completely dark, and so there is a way to
-shut it off in a hurry that does not involve changing anyone's password.
+There was briefly a second: `ADMIN_ENABLED`, an environment variable production
+had to be given before the editor would answer at all. It was built when there
+was no login and was the only protection, and kept afterwards out of caution.
 
-Locally neither applies: `Rails.env.local?` skips the switch, and you still sign in.
+**Removed on 26 October 2026**, at Mitch's request and rightly. With a real
+login it bought almost nothing — and it brought its own bug. The sign-in and
+password-reset pages are separate controllers that never inherited it, so with
+the switch off the editing pages refused but the login form was still served:
+"switched off" did not mean switched off. A second mechanism that is nearly
+right is worse than one mechanism that is right.
+
+What it was for, and what replaces it:
+
+| Was for | Now |
+|---|---|
+| Deploying before the editor should be usable | The login. Nobody signs in without a password. |
+| The window while the database is copied up | Copy before the domain points at the site; nobody knows the address. |
+| Turning the editor off in a hurry | Change the password, or scale the service down. |
 
 ---
 
