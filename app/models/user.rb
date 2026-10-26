@@ -19,10 +19,12 @@ class User < ApplicationRecord
                                               message: "does not look like an address" }
   validates :role, inclusion: { in: ROLES }
 
-  # Long rather than complicated. A passphrase someone can actually remember
-  # beats eight characters of punctuation they write on a sticky note.
-  validates :password, length: { minimum: 12 },
-                       if: -> { password.present? }
+  # At least eight, with an upper case letter, a lower case letter, and a number
+  # or a symbol. Mitch's call, 26 October 2026.
+  MIN_LENGTH = 8
+
+  validates :password, length: { minimum: MIN_LENGTH }, if: -> { password.present? }
+  validate :password_has_a_mix, if: -> { password.present? }
 
   # A reset link that expires, that only works once, and that needs no table of
   # its own. The token is signed and carries the password digest, so changing
@@ -45,5 +47,19 @@ class User < ApplicationRecord
   end
 
   def superadmin? = role == "superadmin"
+
+  private
+
+  def password_has_a_mix
+    missing = []
+    missing << "an upper case letter" unless password.match?(/[A-Z]/)
+    missing << "a lower case letter"  unless password.match?(/[a-z]/)
+    missing << "a number or a symbol" unless password.match?(/[\d\W_]/)
+    return if missing.empty?
+
+    errors.add(:password, "still needs #{missing.to_sentence}")
+  end
+
+  public
   def display_name = name.presence || email
 end

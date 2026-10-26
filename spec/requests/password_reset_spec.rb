@@ -49,11 +49,11 @@ RSpec.describe "resetting a password", type: :request, signed_out: true do
   describe "using the link" do
     it "sets the new password and signs them in" do
       patch "/admin/password", params: { token: token, password: {
-        password: "a-brand-new-password", password_confirmation: "a-brand-new-password"
+        password: "Brand-New-24", password_confirmation: "Brand-New-24"
       } }
 
       expect(response).to redirect_to("/admin")
-      expect(user.reload.authenticate("a-brand-new-password")).to be_truthy
+      expect(user.reload.authenticate("Brand-New-24")).to be_truthy
       get "/admin"
       expect(response).to have_http_status(:ok)      # already signed in
     end
@@ -63,16 +63,16 @@ RSpec.describe "resetting a password", type: :request, signed_out: true do
     it "cannot be used a second time" do
       t = token
       patch "/admin/password", params: { token: t, password: {
-        password: "a-brand-new-password", password_confirmation: "a-brand-new-password"
+        password: "Brand-New-24", password_confirmation: "Brand-New-24"
       } }
 
       patch "/admin/password", params: { token: t, password: {
-        password: "something-else-again", password_confirmation: "something-else-again"
+        password: "Something-Else-25", password_confirmation: "Something-Else-25"
       } }
 
       expect(response).to redirect_to("/admin/password/new")
-      expect(user.reload.authenticate("something-else-again")).to be_falsey
-      expect(user.authenticate("a-brand-new-password")).to be_truthy
+      expect(user.reload.authenticate("Something-Else-25")).to be_falsey
+      expect(user.authenticate("Brand-New-24")).to be_truthy
     end
 
     it "expires after two hours" do
@@ -107,11 +107,11 @@ RSpec.describe "resetting a password", type: :request, signed_out: true do
 
     it "will not accept two that do not match" do
       patch "/admin/password", params: { token: token, password: {
-        password: "a-brand-new-password", password_confirmation: "a-different-one-entirely"
+        password: "Brand-New-24", password_confirmation: "Different-One-26"
       } }
 
       expect(response).to have_http_status(:unprocessable_content)
-      expect(user.reload.authenticate("a-brand-new-password")).to be_falsey
+      expect(user.reload.authenticate("Brand-New-24")).to be_falsey
     end
   end
 end

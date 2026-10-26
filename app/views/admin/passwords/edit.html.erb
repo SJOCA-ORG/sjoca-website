@@ -2,8 +2,7 @@
 
 <div style="max-width:24rem;margin:3rem auto">
   <h1 style="margin-top:0">Choose a new password</h1>
-  <p class="muted">At least 12 characters. A phrase you can remember beats
-     something short and clever.</p>
+  <p class="muted">At least 8 characters, with a capital, a small letter, and a number or symbol.</p>
 
   <%= form_with url: admin_password_path(token: params[:token]), scope: :password, method: :patch do |f| %>
     <p>

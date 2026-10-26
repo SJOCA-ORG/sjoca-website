@@ -48,7 +48,7 @@ credentials either, so one can be changed without a deploy.
 | **One answer for every failure** | "That email and password did not match", whether or not the address exists — saying otherwise confirms who has an account. |
 | **Equal timing** | A hash is computed even when there is no such user, so a wrong address and a wrong password take the same time to answer. |
 | **10 attempts in 3 minutes** | Counted per email address, not per IP: a parish shares an address, and locking the whole building out because one person is guessing is its own kind of failure. |
-| **Minimum 12 characters** | Long beats complicated. A passphrase someone remembers is better than eight characters of punctuation on a sticky note. |
+| **Minimum 8, with a mix** | A capital, a small letter, and a number or symbol. Mitch's call on 26 October 2026, over my preference for plain length — composition rules tend to produce `Password1!`, but 8 with three classes is a defensible bar and it is his parish. |
 
 Failed attempts are logged with the address tried and the IP. Never the password.
 

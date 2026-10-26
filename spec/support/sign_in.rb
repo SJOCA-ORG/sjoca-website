@@ -4,7 +4,7 @@
 # the login itself is exercised by every one of them. If sign-in breaks, the
 # whole suite says so instead of quietly carrying on with a forged session.
 module SignInHelpers
-  PASSWORD = "a-password-long-enough".freeze
+  PASSWORD = "Parish-Test-24".freeze
 
   def superadmin
     @superadmin ||= User.create!(email: "itmanager@sjoca.org", password: PASSWORD,
