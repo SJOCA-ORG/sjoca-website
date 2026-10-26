@@ -131,19 +131,36 @@ parish email stops working. Not now, and not in the same week as the cutover.
 
 ## The order of operations
 
-### Step 0 — Capture the real zone while you still can
+### Step 0 — There is no console, and that is settled
 
-Amazon's "confirm or cancel this transfer" email links into the Route 53
-console. **Before approving anything, go there and copy down the hosted zone.**
+Amazon's confirm-or-cancel email links into the Route 53 console. **Mitch cannot
+reach it.** AWS Support issued the auth code after verifying he was the admin who
+had lost the ability to log in; the account itself stayed shut. So the zone can
+never be read directly, and the "start the transfer immediately" link is closed
+too.
 
-Route 53 → Hosted zones → sjoca.org → export, or screenshot the record list.
+Neither matters.
 
-Everything above was reconstructed by asking public nameservers questions. That
-only ever finds records whose names you already guessed. The console simply lists
-them. This is the one moment that turns a careful reconstruction into a certainty,
-and account access borrowed for a transfer may not outlast it.
+**The transfer completes on its own.** Under ICANN rules a transfer the losing
+registrar does not answer goes through after five days — which is what the
+**2026-10-31** date in that email is. Nothing to click. It lands by then.
 
-Done 26 October 2026: _(record what was found here)_
+**And the zone is known as well as it can be.** On 26 October, with Route 53
+still authoritative, **162 names** were asked for directly — every common mail,
+Google, DKIM, web, admin and service name (`mail`, `webmail`, `autodiscover`,
+`smtp`, `imap`, `vpn`, `giving`, `donate`, `sermons`, `newsletter`, `staging`,
+`_dmarc`, `google._domainkey`, `_acme-challenge`, and 148 more). Plus a wildcard
+probe and an attempted zone dump.
+
+**Only `www` exists.** The seven records above are the whole zone.
+
+The remaining risk — a record at a name nobody thought of — is now small, and the
+verification step below catches it anyway, because Route 53 keeps answering until
+the nameservers are switched.
+
+**One thing to watch:** whoever holds the AWS account could cancel the transfer
+before the 31st. Unlikely, but `script/domain_watch.sh` will say so — the status
+would leave `pendingTransfer` with the registrar still Amazon.
 
 ### Step 1 — Transfer the registration to Namecheap  *(can start today)*
 
