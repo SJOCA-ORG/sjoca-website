@@ -28,6 +28,10 @@ Rails.application.routes.draw do
     post "login",  to: "sessions#create"
     delete "logout", to: "sessions#destroy", as: :logout
 
+    # Your own account, and the one thing anyone does on it.
+    get   "account", to: "account#show",   as: :account
+    patch "account", to: "account#update"
+
     # Getting back in. Open by necessity -- someone locked out cannot sign in
     # first -- so the controller answers the same way to everyone.
     get  "password/new",  to: "passwords#new",    as: :new_password

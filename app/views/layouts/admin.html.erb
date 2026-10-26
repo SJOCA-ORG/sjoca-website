@@ -265,7 +265,8 @@
       <span class="grow"></span>
       <%= link_to "View live site", root_path, target: "_blank", rel: "noopener" %>
       <% if respond_to?(:signed_in?) && signed_in? %>
-        <span class="muted" style="margin-left:1rem"><%= current_user.display_name %></span>
+        <%= link_to current_user.display_name, admin_account_path,
+              class: "muted", style: "margin-left:1rem" %>
         <%= button_to "Sign out", admin_logout_path, method: :delete, class: "linky",
               form: { style: "display:inline" } %>
       <% end %>

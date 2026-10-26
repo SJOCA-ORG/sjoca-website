@@ -76,6 +76,20 @@ has to remember.
 
 ---
 
+## Your own account
+
+`/admin/account`, reached by clicking your name in the top bar. It shows who you
+are and lets you change your password.
+
+**It asks for the current password first.** A session left open on a parish hall
+computer hands whoever walks past the cookie; it must not also hand them the
+account. Changing the password starts a new session and cancels every
+outstanding reset link at the same time.
+
+This page was missing for the first few hours after the login was built — reset
+by email and a rake task existed, but nothing for somebody already signed in,
+which is the first thing anyone looks for.
+
 ## Forgetting a password
 
 "Forgotten your password?" on the sign-in page sends a link. Built 26 October

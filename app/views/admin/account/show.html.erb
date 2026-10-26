@@ -1,0 +1,35 @@
+<% content_for :title, "Your account" %>
+
+<div style="max-width:30rem;margin:2rem auto">
+  <h1 style="margin-top:0">Your account</h1>
+
+  <table style="margin-bottom:2rem">
+    <tr><td class="muted" style="padding-right:1.2rem">Email</td><td><%= current_user.email %></td></tr>
+    <tr><td class="muted" style="padding-right:1.2rem">Role</td><td><%= current_user.role %></td></tr>
+    <tr><td class="muted" style="padding-right:1.2rem">Last signed in</td>
+        <td><%= current_user.last_signed_in_at&.strftime("%-d %B %Y, %H:%M") || "—" %></td></tr>
+  </table>
+
+  <h2 style="font-size:1.1rem">Change your password</h2>
+  <p class="muted">At least 12 characters. A phrase you can remember beats
+     something short and clever.</p>
+
+  <%= form_with url: admin_account_path, scope: :user, method: :patch do |f| %>
+    <p>
+      <%= f.label :current_password, "Your current password", style: "display:block;margin-bottom:.2rem" %>
+      <%= f.password_field :current_password, required: true, autocomplete: "current-password",
+            style: "width:100%;padding:.5rem" %>
+    </p>
+    <p>
+      <%= f.label :password, "New password", style: "display:block;margin-bottom:.2rem" %>
+      <%= f.password_field :password, required: true, autocomplete: "new-password",
+            style: "width:100%;padding:.5rem" %>
+    </p>
+    <p>
+      <%= f.label :password_confirmation, "Again", style: "display:block;margin-bottom:.2rem" %>
+      <%= f.password_field :password_confirmation, required: true, autocomplete: "new-password",
+            style: "width:100%;padding:.5rem" %>
+    </p>
+    <p><%= f.submit "Change it", class: "btn" %></p>
+  <% end %>
+</div>
