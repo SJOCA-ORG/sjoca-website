@@ -76,7 +76,9 @@ cutover, and neither is in our hands yet.
       account he can log into, so AWS is being asked which account holds it.
       (Worth re-checking the region while waiting — the Registered Domains
       screen only renders in us-east-1 and shows an empty list everywhere else.)
-- [ ] **Find who holds Google Workspace admin.** Mail must keep working through
+- [x] ~~Find who holds Google Workspace admin.~~ **Answered 26 October 2026:
+      `itmanager@sjoca.org` can reach admin.google.com.** Mitch has it. That
+      also unblocks DKIM — see [`dns.md`](dns.md). Mail must keep working through
       and after the move; it is independent of the website, but only if nobody
       edits the MX records by accident.
 - [ ] **Renewal is 21 January 2027**, roughly two months after the AGM. Confirm

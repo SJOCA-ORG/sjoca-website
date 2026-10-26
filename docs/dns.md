@@ -77,9 +77,55 @@ None of these exist today.
 | TXT | `@` | `v=spf1 include:_spf.google.com ~all` | Without it, anyone can send email claiming to be from @sjoca.org. |
 | TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:frdavid@sjoca.org` | Reports on who is trying. `p=none` only watches; it rejects nothing. |
 
-**DKIM cannot be reconstructed.** It has to be generated inside Google Workspace
-admin, which means finding whoever holds that account — still an open question in
-[`TODO.md`](TODO.md). Not a blocker for the move.
+### DKIM
+
+**What it is.** SPF says "these servers are allowed to send for us". DKIM says
+something stronger about each individual message: Google signs every outgoing
+message with a private key, and publishes the matching public key in DNS. A
+receiving server checks the signature and knows the message genuinely came from
+sjoca.org and was not altered on the way.
+
+**Why bother.** Mail that gets forwarded — to a personal Gmail, to a parish list
+— usually fails SPF, because the forwarding server is not one of Google's. DKIM
+survives forwarding. Without it you can never safely turn DMARC up from
+`p=none` to actually rejecting forgeries, because doing so would throw away real
+parish mail.
+
+Right now there is no DKIM record: `google._domainkey.sjoca.org` is empty.
+
+**You can do this.** `itmanager@sjoca.org` reaches admin.google.com — confirmed
+26 October 2026.
+
+**Where to find it.** admin.google.com → **Apps** → **Google Workspace** →
+**Gmail** → **Authenticate email**. Pick sjoca.org, then **Generate new record**
+— take the 2048-bit key, leave the prefix as `google`.
+
+It hands you a TXT record:
+
+| Type | Host | Value |
+|---|---|---|
+| TXT | `google._domainkey` | `v=DKIM1; k=rsa; p=` + a very long key |
+
+Add it to DNS, go back to that page, and press **Start authentication**. Google
+checks for the record and may take up to 48 hours to confirm.
+
+**The gotcha.** A 2048-bit key is longer than 255 characters, which is the most
+a single DNS text string can hold, so it has to be stored as several chunks.
+Namecheap normally does this for you when you paste the whole value. If it
+refuses the record or the verification never completes, that is the reason —
+split the value into quoted pieces, or fall back to a 1024-bit key, which is
+weaker but fits.
+
+**When.** After the nameservers are on Namecheap (step 3) and you have confirmed
+mail still flows. It needs to go into whichever DNS is authoritative, and until
+step 3 that is Route 53, which you cannot edit. Generating the key early is
+harmless — nothing changes until you press Start authentication — but there is
+no advantage either.
+
+**Afterwards, much later.** Once SPF and DKIM have both been verified and the
+DMARC reports look clean for a few weeks, DMARC can be raised from `p=none` to
+`p=quarantine` and eventually `p=reject`. That is the point at which forging
+parish email stops working. Not now, and not in the same week as the cutover.
 
 ---
 
