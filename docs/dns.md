@@ -131,6 +131,20 @@ parish email stops working. Not now, and not in the same week as the cutover.
 
 ## The order of operations
 
+### Step 0 — Capture the real zone while you still can
+
+Amazon's "confirm or cancel this transfer" email links into the Route 53
+console. **Before approving anything, go there and copy down the hosted zone.**
+
+Route 53 → Hosted zones → sjoca.org → export, or screenshot the record list.
+
+Everything above was reconstructed by asking public nameservers questions. That
+only ever finds records whose names you already guessed. The console simply lists
+them. This is the one moment that turns a careful reconstruction into a certainty,
+and account access borrowed for a transfer may not outlast it.
+
+Done 26 October 2026: _(record what was found here)_
+
 ### Step 1 — Transfer the registration to Namecheap  *(can start today)*
 
 You have the auth code from Amazon.
@@ -138,7 +152,13 @@ You have the auth code from Amazon.
 - The domain must be **unlocked** at Amazon, and WHOIS privacy off long enough to
   receive the confirmation email. It goes to the registrant contact,
   `mitch@catprint.com`.
-- Takes **5–7 days**. Nothing visible changes while it runs.
+- Takes **5–7 days** on its own. Amazon emails a link to approve it
+  **immediately** — worth using, and safe: Namecheap keeps the existing
+  nameservers, so nothing about the site or mail changes. Capture the zone
+  (step 0) before you click it.
+- `script/domain_watch.sh` answers "is it done yet" in one line, and checks that
+  the nameservers, the five MX records, the www CNAME and the Google
+  verification token are all still intact.
 - **Namecheap keeps the existing nameservers on a transfer.** It does not switch
   DNS to itself. Site and mail carry on untouched — this is what makes the step
   safe.
