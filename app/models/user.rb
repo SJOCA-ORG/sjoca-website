@@ -24,6 +24,14 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 12 },
                        if: -> { password.present? }
 
+  # A reset link that expires, that only works once, and that needs no table of
+  # its own. The token is signed and carries the password digest, so changing
+  # the password invalidates every link already sent -- including the one the
+  # person just used, and any a thief is sitting on.
+  generates_token_for :password_reset, expires_in: 2.hours do
+    password_salt&.last(10)
+  end
+
   def self.authenticate(email, password)
     # find_by on the normalised column, so "ItManager@SJOCA.org" works.
     user = find_by(email: email.to_s.strip.downcase)

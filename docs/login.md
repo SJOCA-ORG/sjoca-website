@@ -76,10 +76,40 @@ has to remember.
 
 ---
 
-## Not built yet
+## Forgetting a password
 
-- **Password reset by email.** Needs somewhere to send from; Workspace SMTP is
-  the likely answer now that mail to `itmanager@sjoca.org` arrives.
+"Forgotten your password?" on the sign-in page sends a link. Built 26 October
+2026 and tested by sending a real one.
+
+**The token needs no table of its own.** Rails signs it, and it carries the
+password's salt — so **changing the password invalidates every link already
+issued**, including the one just used and any a thief is holding. Two hours,
+one use, nothing to clean up.
+
+| | |
+|---|---|
+| Same answer for every address | "If that address has an account, a link is on its way" — whether or not it does. The form must not become a way to find out who has one. |
+| 3 requests per 15 minutes | By address. Enough for someone mistyping their own; not enough to post mail at somebody repeatedly. |
+| Signed in on success | The link is spent either way, so a second step would only be ceremony. |
+
+**Mail goes through the parish's own Workspace account** — `itmanager@sjoca.org`,
+an app password in credentials or `SMTP_PASSWORD` in the environment. That is a
+stopgap, said plainly: a second parish is coming and will run as its own
+instance, and at that point mail belongs with a service that is nobody's mailbox.
+Every setting comes from the environment, so that move is configuration and a
+DNS record, not code.
+
+**Until SPF and DKIM exist, reset mail may land in spam** for anyone not on
+Gmail. Those records wait on the nameserver move — see [`dns.md`](dns.md).
+
+### The one that would have been nasty
+
+The mail initializer first set `:smtp` in **every** environment where credentials
+were present — and the test environment reads the same credentials file. The
+suite was one `deliver_now` away from sending real mail to real people. It now
+refuses to use anything but `:test` under test, whatever the credentials say.
+
+## Not built yet
 - **More than one person**, and roles below superadmin. The model takes them —
   `users.role` exists — but no interface does.
 - **Second superadmin.** One account held by one person is the position this

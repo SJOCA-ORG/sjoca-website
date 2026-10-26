@@ -102,7 +102,13 @@ end
 # controller in six months does not have to remember anything: if it is not
 # behind the login, this fails.
 RSpec.describe "every admin page is behind the login", type: :request, signed_out: true do
-  OPEN = ["/admin/login"].freeze
+  # The only pages a stranger may reach, and each is here on purpose. Adding to
+  # this list should feel like a decision, because it is one.
+  OPEN = [
+    "/admin/login",          # how you get in
+    "/admin/password/new",   # how you ask for a link when you cannot
+    "/admin/password/edit"   # where that link lands
+  ].freeze
 
   def self.admin_get_paths
     Rails.application.routes.routes.filter_map do |r|

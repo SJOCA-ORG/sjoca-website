@@ -17,6 +17,11 @@ rescue ActiveRecord::PendingMigrationError => e
 end
 
 RSpec.configure do |config|
+  # Time travel, for anything that expires, and a way to run jobs that were
+  # queued rather than performed.
+  config.include ActiveSupport::Testing::TimeHelpers
+  config.include ActiveJob::TestHelper
+
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!

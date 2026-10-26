@@ -1,0 +1,18 @@
+<% content_for :title, "Forgotten password" %>
+
+<div style="max-width:24rem;margin:3rem auto">
+  <h1 style="margin-top:0">Forgotten password</h1>
+  <p class="muted">Tell us the address you sign in with and we will send a link.</p>
+
+  <%= form_with url: admin_passwords_path, scope: :password, method: :post do |f| %>
+    <p>
+      <%= f.label :email, "Email", style: "display:block;margin-bottom:.2rem" %>
+      <%= f.email_field :email, autofocus: true, required: true,
+            autocomplete: "username", style: "width:100%;padding:.5rem" %>
+    </p>
+    <p>
+      <%= f.submit "Send the link", class: "btn" %>
+      <%= link_to "Back to signing in", admin_login_path, class: "muted", style: "margin-left:.6rem" %>
+    </p>
+  <% end %>
+</div>

@@ -15,6 +15,10 @@
       <%= f.password_field :password, autocomplete: "current-password",
             required: true, style: "width:100%;padding:.5rem" %>
     </p>
-    <p><%= f.submit "Sign in", class: "btn" %></p>
+    <p>
+      <%= f.submit "Sign in", class: "btn" %>
+      <%= link_to "Forgotten your password?", admin_new_password_path,
+            class: "muted", style: "margin-left:.6rem" %>
+    </p>
   <% end %>
 </div>

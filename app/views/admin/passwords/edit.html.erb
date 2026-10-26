@@ -1,0 +1,21 @@
+<% content_for :title, "Choose a new password" %>
+
+<div style="max-width:24rem;margin:3rem auto">
+  <h1 style="margin-top:0">Choose a new password</h1>
+  <p class="muted">At least 12 characters. A phrase you can remember beats
+     something short and clever.</p>
+
+  <%= form_with url: admin_password_path(token: params[:token]), scope: :password, method: :patch do |f| %>
+    <p>
+      <%= f.label :password, "New password", style: "display:block;margin-bottom:.2rem" %>
+      <%= f.password_field :password, autofocus: true, required: true,
+            autocomplete: "new-password", style: "width:100%;padding:.5rem" %>
+    </p>
+    <p>
+      <%= f.label :password_confirmation, "Again", style: "display:block;margin-bottom:.2rem" %>
+      <%= f.password_field :password_confirmation, required: true,
+            autocomplete: "new-password", style: "width:100%;padding:.5rem" %>
+    </p>
+    <p><%= f.submit "Save it", class: "btn" %></p>
+  <% end %>
+</div>

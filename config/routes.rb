@@ -28,6 +28,13 @@ Rails.application.routes.draw do
     post "login",  to: "sessions#create"
     delete "logout", to: "sessions#destroy", as: :logout
 
+    # Getting back in. Open by necessity -- someone locked out cannot sign in
+    # first -- so the controller answers the same way to everyone.
+    get  "password/new",  to: "passwords#new",    as: :new_password
+    post "password",      to: "passwords#create", as: :passwords
+    get  "password/edit", to: "passwords#edit",   as: :edit_password
+    patch "password",     to: "passwords#update"
+
     root "revisions#index"
     get "exit-preview" => "revisions#exit_preview", as: :exit_preview
     # Every bulletin, whichever revision it is in, with its PDF and its email.
