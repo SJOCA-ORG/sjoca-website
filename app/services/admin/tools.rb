@@ -104,7 +104,10 @@ module Admin
                show_in_nav: { type: "boolean", description: "Whether it appears in the menu" },
                parent_slug: str("Slug of the page this sits under in the menu, or empty for top level"),
                self_nav_title: str("Label this page takes as the FIRST item in its own submenu, " \
-                                   "so a visitor can tell the parent has a page of its own") },
+                                   "so a visitor can tell the parent has a page of its own"),
+               layout: str("Which TEMPLATE renders it. \"page\" is the ordinary one; any " \
+                           "other name uses the template of that name."),
+               dated_on: str("The day this page is FOR, as YYYY-MM-DD") },
              %w[slug]),
         tool("move_page",
              "Move a page in the menu, said the way the request is: after this one, or " \
@@ -149,7 +152,14 @@ module Admin
         tool("add_page", "Create a page. It renders immediately at /slug.",
              { slug: str("Path, e.g. \"about-us/our-icons\""), title: str("Browser title"),
                nav_title: str("Navigation label"), parent_slug: str("Parent page slug, for submenus"),
-               position: int("Order in the navigation") },
+               position: int("Order in the navigation"),
+               layout: str("Which TEMPLATE renders it. Leave out for an ordinary page. " \
+                           "Any other name uses the template of that name — \"bulletin\" " \
+                           "for a printed sheet, or make your own: write a template called " \
+                           "\"newsletter\" with add_template and pass layout:\"newsletter\" here. " \
+                           "Until that template exists the page renders as an ordinary one."),
+               dated_on: str("The day this page is FOR, as YYYY-MM-DD — a bulletin's Sunday, " \
+                             "a newsletter's issue date. Not the day you made it.") },
              %w[slug title nav_title]),
         tool("view_page",
              "The rendered HTML of a page as it will actually appear. USE THIS after " \
@@ -247,8 +257,10 @@ module Admin
                        description: "One or more https addresses to fetch" },
                refresh_minutes: { type: "integer",
                                   description: "How old the cached copy may get before it is " \
-                                               "fetched again. 5 at the least; 60 is sensible " \
-                                               "for a calendar." },
+                                               "fetched again. 0 means never reuse one — fetch on " \
+                                               "every page load, which is right for something " \
+                                               "that changes by the minute. Otherwise 5 minutes " \
+                                               "to a week (10080); 60 is sensible for a calendar." },
                note: str("What this is, in a few words") },
              %w[name urls]),
         tool("peek_data",
@@ -633,7 +645,8 @@ module Admin
       # either to empty is how a page is moved back to the top level.
       permitted = attrs.slice(:title, :nav_title, :hero_heading, :hero_subheading,
                               :hero_asset_name, :hero_asset_version, :hero_size,
-                              :position, :show_in_nav).compact
+                              :position, :show_in_nav, :layout).compact
+      permitted[:dated_on] = parse_date(attrs[:dated_on]) if attrs.key?(:dated_on)
       permitted[:parent_slug]    = attrs[:parent_slug].presence    if attrs.key?(:parent_slug)
       permitted[:self_nav_title] = attrs[:self_nav_title].presence if attrs.key?(:self_nav_title)
 
@@ -703,8 +716,22 @@ module Admin
     def add_page(slug:, title:, nav_title:, **attrs)
       p = pages.create!(slug: slug, title: title, nav_title: nav_title,
                         parent_slug: attrs[:parent_slug],
+                        layout: attrs[:layout].presence || "page",
+                        dated_on: parse_date(attrs[:dated_on]),
                         position: attrs[:position] || (pages.maximum(:position).to_i + 1))
-      ok "created the page /#{p.slug}"
+      note = if p.layout != "page" && !revision.templates.exists?(name: p.layout)
+               " — there is no template called #{p.layout.inspect} yet, so it renders as " \
+               "an ordinary page until you write one with add_template"
+             end
+      ok "created the page /#{p.slug}#{note}"
+    end
+
+    def parse_date(value)
+      return nil if value.blank?
+
+      Date.parse(value.to_s)
+    rescue Date::Error
+      raise ToolError, "#{value.inspect} is not a date I can read — use YYYY-MM-DD"
     end
 
     # ---- the weekly bulletin -----------------------------------------------

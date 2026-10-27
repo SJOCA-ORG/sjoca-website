@@ -15,8 +15,16 @@ class DataSource < ApplicationRecord
     with: NAME,
     message: "must be lower case letters, numbers and hyphens — it becomes an id in the page"
   }, uniqueness: { scope: :revision_id, message: "is already set up in this revision" }
-  validates :refresh_minutes, numericality: { greater_than_or_equal_to: 5,
-                                              less_than_or_equal_to: 10_080 }
+  # Zero means never cache: fetch it on every page load. For something that
+  # changes by the minute and is small, that is the right answer and there was
+  # no way to say it. Five minutes to a week otherwise -- and nothing between
+  # 1 and 4, because a source hit that often by every visitor is a mistake
+  # somebody should have to choose deliberately.
+  validates :refresh_minutes, numericality: { only_integer: true },
+                              inclusion: {
+                                in: [0, *(5..10_080)],
+                                message: "is 0 for never cache, or between 5 minutes and a week"
+                              }
   validate :at_least_one_url
   validate :urls_are_fetchable
 

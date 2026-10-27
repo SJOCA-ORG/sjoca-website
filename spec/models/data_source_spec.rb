@@ -107,3 +107,44 @@ RSpec.describe DataSource do
     end
   end
 end
+
+# "a primitive that says read this data source once xxx time... or if time is
+# zero then there is no cache." The floor was five minutes, so there was no way
+# to say it.
+RSpec.describe "how often a source is fetched", type: :model do
+  let(:revision) { Revision.tap { build_page }.open_sandbox }
+
+  def source(minutes)
+    DataSource.new(revision: revision, name: "s#{minutes}",
+                   urls: ["https://example.org/feed.json"], refresh_minutes: minutes)
+  end
+
+  it "accepts 0, meaning never reuse a cached copy" do
+    expect(source(0)).to be_valid
+  end
+
+  it "treats a cached copy as stale immediately when the window is 0" do
+    page = FetchedPage.new(url: "https://example.org/feed.json", body: "{}",
+                           fetched_at: Time.current)
+
+    expect(page.fresh?(0)).to be(false)
+    expect(page.fresh?(60)).to be(true)
+  end
+
+  it "still accepts the ordinary range" do
+    expect(source(5)).to be_valid
+    expect(source(10_080)).to be_valid
+  end
+
+  # Every visitor triggering a fetch is a decision, not a typo.
+  it "refuses one to four minutes" do
+    one = source(1)
+    expect(one).not_to be_valid
+    expect(one.errors[:refresh_minutes].first).to match(/0 for never cache/)
+    expect(source(4)).not_to be_valid
+  end
+
+  it "refuses longer than a week" do
+    expect(source(10_081)).not_to be_valid
+  end
+end
