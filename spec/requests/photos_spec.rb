@@ -1,4 +1,5 @@
 require "rails_helper"
+require "open3"
 
 RSpec.describe "Serving images from the database" do
   let!(:asset) { build_asset(human_name: "home-hero", bytes: "PNGBYTES") }
@@ -69,5 +70,49 @@ RSpec.describe "Serving images from the database" do
     build_asset(human_name: "pending", bytes: "DRAFT", status: "draft")
     get "/media/pending"
     expect(response).to have_http_status(:not_found)
+  end
+end
+
+# The library page pulled 200 rows out of the database to print 200 names, and
+# because the picture lives in the row that meant 147 MB over the wire. On a
+# laptop Postgres is the same machine and it never showed; on the server the
+# page took a minute to appear.
+RSpec.describe "the photo library does not fetch the pictures", type: :request do
+  def a_real_jpeg
+    @a_real_jpeg ||= Open3.capture3("magick", "-size", "60x40", "gradient:navy-white",
+                                    "jpg:-", binmode: true).first
+  end
+
+  it "never asks the database for the data column while listing" do
+    3.times do |n|
+      bytes = a_real_jpeg + ("\0" * n)   # same picture, different bytes, so each is its own
+      Photo.create!(human_name: "listing-#{n}", data: bytes, content_type: "image/jpeg",
+                    byte_size: bytes.bytesize, sha256: Digest::SHA256.hexdigest(bytes),
+                    status: "published")
+    end
+
+    selects = []
+    listener = ->(_n, _s, _f, _i, payload) { selects << payload[:sql] }
+
+    ActiveSupport::Notifications.subscribed(listener, "sql.active_record") do
+      get "/admin/photos"
+    end
+
+    expect(response).to have_http_status(:ok)
+
+    guilty = selects.select { |q| q =~ /SELECT/i && q =~ /FROM "photos"/i && q =~ /"photos"\."data"/ }
+    expect(guilty).to be_empty,
+      -> { "the library asked for image bytes:\n  " + guilty.first.to_s[0, 160] }
+  end
+
+  # And the scope has to actually be a scope, not a comment.
+  it "raises rather than quietly returning nothing if the bytes are asked for" do
+    bytes = a_real_jpeg
+    Photo.create!(human_name: "listing-x", data: bytes, content_type: "image/jpeg",
+                  byte_size: bytes.bytesize, sha256: Digest::SHA256.hexdigest(bytes),
+                  status: "published")
+
+    expect { Photo.published.listing.first.data }
+      .to raise_error(ActiveModel::MissingAttributeError)
   end
 end

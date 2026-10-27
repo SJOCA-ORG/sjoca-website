@@ -994,7 +994,7 @@ module Admin
     end
 
     def list_photos(**)
-      { photos: Photo.published.order(:human_name, version: :desc)
+      { photos: Photo.published.listing.order(:human_name, version: :desc)
                      .group_by(&:human_name)
                      .map { |name, rows|
                        { name: name,
@@ -1009,7 +1009,7 @@ module Admin
     # ---- photographs: naming, tagging, replacing, restoring ----------------
 
     def recent_uploads(hours: 24, **)
-      rows = Photo.recently_uploaded(hours.to_i.hours.ago)
+      rows = Photo.recently_uploaded(hours.to_i.hours.ago).listing
       return { uploads: [], note: "nothing has been uploaded in the last #{hours} hours" } if rows.empty?
 
       { uploads: rows.map { |p|
@@ -1103,7 +1103,7 @@ module Admin
     end
 
     def find_by_tag(tag:, **)
-      rows = Photo.published.tagged(tag).order(:human_name)
+      rows = Photo.published.tagged(tag).listing.order(:human_name)
       return { matches: [], note: "nothing is tagged #{tag.inspect}. list_tags shows what exists." } if rows.empty?
 
       { matches: rows.map { |p| { name: p.human_name, version: p.version,

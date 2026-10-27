@@ -105,6 +105,32 @@ class Photo < ApplicationRecord
   # which photograph it shows and a rollback restores the picture along with the
   # words. There is no "current": that was an inference, and inferences are what
   # made rolling back dishonest.
+  # Everything about a photograph EXCEPT the picture itself.
+  #
+  # The bytes live in this table, which is the whole point -- a pg_dump is then
+  # a complete copy of the site. The cost is that `Photo.published` drags every
+  # image out of the database along with its name.
+  #
+  # On a laptop that is invisible: Postgres is the same machine. On the server
+  # it is not. The library page loaded 200 rows to print 200 names, which meant
+  # pulling 147 MB across the Atlantic, and took a minute to appear.
+  #
+  # Anything that lists or searches photographs wants this. Anything that SHOWS
+  # one does not -- and calling .data on one of these raises rather than quietly
+  # returning nothing, which is the behaviour you want from a mistake.
+  #
+  # ONE SHARP EDGE: .count on a relation carrying a multi-column select builds
+  # SELECT COUNT(id, human_name, ...), which is not a function that exists, and
+  # Postgres says so at some length. Use .count(:id), or count before scoping:
+  #
+  #   Photo.published.listing.count        # raises
+  #   Photo.published.listing.count(:id)   # fine
+  #   Photo.published.count                # fine, and cheap -- COUNT reads no bytes
+  #
+  # The real fix is for the bytes to live in their own table, so none of this
+  # needs thinking about. That is a migration for a quieter week; see TODO.
+  def self.listing = select(column_names - ["data"])
+
   def self.find_version(human_name, version)
     return nil if human_name.blank? || version.blank?
 

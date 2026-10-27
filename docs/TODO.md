@@ -334,6 +334,27 @@ and why. These are the parts that need somebody other than a developer.
       `Site::SeoCheck` reports and does not fix, because a description is parish
       writing. "Give every page its own description" is a sentence that works.
 
+## The picture lives in the same row as its name
+
+`photos.data` holds the image bytes, which is deliberate and settled — a
+`pg_dump` is then a complete copy of the site, with no second artifact to keep
+in step. See CLAUDE.md.
+
+The cost showed up on 27 October, the first day the database was not on the
+same machine as the application: `/admin/photos` took **a minute** to appear,
+because listing 200 photographs to print their names pulled **147 MB** out of
+Postgres in Oregon. `Photo.listing` now selects every column but that one, and
+the three tool listings use it too.
+
+- [ ] **Move the bytes to their own table** (`photo_blobs`, one row per photo,
+      joined when the picture is actually wanted). Then nothing has to remember
+      to avoid a column, `.count` works on any relation, and a mistake costs a
+      missing picture rather than a minute of silence. A migration for a
+      quieter week — the scope is correct in the meantime.
+- [ ] Until then, **`.count` on a `listing` relation raises**: Postgres is
+      asked for `COUNT(id, human_name, ...)`, which is not a function. Use
+      `.count(:id)`. The comment on the scope says so.
+
 ## Secrets, and a public repository
 
 `config/credentials.yml.enc` is committed, and this repository is **public**.

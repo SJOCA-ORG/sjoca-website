@@ -2,12 +2,14 @@ module Admin
   # Photographs: the library, and taking new ones in.
   class PhotosController < BaseController
     def index
-      @tags = Tag.in_menu.includes(:photos)
+      # No includes(:photos): the view only wants a count per tag, and preloading
+      # the association fetches every photograph's bytes to produce a number.
+      @tags = Tag.in_menu
       @filter = params[:tag].presence
       @photos = @filter ? Photo.published.tagged(@filter) : Photo.published
       @photos = @photos.where("human_name ILIKE :q OR alt_text ILIKE :q", q: "%#{params[:q]}%") if params[:q].present?
-      @photos = @photos.order(uploaded_at: :desc, human_name: :asc).limit(200)
-      @recent = Photo.recently_uploaded(1.day.ago).limit(24)
+      @photos = @photos.listing.order(uploaded_at: :desc, human_name: :asc).limit(200)
+      @recent = Photo.recently_uploaded(1.day.ago).listing.limit(24)
     end
 
     def create
