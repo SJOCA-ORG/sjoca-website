@@ -2,10 +2,14 @@
 
 <div class="row">
   <h1 class="grow" style="margin:0">Bulletins</h1>
-  <span class="muted"><%= pluralize(@bulletins.size, "bulletin") %></span>
+  <span class="muted">
+    <%# Named by their own layout rather than all called bulletins: a parish
+        that writes a "newsletter" template sees newsletters here. %>
+    <%= @by_layout.map { |layout, rows| pluralize(rows.size, layout) }.to_sentence %>
+  </span>
 </div>
 
-<% if @bulletins.empty? %>
+<% if @printables.empty? %>
   <p class="empty">
     None yet. Ask the admin to make one — "make the bulletin for Sunday the 26th" —
     and it will copy the last one and recompute the readings and services.
@@ -16,7 +20,7 @@
       <tr><th>For</th><th>Pages</th><th>Where</th><th>Download</th><th></th></tr>
     </thead>
     <tbody>
-      <% @bulletins.each do |page, revision| %>
+      <% @printables.each do |page, revision| %>
         <tr>
           <td>
             <strong><%= page.dated_on ? page.dated_on.strftime("%-d %B %Y") : page.title %></strong>

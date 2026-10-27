@@ -13,20 +13,46 @@ class Page < ApplicationRecord
   # one photograph on the deployed site and another locally.
   scope :in_nav,      -> { where(show_in_nav: true).order(:position, :id) }
 
-  # What a page IS, as opposed to what is on it. "page" is the ordinary site
-  # page; "bulletin" is 5.5 x 8.5, dated, and printable.
-  LAYOUTS = %w[page bulletin].freeze
+  # What a page IS, as opposed to what is on it.
+  #
+  # A layout NAMES A TEMPLATE in the same revision. "page" is the ordinary site
+  # page. "bulletin" is 5.5 x 8.5, dated and printable because a template called
+  # "bulletin" says so -- not because Ruby knows the word.
+  #
+  # This was a closed list of exactly those two until 27 October 2026, which
+  # meant a parish wanting a quarterly newsletter needed a developer. It does
+  # not: it needs a template called "newsletter", which the AI can write, since
+  # templates are rows. Site::PageRenderer was already general and falls back to
+  # "page" when a revision has no such template, so nothing here needs to check
+  # that a template exists yet -- a page may legitimately be made before its
+  # template is.
+  ORDINARY = "page".freeze
+  LAYOUT_NAME = /\A[a-z][a-z0-9_-]{0,40}\z/
 
-  validates :layout, inclusion: { in: LAYOUTS }
+  validates :layout, presence: true, format: {
+    with: LAYOUT_NAME,
+    message: "names a template, so it must be lower case letters, numbers, - or _"
+  }
 
-  scope :bulletins, -> { where(layout: "bulletin").order(dated_on: :desc, id: :desc) }
-  scope :ordinary,  -> { where(layout: "page") }
+  scope :ordinary,     -> { where(layout: ORDINARY) }
+  scope :laid_out_as,  ->(name) { where(layout: name).order(dated_on: :desc, id: :desc) }
+  # Everything that is not an ordinary page: bulletins today, a newsletter
+  # tomorrow, without this needing to be told about it.
+  scope :special,      -> { where.not(layout: ORDINARY).order(dated_on: :desc, id: :desc) }
+  scope :dated,        -> { where.not(dated_on: nil).order(dated_on: :desc, id: :desc) }
+
+  # Sugar, kept deliberately. Three published pages and four AI tools say
+  # "bulletin", and there is no reason to rename them -- the point was to stop
+  # the concept being PRIVILEGED, not to pretend it does not exist.
+  scope :bulletins, -> { laid_out_as("bulletin") }
 
   def bulletin? = layout == "bulletin"
 
-  # The Sunday a bulletin is for, which is what its readings and services are
-  # computed from -- not the day somebody edited it.
-  def bulletin_date = dated_on || created_at&.to_date
+  # The day this page is FOR -- a bulletin's Sunday, a newsletter's quarter --
+  # which is what its readings and services are computed from, not the day
+  # somebody edited it.
+  def dated_for = dated_on || created_at&.to_date
+  alias bulletin_date dated_for
   scope :top_level,   -> { where(parent_slug: nil) }
 
   def self.find_by_path!(path, revision: Current.revision)

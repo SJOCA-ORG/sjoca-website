@@ -16,9 +16,14 @@ module Admin
     # what went out -- and after publishing the draft it was made in is gone.
     def index
       revisions = [Revision.live, *Revision.drafts].compact.uniq
-      @bulletins = revisions.flat_map { |r|
-        r.pages.bulletins.map { |page| [page, r] }
+      # .special, not .bulletins: every page with a layout of its own. A parish
+      # that writes a "newsletter" template gets its newsletters listed here
+      # without anybody changing this line.
+      @printables = revisions.flat_map { |r|
+        r.pages.special.map { |page| [page, r] }
       }.sort_by { |page, _| [page.dated_on || Date.new(1900), page.id] }.reverse
+
+      @by_layout = @printables.group_by { |page, _| page.layout }
     end
 
     # Chrome prints it, over the same connection that drives the layout checks.

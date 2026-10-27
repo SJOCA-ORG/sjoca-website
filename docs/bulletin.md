@@ -103,3 +103,45 @@ Chrome does the PDF, over the same connection that already drives the layout
 checks. No new dependency — but see `docs/TODO.md`: Chrome, ImageMagick and
 ffmpeg are all missing from Render's native Ruby runtime, and this makes a
 fourth reason to settle that once.
+
+---
+
+## A bulletin is not a special kind of thing (27 October 2026)
+
+It was, briefly, and that was wrong.
+
+`Page::LAYOUTS` was a closed list of exactly two words — `page` and `bulletin` —
+so a parish wanting a quarterly newsletter for friends abroad needed a
+developer. That is precisely the shape of dependency this project exists to
+remove. Mitch spotted it: *"somebody may want another similar idea... if
+bulletins were already an understood concept this breaks the idea of building
+from primitives."*
+
+**A layout now names a template.** Write a template called `newsletter`, make
+pages with `layout: "newsletter"`, and it renders — no Ruby. The AI can do both,
+because templates are rows.
+
+### Why this was almost free
+
+Nothing stored had to change. A bulletin page was already just
+`layout="bulletin", dated_on=2026-10-25`, and `Site::PageRenderer` was already
+general — it looks up a template by the layout's name and falls back to `page`
+when there is none. **The concept lived only in a validation.** Checked before
+changing anything: no drop exposed `bulletin?`, and no published template
+referenced it. The published `bulletin` template reads exactly one thing,
+`page.sections`.
+
+So the three published bulletins were untouched, and no revision needed
+reverting — the generalisation was a code deploy.
+
+### What is still called "bulletin", and why
+
+`scope :bulletins` and the four `add_bulletin`-style tools remain, as sugar over
+the general thing. The point was to stop the concept being **privileged**, not
+to pretend it does not exist: three published pages say bulletin, and the tools
+save the AI reinventing a four-panel structure each time. They are shortcuts
+now, not a type.
+
+The admin's list is of `Page.special` — every page with a layout of its own —
+and counts them by their own layout name. A newsletter appears there the day
+someone writes the template.

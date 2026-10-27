@@ -98,3 +98,25 @@ RSpec.describe "bulletins", type: :request do
     end
   end
 end
+
+# The admin's list is of pages with a layout of their own, not of bulletins.
+# A parish that writes a "newsletter" template should see newsletters here
+# without anybody changing a line of Ruby.
+RSpec.describe "the printable pages list", type: :request do
+  let(:revision) { Revision.tap { build_page(slug: "home", title: "Home") }.open_sandbox }
+
+  it "shows a page whose layout nobody wrote code for" do
+    revision.templates.create!(name: "newsletter", source: "<main>{{ page.title }}</main>")
+    revision.pages.create!(slug: "newsletters/michaelmas", title: "Michaelmas",
+                           nav_title: "Michaelmas", layout: "newsletter",
+                           dated_on: Date.new(2026, 9, 29), show_in_nav: false)
+
+    get "/admin/bulletins"
+
+    expect(response).to have_http_status(:ok)
+    # The list shows a dated page by its date, and counts it by its own layout
+    # name -- "1 newsletter", not "1 bulletin".
+    expect(response.body).to include("29 September 2026")
+    expect(response.body).to match(/1 newsletter/i)
+  end
+end
