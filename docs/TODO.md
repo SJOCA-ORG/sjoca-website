@@ -334,6 +334,31 @@ and why. These are the parts that need somebody other than a developer.
       `Site::SeoCheck` reports and does not fix, because a description is parish
       writing. "Give every page its own description" is a sentence that works.
 
+## Secrets, and a public repository
+
+`config/credentials.yml.enc` is committed, and this repository is **public**.
+That is the ordinary Rails arrangement and it is safe as long as
+`config/master.key` stays off the internet — but it has one property worth
+naming: the ciphertext is published permanently, in git history. If the master
+key ever leaks (a laptop, a backup, a screen share), every historical version
+of every secret in that file becomes readable by anyone who has ever cloned
+it, and none of it can be unpublished.
+
+Currently in there: the Anthropic API key, and the SMTP user and password.
+
+- [ ] **Decide whether the Anthropic key and SMTP password should move to Render
+      environment variables instead.** The application is the only thing that
+      reads them, so credentials is a defensible home and the server already
+      holds the master key. Environment variables would mean nothing is
+      published at all, and rotation without a commit. Not urgent; worth a
+      decision rather than a drift.
+- [ ] **Rotate both if `master.key` is ever exposed** — and assume exposure if
+      a laptop is lost, since the history cannot be recalled.
+- [x] ~~Operator credentials in the repository~~ — the Render database URL now
+      lives in `.env`, which is gitignored, with `.env.example` committed to
+      explain it. The application never reads it; only tooling does, which is
+      the line between the two files.
+
 ## Before the parish sees the admin
 
 - [ ] **Take the cost meter off the admin page.** Added 17 October while the
