@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_145840) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_27_182234) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -257,6 +257,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_145840) do
     t.index ["page_id", "position"], name: "index_sections_on_page_id_and_position"
     t.index ["page_id"], name: "index_sections_on_page_id"
     t.index ["revision_id"], name: "index_sections_on_revision_id"
+  end
+
+  create_table "site_settings", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.string "key", null: false
+    t.text "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["revision_id", "key"], name: "index_site_settings_on_revision_id_and_key", unique: true
   end
 
   create_table "solid_queue_batch_executions", force: :cascade do |t|

@@ -55,56 +55,15 @@ services:
       - key: SITE_URL
         value: https://sjoca.onrender.com
 
-  # ChurchTrac calendar: a few times a day is plenty, and it is a light call.
-  - type: cron
-    name: sjoca-calendar-sync
-    runtime: docker
-    dockerfilePath: ./Dockerfile
-    plan: starter
-    branch: main
-    schedule: "17 */6 * * *"
-    dockerCommand: "bundle exec rake churchtrac:sync"
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase: { name: sjoca-db, property: connectionString }
-      - key: RAILS_MASTER_KEY
-        sync: false
-      - key: RAILS_ENV
-        value: production
-
-  # Scripture readings: each date is fetched once ever, so daily is ample.
-  - type: cron
-    name: sjoca-lectionary-sync
-    runtime: docker
-    dockerfilePath: ./Dockerfile
-    plan: starter
-    branch: main
-    schedule: "40 5 * * *"
-    dockerCommand: "bundle exec rake lectionary:sync"
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase: { name: sjoca-db, property: connectionString }
-      - key: RAILS_MASTER_KEY
-        sync: false
-      - key: RAILS_ENV
-        value: production
-
-  # Class recordings: Fr David posts one a week, so once a day is generous.
-  - type: cron
-    name: sjoca-classes-sync
-    runtime: docker
-    dockerfilePath: ./Dockerfile
-    plan: starter
-    branch: main
-    schedule: "55 5 * * *"
-    dockerCommand: "bundle exec rake classes:sync"
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase: { name: sjoca-db, property: connectionString }
-      - key: RAILS_MASTER_KEY
-        sync: false
-      - key: RAILS_ENV
-        value: production
+  # The three cron jobs that lived here are gone.
+  #
+  # They mirrored the ChurchTrac calendar, the daily readings and the class
+  # recordings into Ruby models, each with an importer that knew what a service
+  # was called and which events mattered. The site does not read any of that:
+  # the pages are built on data sources, fetched on demand and cached, with the
+  # judgement in JavaScript the parish can read.
+  #
+  # Removed 27 October 2026. See docs/primitives.md.
 
 databases:
   - name: sjoca-db

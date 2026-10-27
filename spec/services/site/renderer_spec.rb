@@ -77,10 +77,13 @@ RSpec.describe Site::Renderer do
     it "passes site through page -> section -> block" do
       revision.templates.create!(name: "block/sitecheck",
                                  source: %(<div class="b b-sitecheck">{{ site.name }}</div>))
+      # A value this spec set, rather than whatever the site happens to be
+      # called: the point is that `site` arrives at all.
+      revision.site_settings.create!(key: "name", value: "Reached The Block")
       section = build_section(page: page)
       build_block(section: section, kind: "sitecheck")
 
-      expect(renderer.body(page.reload)).to include("Saint John the Baptist")
+      expect(renderer.body(page.reload)).to include("Reached The Block")
     end
   end
 

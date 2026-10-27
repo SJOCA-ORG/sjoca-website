@@ -24,6 +24,24 @@ module Site
       renderer.render(name, assigns(page))
     end
 
+    # Whatever the parish wants in the <head> of every page -- structured data,
+    # a verification tag, anything.
+    #
+    # This exists so that Ruby does not have to know the parish is a church,
+    # what its services are called, or when they happen. It knows how to render
+    # a template; the template says what the parish IS, and the parish can read
+    # and change it. Missing is normal: a site need not have one.
+    def head(page = nil)
+      return "" unless @revision&.templates&.exists?(name: "head")
+
+      renderer.render("head", assigns(page))
+    rescue StandardError => e
+      # The head of every page on the site. A mistake in it must not take the
+      # site down -- it loses the structured data and says so in the log.
+      Rails.logger.warn("head template failed: #{e.message}")
+      ""
+    end
+
     private
 
     def renderer = @renderer ||= Renderer.new(@revision)
@@ -32,7 +50,7 @@ module Site
       {
         "page"       => page && PageDrop.new(page),
         "nav"        => Page.in_revision(@revision).top_level.in_nav.map { |p| NavDrop.new(p, page&.slug) },
-        "site"       => SiteDrop.new
+        "site"       => SiteDrop.new(@revision)
       }
     end
   end

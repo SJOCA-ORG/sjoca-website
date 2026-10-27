@@ -20,13 +20,13 @@
       <% end %>
       <meta name="twitter:card" content="summary_large_image">
 
-      <%# A church, its address, and when it actually meets -- the service
-          times taken from the calendar the parish already keeps, so they
-          cannot drift from what is published. %>
-      <script type="application/ld+json">
-        <%= @seo.structured_data.to_json.html_safe %>
-      </script>
     <% end %>
+
+    <%# What the parish says it IS -- structured data, verification tags,
+        anything it wants search engines to read -- written in a template in
+        the revision rather than asserted by Ruby. Ruby does not know this is
+        a church, what its services are called, or when they meet. %>
+    <%= @head.to_s.html_safe if @head.present? %>
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>

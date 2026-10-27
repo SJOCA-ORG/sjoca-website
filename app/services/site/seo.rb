@@ -13,11 +13,11 @@ module Site
   # this outranks a Google Business Profile. For "near me" that listing is the
   # single largest factor and it is not a website feature. See docs/seo.md.
   class Seo
-    NAME = "Saint John the Baptist Orthodox Church".freeze
-    STREET = "855 S. Goodman St.".freeze
-    CITY = "Rochester".freeze
-    REGION = "NY".freeze
-    POSTCODE = "14620".freeze
+    # No constants naming the parish. A title suffix and a fallback description
+    # need SOMETHING to call the site, and that comes from the site's own
+    # settings, in its own revision -- so this code serves a second parish
+    # without being told which parish it is.
+    def site = @site ||= SiteDrop.new(@revision)
 
     # Omitted rather than guessed. Coordinates nobody checked are worse than no
     # coordinates: they put the pin in the wrong street and no one notices.
@@ -42,9 +42,9 @@ module Site
     # title is parish content and not mine to rewrite.
     def title
       own = @page.title.to_s.strip
-      return own.presence || NAME if home?
+      return own.presence || site.name if home?
 
-      "#{own} — #{NAME}"
+      "#{own} — #{site.name}"
     end
 
     def description
@@ -61,7 +61,7 @@ module Site
     def open_graph
       {
         "og:type" => "website",
-        "og:site_name" => NAME,
+        "og:site_name" => site.name,
         "og:title" => title,
         "og:description" => description,
         "og:url" => canonical,
@@ -70,46 +70,30 @@ module Site
       }.compact
     end
 
-    # A church, with its address and when it actually meets. The service times
-    # come from the mirrored calendar, so they cannot drift from what the
-    # parish publishes.
-    def structured_data
-      data = {
-        "@context" => "https://schema.org",
-        "@type" => "Church",
-        "name" => NAME,
-        "alternateName" => "St John the Baptist Orthodox Church",
-        "description" => default_description,
-        "url" => base,
-        "address" => {
-          "@type" => "PostalAddress",
-          "streetAddress" => STREET,
-          "addressLocality" => CITY,
-          "addressRegion" => REGION,
-          "postalCode" => POSTCODE,
-          "addressCountry" => "US"
-        },
-        "email" => SiteDrop.new.email,
-        "image" => hero_url,
-        "parentOrganization" => {
-          "@type" => "Organization",
-          "name" => "Orthodox Church in America",
-          "url" => "https://www.oca.org"
-        }
-      }
-      data["geo"] = self.class.coordinates if self.class.coordinates
-      data["openingHoursSpecification"] = service_hours if service_hours.any?
-      data.compact
-    end
+    # structured_data used to live here: the name, the address, "@type":
+    # "Church", and the service times, which were filtered out of the ChurchTrac
+    # feed by a list of title patterns in Ruby.
+    #
+    # It was removed on 27 October 2026 because Ruby should not know that this
+    # parish is a church, what its services are called, or when they meet. That
+    # is the parish's to say, and it now says it in the "head" template in its
+    # own revision, where it can be read and corrected by asking.
+    #
+    # The removal was not merely tidiness. The Ruby filter was WRONG: the Hours
+    # at 9:30 on a Sunday are on the home page and were missing from what Google
+    # was told, because they did not match a pattern nobody could see.
 
     private
 
     def home? = @page.slug == "home"
-    def base = SiteDrop.new.url
+    def base = site.url
 
+    # What the site says about itself when a page offers nothing of its own.
+    # A SETTING, not a sentence in Ruby: Ruby knows a site has a description,
+    # not that this one is a parish of the OCA.
     def default_description
-      "#{NAME} in #{CITY}, #{REGION} — a parish of the Orthodox Church in America (OCA), " \
-      "Diocese of New York and New Jersey. Services entirely in English. All are welcome."
+      site.setting("description").presence ||
+        "#{site.name} in #{site.setting('city')}, #{site.setting('region')}."
     end
 
     # The opening of the page itself, which describes this page rather than the
@@ -122,7 +106,7 @@ module Site
                   .find { |t| t.length > 60 }
       return nil if text.blank?
 
-      "#{text.truncate(150, separator: ' ')} — #{NAME}, #{CITY} #{REGION}."
+      "#{text.truncate(150, separator: ' ')} — #{site.name}, #{site.setting('city')} #{site.setting('region')}."
     end
 
     def hero_url
@@ -133,22 +117,6 @@ module Site
       "#{base}/media/#{name}/#{version}"
     end
 
-    # The regular round, as the calendar has it: the services that recur, with
-    # the day and time they recur at. One entry per weekday and time.
-    def service_hours
-      @service_hours ||= begin
-        upcoming = CalendarEvent.within(21).select(&:scheduled_service?)
-        upcoming.group_by { |e| [e.starts_at.strftime("%A"), e.starts_at.strftime("%H:%M")] }
-                .keys.sort
-                .map do |day, at|
-          { "@type" => "OpeningHoursSpecification",
-            "dayOfWeek" => "https://schema.org/#{day}",
-            "opens" => at,
-            "closes" => (Time.zone.parse(at) + 90.minutes).strftime("%H:%M") }
-        end
-      end
-    rescue StandardError
-      []
-    end
+    # service_hours went with it, and took the last reference to CalendarEvent.
   end
 end

@@ -11,6 +11,7 @@ class Revision < ApplicationRecord
   has_many :blocks,   dependent: :destroy
   has_many :theme_assets, dependent: :destroy
   has_many :templates,    dependent: :destroy
+  has_many :site_settings, dependent: :destroy
   has_many :revision_promises, dependent: :destroy
   has_many :data_sources, dependent: :destroy
   has_many :promises, through: :revision_promises
@@ -63,6 +64,10 @@ class Revision < ApplicationRecord
       # The DEFINITION of a data source travels with the revision. The cached
       # response does not -- that is keyed by URL and shared (FetchedPage).
       source.data_sources.find_each { |d| d.dup.tap { |c| c.revision = draft }.save! }
+      # The parish's own facts -- its name, its address -- travel with the
+      # revision like everything else that makes up the site. Forgetting this
+      # would give every new draft a site with no name.
+      source.site_settings.find_each { |s| s.dup.tap { |c| c.revision = draft }.save! }
 
       pages    = source.pages.index_with    { |p| p.dup.tap { |c| c.revision = draft }.tap(&:save!) }
       sections = source.sections.index_with { |s|

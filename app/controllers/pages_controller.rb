@@ -36,6 +36,8 @@ class PagesController < ApplicationController
     renderer = Site::PageRenderer.new(Current.revision)
     @header  = renderer.chrome("header", @page)
     @footer  = renderer.chrome("footer", @page)
+    # What the parish says it is, in its own words, from the revision.
+    @head    = renderer.head(@page)
 
     @page_class = @page ? "page-#{@page.slug.tr('/', '-')}" : "page-not-found"
 

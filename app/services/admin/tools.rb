@@ -243,6 +243,16 @@ module Admin
         tool("list_data_sources",
              "The outside data this site pulls in — a calendar feed, a playlist, a readings " \
              "page — with the exact Liquid and JavaScript needed to use each one.", {}),
+        tool("list_settings",
+             "What this site says it IS: its name, address, email, description. These are " \
+             "the parish's own facts, not anything Ruby knows — change them with set_setting.",
+             {}, []),
+        tool("set_setting",
+             "Change one of the site's own facts. Templates read them as {{ site.name }}, " \
+             "{{ site.address }}, {{ site.email }}, or {{ site.settings.anything }}.",
+             { key: str("name, address, email, description, city, region — or a new one"),
+               value: str("What it should say") },
+             %w[key value]),
         tool("add_data_source",
              "Set up an address for the server to fetch, cache, and hand to the page as JSON. " \
              "This is how the site shows anything that lives somewhere else. The server does " \
@@ -1273,6 +1283,26 @@ module Admin
             note: d.note.presence, state: state,
             use: "{{ site.data.#{d.name.tr('-', '_')}.json_tag }} in a template, " \
                  "then JSON.parse(document.getElementById(\"data-#{d.name}\").textContent) in the script" } } }
+    end
+
+    # ---- what this site says it is ------------------------------------------
+
+    def list_settings(**)
+      { settings: revision.site_settings.order(:key).map { |s| { key: s.key, value: s.value } },
+        note: "templates read these as {{ site.name }} and {{ site.settings.<key> }}. " \
+              "They belong to this revision, so a change is published and rolled back " \
+              "with everything else." }
+    end
+
+    def set_setting(key:, value:, **)
+      setting = revision.site_settings.find_or_initialize_by(key: key.to_s.strip.downcase)
+      was = setting.value
+      setting.value = value
+      raise ToolError, setting.errors.full_messages.to_sentence unless setting.save
+
+      touched_everything!
+      ok "#{setting.key} is now #{value.to_s.truncate(80).inspect}" \
+         "#{was.present? ? " (was #{was.to_s.truncate(40).inspect})" : ''}"
     end
 
     def add_data_source(name:, urls:, refresh_minutes: 60, note: nil, **)

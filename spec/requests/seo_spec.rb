@@ -35,36 +35,52 @@ RSpec.describe "what a search engine is told", type: :request do
     end
   end
 
-  describe "the structured data" do
-    def church
+  # Structured data used to be built in Ruby: the name, the address, "@type":
+  # "Church", and service times filtered out of the ChurchTrac feed by title
+  # patterns nobody could read. It is now a "head" template in the revision,
+  # which the parish owns and can correct by asking.
+  #
+  # These specs therefore test the MECHANISM, not the content. Ruby is not
+  # supposed to know this is a church.
+  describe "what the parish says it is" do
+    def head_of_home
       get "/"
-      JSON.parse(response.body[%r{<script type="application/ld\+json">\s*(\{.*?\})\s*</script>}m, 1])
+      response.body[%r{<head>(.*?)</head>}m, 1].to_s
     end
 
-    it "says this is a church, with its address" do
-      expect(church["@type"]).to eq("Church")
-      expect(church.dig("address", "addressLocality")).to eq("Rochester")
-      expect(church.dig("address", "postalCode")).to eq("14620")
+    it "renders whatever the head template says" do
+      Revision.live.templates.create!(
+        name: "head",
+        source: '<script type="application/ld+json">{"@type":"Thing","name":"{{ site.name }}"}</script>'
+      )
+
+      data = JSON.parse(head_of_home[%r{<script type="application/ld\+json">\s*(\{.*?\})\s*</script>}m, 1])
+      expect(data["@type"]).to eq("Thing")
+      expect(data["name"]).to be_present
     end
 
-    it "names the OCA as the parent body" do
-      expect(church.dig("parentOrganization", "name")).to eq("Orthodox Church in America")
+    it "renders nothing extra when a revision has no head template" do
+      Revision.live.templates.where(name: "head").destroy_all
+
+      expect(head_of_home).not_to include("application/ld+json")
     end
 
-    # Taken from the calendar the parish already keeps, so they cannot drift
-    # from what is published.
-    it "carries the service times from the calendar" do
-      CalendarEvent.create!(title: "Divine Liturgy", starts_at: 3.days.from_now.change(hour: 10),
-                            recurring: true, source: "churchtrac", synced_at: Time.current)
+    # The head of every page. A mistake in it must lose the structured data,
+    # not the site.
+    it "survives a broken head template" do
+      Revision.live.templates.create!(name: "head", source: "{{ site.nonexistent.deeply.wrong }}")
 
-      hours = church["openingHoursSpecification"]
-      expect(hours).to be_present
-      expect(hours.first["opens"]).to be_present
+      get "/"
+      expect(response).to have_http_status(:ok)
     end
 
-    # Coordinates nobody checked put the pin in the wrong street.
-    it "omits coordinates rather than guessing them" do
-      expect(church["geo"]).to be_nil
+    it "does not assert anything about churches in Ruby" do
+      ruby = File.read(Rails.root.join("app/services/site/seo.rb"))
+      body = ruby.lines.reject { |l| l.strip.start_with?("#") }.join
+
+      expect(body).not_to include("Church")
+      expect(body).not_to include("openingHoursSpecification")
+      expect(body).not_to include("CalendarEvent")
     end
   end
 
