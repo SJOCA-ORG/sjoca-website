@@ -31,7 +31,9 @@ services:
     # Render runs this after the image is built and before it goes live, so a
     # failed migration does not take the site down with it.
     preDeployCommand: "./bin/rails db:prepare"
-    startCommand: "bundle exec puma -C config/puma.rb"
+    # dockerCommand, not startCommand: Render refuses a Docker service that has
+    # a startCommand at all. It overrides the image's CMD.
+    dockerCommand: "bundle exec puma -C config/puma.rb"
     healthCheckPath: /up
     envVars:
       - key: DATABASE_URL
