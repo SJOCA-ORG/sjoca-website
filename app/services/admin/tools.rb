@@ -107,7 +107,10 @@ module Admin
                                    "so a visitor can tell the parent has a page of its own"),
                layout: str("Which TEMPLATE renders it. \"page\" is the ordinary one; any " \
                            "other name uses the template of that name."),
-               dated_on: str("The day this page is FOR, as YYYY-MM-DD") },
+               dated_on: str("The day this page is FOR, as YYYY-MM-DD"),
+               on_website: { type: "boolean",
+                             description: "Whether visitors can reach it at all. False keeps it " \
+                                          "here: still written and exported, never served." } },
              %w[slug]),
         tool("move_page",
              "Move a page in the menu, said the way the request is: after this one, or " \
@@ -118,32 +121,6 @@ module Admin
                after: str("Put it immediately after this page's slug"),
                before: str("Put it immediately before this page's slug") },
              %w[slug]),
-        # --- the weekly bulletin ----------------------------------------------
-        tool("add_bulletin",
-             "Make a bulletin for a given Sunday. If there is an earlier one it is COPIED, " \
-             "which is the point: a new bulletin is last week's with the dated parts " \
-             "recomputed, so the only thing to compose is what is genuinely new. " \
-             "A bulletin is four 5.5 x 8.5 pages in reading order — the printer folds them, " \
-             "you never do — and each section is one page. check_appearance measures every " \
-             "page and tells you what does not fit, which a web page can never do.",
-             { for_date: str("The Sunday it is for, e.g. \"2026-10-26\""),
-               pages_wanted: int("How many pages. 4 unless asked otherwise; more is fine.") },
-             %w[for_date]),
-        # --- being found ------------------------------------------------------
-        tool("check_findability",
-             "What would make this parish hard to find in a search: pages with no " \
-             "description of their own, descriptions that will be cut off or are shared " \
-             "between pages, titles too long, photographs with nothing said about them.",
-             {}),
-        tool("set_page_description",
-             "Give a page the sentence a search engine shows beneath its name. Say what " \
-             "THAT page is — not the parish in general, which every page already falls " \
-             "back to. Around 120 to 155 characters; longer is cut off.",
-             { slug: str("Page slug"),
-               description: str("One sentence about this page") },
-             %w[slug description]),
-        tool("list_bulletins",
-             "Every bulletin, newest first, with how many pages and blocks each has.", {}),
         tool("delete_page", "Remove a page and everything on it. Existing links to it will 404.",
              { slug: str("Page slug") }, %w[slug]),
         tool("move_section", "Move a band to a different page, or to a different position.",
@@ -159,8 +136,40 @@ module Admin
                            "\"newsletter\" with add_template and pass layout:\"newsletter\" here. " \
                            "Until that template exists the page renders as an ordinary one."),
                dated_on: str("The day this page is FOR, as YYYY-MM-DD — a bulletin's Sunday, " \
-                             "a newsletter's issue date. Not the day you made it.") },
+                             "a newsletter's issue date. Not the day you made it."),
+               on_website: { type: "boolean",
+                             description: "Whether visitors can reach it. TRUE for an ordinary " \
+                                          "page. FALSE for something the parish makes here but " \
+                                          "does not publish — a printed sheet, a letter — which " \
+                                          "is still written, previewed and exported as a PDF or " \
+                                          "an email, but is not served to anybody and is not " \
+                                          "offered to search engines. Default true." } },
              %w[slug title nav_title]),
+        # --- making one page from another -------------------------------------
+        tool("copy_page",
+             "Copy every band and block from one page onto another. The general form of " \
+             "\"make this week's from last week's\": make the new page, copy the old one onto " \
+             "it, then change what is dated and leave the rest alone.",
+             { from: str("Slug of the page to copy FROM"),
+               to: str("Slug of the page to copy ONTO — it should be empty") },
+             %w[from to]),
+        tool("add_sections",
+             "Add empty bands to a page — the sheets of something printed, say.",
+             { slug: str("Page slug"), count: int("How many, 1 to 16") },
+             %w[slug count]),
+        # --- being found ------------------------------------------------------
+        tool("check_findability",
+             "What would make this parish hard to find in a search: pages with no " \
+             "description of their own, descriptions that will be cut off or are shared " \
+             "between pages, titles too long, photographs with nothing said about them.",
+             {}),
+        tool("set_page_description",
+             "Give a page the sentence a search engine shows beneath its name. Say what " \
+             "THAT page is — not the parish in general, which every page already falls " \
+             "back to. Around 120 to 155 characters; longer is cut off.",
+             { slug: str("Page slug"),
+               description: str("One sentence about this page") },
+             %w[slug description]),
         tool("view_page",
              "The rendered HTML of a page as it will actually appear. USE THIS after " \
              "changing a template or adding blocks — it is the only way to see whether " \
@@ -350,7 +359,8 @@ module Admin
              "out again — a Liquid construct that behaved unexpectedly, a convention of " \
              "this site, a trap. It is handed back to you by liquid_guide in every future " \
              "session. Record facts you verified, not guesses.",
-             { subject: str("liquid, styles, photos, content or house-style"),
+             { subject: str("A word to file it under — liquid, styles, photos, content, "\
+                           "house-style, or any other that fits what the parish does"),
                lesson: str("One or two sentences, specific enough to act on") },
              %w[subject lesson]),
 
@@ -521,7 +531,12 @@ module Admin
     def list_pages(**)
       { pages: pages.order(:position, :id).map { |p|
           { slug: p.slug, nav_title: p.nav_title, in_nav: p.show_in_nav,
-            parent: p.parent_slug, sections: p.sections.count, blocks: p.sections.sum { |s| s.blocks.count } } } }
+            parent: p.parent_slug,
+            layout: (p.layout unless p.layout == "page"),
+            dated_on: p.dated_on,
+            on_website: p.on_website,
+            sections: p.sections.count,
+            blocks: p.sections.sum { |s| s.blocks.count } }.compact } }
     end
 
     def get_page(slug:, **)
@@ -655,7 +670,7 @@ module Admin
       # either to empty is how a page is moved back to the top level.
       permitted = attrs.slice(:title, :nav_title, :hero_heading, :hero_subheading,
                               :hero_asset_name, :hero_asset_version, :hero_size,
-                              :position, :show_in_nav, :layout).compact
+                              :position, :show_in_nav, :layout, :on_website).compact
       permitted[:dated_on] = parse_date(attrs[:dated_on]) if attrs.key?(:dated_on)
       permitted[:parent_slug]    = attrs[:parent_slug].presence    if attrs.key?(:parent_slug)
       permitted[:self_nav_title] = attrs[:self_nav_title].presence if attrs.key?(:self_nav_title)
@@ -728,12 +743,15 @@ module Admin
                         parent_slug: attrs[:parent_slug],
                         layout: attrs[:layout].presence || "page",
                         dated_on: parse_date(attrs[:dated_on]),
+                        on_website: attrs.key?(:on_website) ? !!attrs[:on_website] : true,
                         position: attrs[:position] || (pages.maximum(:position).to_i + 1))
       note = if p.layout != "page" && !revision.templates.exists?(name: p.layout)
                " — there is no template called #{p.layout.inspect} yet, so it renders as " \
                "an ordinary page until you write one with add_template"
              end
-      ok "created the page /#{p.slug}#{note}"
+      where = p.on_website? ? "" : " — kept off the website: it is here to be written, " \
+                                    "printed and sent, but visitors cannot reach it"
+      ok "created the page /#{p.slug}#{where}#{note}"
     end
 
     def parse_date(value)
@@ -750,40 +768,6 @@ module Admin
     # because of what it does when a previous one exists: it copies it. That is
     # the whole design -- a new bulletin is last week's with the dated parts
     # recomputed, so the only thing anybody composes is what is genuinely new.
-    def add_bulletin(for_date:, pages_wanted: 4, **)
-      on = Date.parse(for_date.to_s)
-      slug = "bulletins/#{on.iso8601}"
-      raise ToolError, "there is already a bulletin for #{on.to_fs(:long)} at /#{slug}" if pages.exists?(slug: slug)
-
-      previous = pages.bulletins.where.not(slug: slug).first
-
-      page = pages.create!(
-        slug: slug, title: "Bulletin — #{on.strftime('%-d %B %Y')}",
-        nav_title: on.strftime("%-d %B %Y"), show_in_nav: false,
-        layout: "bulletin", dated_on: on,
-        position: (pages.maximum(:position).to_i + 1)
-      )
-
-      sheets = previous ? copy_bulletin(previous, page) : blank_bulletin(page, pages_wanted.to_i)
-      @edited << slug
-
-      if previous
-        ok "made /#{slug} from the bulletin of #{previous.dated_on&.to_fs(:long)} — #{sheets} pages " \
-           "copied. Now recompute the dated parts for #{on.to_fs(:long)}: the commemoration and " \
-           "readings for that day, and the services that week. Leave the masthead, the address, " \
-           "the giving line and the standing reminders alone.",
-          page: slug
-      else
-        ok "made /#{slug} with #{sheets} empty pages of 5.5 x 8.5. There is no earlier bulletin to " \
-           "copy, so this first one sets the pattern every later one inherits — lay it out with " \
-           "care. A folded bulletin usually reads: page 1 the parish name, the date and the day's " \
-           "commemoration; pages 2 and 3 the readings, the services and the announcements; page 4 " \
-           "the address, contact and giving. check_appearance measures every page and says what " \
-           "does not fit.",
-          page: slug
-      end
-    end
-
     # ---- being found --------------------------------------------------------
 
     def check_findability(**)
@@ -804,16 +788,24 @@ module Admin
       ok "described /#{slug} as #{text.truncate(60).inspect}"
     end
 
-    def list_bulletins(**)
-      rows = pages.bulletins
-      return { bulletins: [], note: "none yet — add_bulletin makes the first" } if rows.empty?
+    def copy_page(from:, to:, **)
+      source = find_page(from)
+      target = find_page(to)
+      raise ToolError, "#{to} already has #{target.sections.count} bands — copy onto an empty page" if target.sections.any?
 
-      { bulletins: rows.map { |b|
-          { slug: b.slug, for: b.dated_on&.to_fs(:long), pages: b.sections.count,
-            blocks: b.sections.sum { |s| s.blocks.count } } } }
+      n = copy_page_content(source, target)
+      @edited << target.slug
+      ok "copied #{n} bands from /#{source.slug} onto /#{target.slug}"
     end
 
-    def copy_bulletin(from, to)
+    def add_sections(slug:, count:, **)
+      page = find_page(slug)
+      made = blank_sections(page, count.to_i)
+      @edited << page.slug
+      ok "added #{made} empty bands to /#{page.slug}"
+    end
+
+    def copy_page_content(from, to)
       from.sections.order(:position, :id).each_with_index do |section, i|
         copy = to.sections.create!(revision: revision, position: i,
                                    style: section.style, column_widths: section.column_widths)
@@ -828,7 +820,7 @@ module Admin
       to.sections.count
     end
 
-    def blank_bulletin(page, wanted)
+    def blank_sections(page, wanted)
       count = wanted.clamp(2, 16)
       count.times { |i| page.sections.create!(revision: revision, position: i, style: "plain") }
       count

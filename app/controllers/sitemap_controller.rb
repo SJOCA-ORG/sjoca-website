@@ -7,10 +7,10 @@
 class SitemapController < ApplicationController
   def show
     revision = Revision.live
-    @pages = revision ? Page.in_revision(revision).ordinary.order(:position, :id) : []
+    @pages = revision ? Page.in_revision(revision).on_website.ordinary.order(:position, :id) : []
     # Every page that is not an ordinary one -- bulletins now, a newsletter
     # later -- rather than only the kind Ruby happens to know the name of.
-    @bulletins = revision ? Page.in_revision(revision).special.limit(52) : []
+    @bulletins = revision ? Page.in_revision(revision).on_website.special.limit(52) : []
 
     expires_in 1.hour, public: true
     render formats: :xml

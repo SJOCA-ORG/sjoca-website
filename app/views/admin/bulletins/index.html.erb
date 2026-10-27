@@ -1,7 +1,7 @@
-<% content_for :title, "Bulletins" %>
+<% content_for :title, "Documents" %>
 
 <div class="row">
-  <h1 class="grow" style="margin:0">Bulletins</h1>
+  <h1 class="grow" style="margin:0">Documents</h1>
   <span class="muted">
     <%# Named by their own layout rather than all called bulletins: a parish
         that writes a "newsletter" template sees newsletters here. %>
@@ -11,7 +11,7 @@
 
 <% if @printables.empty? %>
   <p class="empty">
-    None yet. Ask the admin to make one — "make the bulletin for Sunday the 26th" —
+    None yet. Anything with a template of its own appears here — ask the editor to "make the bulletin for Sunday the 26th" —
     and it will copy the last one and recompute the readings and services.
   </p>
 <% else %>
@@ -24,8 +24,16 @@
         <tr>
           <td>
             <strong><%= page.dated_on ? page.dated_on.strftime("%-d %B %Y") : page.title %></strong>
-            <% if page.dated_on %>
-              <div class="muted"><%= page.dated_on.strftime("%A") %></div>
+            <div class="muted">
+              <%= page.layout %><% if page.dated_on %> · <%= page.dated_on.strftime("%A") %><% end %>
+            </div>
+            <%# Whether anybody outside can see it. A document the parish makes
+                for print carries names and birthdays, and it matters a great
+                deal whether that is on the internet. %>
+            <% unless page.on_website? %>
+              <div class="muted" style="color:#6D0606;font-size:.8rem">
+                not on the website — printed and sent, never served
+              </div>
             <% end %>
           </td>
           <td><%= page.sections.count %></td>

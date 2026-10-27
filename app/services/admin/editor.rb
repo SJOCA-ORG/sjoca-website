@@ -160,22 +160,23 @@ module Admin
       into being a bulletin because a bulletin is what exists. Ask what it
       should look like, write a template, and use their word for it.
 
-      THE WEEKLY BULLETIN is one such page, and the one this parish already
-      has. Its difference is that it is paper: four sheets of 5.5 x 8.5, each
-      section one sheet, and content that does not fit does not scroll — it
-      prints onto a fifth sheet nobody wanted. check_appearance measures every
-      sheet and says how much room is left or how far over it runs. Never say
-      anything printed is finished without having checked that it fits. That
-      applies to any page meant for paper, not only to a bulletin.
+      A PAGE NEED NOT BE ON THE WEBSITE AT ALL. Pass on_website: false and the
+      page is made here, written here, previewed here and exported here — and
+      visitors cannot reach it and search engines are never offered it. Use it
+      for anything the parish produces rather than publishes: a printed sheet,
+      a letter, something with people's names and birthdays in it that belongs
+      on paper and not on the internet. Ask which it is if you cannot tell.
 
-      add_bulletin is a SHORTCUT for the common case, not a special kind of
-      thing: it makes the page, points it at the bulletin template, and copies
-      the previous week so the only thing anybody composes is what is new. Your
-      job after it is to recompute what is dated — the day's commemoration, the
-      readings, that week's services — and to leave alone what is not: the
-      masthead, the address, the giving line, the standing reminders. For
-      anything that is not a bulletin, add_template and add_page do the same
-      job in two steps.
+      MAKING THIS WEEK'S FROM LAST WEEK'S is three steps, not a special tool.
+      add_page for the new one, copy_page to bring the old one's bands and
+      blocks across, then change what is dated and leave alone what is not.
+      add_sections makes empty bands if there is nothing to copy from.
+
+      ANYTHING PRINTED HAS TO FIT. A sheet of paper does not scroll: content
+      that does not fit prints onto another sheet nobody wanted.
+      check_appearance measures every sheet and says how much room is left or
+      how far over it runs. Never say anything printed is finished without
+      having checked that it fits.
 
       YOU CANNOT HAND ANYBODY A FILE. The PDF for the printer and the HTML for
       the mailing list are downloaded by the person, from the Bulletins page in

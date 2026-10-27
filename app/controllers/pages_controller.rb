@@ -23,6 +23,11 @@ class PagesController < ApplicationController
     @page = Page.in_revision(Current.revision).includes(sections: :blocks)
                 .find_by(slug: params[:path])
 
+    # A page kept off the website is not served to visitors -- but it must still
+    # be reachable through a signed preview link, because that is how it is
+    # looked at while being written, and how Chrome prints it to a PDF.
+    @page = nil if @page && !@page.on_website? && !previewing?
+
     @theme_digest    = ThemeAsset.digest_for(Current.revision, "css")
     @theme_js_digest = ThemeAsset.js_for(Current.revision).present? &&
                        ThemeAsset.digest_for(Current.revision, "js")

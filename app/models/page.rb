@@ -11,7 +11,8 @@ class Page < ApplicationRecord
   # :id is the tiebreak, not decoration. Two pages shared position 5 and the
   # menu order between them was undefined -- the same class of bug that had
   # one photograph on the deployed site and another locally.
-  scope :in_nav,      -> { where(show_in_nav: true).order(:position, :id) }
+  # Nothing kept off the website can be in the menu of one.
+  scope :in_nav,      -> { where(show_in_nav: true, on_website: true).order(:position, :id) }
 
   # What a page IS, as opposed to what is on it.
   #
@@ -33,6 +34,16 @@ class Page < ApplicationRecord
     with: LAYOUT_NAME,
     message: "names a template, so it must be lower case letters, numbers, - or _"
   }
+
+  # On the website, or made here and kept here.
+  #
+  # A page that is not on the website still renders, is still previewed, and is
+  # still exported as a PDF or an email -- it is simply not served to visitors
+  # and not offered to search engines. A bulletin is the obvious case: the
+  # parish makes it, prints it and sends it, and nobody needs a stale copy of
+  # last March's at a public address.
+  scope :on_website,  -> { where(on_website: true) }
+  scope :off_website, -> { where(on_website: false) }
 
   scope :ordinary,     -> { where(layout: ORDINARY) }
   scope :laid_out_as,  ->(name) { where(layout: name).order(dated_on: :desc, id: :desc) }
