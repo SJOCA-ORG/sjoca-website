@@ -40,7 +40,9 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <%= stylesheet_link_tag "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Lato:wght@300;400;700&family=Quicksand:wght@400;500;600&family=Lobster&display=swap" %>
+    <%# The typefaces are the site's own, so they are named in its head
+        template rather than here. A second parish chooses its own, by asking.
+        Anything the site needs in <head> goes the same way: see @head below. %>
     <%# The stylesheet is a database row, so the parish can change it. See
         docs/liquid-vocabulary.md. %>
     <%= stylesheet_link_tag theme_stylesheet_path(digest: @theme_digest, preview: @preview), "data-turbo-track": "reload" %>

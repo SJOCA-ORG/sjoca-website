@@ -105,3 +105,53 @@ Two signals that it has slipped already:
 - A method deciding which of someone's data *counts* — `scheduled_service?`,
   `noteworthy?`, `upcoming`. Filtering is judgement, and judgement in Ruby is
   judgement nobody can review.
+
+---
+
+## The audit (27 October 2026)
+
+Mitch asked for the whole system to be scrutinised, not just the calendar. Every
+file was searched for parish words, comments separated from code, and what was
+left triaged by whether a visitor or a second parish would see it.
+
+### Served to visitors, and therefore wrong
+
+| | Was | Now |
+|---|---|---|
+| **Web app manifest** | the parish's name, short name and description, in an ERB file — so a phone adding any site built on this code to its home screen would have offered THIS parish's name | read from the site's settings |
+| **Page-not-found page** | "Saint John the Baptist Orthodox Church" and `fr.david@sjoca.org` | the site's own name and email, and no email line at all if there is none |
+| **The typefaces** | Cormorant Garamond, Lato, Quicksand and Lobster, named in the layout — every site would load them, and the parish could not change its own lettering | in the head template, where a parish changes them by asking |
+| **Password-reset mail** | signed "Saint John the Baptist", reply-to this parish | signed with the site's own name, reply-to its own address |
+
+### Dead parish configuration
+
+`config/initializers/church_trac.rb` held a ChurchTrac account id;
+`adult_education.rb` held a YouTube playlist id. Both were orphaned when the
+importers went. **Deleted.**
+
+### Already right, and worth recording
+
+The **stylesheet is a database row** (`site.css`, ~30,000 characters), served at
+`/theme-<digest>.css`. The parish's entire visual identity is already content.
+`app/assets/stylesheets/application.css` is not loaded by the public site at all.
+
+### Knowingly kept
+
+The word **bulletin** survives in `scope :bulletins`, four `add_bulletin`-style
+tools, a controller, a route and an admin menu item. These are **sugar over the
+general thing** — `Page.special`, `add_page(layout:)`, "export any page". The
+concept is no longer privileged: a newsletter works without touching Ruby. What
+remains is naming, and three published pages do say bulletin.
+
+Internal names — `sjoca-img` temp directories, `SJOCA_DEMO`, `SHOT_DIR` — are
+not served to anybody and were left alone.
+
+### The spec that holds the line
+
+`spec/requests/no_parish_in_ruby_spec.rb` **reads the source** of everything a
+visitor is served and fails if an executable line names this parish. Comments
+may say anything: they explain why, and the why is often this parish.
+
+That is an unusual kind of spec, and deliberate. The failures it catches are not
+behavioural — the site works perfectly with the parish's name baked in, right up
+until somebody else installs it.

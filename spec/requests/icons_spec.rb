@@ -14,12 +14,24 @@ RSpec.describe "Icon and manifest routes" do
     expect(response.media_type).to eq("application/json")
   end
 
-  it "names the parish in the manifest rather than Rails' placeholder" do
+  # The manifest named this parish in an ERB file, so every site running this
+  # code would have offered somebody else's name on a phone's home screen.
+  it "takes its name from the site's own settings" do
+    build_page(slug: "home", title: "Home")
+    Revision.live.site_settings.find_or_create_by!(key: "name")
+            .update!(value: "Holy Trinity, Elsewhere")
+
     get "/manifest.json"
     manifest = JSON.parse(response.body)
 
-    expect(manifest["name"]).to match(/St John the Baptist/i)
+    expect(manifest["name"]).to eq("Holy Trinity, Elsewhere")
     expect(manifest["name"]).not_to eq("Sjoca")
+  end
+
+  it "does not name any particular parish in the file itself" do
+    source = File.read(Rails.root.join("app/views/pwa/manifest.json.erb"))
+
+    expect(source).not_to match(/John the Baptist|Orthodox|Rochester/i)
   end
 
   it "declares icons at the sizes it claims" do

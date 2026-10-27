@@ -1,28 +1,19 @@
+<%# What a phone shows when somebody adds this site to their home screen.
+    Every word comes from the site's own settings, so a second parish gets its
+    own name here rather than this one's. %>
+<% site = SiteDrop.new(Revision.live) %>
 {
-  "name": "St John the Baptist Orthodox Church",
-  "short_name": "St John the Baptist",
+  "name": <%= site.name.to_json.html_safe %>,
+  "short_name": <%= (site.setting("short_name").presence || site.name).to_json.html_safe %>,
   "icons": [
-    {
-      "src": "/icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "/icon.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    },
-    {
-      "src": "/icon-maskable-512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "maskable"
-    }
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "/icon-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
   ],
   "start_url": "/",
   "display": "standalone",
   "scope": "/",
-  "description": "Saint John the Baptist Orthodox Church, Rochester NY — a parish of the Orthodox Church in America.",
-  "theme_color": "#212121",
-  "background_color": "#FFFFFF"
+  "description": <%= site.setting("description").to_s.to_json.html_safe %>,
+  "theme_color": <%= (site.setting("theme_color").presence || "#212121").to_json.html_safe %>,
+  "background_color": <%= (site.setting("background_color").presence || "#FFFFFF").to_json.html_safe %>
 }

@@ -1,8 +1,12 @@
-<% content_for :title, "Page not found — Saint John the Baptist Orthodox Church" %>
-<section class="band band--light" style="min-height:40vh">
+<% site = SiteDrop.new(Current.revision) %>
+<% content_for :title, "Page not found — #{site.name}" %>
+
+<section class="band band--plain">
   <div class="band__inner">
-    <h2 class="b b-heading">We couldn't find that page</h2>
-    <p class="b b-text">It may have moved. <a href="/">Return to the home page</a>,
-       or <a href="mailto:fr.david@sjoca.org">email us</a> and we'll point you the right way.</p>
+    <h1>That page is not here</h1>
+    <p>It may have moved, or the address may have a typo in it.
+       Try the menu above<% if site.email.present? %>, or
+       <a href="mailto:<%= site.email %>">email us</a> and we'll point you the
+       right way<% end %>.</p>
   </div>
 </section>
