@@ -51,10 +51,29 @@
   </div>
 <% end %>
 
-<h2>
-  <%= @filter ? "Tagged #{@filter}" : "All photographs" %>
-  <% if @filter %><%= link_to "show all", admin_photos_path, class: "muted" %><% end %>
-</h2>
+<div class="row" style="align-items:baseline;gap:.8rem">
+  <h2 style="margin:0">
+    <%= @filter ? "Tagged #{@filter}" : "All photographs" %>
+    <% if @filter %><%= link_to "show all", admin_photos_path, class: "muted" %><% end %>
+  </h2>
+
+  <span class="grow"></span>
+
+  <%# The order is chosen and STAYS chosen while you work. Renaming something
+      no longer re-sorts the page under your hands; the button lights up
+      instead, and you re-sort when you are ready. %>
+  <span class="sorter" id="sorter">
+    <span class="muted" style="font-size:.82rem">in order of</span>
+    <%= link_to "date added", admin_photos_path(tag: @filter, q: params[:q], order: "newest"),
+          class: "sort-link#{' is-on' if @order == 'newest'}" %>
+    <%= link_to "name", admin_photos_path(tag: @filter, q: params[:q], order: "name"),
+          class: "sort-link#{' is-on' if @order == 'name'}" %>
+    <a id="resort" class="sort-link resort" hidden
+       href="<%= admin_photos_path(tag: @filter, q: params[:q], order: @order) %>">
+      ↻ put back in order
+    </a>
+  </span>
+</div>
 
 <div class="row" style="margin-bottom:.8rem">
   <%= form_with url: admin_photos_path, method: :get, class: "row" do %>
@@ -128,12 +147,66 @@
       }
 
       field.dataset.original = value;   // so a second blur does not save again
-      field.form.requestSubmit();
+
+      // Saved in the background. Submitting the form reloaded the page, which
+      // re-sorted it -- so the row you had just renamed moved while you were
+      // still typing its tags, and you carried on typing into somebody else's
+      // photograph. That is the bug this whole arrangement exists to stop.
+      var card = field.closest(".shot");
+      var form = field.form;
+      var body = new FormData(form);
+      card.classList.add("saving");
+
+      fetch(form.action, {
+        method: "PATCH",
+        headers: { "Accept": "application/json",
+                   "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content },
+        body: body
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+        .then(function (res) {
+          card.classList.remove("saving");
+          if (!res.ok || !res.body.ok) {
+            card.classList.add("save-failed");
+            field.value = field.dataset.original = form.dataset.lastGood || field.value;
+            alert(res.body.error || "That could not be saved.");
+            return;
+          }
+          card.classList.add("saved");
+          setTimeout(function () { card.classList.remove("saved"); }, 1600);
+
+          // The list is now out of order. Say so, rather than re-sorting it.
+          var resort = document.getElementById("resort");
+          if (resort) resort.hidden = false;
+        })
+        .catch(function () {
+          card.classList.remove("saving");
+          card.classList.add("save-failed");
+          alert("That could not be saved — check the connection and try again.");
+        });
     });
   })();
 </script>
 
 <style>
+  .sorter { display:inline-flex; align-items:center; gap:.45rem }
+  .sort-link { font-size:.82rem; padding:.2rem .5rem; border:1px solid var(--rule);
+               border-radius:999px; text-decoration:none; color:var(--ink); background:#fff }
+  .sort-link.is-on { background:var(--ink); color:#fff; border-color:var(--ink) }
+  .sort-link.resort { border-color:var(--maroon); color:#fff; background:var(--maroon);
+                      animation: resort-attention 1.4s ease-in-out 3 }
+  .sort-link.resort[hidden] { display:none }
+  @keyframes resort-attention {
+    0%,100% { transform:none }
+    50%     { transform:translateY(-2px) }
+  }
+  @media (prefers-reduced-motion: reduce) { .sort-link.resort { animation:none } }
+
+  /* Saving happens where you are looking, on the card itself. */
+  .shot.saving { outline:2px solid var(--rule); outline-offset:-2px }
+  .shot.saved  { outline:2px solid #0B7A3B; outline-offset:-2px; transition:outline-color 1.4s }
+  .shot.save-failed { outline:2px solid var(--maroon); outline-offset:-2px }
+
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem }
   .shot { border:1px solid var(--rule); border-radius:8px; overflow:hidden; background:#fff }
   .shot img { width:100%; height:150px; object-fit:cover; display:block; background:var(--band) }

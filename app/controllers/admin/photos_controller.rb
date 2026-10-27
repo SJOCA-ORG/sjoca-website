@@ -8,7 +8,14 @@ module Admin
       @filter = params[:tag].presence
       @photos = @filter ? Photo.published.tagged(@filter) : Photo.published
       @photos = @photos.where("human_name ILIKE :q OR alt_text ILIKE :q", q: "%#{params[:q]}%") if params[:q].present?
-      @photos = @photos.listing.order(uploaded_at: :desc, human_name: :asc).limit(200)
+      # The ORDER is chosen, and stays chosen. It used to be fixed, and because
+      # saving a name reloaded the page, the row you had just renamed jumped
+      # somewhere else while you were still typing its tags.
+      @order = %w[newest name].include?(params[:order]) ? params[:order] : "newest"
+      @photos = case @order
+                when "name" then @photos.listing.order(human_name: :asc)
+                else             @photos.listing.order(uploaded_at: :desc, human_name: :asc)
+                end.limit(200)
       @recent = Photo.recently_uploaded(1.day.ago).listing.limit(24)
     end
 
@@ -56,10 +63,23 @@ module Admin
         rename(photo, params[:human_name])
       end
 
-      redirect_back fallback_location: admin_photos_path,
-                    notice: "Updated #{photo.reload.human_name}."
+      photo.reload
+
+      # Asked for by a script, answer the script: the page must NOT reload, or
+      # the row being edited is re-sorted out from under the person editing it.
+      respond_to do |format|
+        format.json { render json: { ok: true, name: photo.human_name,
+                                     tags: photo.tag_labels,
+                                     provisional: photo.provisional_name? } }
+        format.html { redirect_back fallback_location: admin_photos_path,
+                                    notice: "Updated #{photo.human_name}." }
+      end
     rescue ActiveRecord::RecordInvalid => e
-      redirect_back fallback_location: admin_photos_path, alert: e.record.errors.full_messages.to_sentence
+      message = e.record.errors.full_messages.to_sentence
+      respond_to do |format|
+        format.json { render json: { ok: false, error: message }, status: :unprocessable_content }
+        format.html { redirect_back fallback_location: admin_photos_path, alert: message }
+      end
     end
 
     # A description can fail -- the model has a bad minute, or thinks for so

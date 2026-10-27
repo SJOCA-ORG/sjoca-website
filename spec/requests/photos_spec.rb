@@ -116,3 +116,68 @@ RSpec.describe "the photo library does not fetch the pictures", type: :request d
       .to raise_error(ActiveModel::MissingAttributeError)
   end
 end
+
+# The order is chosen, and stays chosen while you work.
+#
+# It used to be fixed, and saving a name reloaded the page -- so the row you had
+# just renamed jumped somewhere else while you were still typing its tags, and
+# you carried on typing into a different photograph.
+RSpec.describe "the order of the photo library", type: :request do
+  it "is by date added unless asked otherwise" do
+    get "/admin/photos"
+
+    expect(response.body).to include("date added")
+    expect(response.body).to match(/class="sort-link is-on"[^>]*>\s*date added/m)
+  end
+
+  it "can be by name, and says so" do
+    get "/admin/photos?order=name"
+
+    expect(response.body).to match(/class="sort-link is-on"[^>]*>\s*name/m)
+  end
+
+  it "ignores an order nobody offered" do
+    get "/admin/photos?order=; DROP TABLE photos"
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to match(/class="sort-link is-on"[^>]*>\s*date added/m)
+  end
+
+  it "keeps the filter and the search when the order changes" do
+    get "/admin/photos?tag=clergy&q=david&order=name"
+
+    expect(response.body).to include("tag=clergy")
+    expect(response.body).to include("q=david")
+  end
+
+  # The save that does not reload the page needs an answer a script can read.
+  def a_photo
+    bytes = Open3.capture3("magick", "-size", "40x30", "gradient:navy-white",
+                           "jpg:-", binmode: true).first
+    Photo.create!(human_name: "orderable", data: bytes, content_type: "image/jpeg",
+                  byte_size: bytes.bytesize, sha256: Digest::SHA256.hexdigest(bytes),
+                  status: "published")
+  end
+
+  it "answers a rename with JSON when a script asks" do
+    photo = a_photo
+    patch "/admin/photos/#{photo.id}",
+          params: { human_name: "renamed-by-a-spec" },
+          headers: { "Accept" => "application/json" }
+
+    expect(response).to have_http_status(:ok)
+    expect(JSON.parse(response.body)["name"]).to eq("renamed-by-a-spec")
+  end
+
+  # "Not A Slug!" is fine -- it is canonicalised. A name with nothing in it that
+  # could BE a name is not.
+  it "answers a bad rename with JSON too, rather than redirecting" do
+    photo = a_photo
+    patch "/admin/photos/#{photo.id}",
+          params: { human_name: "!!!" },
+          headers: { "Accept" => "application/json" }
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(JSON.parse(response.body)["ok"]).to be(false)
+  end
+end
