@@ -92,7 +92,7 @@
   <% Tag.in_menu.each { |t| %><option value="<%= t.label %>"><% } %>
 </datalist>
 
-<div class="grid">
+<div class="grid" id="all-photos">
   <% @photos.each do |photo| %>
     <%= render "photo", photo: photo %>
   <% end %>
@@ -135,9 +135,24 @@
   // Enter still works -- it is an ordinary single-field form -- and leaving a
   // field you did not change submits nothing.
   (function () {
+    // On the card, not in an alert box. An alert interrupts, says nothing about
+    // WHICH photograph, and cannot be read once it has been dismissed.
+    function say(card, message) {
+      var line = card.querySelector(".save-error");
+      if (!line) {
+        line = document.createElement("p");
+        line.className = "save-error";
+        card.querySelector(".meta").appendChild(line);
+      }
+      line.textContent = message;
+    }
+
     document.addEventListener("focusout", function (e) {
       var field = e.target;
       if (!field.matches(".shot input[type=text]")) return;
+
+      var existing = field.closest(".shot").querySelector(".save-error");
+      if (existing) existing.remove();
 
       var value = field.value.trim();
       if (value === (field.dataset.original || "")) return;
@@ -157,19 +172,21 @@
       var body = new FormData(form);
       card.classList.add("saving");
 
-      fetch(form.action, {
-        method: "PATCH",
-        headers: { "Accept": "application/json",
-                   "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content },
-        body: body
-      })
+      // The token is read defensively. csrf_meta_tags emits NOTHING when
+      // forgery protection is off, which is the default under test -- so
+      // assuming the tag threw, and the save silently never happened while the
+      // card sat marked "saving" for ever.
+      var meta = document.querySelector("meta[name=csrf-token]");
+      var headers = { "Accept": "application/json" };
+      if (meta) headers["X-CSRF-Token"] = meta.content;
+
+      fetch(form.action, { method: "PATCH", headers: headers, body: body })
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
         .then(function (res) {
           card.classList.remove("saving");
           if (!res.ok || !res.body.ok) {
             card.classList.add("save-failed");
-            field.value = field.dataset.original = form.dataset.lastGood || field.value;
-            alert(res.body.error || "That could not be saved.");
+            say(card, res.body.error || "That could not be saved.");
             return;
           }
           card.classList.add("saved");
@@ -182,7 +199,7 @@
         .catch(function () {
           card.classList.remove("saving");
           card.classList.add("save-failed");
-          alert("That could not be saved — check the connection and try again.");
+          say(card, "That could not be saved — check the connection and try again.");
         });
     });
   })();
@@ -206,6 +223,7 @@
   .shot.saving { outline:2px solid var(--rule); outline-offset:-2px }
   .shot.saved  { outline:2px solid #0B7A3B; outline-offset:-2px; transition:outline-color 1.4s }
   .shot.save-failed { outline:2px solid var(--maroon); outline-offset:-2px }
+  .save-error { color:var(--maroon); font-size:.78rem; margin:.3rem 0 0 }
 
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem }
   .shot { border:1px solid var(--rule); border-radius:8px; overflow:hidden; background:#fff }

@@ -100,3 +100,54 @@ Honestly, so that nobody mistakes a green suite for a safe one:
 When something breaks, the fix is not finished until a spec fails without it. Write
 the spec first, watch it fail, then fix. State the symptom in a comment: six months on
 the symptom is what someone will recognise, not the cause.
+
+
+---
+
+## System specs (27 October 2026)
+
+`spec/system/` — RSpec driving a real headless Chrome through Capybara. Both
+gems were in the Gemfile from the start and never configured.
+
+**What belongs here, and only here.** Almost everything is better tested against
+the application directly: faster, steadier, and a failure points at a line. A
+few things cannot be tested that way at all, because they exist only in a
+browser:
+
+- whether saving a field reloads the page
+- whether a row moves while somebody is typing in it
+- whether a button appears when it should
+
+The photo library moved under Mitch's hands **twice** before anyone could say
+what was wrong, and every request spec passed throughout — the server did
+exactly the right thing each time.
+
+**Setup** is in `spec/support/system.rb`. Two things worth knowing: Chrome is
+found by the same `CHROME` override the editor's own checks use (this Mac's
+Chrome.app contains a binary called "Google Chrome Beta", which Selenium does
+not look for), and transactional tests are off, because a browser talks to a
+real server on another thread that cannot see an uncommitted transaction.
+
+### Four mistakes writing them, all mine, all instructive
+
+- **Navigating while a sign-in was in flight.** `click_button "Sign in"` then
+  `visit "/admin/photos"` — the pending redirect arrived afterwards and
+  overwrote it. Wait for the destination first.
+- **Reading the page before it had changed.** `click_link "name"` returns when
+  the click lands, not when the new page arrives. Assert the change, then read.
+- **Reading the wrong part of the page.** "Just added" sits above the library
+  and is always newest-first by design; scoping to `#all-photos` was the fix.
+- **Asserting an order that would not have changed.** Renaming a photograph
+  does not change when it arrived, so re-sorting by date correctly left it where
+  it was. The spec now does this in name order, where the move is real.
+
+Three of those four were the spec being wrong about a page that was right.
+Worth remembering before changing the code to satisfy a new test.
+
+### And one real finding
+
+`csrf_meta_tags` emits **nothing** when forgery protection is off, which is the
+default under test. The photo library's background save read
+`document.querySelector("meta[name=csrf-token]").content` and threw — the card
+sat marked "saving" for ever and nothing was saved. Harmless in development and
+production, where the tag exists, but the token is read defensively now.
