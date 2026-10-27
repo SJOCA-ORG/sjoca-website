@@ -93,16 +93,38 @@ Council changed over and the page is updated as far as it can be. Still needed:
       so the world was still asking Route 53. The Gmail preset fixed it. Written
       up in [`dns.md`](dns.md), including what to do differently for the second
       parish.
-- [ ] **DKIM.** Generate the key at admin.google.com → Apps → Google Workspace →
-      Gmail → Authenticate email (2048-bit, prefix `google`), add the TXT record
-      at `google._domainkey`, *then* press Start authentication. Half an hour, and
-      nothing blocks it now that the DNS is ours. Never enter a placeholder: in
-      DKIM an empty `p=` means *this key is revoked*.
-- [ ] **Align the two legacy MX names.** Namecheap's Gmail preset used
-      `aspmx2`/`aspmx3.googlemail.com` at priority 10 where Route 53 had
-      `alt3`/`alt4.aspmx.l.google.com`. All four are Google's and all four
-      deliver, so this is tidiness, not a fault — it is recorded as an accepted
-      variance in `script/zone_compare.sh` so it neither nags nor gets forgotten.
+- [x] ~~DKIM.~~ **Record in place, 27 October.** 2048-bit key generated at
+      admin.google.com, published at `google._domainkey`, verified from outside:
+      correct name, valid `v=DKIM1; k=rsa`, 392 base64 characters that decode as
+      a genuine 2048-bit RSA public key, stored by Namecheap as two strings
+      because the record is 506 characters and a single DNS string holds 255.
+      Google's confirmation can take up to 48 hours.
+      - [ ] Confirm **Authenticate email** in admin.google.com reads as
+            authenticating rather than pending. If it sits pending past a day,
+            the cause is almost certainly negative caching — Namecheap's SOA sets
+            3601 seconds — not the record.
+- [ ] ~~Align the two legacy MX names.~~ **Decided against, 27 October — leaving
+      them.** Namecheap's Gmail preset used `aspmx2`/`aspmx3.googlemail.com` at
+      priority 10 where Route 53 had `alt3`/`alt4.aspmx.l.google.com`. All four
+      are Google's, all four resolve, all four deliver, and those two are the
+      third tier of fallback — reached only if the priority-1 and both priority-5
+      servers are unreachable at once.
+
+      The reason it is not worth doing: **Namecheap's Mail Settings is one radio
+      button.** It is either the Gmail preset or Custom MX, and selecting Custom
+      does not carry the preset's records over — so changing two names means
+      retyping all five, in the same screen that silently dropped all five once
+      already. That is a real risk of a mail outage in exchange for cosmetic
+      exactness.
+
+      Recorded as an **accepted variance** in `script/zone_compare.sh`, with the
+      reason and the date, so the difference is signed for rather than unnoticed.
+- [ ] **If mail routing is ever rebuilt anyway**, land on Google's current shape
+      rather than reproducing the old one: a **single** `smtp.google.com` at
+      priority 1, replacing all five. Since Custom MX makes you retype everything
+      regardless, that is the moment to do it — not a separate project. Needs a
+      window where a short interruption is tolerable, and verification
+      immediately after.
 - [ ] **Raise DMARC, much later.** `p=none` watches and rejects nothing. Once SPF
       and DKIM are both verified and the reports have looked clean for a few
       weeks, `p=quarantine` and eventually `p=reject` is what actually stops

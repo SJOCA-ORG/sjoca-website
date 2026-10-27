@@ -36,7 +36,7 @@ BASE_dkim=""
 # ---- differences we have looked at and accepted --------------------------
 # A finding either gets fixed or gets a signature; it never just gets ignored.
 # Each line: kind|the value we will also accept|why
-ACCEPTED="mx|1 aspmx.l.google.com,10 aspmx2.googlemail.com,10 aspmx3.googlemail.com,5 alt1.aspmx.l.google.com,5 alt2.aspmx.l.google.com,|Namecheap's Gmail preset used Google's legacy names for the two priority-10 servers (aspmx2/aspmx3.googlemail.com rather than alt3/alt4.aspmx.l.google.com). Both sets are Google's and both deliver; accepted 27 Oct 2026, to be aligned when convenient."
+ACCEPTED="mx|1 aspmx.l.google.com,10 aspmx2.googlemail.com,10 aspmx3.googlemail.com,5 alt1.aspmx.l.google.com,5 alt2.aspmx.l.google.com,|Namecheap's Gmail preset used Google's legacy names for the two priority-10 servers: aspmx2/aspmx3.googlemail.com where Route 53 had alt3/alt4.aspmx.l.google.com. All four are Google's and all four deliver, and these two are the third tier of fallback. NOT being changed, decided 27 Oct 2026: Namecheap's Mail Settings is one radio button, Gmail preset OR Custom MX, and Custom does not carry the preset's records over -- so correcting two names means retyping all five in the screen that silently dropped all five once already. Cosmetic exactness is not worth a mail outage. See docs/TODO.md."
 
 WANTED="mx verify www root spf dmarc dkim"
 label_for() { case "$1" in

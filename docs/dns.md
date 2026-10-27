@@ -19,21 +19,16 @@ website cutover, which is a separate thing, and is step 5.
 | Registration | **Namecheap**, transferred 26 October 2026. Auto-renew on, registrant contact checked. |
 | Renewal | **21 January 2028** — the transfer added a year. |
 | DNS | **Namecheap BasicDNS** — `dns1`/`dns2.registrar-servers.com`, delegated 27 October, 22:28 UTC. |
-| The zone | Nine records, live and verified at the nameserver and across four public resolvers. |
+| The zone | Ten records, live and verified at the nameserver and across four public resolvers. |
 | Mail | Flowing throughout. Never interrupted. |
 | Website | Still Google Sites, deliberately. `www.sjoca.org` returns 200. |
+| DKIM | **Published** 27 October and verified — a real 2048-bit key, correctly chunked. Awaiting Google's confirmation, which can take up to 48 hours. |
 
-Three things remain, none urgent:
+So all three parts of mail authentication now exist — SPF, DKIM and DMARC — where
+none of them did a week ago.
 
-- **DKIM** — generate the key at admin.google.com and add the TXT record. Now
-  unblocked, because the DNS is finally ours to edit.
-- **Two MX names** — Namecheap's Gmail preset used Google's legacy
-  `aspmx2`/`aspmx3.googlemail.com` for the two priority-10 servers instead of
-  `alt3`/`alt4.aspmx.l.google.com`. Both are Google's and both deliver; worth
-  aligning so that a future reader need not wonder which is right.
-  `script/zone_compare.sh` carries it as an **accepted variance**, not a fault.
-- **An `A` record on the bare domain** — step 5, and the one thing that must not
-  be forgotten on cutover day.
+**One thing remains: an `A` record on the bare domain**, at cutover. See the box in
+step 5. It is the single item most likely to be forgotten on the day.
 
 `script/zone_compare.sh` shows all of it at once.
 
@@ -103,13 +98,13 @@ reproducible exactly.
 
 ## What was missing, and went in with the move
 
-Route 53 had none of these. Two of the three are now live.
+Route 53 had none of these. All three are now live.
 
 | | Type | Host | Value | Why |
 |---|---|---|---|---|
 | ✓ | TXT | `@` | `v=spf1 include:_spf.google.com ~all` | Without it, anyone can send email claiming to be from @sjoca.org. |
 | ✓ | TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:itmanager@sjoca.org` | Reports on who is trying. `p=none` only watches; it rejects nothing. |
-| — | TXT | `google._domainkey` | the DKIM key — see below | Survives forwarding, where SPF does not. |
+| ✓ | TXT | `google._domainkey` | the DKIM key — see below | Survives forwarding, where SPF does not. |
 
 Five years of parish email went out with nothing asserting who was allowed to send
 it. That was the real finding of this exercise, and it had nothing to do with the
@@ -331,9 +326,22 @@ priority-10 servers:
 | 10 | `alt4.aspmx.l.google.com` | `aspmx3.googlemail.com` |
 
 All four hosts resolve and all four are Google's. The `googlemail.com` names are
-what Google published years ago and still runs. Mail delivers either way, and
-those two only matter if the first three are unreachable. Recorded as an accepted
-variance in `script/zone_compare.sh`, to be aligned when convenient.
+what Google published years ago and still runs — a leftover from the years Google
+could not use `gmail.com` in Germany and the UK. Mail delivers either way, and
+those two are the third tier of fallback, reached only if the priority-1 server and
+both priority-5 servers are unreachable at once.
+
+**Decided 27 October: they stay.** Namecheap's Mail Settings is a single radio
+button — the Gmail preset *or* Custom MX — and selecting Custom does not carry the
+preset's records over. So correcting two hostnames means retyping all five, in the
+screen that silently dropped all five an hour earlier. That is a genuine risk of a
+mail outage bought for cosmetic exactness, and the trade is not worth it.
+
+Recorded in `script/zone_compare.sh` as an **accepted variance**, carrying the
+reason and the date. A difference somebody looked at and signed for is not the same
+as a difference nobody noticed — and if mail routing is ever rebuilt for some other
+reason, the thing to build is Google's current shape: a single `smtp.google.com` at
+priority 1, replacing all five.
 
 #### Doing this for another parish
 
