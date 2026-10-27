@@ -3,8 +3,10 @@
 Context for anyone (person or Claude session) picking this project up. This file is
 committed so it travels with the repo; it is the handoff, not a scratchpad.
 
-**Last updated:** 2026-10-17 — Phase 2 AI admin built; feed-specific drops replaced by one
-guarded fetch primitive; site cleared back to the baseline for the replay test.
+**Last updated:** 2026-10-27 — the replay test is done and was presented to the parish
+council on 20 October; a login protects the admin; every trace of this particular parish
+is out of the Ruby and lives in the database; the `sjoca.org` registration has moved to
+Namecheap and the DNS move is the next thing in front of us.
 
 ---
 
@@ -171,8 +173,21 @@ day. Both need the bytes parsed before there is JSON to hand over —
 Deployment is done — see [`docs/deployment.md`](docs/deployment.md). The site runs on
 Render at **https://sjoca.onrender.com** (service `srv-db6kqurl550s73bd5h90`), deployed
 from `main` via `render.yaml`, with three cron jobs for the calendar, class recordings
-and lectionary mirrors. `sjoca.org` is **not** cut over yet; the domain owner is still
-being tracked down (`docs/TODO.md`).
+and lectionary mirrors. `sjoca.org` is **not** cut over yet, but the domain is now
+**ours**: transferred from Amazon Registrar to Namecheap on 26 October 2026, renewal
+pushed to January 2028, auto-renew on. The AWS account that held it was never
+recovered — AWS Support issued a transfer code after verifying Mitch as the
+registrant, so Route 53 was never editable and the zone had to be read out of public
+DNS rather than exported. **DNS still answers from Route 53** until the nameservers
+are flipped, which is deliberate: it keeps the old site and parish mail running while
+the new zone is built beside it.
+
+The procedure, the captured zone and the reasoning are in
+[`docs/dns.md`](docs/dns.md). Two scripts, neither needing any account access:
+`script/zone_compare.sh` asks the old and new nameservers the same questions and
+compares both against the capture, and `script/domain_watch.sh` reports registrar,
+status and the records that must not move. **Next action is step 2** — type the zone
+into Namecheap while Route 53 is still readable beside it.
 
 The parish favicon is in place — the Flower City logo behind an Orthodox three-bar
 cross. Design history, provenance and the regeneration command are in
@@ -299,4 +314,8 @@ for each so they can be remade.
   stewardship campaign?
 
 **Housekeeping:**
-- Who controls the `sjoca.org` domain and the Google Sites account? (Step 3.)
+- ~~Who controls the `sjoca.org` domain and the Google Sites account?~~ Answered: the
+  domain is at Namecheap under Mitch's account as of 26 October 2026, and
+  `itmanager@sjoca.org` reaches admin.google.com. What remains is getting the Namecheap
+  login into shared parish credentials rather than a personal account — which is the
+  whole reason this question was hard to answer in the first place.

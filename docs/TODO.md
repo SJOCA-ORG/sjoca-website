@@ -54,36 +54,44 @@ Council changed over and the page is updated as far as it can be. Still needed:
 
 ## The domain, and getting live
 
-Established by inspection on 2026-10-12 — no account access needed:
+**The registration is ours. The DNS is not yet.** Follow
+[`dns.md`](dns.md) — it is the procedure; this is the status.
 
-| | |
-|---|---|
-| Registrar | **Amazon Registrar** (registrar.amazon.com) |
-| DNS | **AWS Route 53** (ns-118.awsdns-14.com and three others) |
-| Registered | 21 January 2021 |
-| **Expires** | **21 January 2027** |
-| Web | `www.sjoca.org` → CNAME → `ghs.googlehosted.com` (Google Sites) |
-| Mail | Google Workspace (`aspmx.l.google.com`) |
+| | On 12 October | On 27 October |
+|---|---|---|
+| Registrar | Amazon Registrar | **NameCheap, Inc.** ✓ |
+| Expires | 21 January 2027 | **21 January 2028** ✓ (auto-renew on) |
+| DNS | AWS Route 53 | **still AWS Route 53** — step 3 moves it |
+| Web | `www` → `ghs.googlehosted.com` (Google Sites) | unchanged, deliberately |
+| Mail | Google Workspace (`aspmx.l.google.com`) | unchanged, and must stay so |
 
-So somebody holds an **AWS account** containing the domain and Route 53, and a
-**Google Workspace** account for @sjoca.org mail. Both are needed before
-cutover, and neither is in our hands yet.
-
-- [x] ~~Find who holds the AWS account~~ — **in progress with AWS Support**,
-      case opened 12 October 2026. Mitch is already the registrant contact: the
-      January 2026 "confirm your contact information" email for sjoca.org was
-      sent to mitch@catprint.com. But the domain does not appear under the
-      account he can log into, so AWS is being asked which account holds it.
-      (Worth re-checking the region while waiting — the Registered Domains
-      screen only renders in us-east-1 and shows an empty list everywhere else.)
+- [x] ~~Find who holds the AWS account.~~ **Never found, and it stopped
+      mattering.** AWS Support (case 179183501600060) verified Mitch as the
+      registrant who had lost the ability to log in and issued a transfer auth
+      code without reopening the account. So the domain moved while the account
+      it lived in stayed shut, and Route 53 was never once edited by us. That is
+      also why the zone had to be read out of public DNS rather than exported —
+      see [`dns.md`](dns.md).
 - [x] ~~Find who holds Google Workspace admin.~~ **Answered 26 October 2026:
       `itmanager@sjoca.org` can reach admin.google.com.** Mitch has it. That
       also unblocks DKIM — see [`dns.md`](dns.md). Mail must keep working through
       and after the move; it is independent of the website, but only if nobody
       edits the MX records by accident.
-- [ ] **Renewal is 21 January 2027**, roughly two months after the AGM. Confirm
-      it is on auto-renew with a card that has not expired. Parishes lose
-      domains this way.
+- [x] ~~Confirm auto-renew.~~ Done 27 October, and the transfer added a year.
+- [ ] **Put the Namecheap login in shared parish credentials**, not a personal
+      account. This is the item that outlives everyone currently involved, and
+      the reason the January 2026 renewal notice went to a contact nobody at the
+      parish could act on.
+- [ ] **Step 2 of [`dns.md`](dns.md): type the zone into Namecheap Advanced DNS**
+      while the nameservers still point at AWS. Ten records: the seven Route 53
+      serves today, plus SPF, DMARC and DKIM. Verify with
+      `script/zone_compare.sh`.
+- [ ] **Step 3: flip the nameservers to Namecheap BasicDNS.** Cannot be verified
+      in advance — Namecheap holds no zone until the flip creates it. Run
+      `script/zone_compare.sh` in the minute after saving.
+- [ ] **Then press Start authentication** on admin.google.com → Gmail →
+      Authenticate email, so DKIM goes live. Not before step 3; Google would
+      look at Route 53 and find nothing.
 
 ### Clearing pre-flight findings — before DNS cutover
 
@@ -135,10 +143,15 @@ http://www.sjoca.org    301 → https://www.sjoca.org/   ✓
 
 There is a CNAME on `www` and nothing on the apex. Anyone who types
 `sjoca.org` — which is how it is said aloud, and probably how it is printed —
-reaches nothing at all. Worth fixing in Route 53 now, independent of this
-project, and must be right at cutover.
+reaches nothing at all.
 
-- [ ] **Make the bare domain work**, redirecting to www (or the other way).
+It cannot be fixed where it is: the fix is a record in Route 53 and nobody can
+edit Route 53. So it waits for step 5, where it becomes one more line in a zone
+we control — and the first thing this project fixes that was already broken.
+
+- [ ] **Make the bare domain work** at cutover: an ALIAS on `@` pointing at
+      Render, alongside repointing `www`. Both in the same edit, so the domain
+      never half-works.
 
 ### Getting live on a temporary URL
 
