@@ -25,6 +25,13 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+cd "$(dirname "$0")/.."
+
+# Operator credentials live in .env (gitignored). See .env.example.
+if [ -f .env ]; then
+  set -a; . ./.env; set +a
+fi
+
 SERVICE_ID="dpg-db6kqhrl550s73bd3u9g-a"      # sjoca-db
 TARGET="${1:-sjoca_development}"
 DUMP_DIR="db/dumps"
@@ -34,15 +41,24 @@ DUMP="${DUMP_DIR}/production-${STAMP}.dump"
 die() { echo "error: $*" >&2; exit 1; }
 
 [ "${RAILS_ENV:-development}" = "production" ] && die "refusing to run with RAILS_ENV=production"
-[ -n "${RENDER_API_KEY:-}" ] || die "RENDER_API_KEY is not set"
+# The server is the real site now. This copies DOWN, never up -- pushing a
+# laptop's database over the parish's is a different, much more dangerous
+# operation and does not belong in the same script as a routine refresh.
 command -v pg_dump >/dev/null || die "pg_dump not on PATH"
 command -v pg_restore >/dev/null || die "pg_restore not on PATH"
 
-echo "==> asking Render for the external connection string"
-URL=$(curl -fsS -H "Authorization: Bearer ${RENDER_API_KEY}" -H "Accept: application/json" \
-        "https://api.render.com/v1/postgres/${SERVICE_ID}/connection-info" \
-      | python3 -c 'import sys,json; print(json.load(sys.stdin).get("externalConnectionString",""))')
-[ -n "$URL" ] || die "no external connection string returned (is external access enabled?)"
+if [ -n "${RENDER_API_KEY:-}" ]; then
+  echo "==> asking Render for the external connection string"
+  URL=$(curl -fsS -H "Authorization: Bearer ${RENDER_API_KEY}" -H "Accept: application/json" \
+          "https://api.render.com/v1/postgres/${SERVICE_ID}/connection-info" \
+        | python3 -c 'import sys,json; print(json.load(sys.stdin).get("externalConnectionString",""))')
+  [ -n "$URL" ] || die "no external connection string returned (is external access enabled?)"
+elif [ -n "${RENDER_DATABASE_URL:-}" ]; then
+  echo "==> using RENDER_DATABASE_URL from .env"
+  URL="$RENDER_DATABASE_URL"
+else
+  die "set RENDER_DATABASE_URL in .env (see .env.example), or RENDER_API_KEY to look it up"
+fi
 
 # Fail early and clearly on the version trap rather than midway through a dump.
 CLIENT_MAJOR=$(pg_dump --version | sed -E 's/.* ([0-9]+).*/\1/')
@@ -66,9 +82,13 @@ pg_restore --no-owner --no-privileges -d "$TARGET" "$DUMP"
 
 echo "==> done"
 psql -d "$TARGET" -tAc \
-  "select 'pages: '||(select count(*) from pages)
+  "select 'revisions: '||(select count(*) from revisions)
+        ||', pages: '||(select count(*) from pages)
         ||', blocks: '||(select count(*) from blocks)
-        ||', photos: '||(select count(*) from legacy_assets)" | sed 's/^/    /'
+        ||', photos: '||(select count(*) from photos)
+        ||', accounts: '||(select count(*) from users)" | sed 's/^/    /'
+psql -d "$TARGET" -tAc \
+  "select 'live revision: '||coalesce((select id::text from revisions where state='published'), 'none')" | sed 's/^/    /'
 echo
 echo "    The dump is still at ${DUMP}. It contains parish photographs."
 echo "    Delete it when you are done: rm ${DUMP}"
