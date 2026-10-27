@@ -173,21 +173,24 @@ day. Both need the bytes parsed before there is JSON to hand over —
 Deployment is done — see [`docs/deployment.md`](docs/deployment.md). The site runs on
 Render at **https://sjoca.onrender.com** (service `srv-db6kqurl550s73bd5h90`), deployed
 from `main` via `render.yaml`, with three cron jobs for the calendar, class recordings
-and lectionary mirrors. `sjoca.org` is **not** cut over yet, but the domain is now
-**ours**: transferred from Amazon Registrar to Namecheap on 26 October 2026, renewal
-pushed to January 2028, auto-renew on. The AWS account that held it was never
-recovered — AWS Support issued a transfer code after verifying Mitch as the
-registrant, so Route 53 was never editable and the zone had to be read out of public
-DNS rather than exported. **DNS still answers from Route 53** until the nameservers
-are flipped, which is deliberate: it keeps the old site and parish mail running while
-the new zone is built beside it.
+and lectionary mirrors. `sjoca.org` is **not** cut over yet, but the domain
+and its DNS are now **ours**. The registration moved from Amazon Registrar to
+Namecheap on 26 October 2026 (renewal now January 2028, auto-renew on) and the
+nameservers moved to Namecheap BasicDNS on 27 October. The AWS account that held it
+was never recovered — AWS Support issued a transfer code after verifying Mitch as
+the registrant — so Route 53 was never editable and the zone had to be read out of
+public DNS rather than exported. SPF and DMARC went in with the move; neither had
+ever existed. **The website being served is still Google Sites**, deliberately: the
+domain move and the website cutover are separate, and the parish noticed nothing.
 
-The procedure, the captured zone and the reasoning are in
+The procedure, the captured zone and an honest account of doing it are in
 [`docs/dns.md`](docs/dns.md). Two scripts, neither needing any account access:
-`script/zone_compare.sh` asks the old and new nameservers the same questions and
-compares both against the capture, and `script/domain_watch.sh` reports registrar,
-status and the records that must not move. **Next action is step 2** — type the zone
-into Namecheap while Route 53 is still readable beside it.
+`script/zone_compare.sh` separates *what the authoritative nameserver holds* from
+*what public resolvers are handing out* — conflating those two produced a false
+"mail is broken" alarm on a zone that was already correct — and
+`script/domain_watch.sh` reports registrar, status and the records that must not
+move. What remains: DKIM, and on cutover day an **ALIAS on the bare domain** in the
+same edit as repointing `www`.
 
 The parish favicon is in place — the Flower City logo behind an Orthodox three-bar
 cross. Design history, provenance and the regeneration command are in

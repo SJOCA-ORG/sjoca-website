@@ -54,16 +54,18 @@ Council changed over and the page is updated as far as it can be. Still needed:
 
 ## The domain, and getting live
 
-**The registration is ours. The DNS is not yet.** Follow
-[`dns.md`](dns.md) — it is the procedure; this is the status.
+**The registration is ours and so is the DNS.** The domain move is finished;
+[`dns.md`](dns.md) is both the procedure and the account of doing it.
 
-| | On 12 October | On 27 October |
+| | On 12 October | Now |
 |---|---|---|
 | Registrar | Amazon Registrar | **NameCheap, Inc.** ✓ |
 | Expires | 21 January 2027 | **21 January 2028** ✓ (auto-renew on) |
-| DNS | AWS Route 53 | **still AWS Route 53** — step 3 moves it |
+| DNS | AWS Route 53 — unreachable | **Namecheap BasicDNS** ✓ (27 Oct, 22:28 UTC) |
 | Web | `www` → `ghs.googlehosted.com` (Google Sites) | unchanged, deliberately |
-| Mail | Google Workspace (`aspmx.l.google.com`) | unchanged, and must stay so |
+| Mail | Google Workspace | unchanged, never interrupted ✓ |
+| SPF / DMARC | neither existed | **both live** ✓ |
+| DKIM | did not exist | still to do |
 
 - [x] ~~Find who holds the AWS account.~~ **Never found, and it stopped
       mattering.** AWS Support (case 179183501600060) verified Mitch as the
@@ -82,16 +84,29 @@ Council changed over and the page is updated as far as it can be. Still needed:
       account. This is the item that outlives everyone currently involved, and
       the reason the January 2026 renewal notice went to a contact nobody at the
       parish could act on.
-- [ ] **Step 2 of [`dns.md`](dns.md): type the zone into Namecheap Advanced DNS**
-      while the nameservers still point at AWS. Ten records: the seven Route 53
-      serves today, plus SPF, DMARC and DKIM. Verify with
-      `script/zone_compare.sh`.
-- [ ] **Step 3: flip the nameservers to Namecheap BasicDNS.** Cannot be verified
-      in advance — Namecheap holds no zone until the flip creates it. Run
-      `script/zone_compare.sh` in the minute after saving.
-- [ ] **Then press Start authentication** on admin.google.com → Gmail →
-      Authenticate email, so DKIM goes live. Not before step 3; Google would
-      look at Route 53 and find nothing.
+- [x] ~~Steps 2 and 3: build the zone and move the nameservers.~~ **Done
+      27 October.** They turned out to be one action, not two — Namecheap offers
+      no way to edit DNS until BasicDNS is selected, and selecting it is the
+      flip. Its Mail Settings screen silently dropped all five MX records on the
+      first attempt and the zone went live with no mail routing; it did no harm
+      only because the `.org` registry had not yet published the new delegation,
+      so the world was still asking Route 53. The Gmail preset fixed it. Written
+      up in [`dns.md`](dns.md), including what to do differently for the second
+      parish.
+- [ ] **DKIM.** Generate the key at admin.google.com → Apps → Google Workspace →
+      Gmail → Authenticate email (2048-bit, prefix `google`), add the TXT record
+      at `google._domainkey`, *then* press Start authentication. Half an hour, and
+      nothing blocks it now that the DNS is ours. Never enter a placeholder: in
+      DKIM an empty `p=` means *this key is revoked*.
+- [ ] **Align the two legacy MX names.** Namecheap's Gmail preset used
+      `aspmx2`/`aspmx3.googlemail.com` at priority 10 where Route 53 had
+      `alt3`/`alt4.aspmx.l.google.com`. All four are Google's and all four
+      deliver, so this is tidiness, not a fault — it is recorded as an accepted
+      variance in `script/zone_compare.sh` so it neither nags nor gets forgotten.
+- [ ] **Raise DMARC, much later.** `p=none` watches and rejects nothing. Once SPF
+      and DKIM are both verified and the reports have looked clean for a few
+      weeks, `p=quarantine` and eventually `p=reject` is what actually stops
+      somebody forging parish email. Not in the same month as the cutover.
 
 ### Clearing pre-flight findings — before DNS cutover
 
@@ -149,9 +164,13 @@ It cannot be fixed where it is: the fix is a record in Route 53 and nobody can
 edit Route 53. So it waits for step 5, where it becomes one more line in a zone
 we control — and the first thing this project fixes that was already broken.
 
-- [ ] **Make the bare domain work** at cutover: an ALIAS on `@` pointing at
-      Render, alongside repointing `www`. Both in the same edit, so the domain
-      never half-works.
+- [ ] **Make the bare domain work** at cutover: an **ALIAS record on `@`**
+      pointing at Render, in the **same edit** as repointing `www`, so the domain
+      is never half-moved. Namecheap's ALIAS works at the apex, where a CNAME is
+      not allowed. **This is the thing most likely to be forgotten on cutover
+      day**, because everyone will be watching `www` — and it is the one that
+      makes the domain work the way it is said aloud and printed. The `www` TTL
+      was deliberately set to five minutes so the whole edit reverses in five.
 
 ### Getting live on a temporary URL
 

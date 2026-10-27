@@ -11,15 +11,31 @@ it is all written down below.
 
 ## Where this stands — 27 October 2026
 
+**The domain move is done.** Steps 1 to 4 below are complete. What is left is the
+website cutover, which is a separate thing, and is step 5.
+
 | | |
 |---|---|
-| Registration | **Done.** Registrar reads `NameCheap, Inc.`, updated 26 Oct 14:13 UTC. |
-| Renewal | Pushed to **21 January 2028** — the transfer's added year arrived. Auto-renew is on and the registrant contact is checked. |
-| Lock | `transferPeriod` + `clientTransferProhibited` — the normal 60-day post-transfer lock. It does **not** block nameserver or DNS changes. |
-| Nameservers | Still the four AWS ones. **Route 53 is still authoritative and still readable**, which is what makes step 2 safe to do carefully. |
-| DNS records | Unchanged from the capture below, re-read 27 October. |
+| Registration | **Namecheap**, transferred 26 October 2026. Auto-renew on, registrant contact checked. |
+| Renewal | **21 January 2028** — the transfer added a year. |
+| DNS | **Namecheap BasicDNS** — `dns1`/`dns2.registrar-servers.com`, delegated 27 October, 22:28 UTC. |
+| The zone | Nine records, live and verified at the nameserver and across four public resolvers. |
+| Mail | Flowing throughout. Never interrupted. |
+| Website | Still Google Sites, deliberately. `www.sjoca.org` returns 200. |
 
-Next action: **step 2**, below.
+Three things remain, none urgent:
+
+- **DKIM** — generate the key at admin.google.com and add the TXT record. Now
+  unblocked, because the DNS is finally ours to edit.
+- **Two MX names** — Namecheap's Gmail preset used Google's legacy
+  `aspmx2`/`aspmx3.googlemail.com` for the two priority-10 servers instead of
+  `alt3`/`alt4.aspmx.l.google.com`. Both are Google's and both deliver; worth
+  aligning so that a future reader need not wonder which is right.
+  `script/zone_compare.sh` carries it as an **accepted variance**, not a fault.
+- **An `A` record on the bare domain** — step 5, and the one thing that must not
+  be forgotten on cutover day.
+
+`script/zone_compare.sh` shows all of it at once.
 
 ---
 
@@ -42,9 +58,11 @@ Moving the domain does not switch off the Google Sites site. Repointing `www` do
 
 ---
 
-## The zone as it stands
+## The zone we had to reproduce
 
-Read from public DNS on 26 October 2026. This is the complete list.
+Read from public DNS on 26 October 2026, while Route 53 was still authoritative.
+This is what had to be carried across, and it is the baseline written into
+`script/zone_compare.sh`.
 
 ```
 NS       ns-118.awsdns-14.com
@@ -83,14 +101,19 @@ reproducible exactly.
 
 ---
 
-## What is missing, and should be added while you are in there
+## What was missing, and went in with the move
 
-None of these exist today.
+Route 53 had none of these. Two of the three are now live.
 
-| Type | Host | Value | Why |
-|---|---|---|---|
-| TXT | `@` | `v=spf1 include:_spf.google.com ~all` | Without it, anyone can send email claiming to be from @sjoca.org. |
-| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:frdavid@sjoca.org` | Reports on who is trying. `p=none` only watches; it rejects nothing. |
+| | Type | Host | Value | Why |
+|---|---|---|---|---|
+| ✓ | TXT | `@` | `v=spf1 include:_spf.google.com ~all` | Without it, anyone can send email claiming to be from @sjoca.org. |
+| ✓ | TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:itmanager@sjoca.org` | Reports on who is trying. `p=none` only watches; it rejects nothing. |
+| — | TXT | `google._domainkey` | the DKIM key — see below | Survives forwarding, where SPF does not. |
+
+Five years of parish email went out with nothing asserting who was allowed to send
+it. That was the real finding of this exercise, and it had nothing to do with the
+website.
 
 ### DKIM
 
@@ -131,19 +154,22 @@ refuses the record or the verification never completes, that is the reason —
 split the value into quoted pieces, or fall back to a 1024-bit key, which is
 weaker but fits.
 
-**When.** Generate the key and enter the record **during step 2**, with everything
-else. There is no reason to make a second trip: generating a key changes nothing
-on its own, and the TXT record sits inert in DNS until you press **Start
-authentication**. So the order is
+**When.** Now, whenever there is half an hour. The blocker is gone: the DNS is
+ours, so the record can simply be added under **Advanced DNS**, which exists now
+that BasicDNS is the active selection.
 
-1. Step 2 — generate the key at admin.google.com, and type the record in with the
-   others.
-2. Step 3 — flip the nameservers.
-3. Confirm mail still flows (step 4).
-4. *Then* go back to Authenticate email and press **Start authentication**.
+Three things, in this order, and the order is the only part that matters:
 
-Pressing it before step 3 would have Google look at Route 53, which does not have
-the record and which you cannot edit. That is the only ordering that matters.
+1. Generate the key at admin.google.com. Changes nothing on its own.
+2. Add the TXT record at Namecheap. It sits inert in DNS until step 3.
+3. **Then** press **Start authentication** on that same Google screen.
+
+Pressing it before the record exists makes Google look, find nothing, and leave
+the domain unauthenticated — then you are debugging a wait rather than a fault.
+
+**Do not enter a placeholder.** In DKIM, `p=` with an empty value is valid syntax
+meaning *this key is revoked*. A half-filled record is not inert, it is a
+statement, and it is the opposite of the one you want.
 
 **Afterwards, much later.** Once SPF and DKIM have both been verified and the
 DMARC reports look clean for a few weeks, DMARC can be raised from `p=none` to
@@ -213,181 +239,226 @@ This project exists partly because the last person's account became unreachable.
 part is the one that outlives all of us; it is on [`TODO.md`](TODO.md) if it is not
 done yet.
 
-### Step 2 — Build the zone at Namecheap  *(do this now)*
+### Steps 2 and 3 — Build the zone, and switch the nameservers
 
-**Do not touch the Nameservers dropdown in this step.** Leave it on **Custom DNS**
-with the four AWS names. Everything here happens under **Advanced DNS**, where
-Namecheap will store host records and show a banner saying they are not in use —
-which is exactly what you want. They go live the moment step 3 flips the dropdown,
-so the zone is complete *before* it is ever asked a question.
+**These turned out to be one action, not two.** Written up after doing it on
+27 October, replacing what this document guessed beforehand — which was wrong in
+three places, each of which cost time.
 
-The earlier draft of this document had you select BasicDNS here and verify
-afterwards. That ordering does not work; see the note at the head of step 3.
+#### What is actually there
 
-Enter these under **Advanced DNS**:
+**There is no Advanced DNS tab while the nameservers are Custom DNS.** Namecheap
+hides it completely — not greyed out, absent. So host records cannot be staged in
+advance, and the plan of "type the records, then flip" was never available.
 
-| Type | Host | Value | Priority |
-|---|---|---|---|
-| MX | `@` | `aspmx.l.google.com.` | 1 |
-| MX | `@` | `alt1.aspmx.l.google.com.` | 5 |
-| MX | `@` | `alt2.aspmx.l.google.com.` | 5 |
-| MX | `@` | `alt3.aspmx.l.google.com.` | 10 |
-| MX | `@` | `alt4.aspmx.l.google.com.` | 10 |
-| TXT | `@` | `google-site-verification=V_TjGTgxUH0EINZKqMGn_Q-HtPw-t54Rjs0eucgf5sI` | — |
-| CNAME | `www` | `ghs.googlehosted.com.` | — |
-| TXT | `@` | `v=spf1 include:_spf.google.com ~all` | — |
-| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:frdavid@sjoca.org` | — |
-| TXT | `google._domainkey` | `v=DKIM1; k=rsa; p=` + the key from admin.google.com | — |
-
-The first seven lines are what Route 53 serves today, copied exactly. The last
-three are new and are the reason this step is worth doing attentively rather than
-quickly — see [What is missing](#what-is-missing-and-should-be-added-while-you-are-in-there)
-above for why each one earns its place, and the DKIM note for where the key comes
-from.
-
-**Delete Namecheap's parking records first.** New domains arrive with a
-`CNAME www -> parkingpage.namecheap.com` and an A record on `@`. They will fight
-the real ones.
-
-Leave `@` with no A record for now. It gets one at cutover.
-
-**Then stop and read it back.** This is the one moment Route 53 is still running
-beside what you have just typed, so a comparison is possible:
-
-```bash
-script/zone_compare.sh
-```
-
-At this point it can only reach one of the two sides: Namecheap holds no zone
-until step 3, so its column reads `no zone`. What it gives you is the Amazon
-column and the baseline, printed side by side — the authoritative values, on
-screen, to read your seven copied lines against. Do that, then go to step 3.
-
-### Step 3 — Switch the nameservers
-
-On the domain page, the **Nameservers** dropdown will read **Custom DNS** with the
-four AWS names. Change it to **Namecheap BasicDNS** and save. That is the whole
-action — Namecheap tells the `.org` registry and the world follows.
-
-#### Why this cannot be verified in advance
-
-Checked on 27 October: asking Namecheap's nameservers about sjoca.org returns
+The only path is a wizard, and it runs forward only:
 
 ```
-dig sjoca.org SOA @dns1.registrar-servers.com   ->   status: REFUSED
+Domain List -> MANAGE -> Nameservers -> Namecheap BasicDNS
+  -> three checkboxes:  [x] update Host Records
+                        [x] update Mail Settings
+                        [ ] leave Host Records and Mail Settings
+  -> Host Records screen   (Record Name, Host, Target, TTL)
+  -> Mail Settings screen  (MX | MXE | Email Forwarding | Private Email)
+  -> SAVE
 ```
 
-**They hold no zone for this domain**, and selecting BasicDNS is what creates one.
-So there is no way to compare Namecheap against Amazon *before* flipping. The
-comparison the earlier draft promised was not available.
+The Mail Settings screen offers **Cancel or Save, with no way back** to host
+records. Cancel discards everything typed and leaves the domain untouched — we
+did that once by accident, which is how we know the wizard commits nothing until
+that final save.
 
-What replaces it is the ordering in step 2: type every record while the dropdown
-is still Custom DNS, so the zone exists complete at the instant it goes live, then
-check within seconds of saving.
+**Which is the one piece of luck in the whole sequence.** Because it commits in a
+single action, the zone goes live *complete*, with the delegation change. The gap
+this document worried about — Namecheap authoritative for a half-built zone —
+cannot happen by this route.
 
-#### How long, really
+Tick **both** of the first two boxes. Tick only Mail Settings and the host records
+screen never appears.
 
-Not 48 hours, as this document used to say. Measured at the registry:
+#### What went in
 
-| Record | TTL |
-|---|---|
-| The `NS` delegation, at the `.org` registry | **3600s** — one hour |
-| `MX` | **300s** — five minutes |
+Host Records — four rows. `Record Name` is a free-text label, not part of DNS;
+`Host` is the subdomain and `Target` is the value.
 
-So the change spreads in about an hour, and a mistake spreads in an hour too —
-which cuts both ways and is the better trade. A correction reaches the world in
-five minutes for mail. Lowering TTLs a day ahead would be the usual precaution and
-needs Route 53 access; at these TTLs it buys nothing.
+| Record Name | Type | Host | Target | TTL |
+|---|---|---|---|---|
+| `website-google-sites` | CNAME | `www` | `ghs.googlehosted.com.` | **5 min** |
+| `google-workspace-verification` | TXT | `@` | `google-site-verification=V_TjGTgxUH0EINZKqMGn_Q-HtPw-t54Rjs0eucgf5sI` | Automatic |
+| `spf-who-may-send-mail` | TXT | `@` | `v=spf1 include:_spf.google.com ~all` | Automatic |
+| `dmarc-reports-only` | TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:itmanager@sjoca.org` | Automatic |
 
-#### The minute after you press save
+The `www` CNAME gets a **five-minute TTL** on purpose: it is the record that
+changes at cutover and the one you would want to put back fastest.
 
-```bash
-script/zone_compare.sh
-```
+The DMARC reports go to `itmanager@sjoca.org`, not to Fr David — they are daily
+XML attachments from every mail provider on earth, and they need to reach somebody
+who will act on them. Keep the address **inside sjoca.org**: pointing `rua` at an
+outside domain requires a matching authorisation record in *that* domain's DNS
+(`sjoca.org._report._dmarc.example.com`), and without it every reporter silently
+discards the reports.
 
-Now it can reach both sides, and it compares them line by line. Everything should
-read `agree`. If the MX lines do not, fix them in Advanced DNS and run it again —
-mail first, questions after.
+Mail Settings — choose **MX**. Not MXE (points mail at a single IP), not Email
+Forwarding, not Private Email; the last two move parish mail to Namecheap's own
+servers, which would be a quiet disaster.
 
-#### And if mail is briefly wrong, nothing is lost
+#### The fault, and why it did not hurt
 
-The old warning in this document was more frightening than the truth. A sending
-server that cannot deliver **queues the message and retries for days**; Google
-retries for about four. A gap of minutes or hours in the MX records delays mail,
-it does not bounce it. What loses mail is a wrong-but-working MX pointing at a
-server that accepts and discards — which is not a mistake available here, because
-every value in the table is Google's own.
+**The Mail Settings screen silently dropped all five MX records.** Host records
+saved, the delegation changed, and the zone went live with **no mail routing at
+all** — `status: NOERROR, ANSWER: 0`, authoritative, certain there were no MX
+records. Namecheap confirmed a glitch on their side and investigated.
+
+It did no harm, for a reason worth understanding: **the `.org` registry had not yet
+published the new delegation.** For about ten minutes after the save, whois showed
+`dns1/dns2.registrar-servers.com` while the registry still answered with the four
+AWS names — so the world kept asking Route 53, which kept serving the right MX
+records. The error existed only in a zone nobody was being sent to yet.
+
+That grace period is not something to rely on, but it is the reason the sequence in
+this document is safe: **every irreversible thing happens behind an hour of TTL.**
+
+The fix was Namecheap's **Gmail preset** on the Mail Settings screen, which created
+the five records in one click. It used Google's legacy names for the two
+priority-10 servers:
+
+| Priority | Route 53 served | The preset created |
+|---|---|---|
+| 1 | `aspmx.l.google.com` | `aspmx.l.google.com` ✓ |
+| 5 | `alt1.aspmx.l.google.com` | `alt1.aspmx.l.google.com` ✓ |
+| 5 | `alt2.aspmx.l.google.com` | `alt2.aspmx.l.google.com` ✓ |
+| 10 | `alt3.aspmx.l.google.com` | `aspmx2.googlemail.com` |
+| 10 | `alt4.aspmx.l.google.com` | `aspmx3.googlemail.com` |
+
+All four hosts resolve and all four are Google's. The `googlemail.com` names are
+what Google published years ago and still runs. Mail delivers either way, and
+those two only matter if the first three are unreachable. Recorded as an accepted
+variance in `script/zone_compare.sh`, to be aligned when convenient.
+
+#### Doing this for another parish
+
+The second parish is coming, so: **use the Gmail preset from the start.** It is
+the only part of the Mail Settings screen that demonstrably works, it produces
+Google's own record set, and it removes five chances to mistype a hostname. Then
+correct the two priority-10 names afterwards if exactness matters.
+
+And expect no advance verification. Namecheap's nameservers answer `REFUSED` for a
+domain until BasicDNS is selected, so there is nothing to compare against until
+the moment of the flip. Verify immediately after, not before.
 
 ### Step 4 — Verify, then stop
 
-After step 3 you are still running **the old Google Sites website**, on your own
-DNS, with mail flowing. Nothing has changed for the parish. Confirm it:
+Done, 27 October. The results:
 
-- `https://www.sjoca.org` loads the current site.
-- Send a message to a @sjoca.org address and watch it arrive.
+```
+delegated to   dns1.registrar-servers.com  dns2.registrar-servers.com
+MX             5 records
+TXT @          google-site-verification=V_TjGTgxUH0EINZKqMGn…   intact
+TXT @          v=spf1 include:_spf.google.com ~all              new
+TXT _dmarc     v=DMARC1; p=none; rua=mailto:itmanager@…         new
+CNAME www      ghs.googlehosted.com.  ->  HTTP 200
+```
 
-Then stop. Steps 1–3 are the domain move. The website cutover is separate.
+And confirmed propagated, not just present — 8.8.8.8, 1.1.1.1, 9.9.9.9 and
+208.67.222.222 all served five MX records and the right `www`.
+
+**Nothing changed for the parish.** Mail flowed without interruption, and the
+website being served is still the Google Sites one. That is the correct end state
+for the domain move: the parish is on its own DNS, and nobody noticed.
+
+Then stop. The website cutover is separate.
 
 ### Step 5 — The cutover, later
 
-One record: point `www` at Render, and add an ALIAS on `@` so the bare
-`sjoca.org` finally works — a fault on the current site, not something we
-introduced. Reversed by putting `ghs.googlehosted.com.` back.
+> #### Do not forget the `A` record
+>
+> `sjoca.org` with no `www` has never worked. There is a CNAME on `www` and
+> **nothing on the apex**, so anyone who types the domain the way it is said aloud
+> — and the way it is printed on everything — reaches nothing at all.
+>
+> It could not be fixed before now: the fix is a record in a zone we did not
+> control. On cutover day it becomes one more line in a zone we do.
+>
+> **Both records change in the same edit**, so the domain is never half-moved:
+>
+> | Type | Host | Value |
+> |---|---|---|
+> | ALIAS (or A) | `@` | Render's address |
+> | CNAME | `www` | Render's address |
+>
+> Namecheap's ALIAS record works at the apex where a CNAME is not allowed. Render
+> will name the exact value when the domain is added there.
 
-Do not reach this step until the new site is deployed, carrying the right
-content, and has a login on the admin.
+Reversed by putting `ghs.googlehosted.com.` back on `www` and deleting the apex
+record. The `www` TTL is five minutes, so that reversal is live in five minutes.
+
+Do not reach this step until the new site is deployed, carrying the right content,
+with a login on the admin and Fr David's review behind it.
 
 ---
+
 
 ## Checking your work
 
 Run these from any machine. No account access needed.
 
-**`script/zone_compare.sh`** is the whole check. It asks each nameserver directly,
-holds the 26 October capture as a baseline, and prints one line per record. It
-keeps working after Route 53 is gone, because the baseline is written into the
-script.
+**`script/zone_compare.sh`** is the whole check, and it asks two questions it
+keeps deliberately apart:
 
 ```
-record                       baseline         amazon           namecheap
----------------------------- ---------------- ---------------- ----------------
-mail (5 MX records)          1 aspmx.l.googl  as captured      as captured
-Google verification TXT      google-site-ver  as captured      as captured
-www CNAME                    ghs.googlehoste  as captured      as captured
-A on the bare domain         (none)           absent           absent
-SPF TXT (new)                (none)           absent           present
-DMARC TXT (new)              (none)           absent           present
-DKIM TXT (new)               (none)           absent           present
+sjoca.org
+  delegated to : dns1.registrar-servers.com dns2.registrar-servers.com
+  asking       : dns1.registrar-servers.com
+
+WHAT THE AUTHORITATIVE NAMESERVER HOLDS
+  record                     expected           found
+  mail (5 MX records)        1 aspmx.l.google.  accepted variance
+  Google verification TXT    google-site-verif  as captured
+  www CNAME                  ghs.googlehosted.  as captured
+  A on the bare domain       (none)             absent
+  SPF TXT                    (none)             present
+  DMARC TXT                  (none)             present
+  DKIM TXT                   (none)             absent
+
+WHAT PUBLIC RESOLVERS ARE HANDING OUT
+  8.8.8.8            5 MX, www -> ghs.googlehosted.com.
+  1.1.1.1            5 MX, www -> ghs.googlehosted.com.
+  ...
 ```
 
-`absent` in the amazon column for the last three is right — they are the records
-being added. `MISSING` or `DIFFERS` anywhere is a typo to go and fix; the script
-exits non-zero and says which column means what.
+**The two halves are not the same question, and conflating them produced a false
+alarm.** On 27 October the script reported "0 MX records — fix this before
+anything else" when the zone had been correct for several minutes. It had asked
+one machine's resolver, which had cached *the absence* of MX records during the
+glitch — and Namecheap's SOA sets negative caching to **3601 seconds**, so that
+"no such record" would have stood for an hour whatever the truth was.
+
+So: the top half is truth, asked of the authoritative nameserver with no cache in
+the way, and a fault there is real. The bottom half is propagation, and a resolver
+disagreeing means wait, not edit. The script now says which is which, finds the
+authoritative nameserver from the registry rather than assuming, and treats the
+two legacy MX names as an **accepted variance** — a difference somebody looked at
+and signed for, which is not the same as a difference nobody noticed.
 
 **`script/domain_watch.sh`** is the other one: registrar, status, expiry, and the
 records that must not change, in one line each.
 
-**After flipping** — watch the change spread:
-
-```bash
-dig +short NS sjoca.org          # should become the Namecheap pair
-dig +short MX sjoca.org          # must stay the five Google records
-dig +short CNAME www.sjoca.org   # ghs.googlehosted.com until cutover day
-```
-
-**If mail ever looks wrong, fix the MX records first and ask questions after.**
-A website being down is embarrassing. Mail going wrong is worse, because what
-arrives at the parish arrives once. The reassurance in step 3 holds — senders
-queue and retry for days, so minutes of bad DNS cost nothing — but that is a
-reason not to panic, not a reason to leave it.
+**If mail ever looks wrong, fix the MX records first and ask questions after** —
+but check the top half of the output first, because the fault may be in the
+asking. A website being down is embarrassing; mail going wrong is worse, because
+what arrives at the parish arrives once. Senders queue and retry for days, so
+minutes of bad DNS cost nothing. That is a reason not to panic, not a reason to
+leave it.
 
 ---
 
 ## What can be done in parallel
 
-Step 1 blocked nothing, and steps 2–4 block nothing either. They move the parish's
-DNS off an account nobody can reach, and leave the **old Google Sites website
-still serving**. The website work carries on beside them: login, rehearsing the
-revert, deploying, copying the database up. See [`TODO.md`](TODO.md).
+Steps 1 to 4 blocked nothing, and that was the point. They moved the parish's DNS
+off an account nobody could reach while leaving the **old Google Sites website
+still serving** — the parish noticed nothing, because there was nothing to notice.
 
-The two tracks only meet at step 5, and step 5 is one DNS record.
+What remains on the website track: Fr David's review, and the content being right.
+See [`TODO.md`](TODO.md).
+
+The two tracks meet once, at step 5, and step 5 is two DNS records in one edit.
