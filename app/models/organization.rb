@@ -93,6 +93,30 @@ class Organization < ApplicationRecord
 
   def self.fallback_url = ENV.fetch("SITE_URL", DEFAULT_URL).sub(%r{/+\z}, "")
 
+  # Is this hostname one somebody has claimed?
+  #
+  # Rails blocks any Host header not in config.hosts, and that list used to name
+  # sjoca.org in config/environments/production.rb. Which worked for one
+  # organization and quietly broke the whole point of the operator console: a
+  # customer's domain added through it would be refused by Rails until somebody
+  # edited a file and redeployed. The same per-organization-knowledge-in-Ruby
+  # mistake as SITE_URL and the Rochester time zone, in the one place where the
+  # symptom is "the site is down" rather than "the site is wrong".
+  #
+  # So the allowlist is the table the router already trusts. One indexed lookup
+  # per request, on a column with a unique index.
+  # Deliberately NOT rescued. If the database is unreachable this raises, and a
+  # request that would have 500'd on the next line 500s here instead -- with an
+  # error that says the database is down. Rescuing to false would answer
+  # "Blocked host" for every request in the middle of a database outage, which
+  # sends whoever is woken up to look at DNS.
+  def self.known_host?(host)
+    name = host.to_s.downcase.strip
+    return false if name.empty?
+
+    OrganizationHost.exists?(host: name)
+  end
+
   def hosts = organization_hosts.order(:host).pluck(:host)
 
   def add_host(host)

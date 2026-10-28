@@ -85,12 +85,18 @@ Rails.application.configure do
   # Rails 8 blocks requests whose Host header it does not recognise, which on a
   # fresh deploy looks like the site is broken rather than like a setting.
   #
-  # RENDER_EXTERNAL_HOSTNAME is supplied by Render; the rest are where this will
-  # live once the domain is pointed at it. Both sjoca.org and www: the bare
-  # domain does not resolve today, which is a fault to be fixed at cutover.
+  # This was a written-down list naming sjoca.org. One organization per
+  # deployment, so it was true; with an operator console that creates
+  # organizations, it meant a customer's domain was refused by Rails until
+  # somebody edited this file and redeployed. The console would have appeared to
+  # work and the new site would have answered "Blocked host", which reads like
+  # an outage rather than a setting.
+  #
+  # The allowlist is now the organization_hosts table -- the same one the router
+  # trusts to decide WHICH organization a request is for. A lambda works because
+  # Rails matches each entry with ===, and Proc#=== calls the proc.
   config.hosts = [
-    "sjoca.org",
-    "www.sjoca.org",
+    ->(host) { Organization.known_host?(host) },
     /.*\.onrender\.com\z/
   ]
   config.hosts << ENV["RENDER_EXTERNAL_HOSTNAME"] if ENV["RENDER_EXTERNAL_HOSTNAME"].present?

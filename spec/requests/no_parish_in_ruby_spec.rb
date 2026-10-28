@@ -49,6 +49,27 @@ RSpec.describe "no parish is written into the code", type: :request do
     end
   end
 
+  # Configuration is Ruby too, and it is the place where naming one customer
+  # does not look like naming one customer -- it looks like a setting.
+  #
+  # config/environments/production.rb listed sjoca.org in config.hosts. True
+  # while one organization ran per deployment, and quietly fatal afterwards: a
+  # customer's domain added through the operator console would be refused by
+  # Rails until somebody edited that file and redeployed, and the symptom is
+  # "Blocked host", which reads like an outage rather than a setting.
+  it "the production configuration names no particular organization" do
+    bad = offending(Rails.root.join("config/environments/production.rb"))
+
+    expect(bad).to be_empty, <<~MSG
+      config/environments/production.rb names this parish:
+
+        #{bad.map(&:strip).join("\n        ")}
+
+      A hostname belongs in organization_hosts, where adding one needs no deploy.
+      config.hosts asks Organization.known_host?.
+    MSG
+  end
+
   # What a NEW organization is built from.
   #
   # This spec used to read only the files serving the live site, and missed the

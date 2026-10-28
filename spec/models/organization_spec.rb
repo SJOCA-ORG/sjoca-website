@@ -82,6 +82,44 @@ RSpec.describe Organization do
     end
   end
 
+  # Rails refuses any Host header not in config.hosts. In production that list
+  # IS this method, so an organization created through the operator console is
+  # reachable the moment its hostname row exists -- with no deploy, which is the
+  # whole point of a console that creates organizations.
+  describe "which hostnames the app will answer on" do
+    it "knows a hostname somebody has claimed" do
+      existing.add_host("claimed.example")
+      expect(Organization.known_host?("claimed.example")).to be(true)
+    end
+
+    it "does not know one nobody has" do
+      expect(Organization.known_host?("someone-elses-domain.example")).to be(false)
+    end
+
+    it "does not care how it was capitalised or spaced" do
+      existing.add_host("mixed.example")
+      expect(Organization.known_host?("  MiXeD.Example  ")).to be(true)
+    end
+
+    it "says no to nothing at all, rather than raising" do
+      expect(Organization.known_host?(nil)).to be(false)
+      expect(Organization.known_host?("")).to be(false)
+    end
+
+    # A new organization is reachable without a deploy. Asserted end to end
+    # because the claim is about two things agreeing -- the allowlist and the
+    # router -- and either one alone would pass a narrower test.
+    it "knows a hostname the moment an organization is created with it" do
+      other = Organization.create!(name: "Brand New", slug: "brand-new")
+      expect(Organization.known_host?("brandnew.example")).to be(false)
+
+      other.add_host("brandnew.example")
+
+      expect(Organization.known_host?("brandnew.example")).to be(true)
+      expect(Organization.by_host("brandnew.example")).to eq(other)
+    end
+  end
+
   describe "acting_as" do
     it "puts the previous organization back" do
       other = Organization.create!(name: "Other", slug: "other")
