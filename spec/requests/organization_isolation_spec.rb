@@ -289,17 +289,19 @@ RSpec.describe "one organization cannot see another", type: :request do
 
     # But an email is one person, wherever they work.
     #
-    # Enforced by index_users_on_lower_email and NOT by a validation -- the
-    # model has never validated email uniqueness, so this raises from the
-    # database rather than from Rails. Worth asserting the real exception
-    # rather than the one that would be tidier, because the difference is
-    # exactly what somebody would hit when writing a sign-up form.
-    it "still refuses the same email twice" do
-      expect {
-        Organization.acting_as(second) do
-          User.create!(email: "editor@first.example", password: "Passw0rd!", role: "superadmin")
-        end
-      }.to raise_error(ActiveRecord::RecordNotUnique, /email/i)
+    # This asserted ActiveRecord::RecordNotUnique until 27 October, because
+    # index_users_on_lower_email was the ONLY thing enforcing it -- the model
+    # had no validation, so the only way to discover a duplicate was a
+    # PG::UniqueViolation five frames down. It surfaced as a 500 the first time
+    # the operator console was handed an email that already had an account, and
+    # User validates it now. The index remains as the backstop.
+    it "still refuses the same email twice, readably" do
+      duplicate = Organization.acting_as(second) do
+        User.new(email: "editor@first.example", password: "Passw0rd!", role: "superadmin")
+      end
+
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:email]).to include("already has an account")
     end
   end
 end

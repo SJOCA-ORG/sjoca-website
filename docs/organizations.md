@@ -206,6 +206,86 @@ Two rules that fall out:
 
 ---
 
+## The operator console
+
+`/operator`, for whoever runs this app for other people. Two locks, different in
+kind:
+
+| | |
+|---|---|
+| `application_admin` | **who** may be here. A customer's own superadmin is the top of their organization and has no business in it. |
+| the product hostname | **where** it answers. An application admin signing in on a customer's domain should be rare, so the console is not reachable from one at all. |
+
+Both answer **404, not 403** — a customer's administrator poking at `/operator`
+should not learn whether it exists.
+
+### It lists accounts; it does not show their content
+
+Names, hostnames, how many pages and photographs, when anybody last signed in.
+To work inside an organization you **go to it**, which redirects to that
+organization's own hostname and writes a row in `operator_actions`.
+
+That redirect is deliberate rather than a session flag that makes the app
+pretend to be somewhere else. The hostname decides which organization a request
+is for, everywhere else in the app; carving an exception for the one person with
+universal access is how an invariant stops being one. The cost is signing in
+again on that host, which at this boundary is a feature. (In development every
+organization shares `localhost`, so it lands back where it started. A
+development inconvenience, not worth a code path.)
+
+### The log
+
+An application admin can act inside any customer's data. That power cannot be
+made smaller — somebody has to be able to fix a club's broken page on a Tuesday
+evening — so it is made accountable instead. `operator_actions` records who did
+what, to whose data, from where: `created`, `invited`, `entered`, `suspended`,
+`resumed`.
+
+**It belongs to no organization, and that is the point.** An organization whose
+own administrators could read it would be reading other customers' business;
+one that could edit it would have a log it can rewrite.
+
+### Creating an organization
+
+One transaction: the account, its hostname, a first published revision with the
+default templates, a `name` setting, a home page, an owner, an invitation. All
+of it or none — a hostname with no revision is worse than nothing, because the
+next attempt collides with the leftovers.
+
+The owner is created with a random password nobody ever sees (`has_secure_password`
+insists on one) and sent an **invitation**: the same signed-token mechanism as a
+password reset, with a seven-day fuse instead of two hours. Two hours is right
+for somebody who has just asked to be let back in; it is wrong for a letter that
+arrives while they are away for the weekend.
+
+### Designating the product organization
+
+Chicken and egg: the console answers on the product's hostname, and marking an
+organization as the product needs the console. So **while no organization is
+marked `product`, the console answers everywhere** and says so in red at the top
+of the page.
+
+The bootstrap sequence:
+
+```ruby
+# 1. a user who may act anywhere
+User.create!(email: "you@example.com", password: "...", role: "superadmin",
+             application_admin: true, organization: nil)
+
+# 2. sign in anywhere, go to /operator, create the organization whose website
+#    advertises this tool -- through the console, from a starter, by conversation
+
+# 3. then make it the one the console lives on
+Organization.find_by(slug: "ai-site-builder").update!(product: true)
+```
+
+After step 3 the console stops answering on any other hostname, including this
+parish's. Exactly one organization can hold the flag — a partial unique index as
+well as a validation, because "exactly one" survives a validation right up until
+a seed or a console session sets a second.
+
+---
+
 ## Adding an organization
 
 ```ruby

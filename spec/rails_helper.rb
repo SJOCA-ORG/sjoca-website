@@ -54,4 +54,20 @@ RSpec.configure do |config|
     # spec/requests/organization_isolation_spec.rb.
     Organization.create!(name: "Spec Organization", slug: "spec")
   end
+
+  # The enqueued-job list and the deliveries array are process-wide and are NOT
+  # rolled back with the transaction. Left alone, perform_enqueued_jobs in one
+  # example runs whatever earlier examples enqueued -- against records that have
+  # since been rolled back -- and ActionMailer::Base.deliveries.last is somebody
+  # else's mail.
+  #
+  # That cost an hour: the operator console's invitation spec passed alone,
+  # passed with its neighbour, and failed in the full suite, because it was
+  # reading a token from a previous example's invitation to a user that no
+  # longer existed.
+  config.before(:each) do
+    ActiveJob::Base.queue_adapter.enqueued_jobs.clear if ActiveJob::Base.queue_adapter.respond_to?(:enqueued_jobs)
+    ActiveJob::Base.queue_adapter.performed_jobs.clear if ActiveJob::Base.queue_adapter.respond_to?(:performed_jobs)
+    ActionMailer::Base.deliveries.clear
+  end
 end

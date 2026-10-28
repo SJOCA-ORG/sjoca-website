@@ -79,8 +79,15 @@ module Admin
     #
     # Refusing before the token is spent means they can follow the right link
     # when they find it.
+    # A reset and an invitation are the same mechanism with different fuses, so
+    # the same page sets the password for both. Which one it was changes only
+    # the words on it -- see @invitation in the view.
     def user_from_token
       user = User.find_by_token_for(:password_reset, params[:token])
+      if user.nil?
+        user = User.find_by_token_for(:invite, params[:token])
+        @invitation = user.present?
+      end
       return nil if user.nil?
       return nil unless user.may_act_in?(Current.organization)
 

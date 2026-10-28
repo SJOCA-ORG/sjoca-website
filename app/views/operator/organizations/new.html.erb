@@ -1,0 +1,47 @@
+<% content_for :title, "New organization" %>
+
+<h1>New organization</h1>
+
+<p class="muted">
+  This creates the account, its first published revision with the default
+  templates, a home page, and an owner who is sent an invitation. All of it or
+  none of it — a hostname with no revision is worse than nothing, because the
+  next attempt collides with the leftovers.
+</p>
+
+<%= form_with url: operator_organizations_path, method: :post do |f| %>
+  <div class="card">
+    <p>
+      <%= label_tag :name, "Name", style: "display:block;margin-bottom:.2rem" %>
+      <%= text_field_tag :name, @form[:name], required: true, autofocus: true,
+            style: "width:100%;padding:.5rem" %>
+      <span class="muted">What to call it in this list, and what its website
+        calls itself to begin with. They can change the second.</span>
+    </p>
+    <p>
+      <%= label_tag :slug, "Short name", style: "display:block;margin-bottom:.2rem" %>
+      <%= text_field_tag :slug, @form[:slug], required: true, style: "width:100%;padding:.5rem" %>
+      <span class="muted">Lower case, hyphens. It appears in logs and dump
+        filenames, where “organization 7” helps nobody.</span>
+    </p>
+    <p>
+      <%= label_tag :host, "Hostname", style: "display:block;margin-bottom:.2rem" %>
+      <%= text_field_tag :host, @form[:host], required: true, placeholder: "example.org",
+            style: "width:100%;padding:.5rem" %>
+      <span class="muted">The address their site answers on. One organization
+        per hostname — add the others afterwards.</span>
+    </p>
+    <p>
+      <%= label_tag :owner_email, "Owner's email", style: "display:block;margin-bottom:.2rem" %>
+      <%= email_field_tag :owner_email, @form[:owner_email], required: true,
+            style: "width:100%;padding:.5rem" %>
+      <span class="muted">They are sent an invitation and choose their own
+        password. Nobody here ever sets one for them.</span>
+    </p>
+  </div>
+
+  <div class="row">
+    <%= f.submit "Create and invite", class: "btn" %>
+    <%= link_to "Cancel", operator_root_path, class: "btn ghost" %>
+  </div>
+<% end %>

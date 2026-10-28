@@ -1,0 +1,79 @@
+<% content_for :title, "Accounts" %>
+
+<div class="row">
+  <h1 class="grow" style="margin:0">Accounts</h1>
+  <span class="muted"><%= pluralize(@organizations.size, "organization") %></span>
+  <%= link_to "New organization", new_operator_organization_path, class: "btn" %>
+</div>
+
+<% if bootstrapping? %>
+  <%# Without a product organization this console answers on every hostname,
+      including a customer's. Said plainly rather than left to be noticed. %>
+  <div class="card" style="border-color:var(--maroon)">
+    <strong>No organization is marked as this tool's own site.</strong>
+    <p class="muted" style="margin:.4rem 0 0">
+      Until one is, this console answers on every hostname — including a customer's.
+      Set <code>product: true</code> on the organization whose website advertises
+      this tool, and it will answer only there.
+    </p>
+  </div>
+<% end %>
+
+<%# Names, hostnames and counts. Not their content: to work inside an
+    organization you go to it, which is a separate act and leaves a row. %>
+<% @organizations.each do |org| %>
+  <% c = @counts[org] %>
+  <div class="card <%= "live" if org.product? %>">
+    <div class="row">
+      <div class="grow">
+        <strong><%= org.name %></strong>
+        <span class="tag"><%= org.slug %></span>
+        <% if org.product? %><span class="tag">this tool's own site</span><% end %>
+        <% unless org.active? %><span class="tag" style="background:#F6E3E3">suspended</span><% end %>
+        <div class="muted">
+          <%= org.hosts.join(" · ") %>
+        </div>
+        <div class="muted">
+          <%= pluralize(c[:pages], "page") %> ·
+          <%= pluralize(c[:photos], "photograph") %> ·
+          <%= pluralize(c[:revisions], "revision") %> ·
+          <%= pluralize(c[:editors], "editor") %> ·
+          <%= c[:last_in] ? "last in #{time_ago_in_words(c[:last_in])} ago" : "nobody has signed in yet" %>
+        </div>
+        <div class="muted"><%= org.time_zone %> · <%= org.contact_email.presence || "no account contact" %></div>
+      </div>
+      <div class="row">
+        <%= button_to "Go to it", enter_operator_organization_path(org), class: "btn ghost" %>
+        <% if org.active? %>
+          <%= button_to "Suspend", suspend_operator_organization_path(org), class: "btn danger",
+                data: { turbo_confirm: "Suspend #{org.name}? Its site stops answering. Nothing is deleted." } %>
+        <% else %>
+          <%= button_to "Resume", resume_operator_organization_path(org), class: "btn ghost" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<h2>What has been done</h2>
+<% if @recent.empty? %>
+  <p class="muted">Nothing yet.</p>
+<% else %>
+  <%# The log exists because an application admin can act inside anybody's
+      data. That power cannot be made smaller, so it is made accountable. %>
+  <table style="width:100%;border-collapse:collapse">
+    <tbody>
+      <% @recent.each do |a| %>
+        <tr style="border-top:1px solid var(--rule)">
+          <td class="muted" style="padding:.35rem .6rem .35rem 0;white-space:nowrap">
+            <%= a.created_at.strftime("%-d %b %H:%M") %>
+          </td>
+          <td style="padding:.35rem .6rem"><%= a.action %></td>
+          <td style="padding:.35rem .6rem"><%= a.organization&.name || "—" %></td>
+          <td class="muted" style="padding:.35rem .6rem"><%= a.user&.email || "deleted account" %></td>
+          <td class="muted" style="padding:.35rem 0"><%= a.detail %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

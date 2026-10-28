@@ -32,7 +32,11 @@ RSpec.describe "every table belongs to somebody" do
     "OrganizationHost" => "maps a hostname to an organization, before any scope exists",
     "User"             => "sign-in happens before a hostname is resolved, and an " \
                           "application admin belongs to no organization. " \
-                          "Authorisation does this work instead -- User#may_act_in?"
+                          "Authorisation does this work instead -- User#may_act_in?",
+    "OperatorAction"   => "the operator's audit log. Scoping it to an organization " \
+                          "would let that organization's own administrators read " \
+                          "whose data an operator looked at -- other customers' " \
+                          "business -- or edit the record of what was done to theirs"
   }.freeze
 
   def models

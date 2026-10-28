@@ -27,7 +27,12 @@ RSpec.describe "nothing bypasses the organization scope" do
     /\bdefault_scope\b/    => ["app/models/concerns/belongs_to_organization.rb"],
     # Changing which organization is current is the one operation that can
     # hand one organization's data to another's request.
-    /Current\.organization\s*=/ => [
+    # (?!=) so a COMPARISON is not mistaken for an assignment. The first
+    # version of this pattern failed the build on
+    # `Current.organization == product`, which is a guard reading the value,
+    # not code changing it. A guard that cries wolf gets widened by whoever
+    # is in a hurry, and then it guards nothing.
+    /Current\.organization\s*=(?!=)/ => [
       "app/models/organization.rb",                        # acting_as
       "app/models/current.rb",                             # the sole-tenant fallback
       "app/controllers/concerns/organization_scoped.rb"    # resolving the hostname
@@ -37,7 +42,21 @@ RSpec.describe "nothing bypasses the organization scope" do
     # argument and sets it for the duration of rendering -- the opposite of
     # stepping around the scope, since without this the mail is rendered with no
     # organization at all and says "This site".
-    /Organization\.acting_as/ => ["app/models/organization.rb", "app/mailers/user_mailer.rb"]
+    /Organization\.acting_as/ => [
+      "app/models/organization.rb",
+      # Rendered by deliver_later, in a worker where nothing is current. It
+      # takes the organization as an argument and sets it for the duration of
+      # rendering -- the opposite of stepping around the scope, since without it
+      # the mail is rendered with no organization and says "This site".
+      "app/mailers/user_mailer.rb",
+      # Creating an organization: the moment it exists there are two, so
+      # nothing is implicit and every create inside has to name it.
+      "app/services/operator/create_organization.rb",
+      # The operator console counts pages and photographs per account. Counting
+      # is the whole job, and these models answer nothing without an
+      # organization. It counts; it does not display content.
+      "app/controllers/operator/organizations_controller.rb"
+    ]
   }.freeze
 
   def code_lines(path)

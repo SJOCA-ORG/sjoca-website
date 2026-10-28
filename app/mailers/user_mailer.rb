@@ -12,6 +12,30 @@ class UserMailer < ApplicationMailer
   #
   # So the mailer sets the organization itself, for the duration of rendering.
   # mail() renders the templates, so the block has to contain it.
+  # The first thing a new owner receives. Same shape as a reset, and for the
+  # same reason -- the organization is an argument, because this is rendered in
+  # a worker where nothing is current.
+  def invite(user, token, organization: nil)
+    org = organization || user.organization || Organization.the_product
+
+    Organization.acting_as(org) do
+      @user = user
+      @site = SiteDrop.new(Revision.live)
+      @url = admin_edit_password_url(token: token)
+      @invitation = true
+
+      sender = ENV["SMTP_FROM"].presence ||
+               Rails.application.credentials.dig(:smtp, :user_name).presence ||
+               "no-reply@localhost"
+      reply_to = @site.email.presence || org&.contact_email.presence || sender
+
+      mail to: user.email,
+           from: %("#{@site.name}" <#{sender}>),
+           reply_to: reply_to,
+           subject: "Your new website: #{@site.name}"
+    end
+  end
+
   def password_reset(user, token, organization: nil)
     org = organization || user.organization || Organization.the_product
 

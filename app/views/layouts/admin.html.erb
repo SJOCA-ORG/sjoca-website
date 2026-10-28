@@ -276,6 +276,13 @@
       <%= link_to "Photographs", admin_photos_path %>
       <%= link_to "Documents", admin_bulletins_path %>
       <span class="grow"></span>
+      <%# Only somebody who runs this app for other people sees this, and only
+          where the console answers. A customer's own administrator is the top of
+          their organization and has no business in it. %>
+      <% if respond_to?(:signed_in?) && signed_in? && current_user.application_admin? &&
+             (Organization.the_product.nil? || Current.organization == Organization.the_product) %>
+        <%= link_to "Accounts", operator_root_path %>
+      <% end %>
       <%= link_to "View live site", root_path, target: "_blank", rel: "noopener" %>
       <% if respond_to?(:signed_in?) && signed_in? %>
         <%= link_to current_user.display_name, admin_account_path,

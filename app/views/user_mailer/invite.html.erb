@@ -1,0 +1,30 @@
+<%# Inline styles only: mail clients discard a <style> block, so a class
+    resolves to nothing. Same rule as the bulletin email. %>
+<p style="margin:0 0 1em">
+  Your website for <strong><%= @site.name %></strong> is ready, and it is yours to edit.
+</p>
+
+<p style="margin:0 0 1em">
+  <a href="<%= @url %>"
+     style="display:inline-block;background:#212121;color:#fff;text-decoration:none;
+            padding:.6em 1.2em;border-radius:6px">Choose a password</a>
+</p>
+
+<p style="margin:0 0 1em;color:#666;font-size:.9em">
+  That link works for seven days, and stops as soon as you have used it.
+</p>
+
+<p style="margin:0 0 1em">
+  Once you are in, you do not edit the site by filling in forms. You ask for what
+  you want in plain words — <em>“put the autumn fair on the front page”</em>,
+  <em>“the address is wrong on the contact page”</em> — and you are shown the
+  change before anybody else sees it. Nothing goes live until you say so, and
+  anything can be put back.
+</p>
+
+<p style="margin:0 0 1em;color:#666;font-size:.9em">
+  If you were not expecting this, ignore it. Nothing has been published and nobody
+  can see the site but you.
+</p>
+
+<p style="margin:0">— <%= @site.name %></p>

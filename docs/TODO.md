@@ -203,10 +203,21 @@ order they will bite.
       on would put every organization in demo at once. Per-organization, or
       product-organization-only.
 
-- [ ] **The operator console, starters and import** have no specs because they
-      have no code. `spec/requests/a_new_organization_spec.rb` is their
-      specification: each step it does by hand should become a call into the
-      real thing, with the assertions unchanged.
+- [x] ~~**The operator console** has no specs because it has no code.~~ Built
+      27 October — `/operator`, 16 examples in
+      `spec/requests/operator_console_spec.rb`, and `operator_actions` records
+      who entered whose data. See [`organizations.md`](organizations.md).
+      - [ ] **Suspension still has no behaviour.** The flag is set and logged and
+            nothing reads it. A suspended organization's public site should show
+            a holding page while its owner's admin still works.
+      - [ ] **Designate the product organization.** Until one is marked, the
+            console answers on every hostname — including this parish's — and
+            says so in red. The bootstrap sequence is in `organizations.md`.
+- [ ] **Starters and import** have no specs because they have no code.
+      `spec/requests/a_new_organization_spec.rb` is their specification: each
+      step it does by hand should become a call into the real thing, with the
+      assertions unchanged. `Operator::CreateOrganization` already replaced the
+      first six of them.
 
 ### Multi-organization leftovers
 

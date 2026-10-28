@@ -42,6 +42,18 @@ class User < ApplicationRecord
 
   validates :email, presence: true, format: { with: /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/,
                                               message: "does not look like an address" }
+  # Unique across the WHOLE system, not per organization: one person, one login,
+  # whoever they work for. index_users_on_lower_email has always enforced it;
+  # there was no validation, so the only way to find out was a PG::UniqueViolation
+  # five frames down. That surfaced as a 500 the first time the operator console
+  # was handed an email that already had an account.
+  #
+  # No organization in the scope, deliberately -- and Rails' uniqueness
+  # validator would ignore a default_scope anyway (uniqueness.rb:113 calls
+  # klass.unscoped), which is the right behaviour here and the wrong behaviour
+  # four models over. See spec/models/uniqueness_is_scoped_spec.rb.
+  validates :email, uniqueness: { case_sensitive: false,
+                                  message: "already has an account" }
   validates :role, inclusion: { in: ROLES }
 
   # At least eight, with an upper case letter, a lower case letter, and a number
@@ -58,6 +70,18 @@ class User < ApplicationRecord
   generates_token_for :password_reset, expires_in: 2.hours do
     password_salt&.last(10)
   end
+
+  # An invitation is the same mechanism with a longer fuse. Two hours is right
+  # for somebody who has just asked to be let back in; it is wrong for a letter
+  # that arrives while they are away for the weekend. Setting a password
+  # invalidates it, exactly as with a reset, because the digest is what signs it.
+  generates_token_for :invite, expires_in: 7.days do
+    password_salt&.last(10)
+  end
+
+  # Nobody has signed in yet and nobody has chosen a password -- the one this
+  # account was created with is random and was never shown to anybody.
+  def invited? = last_signed_in_at.nil?
 
   def self.authenticate(email, password)
     # find_by on the normalised column, so "ItManager@SJOCA.org" works.

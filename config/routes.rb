@@ -80,6 +80,19 @@ Rails.application.routes.draw do
 
   # Ours, not rails/pwa: that one inherits from ActionController::Base and so
   # never resolves which organization the request is for. See PwaController.
+  # The operator console. Guarded twice in Operator::BaseController -- an
+  # application admin, on the product organization's own hostname.
+  namespace :operator do
+    root to: "organizations#index"
+    resources :organizations, only: %i[new create] do
+      member do
+        post :enter
+        post :suspend
+        post :resume
+      end
+    end
+  end
+
   get "manifest" => "pwa#manifest", as: :pwa_manifest
   get "service-worker" => "pwa#service_worker", as: :pwa_service_worker
 

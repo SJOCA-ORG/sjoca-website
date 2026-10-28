@@ -1,7 +1,16 @@
-<% content_for :title, "Choose a new password" %>
+<%# An invitation and a reset end at the same form. Only the greeting differs:
+    somebody being invited has never been here and should be told where they
+    are, and somebody resetting knows. %>
+<% content_for :title, @invitation ? "Welcome — choose a password" : "Choose a new password" %>
 
 <div style="max-width:24rem;margin:3rem auto">
-  <h1 style="margin-top:0">Choose a new password</h1>
+  <h1 style="margin-top:0"><%= @invitation ? "Choose a password" : "Choose a new password" %></h1>
+  <% if @invitation %>
+    <p class="muted" style="margin-top:0">
+      This is the editor for <strong><%= SiteDrop.new(Revision.live).name %></strong>.
+      Once you are in, you ask for changes in plain words and see them before anybody else does.
+    </p>
+  <% end %>
   <p class="muted">At least 8 characters, with a capital, a small letter, and a number or symbol.</p>
 
   <%= form_with url: admin_password_path(token: params[:token]), scope: :password, method: :patch do |f| %>
