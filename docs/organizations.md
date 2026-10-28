@@ -16,9 +16,26 @@ photographs and lessons, as rows it can edit. That rule predates multi-tenancy
 rather than tidy.
 
 ```
-organizations        name, slug, active, canonical_url
+organizations        name, slug, active, canonical_url,
+                     contact_name, contact_email, time_zone, locale, product
 organization_hosts   one hostname -> one organization, host UNIQUE
 ```
+
+**The account's facts, not the website's.** The website's own name, address and
+email are `site_settings`, scoped to a revision, so they version with content and
+revert with it. These must not: an organization can roll back its pages, but it
+cannot roll back out of who owns the account or which clock its dates are in.
+
+| | |
+|---|---|
+| `contact_name` / `contact_email` | who we write to about the account, and the reply-to on account mail when the website publishes no address of its own |
+| `time_zone` | `Time.zone` for the request. `config.time_zone` is `America/New_York` — one organization's clock applied to everybody's dates |
+| `locale` | `I18n.locale` for the request |
+| `product` | which organization is this tool's own site. Exactly one, enforced by a partial unique index as well as a validation |
+
+Every one of those has a consumer from the day it landed. A column nobody reads
+is the `Site::Seo.coordinates` mistake — a field documented in a TODO list,
+wired to nothing, which somebody fills in and reasonably believes is working.
 
 Hosts are a table because every organization has several from the day it starts
 — apex, `www`, whatever the platform calls it — and because a hostname must
@@ -238,6 +255,32 @@ new organization's home page is scanned for anything belonging to this parish,
 because a source scan can always be one pattern short. That is how `SJTB` would
 have been caught — a monogram matches no word-based pattern, and it sat in the
 default header for a fortnight.
+
+---
+
+## What a worker process does not know
+
+**A job has no request, so `Current.organization` is nothing there.**
+
+The password-reset email found this the hard way. It is sent with
+`deliver_later`, so it is rendered in a worker — where it read
+`Current.organization`, got nil, and produced a mail titled "This site" with a
+link to `localhost:3000`. Invisible with one organization, because
+`Current.organization` finds the only one by itself.
+
+The fix is the shape, not the patch: **the organization is an argument.**
+`UserMailer.password_reset(user, token, organization:)` sets it for the duration
+of rendering, and `mail()` is inside that block because `mail()` is what renders.
+
+Two things to carry forward:
+
+- `Organization.acting_as` inside `app/` is refused by the scope guard unless the
+  file is listed with a reason. The mailer is listed, and the reason is this
+  section.
+- **A spec that uses `perform_enqueued_jobs` runs the job inline, in the same
+  thread, with `Current` still set — so it passes while production is broken.**
+  Call `ActiveSupport::CurrentAttributes.clear_all` first. That one line is the
+  difference between the spec that caught this and the spec that did not.
 
 ---
 

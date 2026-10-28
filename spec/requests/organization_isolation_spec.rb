@@ -13,14 +13,16 @@ require "rails_helper"
 # people's -- their members' photographs, their drafts, their editors' accounts.
 RSpec.describe "one organization cannot see another", type: :request do
   let!(:first) do
-    org = Organization.create!(name: "First Assembly", slug: "first")
+    org = Organization.create!(name: "First Assembly", slug: "first",
+                               canonical_url: "https://first.example")
     org.add_host("first.example")
     furnish(org, "FIRST-ONLY-TEXT", "first-hero", "first-tag", "editor@first.example")
     org
   end
 
   let!(:second) do
-    org = Organization.create!(name: "Second Society", slug: "second")
+    org = Organization.create!(name: "Second Society", slug: "second",
+                               canonical_url: "https://second.example")
     org.add_host("second.example")
     furnish(org, "SECOND-ONLY-TEXT", "second-hero", "second-tag", "editor@second.example")
     org
@@ -32,6 +34,10 @@ RSpec.describe "one organization cannot see another", type: :request do
     Organization.acting_as(org) do
       revision = Revision.create!(state: "published", title: "live")
       DefaultTemplates.install!(revision)
+      # The name the website calls itself, which is what the manifest and the
+      # page titles read -- separate from organizations.name, which is the
+      # account's label in the admin.
+      revision.site_settings.create!(key: "name", value: marker)
       page = Page.create!(slug: "home", title: marker, nav_title: marker, revision: revision)
       section = page.sections.create!(style: "plain", revision: revision)
       section.blocks.create!(kind: "text", content: marker, revision: revision)
@@ -153,6 +159,81 @@ RSpec.describe "one organization cannot see another", type: :request do
       sign_in_as "editor@first.example", host: "first.example"
       get status_admin_revision_path(id)
       expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  # Signed tokens are the interesting case, because they carry authority across
+  # a request boundary and look valid wherever they are presented. Each of these
+  # was probed before it was written: two were already safe because the scope
+  # reached them, and one was not.
+  describe "signed links" do
+    it "will not show a draft of one organization at another's address" do
+      token = Organization.acting_as(first) do
+        draft = Revision.create!(state: "draft", title: "draft")
+        DefaultTemplates.install!(draft)
+        Page.create!(slug: "home", title: "FIRST-DRAFT-ONLY", nav_title: "Home", revision: draft)
+        draft.preview_token
+      end
+
+      host! "second.example"
+      get "/?preview=#{token}"
+
+      # Safe already, and worth pinning: Revision.from_preview_token resolves
+      # the id through the scope, so the token names a revision that does not
+      # exist here and the live site is served instead.
+      expect(response.body).not_to include("FIRST-DRAFT-ONLY")
+      expect(response.body).to include("SECOND-ONLY-TEXT")
+    end
+
+    # This one was NOT safe. The reset succeeded on the wrong hostname, spent
+    # the token, signed the person in, and the next request bounced them to a
+    # sign-in page that would not have them -- a changed password, a dead link
+    # and no explanation. Not a way into anybody else's account, which is why
+    # nothing noticed.
+    it "will not spend a password reset link at another organization's address" do
+      user = Organization.acting_as(first) { User.find_by(email: "editor@first.example") }
+      token = user.generate_token_for(:password_reset)
+
+      host! "second.example"
+      patch admin_password_path, params: {
+        token: token,
+        password: { password: "Newpassw0rd!", password_confirmation: "Newpassw0rd!" }
+      }
+
+      expect(response).to redirect_to(admin_new_password_path)
+      expect(user.reload.authenticate("Newpassw0rd!")).to be_falsey
+
+      # And the link still works where it should, because it was not consumed.
+      host! "first.example"
+      get admin_edit_password_path(token: token)
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "says nothing about which reason it refused for" do
+      user = Organization.acting_as(first) { User.find_by(email: "editor@first.example") }
+
+      host! "second.example"
+      get admin_edit_password_path(token: user.generate_token_for(:password_reset))
+      wrong_organization = flash[:alert]
+
+      get admin_edit_password_path(token: "not-a-token-at-all")
+      expect(flash[:alert]).to eq(wrong_organization)
+    end
+  end
+
+  describe "what each organization tells robots and phones" do
+    it "advertises its own sitemap, not the other's" do
+      host! "second.example"
+      get "/robots.txt"
+      expect(response.body).to include("https://second.example/sitemap.xml")
+      expect(response.body).not_to include("first.example")
+    end
+
+    it "serves its own name in the web app manifest" do
+      host! "first.example"
+      get "/manifest.json"
+      expect(response.body).to include("FIRST")
+      expect(response.body).not_to include("SECOND")
     end
   end
 

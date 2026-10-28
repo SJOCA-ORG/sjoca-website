@@ -25,7 +25,29 @@ class Organization < ApplicationRecord
     message: "is lower case letters, numbers and hyphens — it appears in logs and filenames"
   }, uniqueness: true
 
-  scope :active, -> { where(active: true) }
+  validates :time_zone, presence: true
+  # ActiveSupport::TimeZone[] accepts BOTH an IANA identifier ("Europe/Berlin")
+  # and Rails' own short name ("Berlin"). An inclusion check against
+  # TimeZone.all.map(&:name) accepts only the second -- which rejected
+  # "America/New_York", the value config.time_zone is set to and the one the
+  # migration had already written into the live row. A validation that makes
+  # existing data invalid is worse than no validation: nothing fails until
+  # somebody saves an unrelated change.
+  validate :time_zone_is_one_that_exists
+  validates :locale, presence: true,
+                     inclusion: { in: -> (_) { I18n.available_locales.map(&:to_s) },
+                                  message: "is not a locale this app has translations for" }
+  validates :contact_email, format: { with: /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/,
+                                      message: "does not look like an address" },
+                            allow_blank: true
+  validate :only_one_product_organization
+
+  scope :active,  -> { where(active: true) }
+  scope :product, -> { where(product: true) }
+
+  # This tool's own site. Where the operator console answers, and who owns the
+  # page an unrecognised hostname gets. The only thing special about it.
+  def self.the_product = product.first
 
   def self.by_host(host)
     return nil if host.blank?
@@ -78,4 +100,29 @@ class Organization < ApplicationRecord
   end
 
   def to_s = name
+
+  # Who to write to about the ACCOUNT, as opposed to the address the website
+  # publishes. The website's own is a site setting and may be a general
+  # office address; this one is a person who can act.
+  def contact = contact_email.presence && [contact_name.presence, contact_email].compact
+
+  private
+
+  # Also a partial unique index -- index_organizations_on_the_one_product --
+  # because "exactly one" survives a validation right up until a seed or a
+  # console session sets a second. This exists to give the person a readable
+  # error before the database gives them an unreadable one.
+  def time_zone_is_one_that_exists
+    return if time_zone.blank?
+    return if ActiveSupport::TimeZone[time_zone].present?
+
+    errors.add(:time_zone, "is not a time zone — try an IANA name like Europe/Berlin")
+  end
+
+  def only_one_product_organization
+    return unless product?
+
+    taken = self.class.product.where.not(id: id).exists?
+    errors.add(:product, "is already set on another organization") if taken
+  end
 end

@@ -130,6 +130,84 @@ Council changed over and the page is updated as far as it can be. Still needed:
       weeks, `p=quarantine` and eventually `p=reject` is what actually stops
       somebody forging parish email. Not in the same month as the cutover.
 
+### The project needs a name
+
+- [ ] **`module Sjoca` in `config/application.rb`.** The Rails application is
+      named after one customer. So are `SJOCA_DEMO`, the `sjoca.preview.*`
+      localStorage keys, the `e.data.sjoca` postMessage namespace, the database
+      names (`sjoca_development`, `sjoca_test`) and the repository itself.
+
+      Held only because **there is no name for the generalised product yet** —
+      renaming twice is worse than renaming late. When there is one, this is a
+      single coordinated change: the module, the env var, the JS keys, the
+      database names in `config/database.yml`, and a decision about whether the
+      repo moves or the parish site becomes a consumer of it.
+
+      Nothing depends on it technically. It is a credibility problem rather than
+      a correctness one: the first customer who reads a stack trace sees another
+      parish's name in it.
+
+### Specs that are still missing
+
+Written 27 October while scoping the database. The ones already built are listed
+in [`organizations.md`](organizations.md); these are the gaps, roughly in the
+order they will bite.
+
+- [ ] **A background job that carries its organization.** Solid Queue is shared
+      infrastructure and a worker has no request, so `Current.organization` is
+      nothing there. The password-reset mail hit this for real — it rendered
+      "This site" and linked to `SITE_URL` — and the fix was to pass the
+      organization as an argument. **Nothing enforces that for the next job.**
+      Wanted: an `OrganizationJob` base that takes `organization_id`, sets
+      `Current.organization` around `perform`, and **raises** rather than
+      quietly doing nothing when it is missing. Plus a spec that a job without
+      one fails loudly.
+
+      Note for whoever writes it: `perform_enqueued_jobs` runs inline in the
+      same thread, so a spec that uses it **passes while production is broken**.
+      Call `ActiveSupport::CurrentAttributes.clear_all` first. That one line is
+      the difference between the spec that found this bug and the spec that
+      missed it.
+
+- [ ] **Public caching of per-host content.** The sitemap sets
+      `expires_in 1.hour, public: true`, and the same path now returns different
+      bodies per hostname. Behind any shared cache keyed on path alone, one
+      organization's sitemap could be served for another's domain. Needs either
+      `Vary: Host` or a host-keyed cache, and a spec. Render does not front us
+      with a shared CDN today, which is why this is a trap rather than a bug.
+
+- [ ] **The AI admin's 67 tools under two organizations.** The `default_scope`
+      covers everything that goes through a model, which is all of them — but
+      two tools reach outside: `check_appearance` drives a real browser at a URL
+      (whose hostname?) and `add_data_source` fetches one through
+      `Site::OutboundFetch`. Worth a spec that runs a representative handful
+      inside organization B and proves none can touch A's rows, and a check that
+      the browser visits the right host.
+
+- [ ] **Suspension.** `organizations.active` exists and nothing reads it. Decide
+      and spec: a suspended organization's public site shows a holding page, its
+      owner's admin still works, and **no data is ever deleted**.
+
+- [ ] **The unknown-hostname page.** Currently `render plain: "Not found"`. Once
+      there is a product organization it should be a product-owned "this site is
+      not configured yet" page — and a spec that it is **not** the marketing
+      site, and does not echo the hostname back.
+
+- [ ] **Destroying an organization.** `dependent: :destroy` is declared on six
+      associations and never exercised. Either spec that it removes exactly that
+      organization's rows and nothing else's, or refuse destruction outright and
+      spec that. Deleting a customer's photographs by cascade is not a thing to
+      discover.
+
+- [ ] **Demo mode is deployment-wide.** `Demo.on?` is a file flag, so turning it
+      on would put every organization in demo at once. Per-organization, or
+      product-organization-only.
+
+- [ ] **The operator console, starters and import** have no specs because they
+      have no code. `spec/requests/a_new_organization_spec.rb` is their
+      specification: each step it does by hand should become a call into the
+      real thing, with the assertions unchanged.
+
 ### Multi-organization leftovers
 
 The database is scoped by organization — [`organizations.md`](organizations.md).

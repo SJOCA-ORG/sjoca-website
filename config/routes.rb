@@ -78,8 +78,10 @@ Rails.application.routes.draw do
   get "sitemap.xml" => "sitemap#show", as: :sitemap, defaults: { format: "xml" }
   get "robots.txt"  => "sitemap#robots", as: :robots
 
-  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # Ours, not rails/pwa: that one inherits from ActionController::Base and so
+  # never resolves which organization the request is for. See PwaController.
+  get "manifest" => "pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "pwa#service_worker", as: :pwa_service_worker
 
   # Page paths mirror the old site exactly ("/about-us/our-story"), so links
   # already out in the world keep working after cutover.

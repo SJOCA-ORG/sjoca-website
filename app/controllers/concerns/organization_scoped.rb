@@ -16,6 +16,7 @@ module OrganizationScoped
 
   included do
     before_action :set_organization
+    around_action :in_the_organizations_time_and_language
     helper_method :current_organization
   end
 
@@ -30,6 +31,22 @@ module OrganizationScoped
     # that repeats back what was asked for is a way of telling a scanner which
     # of its guesses were close.
     render plain: "Not found", status: :not_found
+  end
+
+  # config.time_zone is one value for the whole deployment, and it is currently
+  # "America/New_York" -- one organization's clock applied to everybody's dates.
+  # An organization keeps its own, and so does a club in Berlin.
+  #
+  # around_action rather than before_action: Time.use_zone restores the previous
+  # zone afterwards, so a request cannot leave a thread set to somebody else's
+  # clock for whatever runs next on it.
+  def in_the_organizations_time_and_language
+    org = Current.organization
+    return yield if org.nil?
+
+    Time.use_zone(org.time_zone) do
+      I18n.with_locale(org.locale) { yield }
+    end
   end
 
   def current_organization = Current.organization

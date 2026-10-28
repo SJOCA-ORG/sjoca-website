@@ -32,7 +32,12 @@ RSpec.describe "nothing bypasses the organization scope" do
       "app/models/current.rb",                             # the sole-tenant fallback
       "app/controllers/concerns/organization_scoped.rb"    # resolving the hostname
     ],
-    /Organization\.acting_as/ => ["app/models/organization.rb"]
+    # user_mailer is rendered by deliver_later, in a worker process where there
+    # is no request and nothing is current. It takes the organization as an
+    # argument and sets it for the duration of rendering -- the opposite of
+    # stepping around the scope, since without this the mail is rendered with no
+    # organization at all and says "This site".
+    /Organization\.acting_as/ => ["app/models/organization.rb", "app/mailers/user_mailer.rb"]
   }.freeze
 
   def code_lines(path)
