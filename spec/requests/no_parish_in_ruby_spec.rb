@@ -11,7 +11,12 @@ require "rails_helper"
 # catches are not behavioural — the site works perfectly with this parish's
 # name baked in, right up until somebody else installs it.
 RSpec.describe "no parish is written into the code", type: :request do
-  PARISH = /john the baptist|orthodox|vespers|divine liturgy|rochester|goodman|sjoca\.org|fr\.?\s*david/i
+  # In spec/support/this_parish.rb, so the spec that reads rendered HTML uses
+  # the same one. SJTB is in it because it was not, and that is how a monogram
+  # in the DEFAULT header template survived -- seeded into every new
+  # organization, so the first one anybody created would have carried this
+  # parish at the top of every page.
+  PARISH = ThisParish::PATTERN
 
   # Comments may say anything: they explain WHY, and the why is often this
   # parish. It is executable lines that must not assert it.
@@ -41,6 +46,50 @@ RSpec.describe "no parish is written into the code", type: :request do
 
       expect(bad).to be_empty,
         -> { "#{path} asserts this parish:\n" + bad.map { |l| "    #{l.strip}" }.join("\n") }
+    end
+  end
+
+  # What a NEW organization is built from.
+  #
+  # This spec used to read only the files serving the live site, and missed the
+  # ones that create the next site. Those matter more: a mistake in the live
+  # site's own templates is this parish's business, and a mistake in the
+  # defaults is everybody's.
+  describe "what a new organization starts from" do
+    # Only the files a NEW organization is built from.
+    #
+    # Deliberately not all of db/seeds. content.yml and content.rb are THIS
+    # parish's captured pages -- they name it on every line and should. The
+    # distinction is whether a file is somebody's content or everybody's
+    # starting point.
+    def seed_and_starter_files
+      # templates.rb AND the .liquid files it merges in -- DefaultTemplates.all
+      # installs both into every new organization, and a glob that covered only
+      # the Ruby file would have been checking two thirds of the defaults while
+      # reading as though it checked them.
+      [Rails.root.join("db/seeds/templates.rb").to_s] +
+        Dir[Rails.root.join("db/seeds/templates/**/*.liquid")] +
+        Dir[Rails.root.join("db/starters/**/*.{rb,yml,liquid,html}")]
+    end
+
+    it "has files to check" do
+      expect(seed_and_starter_files).not_to be_empty
+    end
+
+    it "names no particular parish anywhere in them" do
+      bad = seed_and_starter_files.flat_map do |path|
+        offending(path).map { |l| "#{Pathname(path).relative_path_from(Rails.root)}: #{l.strip}" }
+      end
+
+      expect(bad).to be_empty, <<~MSG
+        A new organization would be created carrying this parish:
+
+          #{bad.join("\n          ")}
+
+        These files are what every FUTURE site is built from. A fact about this
+        parish belongs in its own settings, as a row -- see the brand setting in
+        the header template for the shape of the fix.
+      MSG
     end
   end
 

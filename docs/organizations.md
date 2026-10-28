@@ -162,6 +162,33 @@ nobody is looking.
 
 ---
 
+## The product's own site, and why it matters
+
+The plan is an organization called **ai-site-builder** whose website advertises
+this tool, built with this tool, from a starter, by conversation. Its slug is the
+only thing special about it; `organizations.product` decides where the operator
+console answers and who owns the "not configured yet" page, and nothing else
+about it gets a code path. If it needs one, the architecture is wrong.
+
+It is not a vanity exercise. **"No semantic knowledge in Ruby" is unfalsifiable
+while the only site in existence is a church.** The moment the same code builds a
+software marketing site, the claim is demonstrated rather than asserted, and
+every gap in onboarding is felt by us before a customer finds it.
+
+Two rules that fall out:
+
+- **The operator console answers only on the product organization's hostnames.**
+  An application admin signing in on a customer's domain should be rare and
+  audited; making it impossible except from our own host is better than logging
+  it.
+- **An unrecognised hostname still does not serve the marketing site.** Tempting
+  — it is only marketing, not customer data. But a customer whose DNS is
+  half-configured would be showing their visitors our sales page, which is worse
+  for them than an error. Unknown host gets a plain, product-owned "this site is
+  not configured yet" page.
+
+---
+
 ## Adding an organization
 
 ```ruby
@@ -182,6 +209,35 @@ runs:** there are now two organizations, so `Current.organization` stops
 guessing. Any script or job that did not name an organization will go quiet
 rather than wrong — which is the right failure, but it is a failure, so expect
 it and read it correctly.
+
+---
+
+## The specs that walk the onboarding path
+
+`spec/requests/a_new_organization_spec.rb` builds a blank organization from
+nothing on every run: hostname, first revision, default templates, one page,
+then requests it. **This is the path nobody walks twice** — the first
+organization took three weeks by hand, the second will be built by a stranger in
+an afternoon with nobody watching.
+
+It has already earned its place twice:
+
+- A Liquid comment added to the default header used `{%# ... %}`, which requires
+  a `#` on **every** line. The default header did not parse in any organization,
+  and nothing else would have noticed until somebody created one.
+- `DefaultTemplates.all` merges two templates in from `.liquid` files on disk.
+  The source scan was globbing only `templates.rb`, so it was reading two thirds
+  of the defaults while looking like it read all of them.
+
+When the operator console arrives, **this spec is its specification**: creating
+an organization, installing a starter and inviting an owner should each replace
+a step in it, and the assertions should not have to change.
+
+Its most useful assertion is the behavioural twin of the source scan: a brand
+new organization's home page is scanned for anything belonging to this parish,
+because a source scan can always be one pattern short. That is how `SJTB` would
+have been caught — a monogram matches no word-based pattern, and it sat in the
+default header for a fortnight.
 
 ---
 

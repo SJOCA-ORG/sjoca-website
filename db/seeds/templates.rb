@@ -9,7 +9,12 @@ module DefaultTemplates
 "header" => <<~'LIQUID',
   <header class="site-header" data-controller="nav">
     <div class="site-header__inner">
-      <a class="site-header__brand" href="/">SJTB</a>
+      {% comment %}
+        The monogram is this organization's, not Ruby's. brand, then short_name,
+        then the full name -- a new organization with only a name set still
+        renders something sensible.
+      {% endcomment %}
+      <a class="site-header__brand" href="/">{{ site.settings.brand | default: site.settings.short_name | default: site.name }}</a>
 
       <button class="site-header__toggle" type="button"
               aria-label="Menu" aria-expanded="false" data-action="nav#toggle">

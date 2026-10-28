@@ -19,16 +19,20 @@ module Site
     # without being told which parish it is.
     def site = @site ||= SiteDrop.new(@revision)
 
-    # Omitted rather than guessed. Coordinates nobody checked are worse than no
-    # coordinates: they put the pin in the wrong street and no one notices.
-    # Set SJOCA_LATITUDE and SJOCA_LONGITUDE from the parish's own listing.
-    def self.coordinates
-      lat = ENV["SJOCA_LATITUDE"].presence
-      lon = ENV["SJOCA_LONGITUDE"].presence
-      return nil if lat.nil? || lon.nil?
-
-      { "@type" => "GeoCoordinates", "latitude" => lat.to_f, "longitude" => lon.to_f }
-    end
+    # coordinates lived here, reading SJOCA_LATITUDE and SJOCA_LONGITUDE from
+    # the environment. It was deleted on 27 October 2026, for two reasons.
+    #
+    # It had NO CALLERS. It was left behind when structured_data moved into the
+    # "head" template (see the note below), so the coordinates it carefully
+    # declined to guess were never published anywhere. A method that is
+    # documented in the TODO list and wired to nothing is worse than a gap:
+    # somebody reads the TODO, sets the two variables, and reasonably believes
+    # the job is done.
+    #
+    # And it was the SITE_URL mistake again -- a per-organization fact held in
+    # the environment, where only one organization can have one. A map pin
+    # belongs with the address it goes with, in the organization's own settings,
+    # written into the head template as Liquid. See docs/TODO.md.
 
     def initialize(page, revision: nil)
       @page = page

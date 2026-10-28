@@ -391,10 +391,19 @@ and why. These are the parts that need somebody other than a developer.
       of a parish with an excellent site and no listing. Address, service times,
       photographs, and parishioner reviews.
 
-- [ ] **Set `SJOCA_LATITUDE` and `SJOCA_LONGITUDE`.** The structured data omits
-      coordinates rather than guessing them — coordinates nobody checked put the
-      pin in the wrong street and no one notices for a year. They are already
-      correct on the Business Profile; copy them from there.
+- [ ] **Put the map coordinates in the `head` template**, as `latitude` and
+      `longitude` site settings. The structured data omits coordinates rather
+      than guessing them — coordinates nobody checked put the pin in the wrong
+      street and no one notices for a year. They are already correct on the
+      Business Profile; copy them from there.
+
+      **Not as environment variables.** `Site::Seo.coordinates` read
+      `SJOCA_LATITUDE` and `SJOCA_LONGITUDE` and was **deleted on 27 October**:
+      it had no callers, left behind when `structured_data` moved into the head
+      template, so the coordinates it declined to guess were never published
+      anywhere. Anybody who had read this item and set the two variables would
+      have believed the job was done. It was also the `SITE_URL` mistake again —
+      a per-organization fact held where only one organization can have one.
 
 - [ ] **Put a telephone number on the site.** There is none anywhere today. For
       a local search it is a strong signal, and for a visitor deciding whether
