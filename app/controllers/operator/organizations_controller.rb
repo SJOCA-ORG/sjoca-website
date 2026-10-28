@@ -14,21 +14,23 @@ module Operator
     end
 
     def new
-      @form = { slug: "", name: "", host: "", owner_email: "" }
+      @form = { slug: "", name: "", host: "", owner_email: "", starter: Starter::DEFAULT }
+      @starters = Starter.all
     end
 
     def create
       result = CreateOrganization.new(
         name: params[:name], slug: params[:slug], host: params[:host],
         canonical_url: params[:canonical_url], owner_email: params[:owner_email],
-        by: current_user, ip: request.remote_ip
+        starter: params[:starter], by: current_user, ip: request.remote_ip
       ).call
 
       if result.ok?
         redirect_to operator_root_path,
                     notice: "#{result.organization.name} created. #{result.owner.email} has been invited."
       else
-        @form = params.permit(:name, :slug, :host, :canonical_url, :owner_email).to_h
+        @form = params.permit(:name, :slug, :host, :canonical_url, :owner_email, :starter).to_h
+        @starters = Starter.all
         flash.now[:alert] = result.errors.to_sentence
         render :new, status: :unprocessable_content
       end

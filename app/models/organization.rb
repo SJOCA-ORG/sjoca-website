@@ -22,21 +22,58 @@ class Organization < ApplicationRecord
 
   # A slug becomes a subdomain of the shared domain -- sjoca.example.com -- so
   # these are not merely ugly names, they are names that would take over a piece
-  # of the system. An organization called "www" would answer for the product's
-  # own site; one called "mail" would break every mail client that goes looking
-  # for autodiscover; one called "api" would claim an address we will want.
+  # of the system. Reserved now, while the cost is a validation. With customers
+  # on the system it is a migration, a redirect, and a conversation with
+  # somebody who has already printed their address on something.
   #
-  # Reserved now, while the cost is a validation. With customers on the system
-  # it is a migration, a redirect and a conversation with somebody who has
-  # already printed their address on something.
-  RESERVED_SLUGS = %w[
-    about account accounts admin alpha api app apps assets auth autoconfig
-    autodiscover beta billing blog calendar cdn cms console dashboard demo dev
-    dns docs download downloads email files forum ftp git go help images img
-    internal link login mail media mx my news ns ns1 ns2 operator pop portal
-    preview repo secure shop signup smtp ssl staging static status store
-    support test vpn webmail wiki www
+  # Grouped so the list can be argued with. A flat hundred words is a list
+  # nobody reads before adding to.
+
+  # Addresses the platform will want for itself. Some already exist; the rest
+  # are cheaper to hold than to reclaim.
+  RESERVED_PLATFORM = %w[
+    about account accounts admin administrator affiliates api app apps auth
+    billing blog careers changelog community console contact dashboard docs
+    documentation feedback help id invoices jobs join learn legal login logout
+    onboard partners pay press pricing privacy register roadmap security signin
+    signout signup sso status support terms training trial try welcome www
   ].freeze
+
+  # Mail. RFC 2142 names a set of mailboxes every domain is expected to answer,
+  # and certificate authorities use several of them for domain validation --
+  # which is why an organization must not be able to own one.
+  RESERVED_MAIL = %w[
+    abuse autoconfig autodiscover bounce bounces dkim dmarc email hostmaster
+    imap inbox mail mailer mx noc noreply pop postmaster relay smtp spf
+    webmaster webmail
+  ].freeze
+
+  # Names that software goes looking for on its own, without being asked.
+  # wpad and isatap are the sharp ones: an operating system may fetch proxy
+  # configuration from wpad.<domain>, so whoever owns that name can route other
+  # people's traffic. They appear on every reserved-hostname list for that
+  # reason and on no list of names anybody wanted.
+  RESERVED_DISCOVERY = %w[
+    isatap local localdomain localhost ns ns1 ns2 ns3 ns4 wpad
+  ].freeze
+
+  # Infrastructure, present and likely. Most of these will be real one day.
+  RESERVED_INFRASTRUCTURE = %w[
+    assets backup backups build cdn ci cron db deploy dev devops edge files
+    ftp git grafana logs media metrics origin preview proxy qa queue repo
+    sandbox secure sentry ssl staging static storage test uploads vpn worker
+  ].freeze
+
+  # Things this product in particular will want to serve.
+  RESERVED_PRODUCT = %w[
+    cms demo example examples gallery images img operator portal showcase
+    starters templates themes
+  ].freeze
+
+  RESERVED_SLUGS = (
+    RESERVED_PLATFORM + RESERVED_MAIL + RESERVED_DISCOVERY +
+    RESERVED_INFRASTRUCTURE + RESERVED_PRODUCT
+  ).sort.uniq.freeze
 
   validates :name, presence: true
   validates :slug, presence: true, format: { with: SLUG,

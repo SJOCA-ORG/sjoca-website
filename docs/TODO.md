@@ -213,11 +213,30 @@ order they will bite.
       - [ ] **Designate the product organization.** Until one is marked, the
             console answers on every hostname — including this parish's — and
             says so in red. The bootstrap sequence is in `organizations.md`.
-- [ ] **Starters and import** have no specs because they have no code.
-      `spec/requests/a_new_organization_spec.rb` is their specification: each
-      step it does by hand should become a call into the real thing, with the
-      assertions unchanged. `Operator::CreateOrganization` already replaced the
-      first six of them.
+- [x] ~~**Starters** have no specs because they have no code.~~ Built
+      28 October — `plain`, `gathering`, `noticeboard` under `db/starters/`,
+      chosen in the operator console, 26 examples that install each one and
+      request the resulting site. See [`organizations.md`](organizations.md).
+      - [ ] **Thumbnails for the chooser.** It shows a title and a sentence;
+            a look wants looking at. `script/visual_check.mjs` already
+            screenshots a page at 390px and 1280px, so the gallery can build
+            itself from the starters rather than being drawn by hand.
+      - [ ] **More than three, once three have been used in anger.** The point
+            of stopping at three was to find out what a starter needs to
+            contain before making twelve of them.
+- [ ] **Import** has no specs because it has no code.
+      `spec/requests/a_new_organization_spec.rb` is its specification: each step
+      it does by hand should become a call into the real thing, with the
+      assertions unchanged. `Operator::CreateOrganization` and `Starter` have
+      already replaced most of them.
+
+      Two things that must not be conflated, because separating them changes the
+      feature: **importing your own site** is legitimate and is what the capture
+      pipeline already does — it is how Phase 1 happened. **"Make mine look like
+      that one"** must extract a THEME only: palette, type scale, spacing
+      rhythm, section patterns. Not text, not photographs. Copying content from
+      a site somebody does not own is infringement, and "a user asked us to" is
+      not a defence when we are the ones hosting the copy.
 
 ### Multi-organization leftovers
 

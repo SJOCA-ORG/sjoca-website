@@ -62,11 +62,29 @@ RSpec.describe Organization do
     # The slug becomes a subdomain of the shared domain, so a few of them would
     # take over a piece of the system rather than merely read badly.
     it "refuses a slug the system needs for itself" do
-      %w[www mail admin api operator status].each do |taken|
+      %w[www mail admin api operator status
+         postmaster abuse hostmaster
+         wpad isatap localhost
+         cdn staging backups
+         templates gallery demo].each do |taken|
         org = Organization.new(name: "Trying", slug: taken)
         expect(org).not_to be_valid, "#{taken.inspect} should be reserved"
         expect(org.errors[:slug].join).to match(/reserved/)
       end
+    end
+
+    # wpad and isatap are the ones worth knowing about: an operating system may
+    # fetch proxy configuration from wpad.<domain> without being asked, so
+    # whoever owns that name can route other people's traffic.
+    it "reserves the names software goes looking for on its own" do
+      expect(Organization::RESERVED_DISCOVERY).to include("wpad", "isatap")
+    end
+
+    # Certificate authorities use several RFC 2142 mailboxes for domain
+    # validation, so an organization owning one is a way to be issued a
+    # certificate for somebody else's name.
+    it "reserves the mailbox names a certificate authority trusts" do
+      expect(Organization::RESERVED_MAIL).to include("postmaster", "hostmaster", "webmaster", "abuse")
     end
 
     it "still allows an ordinary one that merely contains a reserved word" do

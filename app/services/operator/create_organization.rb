@@ -49,20 +49,23 @@ module Operator
         # would otherwise land nowhere.
         Organization.acting_as(organization) do
           revision = Revision.create!(state: "published", title: "First")
-          DefaultTemplates.install!(revision)
+
+          # The starter brings the templates with it, so a starter cannot leave
+          # a block kind without a template to render it. find_or_default
+          # because the name comes from a form.
+          Starter.find_or_default(@starter).install!(revision)
 
           # The one setting a brand new site cannot do without: something to
-          # call itself. Everything else it can be asked for later.
-          revision.site_settings.create!(key: "name", value: @name)
-
-          Page.create!(slug: "home", title: @name, nav_title: "Home", revision: revision)
+          # call itself. After the starter, so it wins over the starter's own
+          # placeholder.
+          revision.site_settings.find_or_initialize_by(key: "name").update!(value: @name)
 
           owner = User.create!(email: @owner_email, role: "superadmin",
                                password: self.class.unguessable_password)
         end
 
         OperatorAction.note!(:created, organization: organization, user: @by,
-                             detail: "#{@slug} at #{@host}", ip: @ip)
+                             detail: "#{@slug} at #{@host}, from the #{@starter} starter", ip: @ip)
         OperatorAction.note!(:invited, organization: organization, user: @by,
                              detail: @owner_email, ip: @ip)
 

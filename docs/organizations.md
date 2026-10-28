@@ -206,6 +206,50 @@ Two rules that fall out:
 
 ---
 
+## Starters
+
+What a new organization is built from. A folder under `db/starters/<name>/`:
+
+```
+starter.yml        title, summary, settings, pages (with sections and blocks)
+templates/*.liquid optional overrides -- only what this look changes
+theme.css          optional, becomes a theme_asset row it can then edit
+```
+
+Files rather than Ruby, for the same reason `db/seeds/content.yml` is files: a
+look is reviewable in a pull request, and the no-parish scan already reads
+`db/starters/**`, so a starter carrying somebody's monogram fails the build.
+
+**Every starter begins from `DefaultTemplates` and overlays its own**, so a
+starter cannot forget to provide a template for a block kind and render nothing.
+
+Three to begin with — `plain`, `gathering`, `noticeboard` — because three proves
+the mechanism and tells you what a starter needs to contain. Twelve is a design
+project, and the first three would be rebuilt after it.
+
+The name arrives from a form and is used to build a path, so `Starter.find`
+checks it against `/\A[a-z0-9][a-z0-9-]{0,40}\z/` and returns nil otherwise.
+`../../etc` is a starter name too, as far as a string is concerned.
+
+### The failure a starter has, and what catches it
+
+A starter's templates are written by somebody who will never meet the customer,
+in files nobody runs until an organization is created. The `gathering` starter's
+section template invented its own structure — `section.blocks` instead of
+`section.columns`, `{% render 'block' %}` instead of `{% include block.template %}`
+— and rendered **every band perfectly with nothing inside it**.
+
+Liquid does not complain about a loop over nothing. The page came out plausible
+and 5KB, and every check passed: the templates existed, no block kind was
+missing one, the page was well over the "renders three bytes" threshold.
+
+What none of them asked was whether the **words in the starter reached the
+page**. `spec/requests/starters_spec.rb` asks that now, of every block of every
+page of every starter, and it was confirmed to fail on the original bug before
+being kept.
+
+---
+
 ## The operator console
 
 `/operator`, for whoever runs this app for other people. Two locks, different in

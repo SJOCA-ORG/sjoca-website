@@ -32,6 +32,19 @@
         per hostname — add the others afterwards.</span>
     </p>
     <p>
+      <%= label_tag :starter, "Starting look", style: "display:block;margin-bottom:.2rem" %>
+      <% @starters.each do |starter| %>
+        <label style="display:block;margin:.3rem 0">
+          <%= radio_button_tag :starter, starter.name, @form[:starter].to_s == starter.name %>
+          <strong><%= starter.title %></strong>
+          <span class="muted">— <%= starter.summary %></span>
+        </label>
+      <% end %>
+      <span class="muted">Every look is editable afterwards, including the
+        templates. This decides what is there on the first morning, not what it
+        has to stay.</span>
+    </p>
+    <p>
       <%= label_tag :owner_email, "Owner's email", style: "display:block;margin-bottom:.2rem" %>
       <%= email_field_tag :owner_email, @form[:owner_email], required: true,
             style: "width:100%;padding:.5rem" %>
