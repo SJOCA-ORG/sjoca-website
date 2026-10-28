@@ -912,7 +912,7 @@ module Admin
     # list of findings is what put the upcoming-events box in the footer.
     def check_appearance(slug:, click: nil, **)
       page = find_page(slug)
-      base = ENV.fetch("SITE_URL", "http://localhost:3000")
+      base = Organization.current_url
       token = revision.preview_token
       url = "#{base}/#{page.slug == 'home' ? '' : page.slug}?preview=#{token}"
 

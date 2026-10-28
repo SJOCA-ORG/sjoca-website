@@ -19,15 +19,23 @@
 # the same reference. Hence the unique index, and hence the version being
 # assigned here rather than by whoever happens to be inserting.
 class Photo < ApplicationRecord
+  include BelongsToOrganization
   STATUSES = %w[published draft].freeze
 
   # Assigned, not supplied. Every caller that set this by hand was a chance to
   # set it wrong, and the seeds set every photo to version 1 on every run.
   before_validation :assign_next_version, on: :create
 
+  # organization_id is named in every uniqueness scope below, and must be.
+  # Rails' uniqueness validator calls klass.unscoped (activerecord-8.1.4,
+  # validations/uniqueness.rb:113), so it does NOT see the default_scope that
+  # organization-scoping relies on. Leave it out and the check runs across every
+  # organization in the system: a second organization is told its photograph
+  # name is taken, which is both wrong and a way of asking what the first one
+  # has got.
   validates :human_name, :content_type, :sha256, presence: true
   validates :version, presence: true,
-                      uniqueness: { scope: :human_name,
+                      uniqueness: { scope: %i[organization_id human_name],
                                     message: "already exists for this name" }
 
   # A photograph has to BE one. A row containing the eight bytes "NEWBYTES"
@@ -51,7 +59,7 @@ class Photo < ApplicationRecord
   public
   validates :data, presence: true
   validates :status, inclusion: { in: STATUSES }
-  validates :sha256, uniqueness: { scope: :human_name }
+  validates :sha256, uniqueness: { scope: %i[organization_id human_name] }
 
   has_many :photo_tags, dependent: :destroy
   has_many :tags, through: :photo_tags

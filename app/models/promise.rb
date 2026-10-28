@@ -9,6 +9,7 @@
 # Immutable, deliberately. Changing a promise means creating a new one and
 # swapping the id in the revision's list, so the history survives.
 class Promise < ApplicationRecord
+  include BelongsToOrganization
   has_many :revision_promises, dependent: :destroy
   has_many :revisions, through: :revision_promises
 

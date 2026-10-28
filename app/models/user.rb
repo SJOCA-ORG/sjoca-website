@@ -11,6 +11,31 @@
 class User < ApplicationRecord
   has_secure_password
 
+  # Two different questions, which are easy to confuse because both sound like
+  # "how much power":
+  #
+  #   role              -- what you may do INSIDE an organization.
+  #   application_admin -- WHICH organizations you may act in. Everyone's.
+  #
+  # So an organization's own top administrator is role "superadmin" and is not
+  # an application admin; somebody running this app for other people is an
+  # application admin and may hold no role anywhere.
+  #
+  # Deliberately NOT default-scoped to an organization, unlike every other
+  # table. Signing in happens before a hostname has been resolved to anybody,
+  # and an application admin belongs to no organization at all. Authorisation
+  # does that work instead -- see may_act_in?.
+  belongs_to :organization, optional: true
+
+  # Optional in the model, and a check constraint in the database: a user has an
+  # organization, or is an application admin, or is a row that can see nothing
+  # and would be a puzzle to debug.
+  #
+  # Filled in from the request, so creating an editor from inside an
+  # organization's admin does the obvious thing without the form carrying a
+  # hidden field somebody could edit.
+  before_validation :belong_where_this_was_created, on: :create
+
   ROLES = %w[superadmin].freeze
 
   normalizes :email, with: ->(e) { e.to_s.strip.downcase }
@@ -48,7 +73,22 @@ class User < ApplicationRecord
 
   def superadmin? = role == "superadmin"
 
+  # The one authorisation question that matters once there is more than one
+  # organization: may this person act on THIS one's data?
+  def may_act_in?(organization)
+    return false if organization.nil?
+    return true  if application_admin?
+
+    organization_id == organization.id
+  end
+
   private
+
+  def belong_where_this_was_created
+    return if application_admin?
+
+    self.organization ||= Current.organization
+  end
 
   def password_has_a_mix
     missing = []

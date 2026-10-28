@@ -55,7 +55,7 @@ module Admin
 
     def run_against(slug, promises)
       payload = promises.map { |p| { id: p.id, summary: p.summary, script: p.script } }
-      base    = ENV.fetch("SITE_URL", "http://localhost:3000")
+      base    = Organization.current_url
       url     = "#{base}/#{slug == 'home' ? '' : slug}?preview=#{@revision.preview_token}"
 
       out, err, status = Open3.capture3(

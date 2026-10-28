@@ -4,6 +4,7 @@
 # Publishing is a pointer flip, not a deploy -- instant, and reversible in both
 # directions, so any revision can be made live again.
 class Revision < ApplicationRecord
+  include BelongsToOrganization
   STATES = %w[draft published superseded discarded].freeze
 
   has_many :pages,    dependent: :destroy

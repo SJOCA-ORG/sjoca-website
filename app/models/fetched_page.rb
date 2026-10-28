@@ -4,6 +4,7 @@ require "digest"
 # revisions. Not revision-scoped on purpose: a megabyte of fetched HTML copied
 # into every sandbox anyone opens would be a lot of database for no benefit.
 class FetchedPage < ApplicationRecord
+  include BelongsToOrganization
   validates :key, :url, presence: true
 
   def self.key_for(url) = Digest::SHA256.hexdigest(url.to_s)

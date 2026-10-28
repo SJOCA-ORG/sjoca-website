@@ -40,5 +40,18 @@ RSpec.configure do |config|
     ActiveRecord::Base.connection.execute(
       "TRUNCATE #{tables.map { |t| %("#{t}") }.join(', ')} RESTART IDENTITY CASCADE"
     )
+
+    # One organization for the whole run, created after the truncate and
+    # committed, so it survives each example's transaction rolling back.
+    #
+    # Every model but User is scoped to an organization and answers NOTHING when
+    # there is none -- so without this, the suite would not fail with a
+    # permissions error, it would fail with four hundred empty results, which
+    # takes much longer to understand.
+    #
+    # Current.organization finds it by itself while it is the only one. A spec
+    # that needs two must set Current.organization explicitly; see
+    # spec/requests/organization_isolation_spec.rb.
+    Organization.create!(name: "Spec Organization", slug: "spec")
   end
 end

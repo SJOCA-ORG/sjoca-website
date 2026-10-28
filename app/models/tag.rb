@@ -5,11 +5,14 @@
 # form, which is what makes "feast days", "Feast Days" and "feast-days" the same
 # tag instead of three.
 class Tag < ApplicationRecord
+  include BelongsToOrganization
   has_many :photo_tags, dependent: :destroy
   has_many :photos, through: :photo_tags
 
   validates :label, presence: true
-  validates :name, presence: true, uniqueness: true
+  # Scoped to the organization: see the note in Photo. Two organizations may
+  # each have a tag called "feast-days", and neither should learn of the other.
+  validates :name, presence: true, uniqueness: { scope: :organization_id }
 
   before_validation :canonicalise
 

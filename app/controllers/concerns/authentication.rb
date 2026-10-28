@@ -24,7 +24,21 @@ module Authentication
         sign_out if id.present?    # expired: clear it rather than re-checking forever
         nil
       else
-        User.find_by(id: id)
+        found = User.find_by(id: id)
+
+        # A session is for one organization. Carrying a cookie from one
+        # organization's admin to another's hostname is not a way in -- and it
+        # would otherwise be the easiest one, because the cookie is perfectly
+        # valid and the user is perfectly real.
+        #
+        # An application administrator passes this, which is the whole point of
+        # being one.
+        if found&.may_act_in?(Current.organization)
+          found
+        else
+          sign_out if found
+          nil
+        end
       end
     end
   end

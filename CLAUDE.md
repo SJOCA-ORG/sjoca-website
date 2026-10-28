@@ -5,8 +5,9 @@ committed so it travels with the repo; it is the handoff, not a scratchpad.
 
 **Last updated:** 2026-10-27 — the replay test is done and was presented to the parish
 council on 20 October; a login protects the admin; every trace of this particular parish
-is out of the Ruby and lives in the database; the `sjoca.org` registration has moved to
-Namecheap and the DNS move is the next thing in front of us.
+is out of the Ruby and lives in the database; `sjoca.org` and its DNS are now ours at
+Namecheap; and the database is scoped by **organization**, so one app can host many
+websites.
 
 ---
 
@@ -196,6 +197,37 @@ The parish favicon is in place — the Flower City logo behind an Orthodox three
 cross. Design history, provenance and the regeneration command are in
 [`docs/favicon.md`](docs/favicon.md). It is generated from `public/icon.svg`;
 regenerate the rasters rather than hand-editing a PNG.
+
+## One app, many organizations
+
+Every table is scoped to an **organization** — read [`docs/organizations.md`](docs/organizations.md)
+before touching a model. The short version:
+
+- A **hostname** resolves to an organization (`organization_hosts`, host unique),
+  and `BelongsToOrganization` puts a `default_scope` under every query. Six root
+  tables carry `organization_id`; the content tables inherit it through their revision.
+- **With no organization set, scoped models return nothing.** Deliberately. A job or
+  script that has not said who it means goes quiet rather than returning somebody
+  else's rows. `Current.organization` falls back to the only organization while there
+  is exactly one, and stops the moment there are two.
+- `Organization.acting_as(org) { ... }` is the only sanctioned way to choose
+  deliberately. It is verbose on purpose.
+- **`User` has no default scope**, because sign-in happens before a hostname is
+  resolved and an application admin belongs to no organization. `role` is what you may
+  do inside an organization; `application_admin` is which organizations you may act in.
+- **Rails' uniqueness validator ignores `default_scope`** — it calls `klass.unscoped`
+  (`uniqueness.rb:113`). Four validations were silently checking across every
+  organization. Every uniqueness scope must name `organization_id`, and a spec audits
+  that it does.
+- Four specs hold it up, three of which read the source rather than the behaviour:
+  every model must reach an organization by a stated route, every uniqueness scope must
+  name it, nothing in `app/` may use `unscoped` or raw SQL, and two real organizations
+  must not be able to see each other.
+
+The word "parish" belongs in database rows, not in Ruby. An organization may be a
+club, a school or a shop.
+
+---
 
 ## Things that are settled — don't reopen without asking
 

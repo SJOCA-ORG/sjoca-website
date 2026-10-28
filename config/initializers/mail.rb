@@ -15,6 +15,10 @@ Rails.application.configure do
   user     = ENV["SMTP_USER_NAME"].presence || smtp[:user_name]
   password = ENV["SMTP_PASSWORD"].presence  || smtp[:password]
 
+  # The FALLBACK host for links in email. The real one is decided per message,
+  # from the organization the request is for -- see ApplicationMailer#url_options.
+  # This is what gets used when there is no request: a rake task, a job, a
+  # console session.
   site = ENV.fetch("SITE_URL", "http://localhost:3000")
   uri  = URI.parse(site)
   config.action_mailer.default_url_options = {

@@ -130,6 +130,33 @@ Council changed over and the page is updated as far as it can be. Still needed:
       weeks, `p=quarantine` and eventually `p=reject` is what actually stops
       somebody forging parish email. Not in the same month as the cutover.
 
+### Multi-organization leftovers
+
+The database is scoped by organization — [`organizations.md`](organizations.md).
+What has not moved with it:
+
+- [ ] **SMTP is one account for the whole deployment.** Mail is signed with each
+      organization's own name and reply-to, but leaves through one mailbox
+      (`itmanager@sjoca.org`). Fine for two; wrong for paying customers. The
+      note in `config/initializers/mail.rb` about moving to a service that is
+      nobody's mailbox now matters more, not less.
+- [ ] **`SJOCA_DEMO`, and some JavaScript keys** (`sjoca.preview.*`,
+      `e.data.sjoca`) carry a four-letter name from when there was one of these.
+      Cosmetic, but it is the product's name in a product that may get sold.
+- [ ] **Solid Queue is shared infrastructure.** A background job must carry its
+      organization in its arguments and set `Current.organization` itself.
+      Nothing enforces that, because nothing currently enqueues per-organization
+      work — but the first thing that does will fail closed and look mysterious.
+- [ ] **Set `canonical_url` on the production organization after deploying.**
+      The migration seeds it from `SITE_URL`, which is
+      `https://sjoca.onrender.com` today and becomes `https://sjoca.org` at
+      cutover. That is now a database row, not an env var, so changing the env
+      var alone will not move it.
+- [ ] **One organization, one website.** The tenant key is `organization_id`. If
+      an organization ever needs two separate websites, a `sites` table slots in
+      between and `revisions` moves to it. Recorded so it is a choice rather
+      than an oversight.
+
 ### Clearing pre-flight findings — before DNS cutover
 
 A pre-flight run over a draft (render every page, resolve every photo

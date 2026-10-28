@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_27_211937) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -35,54 +35,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
     t.index ["section_id"], name: "index_blocks_on_section_id"
   end
 
-  create_table "calendar_events", force: :cascade do |t|
-    t.string "churchtrac_id"
-    t.string "uid"
-    t.datetime "starts_at", null: false
-    t.datetime "ends_at"
-    t.string "title", null: false
-    t.boolean "all_day", default: false, null: false
-    t.boolean "recurring", default: false, null: false
-    t.string "location"
-    t.text "notes"
-    t.string "calendar_name"
-    t.datetime "synced_at", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "source", default: "churchtrac", null: false
-    t.index ["churchtrac_id", "starts_at"], name: "index_calendar_events_on_churchtrac_id_and_starts_at", unique: true
-    t.index ["source"], name: "index_calendar_events_on_source"
-    t.index ["starts_at"], name: "index_calendar_events_on_starts_at"
-  end
-
-  create_table "calendar_syncs", force: :cascade do |t|
-    t.string "status", null: false
-    t.datetime "window_start"
-    t.datetime "window_end"
-    t.integer "fetched", default: 0, null: false
-    t.integer "created", default: 0, null: false
-    t.integer "updated", default: 0, null: false
-    t.integer "removed", default: 0, null: false
-    t.text "message"
-    t.float "duration"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["created_at"], name: "index_calendar_syncs_on_created_at"
-  end
-
-  create_table "class_recordings", force: :cascade do |t|
-    t.string "youtube_id", null: false
-    t.string "title", null: false
-    t.integer "number"
-    t.date "held_on"
-    t.integer "position", default: 0, null: false
-    t.datetime "synced_at", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["held_on"], name: "index_class_recordings_on_held_on"
-    t.index ["youtube_id"], name: "index_class_recordings_on_youtube_id", unique: true
-  end
-
   create_table "data_sources", force: :cascade do |t|
     t.bigint "revision_id", null: false
     t.string "name", null: false
@@ -105,30 +57,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
     t.datetime "fetched_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["key"], name: "index_fetched_pages_on_key", unique: true
-  end
-
-  create_table "lectionary_days", force: :cascade do |t|
-    t.date "on", null: false
-    t.string "title"
-    t.text "commemorations"
-    t.datetime "synced_at", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["on"], name: "index_lectionary_days_on_on", unique: true
-  end
-
-  create_table "lectionary_readings", force: :cascade do |t|
-    t.bigint "lectionary_day_id", null: false
-    t.integer "position", null: false
-    t.string "citation", null: false
-    t.string "kind"
-    t.text "body"
-    t.string "source_url"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["lectionary_day_id", "position"], name: "index_lectionary_readings_on_lectionary_day_id_and_position", unique: true
-    t.index ["lectionary_day_id"], name: "index_lectionary_readings_on_lectionary_day_id"
+    t.bigint "organization_id", null: false
+    t.index ["organization_id", "key"], name: "index_fetched_pages_on_organization_id_and_key", unique: true
+    t.index ["organization_id"], name: "index_fetched_pages_on_organization_id"
   end
 
   create_table "lessons", force: :cascade do |t|
@@ -138,7 +69,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "organization_id", null: false
     t.index ["active", "subject"], name: "index_lessons_on_active_and_subject"
+    t.index ["organization_id"], name: "index_lessons_on_organization_id"
+  end
+
+  create_table "organization_hosts", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.string "host", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["host"], name: "index_organization_hosts_on_host", unique: true
+    t.index ["organization_id"], name: "index_organization_hosts_on_organization_id"
+  end
+
+  create_table "organizations", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "canonical_url"
+    t.index ["slug"], name: "index_organizations_on_slug", unique: true
   end
 
   create_table "pages", force: :cascade do |t|
@@ -194,9 +146,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
     t.integer "version", null: false
     t.datetime "uploaded_at"
     t.string "original_filename"
+    t.bigint "organization_id", null: false
     t.index ["human_name", "created_at"], name: "index_photos_on_human_name_and_created_at"
-    t.index ["human_name", "sha256"], name: "index_photos_on_human_name_and_sha256", unique: true
-    t.index ["human_name", "version"], name: "index_photos_on_human_name_and_version", unique: true
+    t.index ["organization_id", "human_name", "sha256"], name: "index_photos_on_organization_id_and_human_name_and_sha256", unique: true
+    t.index ["organization_id", "human_name", "version"], name: "index_photos_on_organization_id_and_human_name_and_version", unique: true
+    t.index ["organization_id"], name: "index_photos_on_organization_id"
     t.index ["uploaded_at"], name: "index_photos_on_uploaded_at"
   end
 
@@ -210,6 +164,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
     t.text "proof"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "organization_id", null: false
+    t.index ["organization_id"], name: "index_promises_on_organization_id"
   end
 
   create_table "revision_messages", force: :cascade do |t|
@@ -245,6 +201,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
     t.datetime "published_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "organization_id", null: false
+    t.index ["organization_id"], name: "index_revisions_on_organization_id"
     t.index ["state"], name: "index_revisions_on_state"
   end
 
@@ -426,7 +384,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
     t.text "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_tags_on_name", unique: true
+    t.bigint "organization_id", null: false
+    t.index ["organization_id", "name"], name: "index_tags_on_organization_id_and_name", unique: true
+    t.index ["organization_id"], name: "index_tags_on_organization_id"
   end
 
   create_table "templates", force: :cascade do |t|
@@ -455,14 +415,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
     t.datetime "last_signed_in_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "organization_id"
+    t.boolean "application_admin", default: false, null: false
     t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
+    t.index ["organization_id"], name: "index_users_on_organization_id"
+    t.check_constraint "organization_id IS NOT NULL OR application_admin", name: "users_belong_somewhere_or_are_application_admins"
   end
 
   add_foreign_key "blocks", "sections"
   add_foreign_key "data_sources", "revisions"
-  add_foreign_key "lectionary_readings", "lectionary_days"
+  add_foreign_key "fetched_pages", "organizations"
+  add_foreign_key "lessons", "organizations"
+  add_foreign_key "organization_hosts", "organizations"
   add_foreign_key "photo_tags", "photos"
   add_foreign_key "photo_tags", "tags"
+  add_foreign_key "photos", "organizations"
+  add_foreign_key "promises", "organizations"
+  add_foreign_key "revisions", "organizations"
   add_foreign_key "sections", "pages"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -472,4 +441,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_185713) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "tags", "organizations"
+  add_foreign_key "users", "organizations"
 end

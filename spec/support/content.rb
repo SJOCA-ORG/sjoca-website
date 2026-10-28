@@ -47,15 +47,6 @@ module ContentBuilders
       status: status, version: version, **attrs
     )
   end
-
-  # Likewise synced_at on calendar_events: the importers set it, the model does
-  # not default it.
-  def build_event(title: "Vespers", starts_at: 2.days.from_now, source: "churchtrac",
-                  recurring: true, **attrs)
-    CalendarEvent.create!(title: title, starts_at: starts_at, source: source,
-                          recurring: recurring,
-                          synced_at: attrs.delete(:synced_at) || Time.current, **attrs)
-  end
 end
 
 RSpec.configure { |c| c.include ContentBuilders }

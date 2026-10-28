@@ -43,15 +43,19 @@ RSpec.describe Photo, "versioning" do
   # ordinary use -- which is the point. The database is the backstop for
   # anything that writes rows without going through the model: a seed, a
   # migration, a console session, an import.
+  #
+  # The index is (organization_id, human_name, version), so the insert has to
+  # name an organization. That it now has to is the thing worth noticing: the
+  # same human_name at the same version is free to exist for somebody else.
   it "will not let the DATABASE hold two images at one version" do
     first = photo("parish-picnic", "one")
 
     expect {
       ActiveRecord::Base.connection.execute(<<~SQL)
-        INSERT INTO photos (human_name, data, content_type, byte_size, sha256,
-                            status, version, created_at, updated_at)
-        VALUES ('parish-picnic', 'two', 'image/png', 3, 'deadbeef',
-                'published', #{first.version}, now(), now())
+        INSERT INTO photos (organization_id, human_name, data, content_type, byte_size,
+                            sha256, status, version, created_at, updated_at)
+        VALUES (#{first.organization_id}, 'parish-picnic', 'two', 'image/png', 3,
+                'deadbeef', 'published', #{first.version}, now(), now())
       SQL
     }.to raise_error(ActiveRecord::RecordNotUnique)
   end

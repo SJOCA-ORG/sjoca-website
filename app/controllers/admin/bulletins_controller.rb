@@ -66,7 +66,7 @@ module Admin
     end
 
     def preview_url
-      base = ENV.fetch("SITE_URL", "http://localhost:3000")
+      base = Organization.current_url
       "#{base}/#{@page.slug}?preview=#{@revision.preview_token}&bare=1"
     end
 
