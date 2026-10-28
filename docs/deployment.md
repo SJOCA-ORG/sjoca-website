@@ -162,3 +162,20 @@ that takes thirty seconds to wake up is worse than a slow one.
 **Pointing sjoca.org here is a separate job** and should not happen before the
 AGM. See `docs/TODO.md` — the domain sits in an AWS account we are still
 identifying, and the bare domain does not currently resolve at all.
+
+---
+
+## Services Render knows about that this file does not
+
+**A Blueprint adds and updates services. It does not delete the ones you stop
+mentioning.**
+
+Three cron jobs — `sjoca-calendar-sync`, `sjoca-lectionary-sync` and
+`sjoca-classes-sync` — were removed from `render.yaml` when the importers they
+ran were deleted. They went on firing anyway, on their old schedules, running
+rake tasks that no longer exist against tables that had been dropped, and
+emailing a failure every few hours.
+
+So: when a service leaves this file, **delete it in the Render dashboard too**
+(the service → Settings → Delete). Otherwise it is running code from the last
+image it was given, against the live database, with nobody looking at it.

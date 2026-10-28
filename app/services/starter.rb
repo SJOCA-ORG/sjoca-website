@@ -52,6 +52,12 @@ class Starter
 
   # Everything in one go, into a revision that is assumed to be empty.
   def install!(revision)
+    # db/seeds/templates.rb is not on the autoload path, so this class worked in
+    # the specs only because rails_helper had loaded it for its own reasons. The
+    # first thing to call Starter from a runner script got an uninitialized
+    # constant. A dependency that is satisfied by accident is not satisfied.
+    require Rails.root.join("db/seeds/templates") unless defined?(DefaultTemplates)
+
     DefaultTemplates.install!(revision)
     install_templates(revision)
     install_theme(revision)

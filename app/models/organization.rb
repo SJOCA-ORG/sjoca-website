@@ -16,7 +16,24 @@ class Organization < ApplicationRecord
   has_many :promises,  dependent: :destroy
   has_many :lessons,   dependent: :destroy
   has_many :fetched_pages, dependent: :destroy
-  has_many :users, dependent: :nullify
+  # Destroyed, not nullified, and the reason is worth keeping.
+  #
+  # :nullify was the instinct -- an account is a person, and a person does not
+  # stop existing because an organization did. But a user row with no
+  # organization and no application_admin violates the check constraint that
+  # says everybody must be somewhere, so destroying an organization with
+  # editors in it simply FAILED, with a PG::CheckViolation from four frames
+  # down.
+  #
+  # And the instinct was wrong anyway. An editor account for an organization
+  # that no longer exists cannot sign in anywhere -- may_act_in? refuses it at
+  # every hostname -- while its email address, which is unique across the whole
+  # system, goes on blocking that person from being invited to a different
+  # organization. A ghost that locks the door behind it.
+  #
+  # Application administrators are untouched: their organization_id is null, so
+  # this association never matched them in the first place.
+  has_many :users, dependent: :destroy
 
   SLUG = /\A[a-z0-9][a-z0-9-]{0,40}\z/
 

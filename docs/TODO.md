@@ -217,13 +217,32 @@ order they will bite.
       28 October — `plain`, `gathering`, `noticeboard` under `db/starters/`,
       chosen in the operator console, 26 examples that install each one and
       request the resulting site. See [`organizations.md`](organizations.md).
-      - [ ] **Thumbnails for the chooser.** It shows a title and a sentence;
-            a look wants looking at. `script/visual_check.mjs` already
-            screenshots a page at 390px and 1280px, so the gallery can build
-            itself from the starters rather than being drawn by hand.
-      - [ ] **More than three, once three have been used in anger.** The point
-            of stopping at three was to find out what a starter needs to
-            contain before making twelve of them.
+      - [x] ~~Thumbnails for the chooser.~~ `script/starter_thumbnails.rb`,
+            28 October. Creates a throwaway organization per starter, photographs
+            it at both widths through `visual_check.mjs`, shrinks the result and
+            deletes the organization again. The PNGs are committed; the chooser
+            reads perfectly without them.
+      - [x] ~~More than three.~~ Six: plain, gathering, noticeboard, trade,
+            studio, journal.
+
+### Three cron jobs are still running on Render, and failing
+
+- [ ] **Delete `sjoca-calendar-sync`, `sjoca-lectionary-sync` and
+      `sjoca-classes-sync` in the Render dashboard.** Removing them from
+      `render.yaml` stopped Render from managing them; it did not delete them.
+      They still fire on their schedules and run `rake churchtrac:sync`,
+      `rake lectionary:sync` and `rake classes:sync` — tasks that no longer
+      exist, against tables that were dropped on 27 October. Every run fails and
+      emails somebody.
+
+      Render → the service → **Settings** → **Delete**. Three times. Nothing
+      reads what they wrote, and the tables they wrote it to are gone.
+
+      **The lesson for next time:** a Blueprint adds and updates services; it
+      does not remove the ones you stop mentioning. Deleting a service is a
+      thing somebody does in the dashboard, and if nobody does it, it keeps
+      running — which is worse than leaving it in the file, because at least
+      then it is visible in a diff.
 - [ ] **Import** has no specs because it has no code.
       `spec/requests/a_new_organization_spec.rb` is its specification: each step
       it does by hand should become a call into the real thing, with the

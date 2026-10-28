@@ -1,0 +1,5 @@
+/* Journal: one column, about seventy characters wide, and nothing else. */
+.band__inner { max-width: 38rem; }
+.b-text { font-size: 1.08rem; line-height: 1.75; }
+.b-quote { border-left: 3px solid #D8CFC2; padding-left: 1rem; font-size: 1.15rem; }
+.hero { background: #2B2118; }

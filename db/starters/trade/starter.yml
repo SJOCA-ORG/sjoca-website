@@ -1,0 +1,80 @@
+title: Trade
+summary: >
+  For somewhere that sells or serves: what you do, when you are open, and how to
+  reach you, in that order. The front page is built to answer a stranger holding
+  a phone.
+settings:
+  brand: ""
+  theme_color: "#7A3E12"
+pages:
+  - slug: home
+    title: Welcome
+    nav_title: Home
+    show_in_nav: true
+    hero_heading: What we do, and when we are open
+    hero_subheading: Everything a first-time visitor needs, before they scroll
+    hero_size: standard
+    sections:
+      - style: plain
+        column_widths: "1,1,1"
+        blocks:
+          - kind: subheading
+            content: The first thing
+            column: 0
+          - kind: text
+            content: >
+              Three columns, because three things is what a person remembers.
+              Replace each heading with something you actually offer.
+            column: 0
+          - kind: subheading
+            content: The second thing
+            column: 1
+          - kind: text
+            content: >
+              Say it in a sentence. If it needs a paragraph, it belongs on a
+              page of its own with a link to it.
+            column: 1
+          - kind: subheading
+            content: The third thing
+            column: 2
+          - kind: text
+            content: >
+              Leave this one out rather than inventing a third. Two strong
+              columns read better than three weak ones.
+            column: 2
+      - style: light
+        blocks:
+          - kind: heading
+            content: When we are open
+          - kind: list
+            content: |
+              Monday to Friday — the hours
+              Saturday — the hours, or closed
+              Sunday — closed, and say so rather than leaving a gap
+          - kind: text
+            content: >
+              Put the exceptions here too: the week you close, the bank
+              holidays. People check this page precisely when the answer is
+              unusual.
+      - style: maroon
+        blocks:
+          - kind: quote
+            content: >
+              A sentence from somebody who was pleased. One real line beats five
+              invented ones, and an invented one is obvious.
+          - kind: button
+            content: Get in touch
+            url: /contact
+  - slug: contact
+    title: Contact
+    nav_title: Contact
+    show_in_nav: true
+    sections:
+      - style: plain
+        blocks:
+          - kind: heading
+            content: Get in touch
+          - kind: text
+            content: >
+              A telephone number, an address, and one email somebody reads. A
+              form nobody checks is worse than no form.
