@@ -37,6 +37,11 @@ module Sjoca
     # no timezone attached — they are local times. Parsing them as UTC would put
     # the Divine Liturgy at 6am.
     config.time_zone = "America/New_York"
+
+    # Off by default, and on in production. See
+    # OrganizationScoped#send_them_to_the_canonical_host -- in development you
+    # reach the app by whatever name you typed.
+    config.x.enforce_canonical_host = false
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

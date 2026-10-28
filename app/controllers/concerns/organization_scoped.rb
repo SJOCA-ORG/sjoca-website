@@ -16,6 +16,7 @@ module OrganizationScoped
 
   included do
     before_action :set_organization
+    before_action :send_them_to_the_canonical_host
     around_action :in_the_organizations_time_and_language
     helper_method :current_organization
   end
@@ -31,6 +32,47 @@ module OrganizationScoped
     # that repeats back what was asked for is a way of telling a scanner which
     # of its guesses were close.
     render plain: "Not found", status: :not_found
+  end
+
+  # One site, one address.
+  #
+  # An organization ends up with several hostnames -- a subdomain of the shared
+  # domain from the day it is created, then its own domain once somebody points
+  # the DNS. Both keep working, which is right, and both serving the same pages
+  # is not: search engines treat it as duplicate content, and people bookmark
+  # whichever they saw first and never move.
+  #
+  # So everything that is not the canonical host is a permanent redirect to it.
+  # Setting canonical_url at cutover is what makes the staging subdomain quietly
+  # start forwarding, and it is the same mechanism that sends a bare
+  # example.org to www.example.org -- one feature covering three problems.
+  #
+  # Three guards, each for a specific way this goes wrong:
+  #
+  #   GET and HEAD only. A 301 on a POST loses the body, and browsers are
+  #   entitled to turn the retry into a GET.
+  #
+  #   The canonical host must be one of THIS organization's hostnames. A typo in
+  #   canonical_url would otherwise take a site off the air by sending every
+  #   request somewhere that does not answer -- and if that somewhere is the
+  #   same site under another name, a redirect loop.
+  #
+  #   Off unless the deployment asks for it. In development you reach the app by
+  #   whatever name you typed, and localhost redirecting to a production domain
+  #   would be a memorable afternoon.
+  def send_them_to_the_canonical_host
+    return unless Rails.application.config.x.enforce_canonical_host
+    return unless request.get? || request.head?
+
+    org = Current.organization
+    return if org.nil?
+
+    canonical = URI.parse(org.canonical_url).host.presence rescue nil
+    return if canonical.nil? || canonical.casecmp?(request.host)
+    return unless org.hosts.include?(canonical.downcase)
+
+    redirect_to("#{org.canonical_url}#{request.fullpath}",
+                status: :moved_permanently, allow_other_host: true)
   end
 
   # config.time_zone is one value for the whole deployment, and it is currently

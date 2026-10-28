@@ -95,6 +95,11 @@ Rails.application.configure do
   # The allowlist is now the organization_hosts table -- the same one the router
   # trusts to decide WHICH organization a request is for. A lambda works because
   # Rails matches each entry with ===, and Proc#=== calls the proc.
+  # One site, one address: anything that is not an organization's canonical
+  # host is a permanent redirect to it. Guarded so that a typo cannot take a
+  # site off the air -- see OrganizationScoped.
+  config.x.enforce_canonical_host = true
+
   config.hosts = [
     ->(host) { Organization.known_host?(host) },
     /.*\.onrender\.com\z/

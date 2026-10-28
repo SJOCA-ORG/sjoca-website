@@ -81,3 +81,8 @@ reference/rebuild-shots/
 
 # The demo switch is a local, per-machine thing.
 tmp/demo_mode-*
+
+# Working notes that are not the project's business, and in a public repo are
+# actively unhelpful: a list of candidate domain names is a list somebody could
+# register ahead of us.
+notes/

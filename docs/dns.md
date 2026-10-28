@@ -391,11 +391,20 @@ Then stop. The website cutover is separate.
 >
 > | Type | Host | Value |
 > |---|---|---|
-> | ALIAS (or A) | `@` | Render's address |
-> | CNAME | `www` | Render's address |
+> | ALIAS | `@` | `<service>.onrender.com` |
+> | CNAME | `www` | `<service>.onrender.com` |
 >
-> Namecheap's ALIAS record works at the apex where a CNAME is not allowed. Render
-> will name the exact value when the domain is added there.
+> Namecheap's ALIAS record works at the apex, where a CNAME is not allowed, and
+> it is available on **BasicDNS** — checked 28 October 2026, not assumed. Clear
+> any CNAME, A, AAAA or URL-redirect record on `@` first; they conflict. Its TTL
+> choices are 1 or 5 minutes, which suits a cutover.
+>
+> Add both hostnames to the service's custom domains in Render first, so the
+> certificate is issued, and add them to `organization_hosts` so the app answers
+> for them. Neither needs a deploy.
+>
+> **Then set the organization's `canonical_url`**, and everything else forwards
+> to it — including the bare domain, which has never worked.
 
 Reversed by putting `ghs.googlehosted.com.` back on `www` and deleting the apex
 record. The `www` TTL is five minutes, so that reversal is live in five minutes.

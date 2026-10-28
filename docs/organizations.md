@@ -317,6 +317,22 @@ from the day an organization exists — so an invitation links somewhere, a draf
 can be reviewed, and pointing the real domain becomes the LAST step rather than
 the first. The parish had to improvise that with `sjoca.onrender.com`.
 
+### One site, one address
+
+Both hostnames work; both **serving** is a different matter. Everything that is
+not the canonical host is a `301` to it, so setting `canonical_url` at cutover
+is what makes the staging subdomain quietly start forwarding — and the same
+mechanism sends a bare `example.org` to `www.example.org`. One feature covering
+three problems.
+
+Three guards, each for a specific way it goes wrong:
+
+| | |
+|---|---|
+| `GET`/`HEAD` only | a 301 on a POST loses the body, and a browser may turn the retry into a GET |
+| the canonical host must be one of **this organization's** hostnames | a typo in `canonical_url` would otherwise take a site off the air, or loop |
+| off unless `config.x.enforce_canonical_host` | in development you reach the app by whatever name you typed |
+
 ### Reserved slugs
 
 A slug becomes a subdomain, so `www`, `mail`, `api`, `admin` and some fifty
