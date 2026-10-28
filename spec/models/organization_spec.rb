@@ -59,6 +59,21 @@ RSpec.describe Organization do
       expect(existing.tap { |o| o.contact_email = "not-an-address" }).not_to be_valid
     end
 
+    # The slug becomes a subdomain of the shared domain, so a few of them would
+    # take over a piece of the system rather than merely read badly.
+    it "refuses a slug the system needs for itself" do
+      %w[www mail admin api operator status].each do |taken|
+        org = Organization.new(name: "Trying", slug: taken)
+        expect(org).not_to be_valid, "#{taken.inspect} should be reserved"
+        expect(org.errors[:slug].join).to match(/reserved/)
+      end
+    end
+
+    it "still allows an ordinary one that merely contains a reserved word" do
+      expect(Organization.new(name: "X", slug: "mail-order-club")).to be_valid
+      expect(Organization.new(name: "X", slug: "wwwoodwind")).to be_valid
+    end
+
     it "wants a slug that reads well in a log or a filename" do
       expect(Organization.new(name: "X", slug: "Has Spaces")).not_to be_valid
       expect(Organization.new(name: "X", slug: "second-parish")).to be_valid

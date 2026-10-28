@@ -20,10 +20,32 @@ class Organization < ApplicationRecord
 
   SLUG = /\A[a-z0-9][a-z0-9-]{0,40}\z/
 
+  # A slug becomes a subdomain of the shared domain -- sjoca.example.com -- so
+  # these are not merely ugly names, they are names that would take over a piece
+  # of the system. An organization called "www" would answer for the product's
+  # own site; one called "mail" would break every mail client that goes looking
+  # for autodiscover; one called "api" would claim an address we will want.
+  #
+  # Reserved now, while the cost is a validation. With customers on the system
+  # it is a migration, a redirect and a conversation with somebody who has
+  # already printed their address on something.
+  RESERVED_SLUGS = %w[
+    about account accounts admin alpha api app apps assets auth autoconfig
+    autodiscover beta billing blog calendar cdn cms console dashboard demo dev
+    dns docs download downloads email files forum ftp git go help images img
+    internal link login mail media mx my news ns ns1 ns2 operator pop portal
+    preview repo secure shop signup smtp ssl staging static status store
+    support test vpn webmail wiki www
+  ].freeze
+
   validates :name, presence: true
   validates :slug, presence: true, format: { with: SLUG,
     message: "is lower case letters, numbers and hyphens — it appears in logs and filenames"
   }, uniqueness: true
+  validates :slug, exclusion: {
+    in: RESERVED_SLUGS,
+    message: "is reserved — it would become a subdomain the system needs for itself"
+  }
 
   validates :time_zone, presence: true
   # ActiveSupport::TimeZone[] accepts BOTH an IANA identifier ("Europe/Berlin")

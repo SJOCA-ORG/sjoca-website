@@ -286,6 +286,75 @@ a seed or a console session sets a second.
 
 ---
 
+## Hostnames: the shared domain and a customer's own
+
+An organization has **several** hostnames, and that is why `organization_hosts`
+is a table. The two kinds arrive at different times and do different jobs.
+
+**A subdomain of the shared domain** — `sjoca.example.com` — exists the moment
+the organization is created. One wildcard custom domain on the Render service
+covers every tenant there will ever be, which matters: Render includes 2 custom
+domains on Hobby and 15 on Pro, and a wildcard counts as one.
+
+```
+*                    CNAME → <service>.onrender.com
+_acme-challenge      CNAME → <service>.verify.renderdns.com
+_cf-custom-hostname  CNAME → <service>.hostname.renderdns.com
+```
+
+The root domain must also point at Render or the wildcard configuration fails —
+which suits us, because the apex is where the product's own site lives.
+
+**A customer's own domain** — `sjoca.org` — is added later, and is three steps:
+add it as a custom domain on the Render service (Render issues the certificate
+once DNS resolves), point the customer's DNS at Render, and add the hostname to
+`organization_hosts`. Only the first two need anybody with access to anything;
+the third is a row, and takes effect without a deploy because
+`Organization.known_host?` is the allowlist.
+
+**Both work at once**, which is the useful part. The subdomain is a real address
+from the day an organization exists — so an invitation links somewhere, a draft
+can be reviewed, and pointing the real domain becomes the LAST step rather than
+the first. The parish had to improvise that with `sjoca.onrender.com`.
+
+### Reserved slugs
+
+A slug becomes a subdomain, so `www`, `mail`, `api`, `admin` and some fifty
+others are refused by validation. An organization called `www` would answer for
+the product's own site; one called `mail` would break every mail client looking
+for autodiscover. Reserved now, while the cost is a validation — with customers
+on the system it is a migration and a conversation with somebody who has already
+printed their address on something.
+
+### The session cookie is named `__Host-session`
+
+Tenants live on sibling subdomains. Same-origin policy keeps their pages,
+storage and scripts apart — but **cookies are not origin-scoped**. Any page may
+set a cookie with `Domain=.example.com`, and every sibling receives it.
+
+An ordinary footnote in most applications, and a real risk in this one, because
+the premise here is that an AI writes JavaScript into a tenant's pages. Script
+on one organization's site could set a cookie named like the session cookie,
+scoped to the parent, and have the browser send it to another's — "cookie
+tossing". It does not read the other session; it replaces it, which is enough to
+confuse an editor into acting in the wrong place.
+
+The `__Host-` prefix is enforced by the browser rather than by us: a cookie with
+that prefix is rejected unless it is `Secure`, has `Path=/`, and carries **no
+`Domain` attribute**. A tossed cookie must carry a Domain to reach a sibling, so
+it can never bear this name.
+
+`Authentication#current_user` checks `may_act_in?` on every request, so a
+session from another organization is refused regardless. This stops it being
+sent at all, which is the difference between a defence and a backstop.
+
+Development and test keep an ordinary cookie name, because `__Host-` requires
+`Secure` and a Secure cookie over plain http is accepted only because localhost
+is treated as trustworthy — a rule that does not hold for every tool a
+contributor might use.
+
+---
+
 ## Adding an organization
 
 ```ruby
