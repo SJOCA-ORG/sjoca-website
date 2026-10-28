@@ -36,6 +36,24 @@ Rails.application.configure do
   # rather than later.
   if Rails.env.test?
     config.action_mailer.delivery_method = :test
+  elsif Rails.env.development? && ENV["SMTP_FOR_REAL"].blank?
+    # Development writes mail to tmp/mails instead of sending it.
+    #
+    # The credentials on this laptop are the parish's real Google Workspace
+    # account, and development used them: creating an organization in the
+    # operator console sends an invitation, and an invitation goes to whatever
+    # address was typed into the form. Trying the thing out would have put real
+    # mail, from the parish, in a stranger's inbox.
+    #
+    # Written to a file rather than swallowed, because an invitation is only
+    # worth anything if somebody can follow the link in it -- open the newest
+    # file in tmp/mails and the link is there, which is how to walk through
+    # being invited without involving a mail server at all.
+    #
+    # SMTP_FOR_REAL=1 restores sending, for the day somebody genuinely needs to
+    # test delivery.
+    config.action_mailer.delivery_method = :file
+    config.action_mailer.file_settings = { location: Rails.root.join("tmp/mails") }
   elsif user.present? && password.present?
     config.action_mailer.delivery_method = :smtp
     config.action_mailer.smtp_settings = {
