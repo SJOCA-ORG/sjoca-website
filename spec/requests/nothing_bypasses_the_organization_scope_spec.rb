@@ -55,7 +55,13 @@ RSpec.describe "nothing bypasses the organization scope" do
       # The operator console counts pages and photographs per account. Counting
       # is the whole job, and these models answer nothing without an
       # organization. It counts; it does not display content.
-      "app/controllers/operator/organizations_controller.rb"
+      "app/controllers/operator/organizations_controller.rb",
+      # Revision#copy_into reads one organization's website and writes another's.
+      # Crossing the boundary IS the operation -- it is how a customer's site is
+      # made from a starter -- and it is the one place in the app that may hold
+      # two organizations in mind at once. What it carries is a website; no
+      # user, hostname or contact detail travels with it.
+      "app/models/revision.rb"
     ]
   }.freeze
 

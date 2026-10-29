@@ -42,6 +42,71 @@ class Revision < ApplicationRecord
     id && find_by(id: id)
   end
 
+  # Copy this revision's whole website into another organization.
+  #
+  # Generalised from open_sandbox below, which copies the same things in the
+  # same order for the same reasons -- templates before content, because a
+  # block's kind is only valid if block/<kind> exists alongside it. The
+  # difference is that this crosses an organization boundary, which means two
+  # things change.
+  #
+  # Photographs ARE copied. open_sandbox leaves them alone because within one
+  # organization they are shared and versioned, and a draft referring to the
+  # same photograph is referring to the right one. Across organizations that is
+  # exactly wrong: a site must not depend on somebody else's picture, which
+  # could be replaced or deleted by a person it has never heard of. The bytes
+  # are duplicated on purpose.
+  #
+  # And nothing about the ACCOUNT travels -- no users, no hostnames, no contact
+  # details. What is copied is a website.
+  def copy_into(organization, state: "published", title: nil)
+    raise ArgumentError, "an organization is required" if organization.nil?
+
+    Organization.acting_as(organization) do
+      self.class.transaction do
+        copy = self.class.create!(
+          state: state,
+          title: title || "From #{self.organization.name}"
+        )
+
+        templates.find_each    { |t| t.dup.tap { |c| c.revision = copy }.save! }
+        theme_assets.find_each { |a| a.dup.tap { |c| c.revision = copy }.save! }
+        site_settings.find_each { |s| s.dup.tap { |c| c.revision = copy }.save! }
+        data_sources.find_each { |d| d.dup.tap { |c| c.revision = copy }.save! }
+
+        copy_photographs_into(organization)
+
+        pages_by_source    = pages.index_with    { |p| p.dup.tap { |c| c.revision = copy }.tap(&:save!) }
+        sections_by_source = sections.index_with { |sec|
+          sec.dup.tap { |c| c.revision = copy; c.page = pages_by_source[sec.page] }.tap(&:save!) }
+        blocks.find_each do |b|
+          b.dup.tap { |c| c.revision = copy; c.section = sections_by_source[b.section] }.save!
+        end
+
+        copy
+      end
+    end
+  end
+
+  # Every photograph the source organization has, not merely the ones this
+  # revision happens to reference. A site that arrives with its hero and
+  # without the three pictures on its About page is a site somebody has to
+  # finish before they can use it, and the difference in size is nothing.
+  #
+  # Skipped if a photograph of that name and version is already there, so
+  # copying twice is not an error.
+  def copy_photographs_into(organization)
+    source_organization = self.organization
+
+    Organization.acting_as(source_organization) { Photo.all.to_a }.each do |photo|
+      next if Photo.exists?(human_name: photo.human_name, version: photo.version)
+
+      copy = photo.dup
+      copy.organization = organization
+      copy.save!
+    end
+  end
+
   # A sandbox: a full copy of the live content, which the editor then changes.
   # Photographs are not copied -- blocks reference them by human_name, and
   # `photos` versions itself.

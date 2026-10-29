@@ -118,8 +118,12 @@ class Organization < ApplicationRecord
                             allow_blank: true
   validate :only_one_product_organization
 
-  scope :active,  -> { where(active: true) }
-  scope :product, -> { where(product: true) }
+  scope :active,   -> { where(active: true) }
+  scope :product,  -> { where(product: true) }
+  # A look to copy from, not somebody's website. Kept out of the accounts list
+  # and out of anything that counts customers.
+  scope :starters, -> { where(starter: true).order(:name) }
+  scope :tenants,  -> { where(starter: false) }
 
   # This tool's own site. Where the operator console answers, and who owns the
   # page an unrecognised hostname gets. The only thing special about it.
@@ -142,7 +146,12 @@ class Organization < ApplicationRecord
   #
   # So the forgiving behaviour disappears exactly when being forgiving would
   # start to be dangerous.
-  def self.sole_tenant = all.limit(2).to_a.then { |rows| rows.one? ? rows.first : nil }
+  # Starters are excluded deliberately. They are organizations so that a look
+  # can be built by using the product, but they are not tenants -- and without
+  # this, seeding the six of them would silently switch off the fallback that
+  # the console, the seeds and every rake task rely on, on a machine with one
+  # real site.
+  def self.sole_tenant = tenants.limit(2).to_a.then { |rows| rows.one? ? rows.first : nil }
 
   # For an application administrator looking across the whole system, and for
   # migrations. Deliberately long and ugly to type: it is the only sanctioned

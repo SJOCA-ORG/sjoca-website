@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_27_223722) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_153712) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,8 +108,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_223722) do
     t.string "time_zone", default: "UTC", null: false
     t.string "locale", default: "en", null: false
     t.boolean "product", default: false, null: false
+    t.boolean "starter", default: false, null: false
     t.index ["product"], name: "index_organizations_on_the_one_product", unique: true, where: "product"
     t.index ["slug"], name: "index_organizations_on_slug", unique: true
+    t.index ["starter"], name: "index_organizations_on_starter", where: "starter"
   end
 
   create_table "pages", force: :cascade do |t|
