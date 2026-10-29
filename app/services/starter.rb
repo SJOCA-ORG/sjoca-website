@@ -75,13 +75,32 @@ class Starter
     end
   end
 
+  # A starter's theme.css is an ADDITION to the house style, not a replacement
+  # -- half a dozen rules changing colours and spacing cannot stand in for
+  # thirty kilobytes of layout.
+  #
+  # Two things were wrong here until 29 October and the second hid the first.
+  # The row was written under the name "css", and the app looks for "site.css"
+  # (ThemeAsset::KINDS), so no starter's CSS was ever served. And it REPLACED
+  # rather than appended, so even under the right name it would have thrown the
+  # house style away and left the site nearly as bare.
   def install_theme(revision)
-    { "css" => "theme.css", "js" => "theme.js" }.each do |kind, file|
-      path = dir + file
-      next unless path.file?
+    css = [DefaultTemplates::BASE_CSS.read, read_optional("theme.css")].compact
+    revision.theme_assets
+            .find_or_initialize_by(name: ThemeAsset::KINDS.fetch("css"))
+            .update!(content: css.join("\n\n/* ---- #{name} ---- */\n\n"))
 
-      revision.theme_assets.find_or_initialize_by(name: kind).update!(content: path.read)
-    end
+    js = read_optional("theme.js")
+    return if js.blank?
+
+    revision.theme_assets
+            .find_or_initialize_by(name: ThemeAsset::KINDS.fetch("js"))
+            .update!(content: js)
+  end
+
+  def read_optional(file)
+    path = dir + file
+    path.file? ? path.read : nil
   end
 
   def install_settings(revision)

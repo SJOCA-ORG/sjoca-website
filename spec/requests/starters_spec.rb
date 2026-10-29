@@ -108,6 +108,33 @@ RSpec.describe "the starters", type: :request, signed_out: true do
         end
       end
 
+      # The fault that produced six screenshots of unstyled HTML: a brand new
+      # organization had templates and no stylesheet. The layout links exactly
+      # one, from a theme_asset row, and nothing installed it -- so every site
+      # created through the operator console came out in Times New Roman with
+      # blue underlined links. Nothing complained. The page was 200, the right
+      # words were on it, every block had a template.
+      #
+      # Only a person looking at one could tell, which is why the check is now
+      # here: follow the stylesheet link the page gives the browser, and insist
+      # it is a real stylesheet.
+      it "serves a stylesheet with the house style in it" do
+        organization_from(starter, host: host)
+        host! host
+
+        get "/"
+        href = response.body[/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/, 1] ||
+               response.body[/<link[^>]+href="([^"]+\.css[^"]*)"/, 1]
+        expect(href).to be_present, "#{starter.name} links no stylesheet at all"
+
+        get href
+        expect(response).to have_http_status(:ok)
+        expect(response.body.length).to be > 10_000
+        # Structure, not decoration: these are the classes the templates emit.
+        expect(response.body).to include(".band")
+        expect(response.body).to include(".hero")
+      end
+
       it "leaves no block without a template to render it" do
         org = organization_from(starter, host: host)
 

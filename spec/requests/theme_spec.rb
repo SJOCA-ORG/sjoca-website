@@ -8,7 +8,7 @@ RSpec.describe "The site's stylesheet and scripts" do
 
   before do
     build_page(slug: "home", title: "Home", nav_title: "Home")
-    revision.theme_assets.create!(name: "site.css", content: ":root { --maroon: #6D0606 }")
+    revision.theme_assets.find_or_initialize_by(name: "site.css").tap { |a| a.content = ":root { --maroon: #6D0606 }" }.save!
   end
 
   it "serves the stylesheet of the revision being rendered" do
@@ -60,7 +60,7 @@ RSpec.describe "The site's stylesheet and scripts" do
   end
 
   it "serves JavaScript once set" do
-    revision.theme_assets.create!(name: "site.js", content: "console.log('hello')")
+    revision.theme_assets.find_or_initialize_by(name: "site.js").tap { |a| a.content = "console.log('hello')" }.save!
 
     get theme_javascript_path(digest: ThemeAsset.digest_for(revision, "js"))
     expect(response.body).to include("hello")

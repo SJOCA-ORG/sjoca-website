@@ -231,6 +231,24 @@ The name arrives from a form and is used to build a path, so `Starter.find`
 checks it against `/\A[a-z0-9][a-z0-9-]{0,40}\z/` and returns nil otherwise.
 `../../etc` is a starter name too, as far as a string is concerned.
 
+### Every new organization gets the house style
+
+`db/seeds/theme/site.css` — about 30KB, installed as the `site.css` theme asset
+by `DefaultTemplates.install!`, and therefore by every starter. A starter's own
+`theme.css` is **appended** to it, not substituted for it: half a dozen rules
+changing colours cannot stand in for the whole layout.
+
+It is lifted from the first site built with this system and stripped of it —
+the rules that named one organization's **pages** (`.page-donate`,
+`.page-about-us-choir`, and three more) are gone, because a page slug is the
+most organization-specific thing there is. What remains is structure: bands,
+blocks, heroes, header, footer, type scale.
+
+There is deliberately **no base `site.js`**. The one that existed was written
+for one parish's calendar feed and knew what a vespers was. The navigation works
+without it — that is a Stimulus controller served to every organization as part
+of the application.
+
 ### The failure a starter has, and what catches it
 
 A starter's templates are written by somebody who will never meet the customer,
@@ -247,6 +265,24 @@ What none of them asked was whether the **words in the starter reached the
 page**. `spec/requests/starters_spec.rb` asks that now, of every block of every
 page of every starter, and it was confirmed to fail on the original bug before
 being kept.
+
+**It happened again, in a different disguise.** Every organization created
+through the console came out with no stylesheet at all: Times New Roman, blue
+underlined links, no layout. Two faults stacked — nothing installed a base
+stylesheet, and `Starter#install_theme` wrote its row under the name `css` while
+the app looks for `site.css`, so even a starter's own CSS was never served.
+
+Every check passed again. The pages were 200, the words were on them, every
+block had a template. Only a person **looking** at one could tell, and the
+person who looked was Mitch, at the chooser's thumbnails.
+
+So the spec now follows the stylesheet link the page gives the browser, fetches
+it, and insists it is a real stylesheet with `.band` and `.hero` in it. Both
+install paths were disabled to confirm it fails before it was kept.
+
+The pattern is worth naming, because it has now caught this project twice: **a
+page can be perfectly correct and still be wrong, and nothing but an eye on the
+output will say so.**
 
 ---
 

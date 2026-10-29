@@ -157,11 +157,27 @@ LIQUID
     )
   end
 
+  # The stylesheet every new website starts with. THE whole stylesheet, not an
+  # override layer -- the layout links exactly one, and ThemeAsset says as much.
+  BASE_CSS = Rails.root.join("db/seeds/theme/site.css")
+
   def self.install!(revision)
     all.each do |name, source|
       t = revision.templates.find_or_initialize_by(name: name)
       t.update!(source: source)
     end
+    install_base_theme!(revision)
     all.size
+  end
+
+  # Templates without a stylesheet is a website in Times New Roman with blue
+  # underlined links, which is exactly what every organization created through
+  # the operator console got until 29 October. Nothing complained: the pages
+  # were 200, the right words were on them, every block had a template. They
+  # were simply unstyled, and only a person looking at one could tell.
+  def self.install_base_theme!(revision)
+    revision.theme_assets
+            .find_or_initialize_by(name: ThemeAsset::KINDS.fetch("css"))
+            .update!(content: BASE_CSS.read)
   end
 end

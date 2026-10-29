@@ -33,6 +33,40 @@ end
 
 Capybara.default_max_wait_time = 5
 
+# Chrome 158 rejects the way Capybara 3.40 empties the browser between examples.
+#
+#   capybara/selenium/driver_specializations/chrome_driver.rb:54
+#     execute_cdp('Storage.clearDataForOrigin', origin: '*', storageTypes: ...)
+#
+# "*" used to mean every origin. It is now refused -- "invalid argument: * is
+# not a valid URL" -- and the call is the last line of reset!, with no option to
+# turn it off. So every system example PASSED and then exploded in teardown,
+# which reads like six broken features rather than one broken cleanup.
+#
+# Rescued narrowly, by message, so a genuine reset failure still raises. And the
+# cleanup it skipped is done here instead rather than quietly dropped: cookies
+# through the origin-independent CDP call Capybara itself uses elsewhere, and
+# storage for the one origin these specs actually visit. Without that, a signed-in
+# session would survive into the next example, which is the kind of test
+# contamination that takes a day to find.
+module ToleratesChromesStorageClear
+  BAD_ORIGIN = /is not a valid URL/
+
+  def reset!
+    super
+  rescue Selenium::WebDriver::Error::InvalidArgumentError => e
+    raise unless e.message&.match?(BAD_ORIGIN)
+
+    send(:execute_cdp, "Network.clearBrowserCookies")
+    origin = Capybara.current_session.server&.base_url
+    send(:execute_cdp, "Storage.clearDataForOrigin",
+         origin: origin, storageTypes: "cookies,local_storage") if origin
+  rescue Selenium::WebDriver::Error::WebDriverError
+    nil   # a browser that has already gone has nothing left to clear
+  end
+end
+Capybara::Selenium::Driver::ChromeDriver.prepend(ToleratesChromesStorageClear)
+
 RSpec.configure do |config|
   config.before(:each, type: :system) { driven_by :sjoca_headless_chrome }
 
