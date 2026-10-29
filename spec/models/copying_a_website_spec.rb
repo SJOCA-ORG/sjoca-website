@@ -132,15 +132,25 @@ RSpec.describe "copying a website into another organization" do
       expect(from_target).to eq(from_source)
     end
 
-    # data-block carries the database id, which cannot be the same for two
-    # rows. The canonical and og:url tags carry each organization's OWN address,
-    # which is the point -- an account's address does not travel with a website.
-    # Both are normalised rather than the comparison being loosened: it still
-    # fails on a single different character of markup, which is how it would
-    # catch a template or a setting that did not come across.
+    # Three things are normalised, and each is a fact about the copy rather
+    # than a loss in it.
+    #
+    #   data-block, and any id="thing-123" -- a database id, which cannot be
+    #   equal for two rows. Found by round-tripping the real site: the fixture
+    #   here has no block that puts its id in an element id, so the first
+    #   version of this normaliser passed while three real pages differed.
+    #
+    #   The canonical and og:url tags, which carry each organization's OWN
+    #   address. An account's address does not travel with a website.
+    #
+    #   Embedded JSON from a data source, which is fetched when the page is
+    #   rendered. The DEFINITION travels; what it returned a moment ago does not,
+    #   and should not.
     def without_row_ids(html)
       html.gsub(/data-block="\d+"/, 'data-block=""')
-          .gsub(%r{https?://(?:source|target)\.example}, "https://site.example")
+          .gsub(/id="([a-z-]+)-\d+"/, 'id="\\1"')
+          .gsub(%r{<script type="application/json"[^>]*>.*?</script>}m, "<json/>")
+          .gsub(%r{https?://(?:source|copy|target)\.example}, "https://site.example")
     end
   end
 

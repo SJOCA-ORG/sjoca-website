@@ -56,6 +56,11 @@ RSpec.describe "nothing bypasses the organization scope" do
       # is the whole job, and these models answer nothing without an
       # organization. It counts; it does not display content.
       "app/controllers/operator/organizations_controller.rb",
+      # WebsiteArchive reads one organization's website out to files, and reads
+      # files back in as another's. Both halves name the organization they mean
+      # explicitly, and neither can be reached by a request -- an archive is
+      # taken by a person running a rake task or by the seeds.
+      "app/services/website_archive.rb",
       # Revision#copy_into reads one organization's website and writes another's.
       # Crossing the boundary IS the operation -- it is how a customer's site is
       # made from a starter -- and it is the one place in the app that may hold

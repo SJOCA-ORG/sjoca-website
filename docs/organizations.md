@@ -206,6 +206,56 @@ Two rules that fall out:
 
 ---
 
+## A website as files: `WebsiteArchive`
+
+One primitive, two jobs. The sample sites live in git as archives — that is how
+a fresh deployment gets its starters, photographs and all, from the repository
+and nothing else. And any organization can take an archive of itself and keep
+it wherever it keeps things.
+
+A **directory**, not a tarball, because the sample sites are reviewed in pull
+requests: a change to a starter should read as a change to a sentence or a
+stylesheet, not as a new opaque blob. `organization:export[slug,dir,archive]`
+tars it for anyone who wants one file.
+
+```
+db/seeds/starters/trade/
+  organization.yml     what to call it, and which clock it keeps
+  site.yml             settings, templates, theme, pages, blocks, lessons, promises
+  photos.yml           every photograph, by name, with its digest
+  photos/hero-v1.png   the bytes, under a name a person can read
+```
+
+**What travels is a website.** No users, no hostnames, no contact details, no
+canonical address — those belong to an account, and an account belongs to
+wherever it is installed. Same distinction as `Revision#copy_into`, for the same
+reason.
+
+**Live revision only.** Ten revisions of history is a different feature; an
+archive is for moving a website, and a database dump is for undoing an accident.
+
+A photograph whose bytes no longer match the digest in `photos.yml` **refuses to
+import**. Somebody edited it by hand, and importing it quietly would hide that.
+
+### Proved on the real site, not only on a fixture
+
+Exported the parish — 261 photographs, 170MB — imported it as a second
+organization, and rendered all twenty pages from both. **Twenty of twenty
+identical**, once three things are normalised, each a fact about the copy rather
+than a loss in it:
+
+| Normalised | Because |
+|---|---|
+| `data-block="123"`, and `id="thing-123"` | a database id, which cannot be equal for two rows |
+| `canonical` and `og:url` | each organization's own address, which deliberately does not travel |
+| embedded `application/json` | a data source's **definition** travels; what it fetched a moment ago does not |
+
+The fixture spec had only the first of those and only in `data-block`, so it
+passed while three real pages differed. The real site taught the spec, and the
+spec now says so.
+
+---
+
 ## Starters
 
 What a new organization is built from. A folder under `db/starters/<name>/`:
