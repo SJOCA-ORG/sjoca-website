@@ -6,11 +6,9 @@
 #   bin/rails server                                   # in another terminal
 #   bin/rails runner script/starter_thumbnails.rb
 #
-# For each starter it creates a throwaway organization on its own hostname,
-# installs the starter, photographs the home page at a desktop width and a
-# phone one, and then deletes the organization again. Nothing is left behind --
-# which also means this exercises Organization#destroy and its cascade on every
-# run, and that cascade had nothing exercising it before.
+# Photographs each sample site where it lives, at a desktop width and a phone
+# one. They are organizations serving on their own hostnames, so there is
+# nothing to create and nothing to clean up.
 #
 # The screenshots land in public/starters/ and are committed. They are generic
 # by construction: a starter that carried a real organization's content would
@@ -48,57 +46,40 @@ def shrink(from, to, size)
          "-strip", "-quality", "82", to.to_s, exception: true)
 end
 
-Starter.all.each do |starter|
-  # ONE label of subdomain. Rails' development host allowlist contains
-  # ".localhost", which matches foo.localhost and does NOT match
-  # a.b.localhost -- the first attempt used <name>.starter.localhost and
-  # every page came back 403 Blocked hosts.
-  host = "#{starter.name}-starter.localhost"
-  puts "\n#{starter.title} -> #{host}"
+# The sample sites are organizations now, each already serving on its own
+# hostname. So this photographs them where they live, rather than creating a
+# throwaway organization per starter, installing a manifest into it and
+# deleting it again -- about sixty lines that existed only because a starter
+# used to be a folder of YAML with nowhere to be looked at.
+Organization.starters.order(:slug).each do |organization|
+  short = Starters.short_name(organization)
+  host  = organization.hosts.first or next warn("  #{short} has no hostname; skipped")
+  url   = "http://#{host}:#{PORT}/"
+  puts "\n#{organization.name} -> #{url}"
 
-  organization = Organization.create!(name: "#{starter.title} Example",
-                                      slug: "starter-example-#{starter.name}",
-                                      canonical_url: SERVER)
-  organization.add_host(host)
-
-  Organization.acting_as(organization) do
-    revision = Revision.create!(state: "published", title: "Starter preview")
-    starter.install!(revision)
-    revision.site_settings.find_or_initialize_by(key: "name").update!(value: "#{starter.title} Example")
-  end
-
-  url = "http://#{host}:#{PORT}/"
   out, err, status = Open3.capture3(
-    { "SHOT_DIR" => SHOTS.to_s, "CHROME" => ENV["CHROME"].to_s },
+    { "SHOT_DIR" => SHOTS.join(short).to_s, "CHROME" => ENV["CHROME"].to_s },
     "node", Rails.root.join("script/visual_check.mjs").to_s, url, "--shots"
   )
   warn err.lines.last.to_s.strip if err.present?
 
-  # visual_check prints {url, widths: {phone: {screenshot: ...}, desktop: {...}}}.
-  # The first version of this read a "shots" key that does not exist, found
-  # nothing, and said nothing -- it reported six starters done and wrote no
-  # files. A rescue nil around a JSON.parse is how a script lies to you.
   unless status.success?
-    warn "  visual_check failed for #{starter.name}: #{out.lines.first}"
+    warn "  visual_check failed for #{short}: #{out.lines.first}"
     next
   end
 
   widths = JSON.parse(out).fetch("widths", {})
-  raise "no screenshots for #{starter.name}: #{out[0, 200]}" if widths.empty?
+  raise "no screenshots for #{short}: #{out[0, 200]}" if widths.empty?
 
   widths.each do |width, result|
     path = result["screenshot"]
-    raise "#{starter.name} #{width}: no screenshot in the output" if path.blank?
-    raise "#{starter.name} #{width}: #{path} is missing" unless File.exist?(path)
+    raise "#{short} #{width}: no screenshot in the output" if path.blank?
+    raise "#{short} #{width}: #{path} is missing" unless File.exist?(path)
 
-    out_file = OUT.join("#{starter.name}-#{width}.png")
+    out_file = OUT.join("#{short}-#{width}.png")
     shrink(path, out_file, width == "phone" ? "280x460" : "720x470")
     puts "  #{width.ljust(8)} #{number_to_human_size(File.size(out_file))}  public/starters/#{out_file.basename}"
   end
-ensure
-  # Deleting the organization takes its revision, pages, sections and blocks
-  # with it. If this line stops working, the chooser is the least of it.
-  organization&.destroy!
 end
 
-puts "\nOrganizations left behind: #{Organization.where("slug LIKE 'starter-example-%'").count} (should be 0)"
+puts "\n#{Organization.starters.count} starters photographed."

@@ -90,7 +90,10 @@ RSpec.describe "no parish is written into the code", type: :request do
       # reading as though it checked them.
       [Rails.root.join("db/seeds/templates.rb").to_s] +
         Dir[Rails.root.join("db/seeds/templates/**/*.liquid")] +
-        Dir[Rails.root.join("db/starters/**/*.{rb,yml,liquid,html}")]
+        # The sample sites, which are archives now rather than manifests. Their
+        # site.yml holds every word a new organization starts with.
+        Dir[Rails.root.join("db/seeds/starters/**/*.yml")] +
+        Dir[Rails.root.join("db/seeds/test-organizations/**/*.yml")]
     end
 
     it "has files to check" do

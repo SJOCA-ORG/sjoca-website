@@ -1,0 +1,1102 @@
+title: First
+settings:
+- key: brand
+  value: ''
+- key: name
+  value: Studio Example
+- key: theme_color
+  value: "#141414"
+templates:
+- name: block/button
+  source: |
+    <p class="b b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}">
+      <a class="button" href="{{ block.url }}">{{ block.content }}</a>
+    </p>
+- name: block/embed
+  source: |
+    <div class="b b-embed {% if block.is_map %}b-embed--map{% else %}b-embed--video{% endif %}" data-block="{{ block.id }}"
+         {% if block.is_map %}data-controller="embed" data-action="click->embed#activate"{% endif %}>
+      <iframe src="{{ block.url }}"
+              title="{% if block.is_map %}Map of the parish{% else %}Adult education class recordings{% endif %}"
+              loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+              {% unless block.is_map %}allowfullscreen{% endunless %}></iframe>
+    </div>
+- name: block/heading
+  source: '<h2 class="b b-heading b--{{ block.align }} {{ block.css_class }}" data-block="{{
+    block.id }}">{{ block.content }}</h2>
+
+    '
+- name: block/image
+  source: |
+    {% if block.photo %}
+      <figure class="b b-image b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}"
+              {% if block.width %}style="max-width:{{ block.width }}px"{% endif %}>
+        {% if block.url %}<a href="{{ block.url }}">{% endif %}
+          <img src="{{ block.photo.url }}" alt="{{ block.photo.alt }}" loading="lazy">
+        {% if block.url %}</a>{% endif %}
+      </figure>
+    {% endif %}
+- name: block/list
+  source: |
+    <ul class="b b-list b--{{ block.align }} {{ block.css_class }}" data-block="{{ block.id }}">
+      {% for item in block.items %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+- name: block/quote
+  source: '<blockquote class="b b-quote b--{{ block.align }} {{ block.css_class }}"
+    data-block="{{ block.id }}">{{ block.content }}</blockquote>
+
+    '
+- name: block/subheading
+  source: '<p class="b b-subheading b--{{ block.align }} {{ block.css_class }}" data-block="{{
+    block.id }}">{{ block.content }}</p>
+
+    '
+- name: block/text
+  source: '<p class="b b-text b--{{ block.align }} {{ block.css_class }}" data-block="{{
+    block.id }}">{{ block.content }}</p>
+
+    '
+- name: bulletin
+  source: |
+    <article class="bulletin">
+      {% for section in page.sections %}
+        <section class="sheet">
+          <div class="sheet__inner">
+            {% for column in section.columns %}
+              <div class="col">
+                {% for block in column %}{% include block.template %}{% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+      {% endfor %}
+    </article>
+- name: bulletin_email
+  source: |
+    {%- comment -%}
+      The bulletin as an email.
+
+      A separate template, not the print one with its styles rewritten. Mail
+      clients throw away <style> blocks -- Gmail does -- so every rule has to sit
+      on the element that needs it. And an email is not four sheets of paper: it is
+      one column read on a phone, so the page breaks that matter in print are just
+      rules here.
+
+      No classes at all, on purpose: a class that resolves to nothing is worse than
+      no class.
+    {%- endcomment -%}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="background:#f4f4f4;padding:16px 0;margin:0">
+      <tr><td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+               style="width:600px;max-width:100%;background:#ffffff;border-radius:4px">
+          <tr><td style="padding:24px 28px;font-family:Georgia,'Times New Roman',serif;color:#212121">
+
+            {% for section in page.sections %}
+              {% for column in section.columns %}
+                {% for block in column %}
+                  {% case block.kind %}
+
+                  {% when 'heading' %}
+                    <h2 style="margin:18px 0 6px;font-size:19px;line-height:1.3;color:#6D0606;font-family:Georgia,'Times New Roman',serif">{{ block.content }}</h2>
+
+                  {% when 'subheading' %}
+                    <p style="margin:10px 0 4px;font-size:16px;font-weight:bold;color:#212121">{{ block.content }}</p>
+
+                  {% when 'text' %}
+                    <p style="margin:0 0 10px;font-size:15px;line-height:1.55;color:#212121">{{ block.content }}</p>
+
+                  {% when 'quote' %}
+                    <blockquote style="margin:12px 0;padding:0 0 0 14px;border-left:3px solid #D3D3D3;font-style:italic;color:#444;font-size:15px">{{ block.content }}</blockquote>
+
+                  {% when 'list' %}
+                    <ul style="margin:0 0 12px;padding-left:20px;font-size:15px;line-height:1.55">
+                      {% for item in block.items %}<li style="margin:0 0 4px">{{ item }}</li>{% endfor %}
+                    </ul>
+
+                  {% when 'button' %}
+                    <p style="margin:14px 0">
+                      <a href="{{ block.url }}" style="display:inline-block;padding:9px 18px;background:#6D0606;color:#ffffff;text-decoration:none;border-radius:4px;font-size:15px">{{ block.content }}</a>
+                    </p>
+
+                  {% when 'image' %}
+                    {% if block.photo %}
+                      <p style="margin:0 0 12px">
+                        <img src="{{ site.url }}{{ block.photo.url }}" alt="{{ block.photo.alt }}" width="544" style="width:100%;max-width:544px;height:auto;display:block;border:0">
+                      </p>
+                    {% endif %}
+
+                  {% else %}
+                    {% if block.content %}
+                      <p style="margin:0 0 10px;font-size:15px;line-height:1.55">{{ block.content }}</p>
+                    {% endif %}
+                  {% endcase %}
+                {% endfor %}
+              {% endfor %}
+
+              {%- comment -%} A page break in print is only a rule here. {%- endcomment -%}
+              {% unless forloop.last %}
+                <hr style="border:0;border-top:1px solid #e3e3e3;margin:22px 0">
+              {% endunless %}
+            {% endfor %}
+
+            <p style="margin:24px 0 0;padding-top:14px;border-top:1px solid #e3e3e3;font-size:13px;color:#666">
+              {{ site.name }}<br>{{ site.address }}<br>
+              <a href="mailto:{{ site.email }}" style="color:#6D0606">{{ site.email }}</a>
+            </p>
+
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+- name: footer
+  source: |
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <p class="site-footer__name">{{ site.name }}</p>
+        <div class="site-footer__contact">
+          <p>Address: {{ site.address }}</p>
+          <p>Email: <a href="mailto:{{ site.email }}">{{ site.email }}</a></p>
+        </div>
+      </div>
+    </footer>
+- name: header
+  source: |
+    <header class="site-header" data-controller="nav">
+      <div class="site-header__inner">
+        {% comment %}
+          The monogram is this organization's, not Ruby's. brand, then short_name,
+          then the full name -- a new organization with only a name set still
+          renders something sensible.
+        {% endcomment %}
+        <a class="site-header__brand" href="/">{{ site.settings.brand | default: site.settings.short_name | default: site.name }}</a>
+
+        <button class="site-header__toggle" type="button"
+                aria-label="Menu" aria-expanded="false" data-action="nav#toggle">
+          <span></span><span></span><span></span>
+        </button>
+
+        <nav class="site-nav" data-nav-target="menu" aria-label="Main">
+          <ul class="site-nav__list">
+            {% for item in nav %}
+              <li class="site-nav__item {% if item.has_children %}has-children{% endif %}">
+                <a href="{{ item.path }}"
+                   class="site-nav__link {% if item.current %}is-current{% endif %}"
+                   {% if item.current %}aria-current="page"{% endif %}>
+                  {{ item.title }}
+                  {% if item.has_children %}
+                    <span class="site-nav__caret" aria-hidden="true"
+                          data-action="click->nav#expand"></span>
+                  {% endif %}
+                </a>
+                {% if item.has_children %}
+                  <ul class="site-nav__sub">
+                    {% if item.self_title %}
+                      <li>
+                        <a href="{{ item.path }}"
+                           class="{% if item.current %}is-current{% endif %}">{{ item.self_title }}</a>
+                      </li>
+                    {% endif %}
+                    {% for kid in item.children %}
+                      <li>
+                        <a href="{{ kid.path }}"
+                           class="{% if kid.current %}is-current{% endif %}">{{ kid.title }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+      </div>
+    </header>
+- name: page
+  source: |
+    {% if page.has_hero %}
+      <section class="hero {% if page.hero_tall %}hero--tall{% endif %}"
+               {% if page.hero_photo %}style="background-image:url({{ page.hero_photo.url }})"{% endif %}>
+        <div class="hero__inner">
+          {% if page.hero_heading %}<h1 class="hero__title">{{ page.hero_heading }}</h1>{% endif %}
+          {% if page.hero_subheading %}<p class="hero__subtitle">{{ page.hero_subheading }}</p>{% endif %}
+          {% if page.hero_detail %}<p class="hero__detail">{{ page.hero_detail }}</p>{% endif %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% for section in page.sections %}
+      {% include 'section' %}
+    {% endfor %}
+- name: section
+  source: |
+    <section class="band band--{{ section.style }}">
+      <div class="band__inner">
+        <div class="cols" style="--tracks: {{ section.grid_template }}">
+          {% for column in section.columns %}
+            <div class="col">
+              {% for block in column %}{% include block.template %}{% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+theme:
+- name: site.css
+  content: |
+    /* The house style every new website starts with.
+     *
+     * This is the WHOLE stylesheet, not an override layer -- app/models/theme_asset.rb
+     * says so, and the layout links exactly one. It is installed as the site.css
+     * theme asset for every organization, and belongs to that organization from
+     * the moment it exists: it is a database row in their revision, so they can
+     * change any of it by asking, and the change previews and reverts like
+     * anything else.
+     *
+     * Lifted from the first site built with this system and stripped of it. The
+     * rules that named one organization's PAGES -- .page-donate, .page-about-us-choir,
+     * and the rest -- are gone, because a page slug is the most organization-specific
+     * thing there is. What is left is structure: bands, blocks, heroes, the header,
+     * the footer, and a type scale.
+     *
+     * There is deliberately no base site.js. The one that existed was written for
+     * one parish's calendar feed and knew what a vespers was. The navigation works
+     * without it -- that is a Stimulus controller in app/javascript, served to
+     * every organization as part of the application.
+     */
+
+    /*
+     * Theme lifted from the current Google Sites site so the rebuild looks the
+     * same. Values were read out of the live page's inline stylesheet, not
+     * eyeballed — see docs/current-site-inventory.md.
+     *
+     * Google Sites theme: "QualityBasics", Light font kit, custom color kit.
+     */
+
+    :root {
+      --maroon:        #6D0606;   /* primary — headings, bands, buttons */
+      --maroon-dark:   #570505;   /* visited links */
+      --maroon-hover:  #873131;   /* hover inside maroon bands */
+      --ink:           #212121;   /* body text, nav bar, footer bar */
+      --band-light:    #E9E9E9;   /* light grey section band */
+      --rule:          #D3D3D3;
+      --white:         #FFFFFF;
+
+      --font-body:    "Lato", "Helvetica Neue", Arial, sans-serif;
+      --font-content: "Quicksand", "Lato", "Helvetica Neue", Arial, sans-serif;
+      /* The old site asked for Corsiva, which is a Microsoft/Apple system font and
+         not a webfont — so most machines fell back to something else, and on macOS
+         Apple Chancery's hairline strokes broke up against the hero photograph.
+         Cormorant Garamond italic keeps the calligraphic character with an even
+         stroke weight, and renders identically everywhere. */
+      --font-display: "Cormorant Garamond", "Apple Chancery", Georgia, serif;
+      --font-footer:  "Lobster", Georgia, serif;
+
+      --measure: 1160px;   /* content column width */
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      font-size: 11pt;
+      line-height: 1.6667;
+      color: var(--ink);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    a   { color: var(--maroon); }
+    a:visited { color: var(--maroon-dark); }
+    a:hover    { color: var(--maroon); }
+
+    .skip-link {
+      position: absolute; left: -9999px; top: 0; z-index: 200;
+      background: var(--white); color: var(--ink); padding: .75rem 1rem;
+    }
+    .skip-link:focus { left: 0; }
+
+    /* ---------- header / navigation ---------------------------------------- */
+
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--ink);
+      font-family: var(--font-body);
+      /* Light text on a dark bar: antialiased smoothing thins strokes until they
+         look washed out and broken. Subpixel rendering keeps them solid. */
+      -webkit-font-smoothing: auto;
+      -moz-osx-font-smoothing: auto;
+    }
+    .site-header__inner {
+      max-width: var(--measure); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.25rem; min-height: 56px; gap: 1rem;
+    }
+    .site-header__brand {
+      color: var(--white); text-decoration: none;
+      font-size: 15pt; font-weight: 400; letter-spacing: .5px;
+    }
+    .site-header__brand:visited { color: var(--white); }
+
+    .site-header__toggle {
+      display: none; background: none; border: 0; cursor: pointer;
+      padding: .5rem; width: 40px; height: 40px;
+    }
+    .site-header__toggle span {
+      display: block; height: 2px; background: var(--white); margin: 4px 0;
+    }
+
+    .site-nav__list {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; align-items: center; gap: .25rem;
+    }
+    .site-nav__item { position: relative; }
+    /* Lato Light at 12pt is too fine to hold up as white on near-black — it reads
+       as faded and broken rather than quiet. Regular weight at near-full opacity
+       stays legible; the current page is marked by weight, not by brightness, so
+       the other items do not look switched off. */
+    .site-nav__link {
+      display: block; padding: 1rem .7rem .85rem; text-decoration: none;
+      color: rgba(255,255,255,.92); font-size: 12pt; font-weight: 400;
+      white-space: nowrap; border-bottom: 2px solid transparent;
+    }
+    .site-nav__link:visited { color: rgba(255,255,255,.92); }
+    .site-nav__link:hover   { color: var(--white); }
+
+    /* Mark the current page with a rule rather than extra weight. Weight made one
+       item shout and left the rest looking switched off; a rule reads clearly while
+       the bar stays even. */
+    .site-nav__link.is-current {
+      color: var(--white);
+      border-bottom-color: rgba(255,255,255,.85);
+    }
+
+    .site-nav__caret {
+      display: inline-block; margin-left: .35rem;
+      border: solid currentColor; border-width: 0 1.5px 1.5px 0;
+      padding: 2.5px; transform: rotate(45deg) translateY(-2px);
+    }
+
+    .site-nav__sub {
+      display: none; position: absolute; left: 0; top: 100%;
+      background: var(--ink); list-style: none; margin: 0; padding: .35rem 0;
+      min-width: 190px; box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    }
+    .site-nav__item:hover > .site-nav__sub,
+    .site-nav__item:focus-within > .site-nav__sub { display: block; }
+    .site-nav__sub a {
+      display: block; padding: .6rem 1.1rem; text-decoration: none;
+      color: rgba(255,255,255,.94); font-size: 12pt; font-weight: 400;
+    }
+    .site-nav__sub a:hover,
+    .site-nav__sub a.is-current { color: var(--white); }
+
+    /* ---------- hero -------------------------------------------------------- */
+
+    .hero {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      height: 340px; padding: 60px 1.25rem; text-align: center;
+      background: var(--maroon) center/cover no-repeat;
+    }
+    .hero--tall { height: 520px; }
+    /* A band of shade behind the words rather than a flat wash over the whole
+       picture: the title stays legible while the candles and the church behind it
+       still read. */
+    .hero::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(to bottom,
+        rgba(33,33,33,.30) 0%,
+        rgba(33,33,33,.82) 38%,
+        rgba(33,33,33,.82) 62%,
+        rgba(33,33,33,.30) 100%);
+    }
+    .hero__inner { position: relative; max-width: var(--measure); }
+    .hero__title {
+      margin: 0; color: var(--white);
+      font-family: var(--font-display);
+      font-style: italic; font-size: 48pt; font-weight: 500;
+      line-height: 1.15; letter-spacing: .5px;
+      text-shadow: 0 2px 14px rgba(0,0,0,.75), 0 0 3px rgba(0,0,0,.5);
+    }
+    .hero__subtitle {
+      margin: .6rem 0 0; color: var(--white);
+      font-family: var(--font-content);
+      font-size: 25pt; font-weight: 300; line-height: 1.1;
+      text-shadow: 0 2px 12px rgba(0,0,0,.7);
+    }
+
+    /* Practical detail under the hero title — the service times, so the thing most
+       visitors came for is the first thing on the page. Separators collapse on
+       narrow screens, where the list stacks instead. */
+    .hero__detail {
+      position: relative; margin: 1.1rem 0 0; color: rgba(255,255,255,.95);
+      font-family: var(--font-content);
+      font-size: 13pt; font-weight: 500; line-height: 1.7; letter-spacing: .01em;
+      text-shadow: 0 2px 10px rgba(0,0,0,.75);
+    }
+
+    /* ---------- content bands ---------------------------------------------- */
+
+    .band { padding: 2.5rem 1.25rem; }
+    .band--plain  { background: var(--white); }
+    .band--light  { background: var(--band-light); }
+    .band--maroon { background: var(--maroon); color: var(--white); }
+    .band--maroon a            { color: var(--white); text-decoration: underline; }
+    .band--maroon a:visited    { color: var(--white); }
+    .band--maroon a:hover      { color: rgba(255,255,255,.75); }
+
+    .band__inner { max-width: var(--measure); margin: 0 auto; }
+
+    /* Column proportions are measured off the current site and carried as fr
+       units, so the balance survives at any viewport width. */
+    .cols {
+      display: grid; gap: 1.75rem; align-items: start;
+      grid-template-columns: var(--tracks, minmax(0, 1fr));
+    }
+
+    /* ---------- blocks ------------------------------------------------------ */
+
+    .b { margin: 0 0 .75rem; font-family: var(--font-content); }
+    .b:last-child { margin-bottom: 0; }
+    .b--left   { text-align: left; }
+    .b--center { text-align: center; }
+    .b--right  { text-align: right; }
+
+    .b-heading {
+      color: var(--maroon);
+      font-size: 19pt; font-weight: 500; line-height: 1.4; margin-top: 0;
+      overflow-wrap: break-word;
+    }
+
+    /* A heading that follows other content starts a new idea, so give it room —
+       roughly one line. A heading at the top of a column needs none. */
+    .col > .b-heading:not(:first-child) { margin-top: 1.5em; }
+    .band--maroon .b-heading { color: var(--white); }
+
+    .b-subheading {
+      color: var(--ink);
+      font-size: 15pt; font-weight: 500; line-height: 1.25;
+    }
+    .band--maroon .b-subheading { color: var(--white); }
+
+    .b-text { font-size: 14pt; font-weight: 500; line-height: 1.55; }
+
+    /* Photographs get one of two treatments, each where it works.
+     *
+     * On the pale bands they are framed: a white mount, a hairline rule and a soft
+     * shadow, so a photograph sits ON the page. Portraits need that definition —
+     * softened edges leave a face looking unfinished.
+     *
+     * On the maroon band they are feathered instead, dissolving into the colour.
+     * A white mount there would cut a hole in the band, and the images there are
+     * decorative rather than of people.
+     */
+    .band--plain .b-image,
+    .band--light .b-image {
+      padding: 6px; background: #fff;
+      border: 1px solid rgba(33,33,33,.14); border-radius: 2px;
+      box-shadow: 0 1px 3px rgba(33,33,33,.18), 0 8px 20px rgba(33,33,33,.10);
+    }
+    .band--plain .b-image img,
+    .band--light .b-image img { display: block; }
+
+    /* Two linear gradients, intersected: one feathers left/right, the other top and
+       bottom, giving a soft rectangle rather than the oval a single radial gradient
+       would produce. */
+    .band--maroon .b-image img {
+      --feather: 7%;
+      -webkit-mask-image:
+        linear-gradient(to right,  transparent 0, #000 var(--feather),
+                                   #000 calc(100% - var(--feather)), transparent 100%),
+        linear-gradient(to bottom, transparent 0, #000 var(--feather),
+                                   #000 calc(100% - var(--feather)), transparent 100%);
+              mask-image:
+        linear-gradient(to right,  transparent 0, #000 var(--feather),
+                                   #000 calc(100% - var(--feather)), transparent 100%),
+        linear-gradient(to bottom, transparent 0, #000 var(--feather),
+                                   #000 calc(100% - var(--feather)), transparent 100%);
+      -webkit-mask-composite: source-in;
+              mask-composite: intersect;
+    }
+
+    /* A figure may carry a measured max-width; the image fills whatever it gets.
+       Centred figures keep their centring via auto margins. */
+    .b-image     { max-width: 100%; }
+    .b-image img { width: 100%; }
+    .b-image.b--center { margin-left: auto; margin-right: auto; }
+    .b-image.b--right  { margin-left: auto; }
+
+    .b-embed { width: 100%; }
+    .b-embed iframe {
+      width: 100%; min-height: 420px; aspect-ratio: 16 / 9; border: 0;
+      background: var(--white);
+    }
+    /* An embedded map swallows the page scroll on a phone, which is maddening, so
+       it stays inert until clicked. A video player has no such problem. */
+    .b-embed--map iframe { pointer-events: none; }
+    .b-embed:focus-within iframe,
+    .b-embed.is-active iframe { pointer-events: auto; }
+
+    /* ---------- footer ------------------------------------------------------ */
+
+    .site-footer { background: var(--band-light); padding: 1.5rem 1.25rem; }
+    .site-footer__inner {
+      max-width: var(--measure); margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      gap: 1rem; flex-wrap: wrap;
+    }
+    .site-footer__name {
+      margin: 0; font-family: var(--font-footer);
+      font-size: 12pt; font-style: italic; color: var(--ink);
+    }
+    .site-footer__contact { text-align: right; }
+    .site-footer__contact p {
+      margin: 0; font-family: var(--font-content);
+      font-size: 9pt; font-style: italic; font-weight: 600; color: var(--ink);
+    }
+
+    /* ---------- responsive --------------------------------------------------
+       Breakpoints match the original: 1280 / 768 / 480.                        */
+
+    @media (max-width: 1023px) {
+      .site-header__toggle { display: block; }
+      .site-nav {
+        display: none; position: absolute; left: 0; right: 0; top: 100%;
+        background: var(--ink); padding: .35rem 0;
+      }
+      /* The open menu hangs below a sticky header, so it must be told how tall it
+         may be — otherwise it runs off the bottom of the screen and the items down
+         there cannot be reached at all. With every submenu expanded this list is
+         fifteen items, which overflows a phone easily.
+
+         dvh rather than vh: on mobile browsers vh is the height *without* the
+         address bar, so vh-based maths leaves the last item under the chrome. */
+      .site-nav.is-open {
+        display: block;
+        max-height: calc(100vh - 56px);
+        max-height: calc(100dvh - 56px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;   /* don't scroll the page behind the menu */
+      }
+      .site-nav__list { flex-direction: column; align-items: stretch; gap: 0; }
+
+      /* Tighter than the desktop bar, but still a comfortable thumb target —
+         about 40px tall, which is close to the 44px both Apple and Google
+         recommend and far better than a menu you have to scroll. */
+      .site-nav__link { padding: .55rem 1.25rem; font-size: 12.5pt; }
+      .site-nav__sub a { padding-top: .45rem; padding-bottom: .45rem; font-size: 11.5pt; }
+      /* Submenus start closed on a phone, so the menu is seven items rather than
+         fifteen and fits without scrolling. The caret opens one; the parent link
+         still navigates, because a parent here has a page of its own. */
+      .site-nav__sub {
+        display: none; position: static; box-shadow: none; padding: 0 0 .2rem;
+      }
+      .site-nav__item.is-expanded > .site-nav__sub { display: block; }
+      .site-nav__sub a { padding-left: 2.75rem; }
+
+      /* The caret becomes a real tap target, separate from the link. */
+      .site-nav__item.has-children > .site-nav__link { padding-right: 3.25rem; position: relative; }
+      .site-nav__caret {
+        display: block; position: absolute; right: 1.1rem; top: 50%;
+        margin: 0; padding: 7px; transform: translateY(-60%) rotate(45deg);
+        transition: transform .15s ease;
+      }
+      .site-nav__item.is-expanded > .site-nav__link .site-nav__caret {
+        transform: translateY(-20%) rotate(-135deg);
+      }
+      .cols { grid-template-columns: minmax(0, 1fr) !important; }
+    }
+
+    @media (max-width: 767px) {
+      .hero__detail { font-size: 11.5pt; }
+      .hero       { height: auto; min-height: 280px; padding: 40px 1.25rem; }
+      .hero--tall { height: 420px; }
+      .hero__title    { font-size: 41pt; }
+      .hero__subtitle { font-size: 22pt; }
+      .b-heading { font-size: 17pt; }
+      .b-text, .b-subheading { font-size: 13pt; }
+    }
+
+    @media (max-width: 479px) {
+      .hero       { height: 250px; padding: 30px 1rem; }
+      .hero--tall { height: 360px; }
+      .hero__title    { font-size: 33pt; }
+      .hero__subtitle { font-size: 19pt; }
+      .site-footer__inner { flex-direction: column; align-items: flex-start; }
+      .site-footer__contact { text-align: left; }
+    }
+
+    /* Call to action — the Zoom link, chiefly. Sized for a thumb. */
+    .button {
+      display: inline-block; padding: .75rem 1.6rem; margin-top: .4rem;
+      border: 1px solid currentColor; border-radius: 3px;
+      font-family: var(--font-content); font-size: 13pt; font-weight: 600;
+      text-decoration: none; letter-spacing: .01em;
+    }
+    .band--plain .button, .band--light .button {
+      background: var(--maroon); border-color: var(--maroon); color: #fff;
+    }
+    .band--plain .button:visited, .band--light .button:visited { color: #fff; }
+    .band--plain .button:hover,   .band--light .button:hover   { background: var(--maroon-hover); border-color: var(--maroon-hover); }
+    .band--maroon .button { background: #fff; border-color: #fff; color: var(--maroon); text-decoration: none; }
+    .band--maroon .button:visited { color: var(--maroon); }
+    .band--maroon .button:hover   { background: rgba(255,255,255,.88); }
+
+    /* The giving button is the one action on its page, so it is sized like it. */
+    .b-button-give .button, .band--light .b-image + .b-button .button { }
+
+    /* A map is only useful if you can actually use it, so one click arms it. */
+    .b-embed { position: relative; }
+    .b-embed--map::after {
+      content: "Click the map to interact"; position: absolute; inset: auto 0 0 0;
+      padding: .45rem; text-align: center;
+      font-family: var(--font-content); font-size: 10.5pt;
+      background: rgba(33,33,33,.72); color: #fff;
+    }
+    .b-embed--map.is-active::after { content: none; }
+
+    /* The calendar, "this coming week", the class recordings and the daily
+       lectionary were styled here, against markup from four drops that each
+       knew -- in Ruby -- what was worth showing. All of it is gone, along with
+       the drops. Those things now come in through one primitive: the server
+       fetches an address and hands the page JSON (site.data.<name>.json_tag),
+       and the markup, the styling and the decisions about what to show are
+       written through the admin, where they can be read and changed. */
+
+    /* ---------- lists and quotations ---------------------------------------- */
+
+    .b-list {
+      margin: 0 0 .9rem; padding: 0; list-style: none;
+      font-family: var(--font-content); font-size: 13pt; line-height: 1.5;
+    }
+    .b-list li { padding: .32rem 0 .32rem 1.25rem; position: relative; }
+    .b-list li::before {
+      content: ""; position: absolute; left: 0; top: .95em;
+      width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .5;
+    }
+    .band--maroon .b-list li::before { background: #fff; }
+
+    .b-quote {
+      margin: 0 0 1.1rem; padding: 0 0 0 1.1rem;
+      border-left: 3px solid var(--maroon);
+      font-family: var(--font-content); font-size: 12.5pt; font-style: italic;
+      line-height: 1.65; opacity: .9;
+    }
+    .band--maroon .b-quote { border-left-color: rgba(255,255,255,.55); }
+
+    /* Two equal columns need a little air between them when they carry different
+       kinds of appeal. */
+    @media (min-width: 900px) { .cols { gap: 3rem; } }
+
+
+    /* Styling for the new calendar agenda block on Events & Services */
+    /* Parish calendar agenda (replaces the ChurchTrac iframe) */
+    .b-calendar { font-family: var(--font-content); }
+    .calendar-status { font-size: 13pt; opacity: .8; }
+    .calendar-list { display: flex; flex-direction: column; gap: 1rem; }
+    .calendar-day { border-bottom: 1px solid var(--rule); padding-bottom: .7rem; }
+    .calendar-day:last-child { border-bottom: none; }
+    .calendar-day-heading {
+      color: var(--maroon); font-weight: 600; font-size: 13pt; margin-bottom: .35rem;
+    }
+    .band--maroon .calendar-day-heading { color: #fff; }
+    .band--maroon .calendar-day { border-bottom-color: rgba(255,255,255,.3); }
+    .calendar-day-events { list-style: none; margin: 0; padding: 0; }
+    .calendar-event {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem;
+      padding: .2rem 0; font-size: 12.5pt; line-height: 1.5;
+    }
+    .calendar-event-time {
+      flex: 0 0 auto; min-width: 4.5em; font-weight: 600; opacity: .85;
+    }
+    .calendar-event-title { flex: 1 1 auto; }
+    .calendar-event-location {
+      flex: 0 0 100%; font-size: 11pt; opacity: .7; font-style: italic;
+    }
+    @media (max-width: 479px) {
+      .calendar-event { font-size: 12pt; }
+    }
+
+
+    /* Home page compact upcoming-events list */
+    /* Compact "other events" list on the home page, inside the maroon column */
+    .b-calendar-mini { font-family: var(--font-content); }
+    .mini-calendar-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .55rem; }
+    .mini-calendar-event {
+      display: flex; flex-wrap: wrap; gap: .4em .6em; align-items: baseline;
+      font-size: 12.5pt; line-height: 1.4; border-bottom: 1px solid rgba(255,255,255,.25);
+      padding-bottom: .5rem;
+    }
+    .mini-calendar-event:last-child { border-bottom: none; padding-bottom: 0; }
+    .mini-calendar-date { flex: 0 0 auto; font-weight: 700; min-width: 5.5em; }
+    .mini-calendar-title { flex: 1 1 auto; opacity: .95; }
+    .band--maroon .mini-calendar-event { border-bottom-color: rgba(255,255,255,.25); }
+
+
+    /* The mini calendar sits in a white-ruled box, set apart from the text above it
+       and pushed to the foot of the maroon column so it ends level with the band. */
+    .b-calendar-mini__box { border: 2px solid var(--white); padding: 1rem 1.25rem; }
+    .b-calendar-mini__title {
+      color: var(--white); font-family: var(--font-body);
+      font-size: 19pt; font-weight: 500; line-height: 1.4;
+      margin: 0 0 .75rem;
+    }
+    .col:has(> .b-calendar-mini__box) { align-self: stretch; display: flex; flex-direction: column; }
+    .col > .b-calendar-mini__box { margin-top: auto; }
+
+
+    /* Framed-photo option: a clean white mount for images on the maroon band, for photos where the feather effect looks wrong (hard edges, light backgrounds) */
+    .band--maroon .b-image.framed-photo {
+      padding: 8px; background: #fff;
+      border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.25), 0 10px 24px rgba(0,0,0,.20);
+    }
+    .band--maroon .b-image.framed-photo img {
+      -webkit-mask-image: none; mask-image: none; display: block;
+    }
+
+
+    /* test */
+    .x{color:red}
+
+
+    /* Soft red glow for hero bands with no photo (e.g. Education & Resources sub-pages) */
+    .hero {
+      background-image: radial-gradient(circle at center, var(--maroon-hover) 0%, var(--maroon) 55%, var(--maroon-dark) 100%);
+    }
+
+
+    /* The service times are the most important thing on the home page, so they are
+       set as a centred panel rather than a bulleted list. */
+    .b-list.service-times li { padding-left: 0; padding-right: 0; }
+    .b-list.service-times li::before { content: none; }
+
+    /* Auto margins on a centred figure stop it stretching inside a flex column,
+       leaving it shrink-to-fit. This makes the photo take the whole column. */
+    .b-image.fill-column { width: 100%; }
+
+
+    /* Daily lectionary: the day, then the epistle and the Gospel, pulled from
+       oca.org. Sits in a plain band on Education & Resources. */
+    .b-readings { font-family: var(--font-content); }
+    .readings__status { font-size: 13pt; opacity: .8; }
+    .readings__date {
+      color: var(--maroon); font-weight: 600; font-size: 14pt;
+      text-align: center; margin: 0 0 1rem;
+    }
+    .band--maroon .readings__date { color: var(--white); }
+    .readings__reading {
+      max-width: 34rem; margin: 0 auto 2.5rem; text-align: left;
+      border-top: 1px solid var(--rule); padding-top: 1.25rem;
+    }
+    .readings__reading:last-child { margin-bottom: 0; }
+    .band--maroon .readings__reading { border-top-color: rgba(255, 255, 255, .3); }
+    .readings__heading {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .75rem;
+      margin: 0 0 .75rem; font-family: var(--font-display);
+      font-size: 17pt; font-weight: 600; color: var(--maroon);
+    }
+    .band--maroon .readings__heading { color: var(--white); }
+    .readings__label {
+      font-family: var(--font-body); font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em; font-size: 10pt;
+      opacity: .75;
+    }
+    .readings__text { margin: 0 0 .75rem; font-size: 13.5pt; line-height: 1.7; }
+    .readings__text:last-child { margin-bottom: 0; }
+    .readings__verse {
+      font-size: 8.5pt; font-weight: 600; color: var(--maroon);
+      margin-right: .2rem; vertical-align: super; line-height: 0;
+    }
+    .band--maroon .readings__verse { color: var(--white); opacity: .7; }
+
+
+    /* Daily lectionary — note under the readings */
+    .readings-note { font-size: 11.5pt; opacity: .75; max-width: 34rem; margin: 2rem auto 0; }
+
+
+    /* Past classes: each recording is a clickable still from its own video.
+       One per row on a phone, the three across on a wider screen. */
+    .class-videos {
+      list-style: none; margin: 1.5rem 0 2.25rem; padding: 0;
+      display: grid; gap: 1.75rem;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    @media (min-width: 900px) {
+      .class-videos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    .class-videos__link {
+      display: block; text-decoration: none; color: inherit;
+    }
+    /* YouTube serves the still 480x360, the 16:9 picture letterboxed with black
+       bars of 45px (12.5% of the height) top and bottom. The frame crops both
+       bars off exactly, then a further 9% of the picture at the foot — just
+       enough to lose the lower-third banner carrying the speaker's name.
+       aspect-ratio and object-position are a pair: change one and recompute the
+       other, or the top bar creeps back in. */
+    .class-videos__frame {
+      display: block; position: relative; overflow: hidden;
+      aspect-ratio: 1.95 / 1;
+      border-radius: 3px; border: 1px solid var(--rule);
+    }
+    .class-videos__thumb {
+      display: block; width: 100%; height: 100%;
+      object-fit: cover; object-position: center 39%;
+    }
+    /* Play button, drawn over the still */
+    .class-videos__frame::before,
+    .class-videos__frame::after {
+      content: ""; position: absolute; left: 50%; top: 50%;
+    }
+    .class-videos__frame::before {
+      width: 3.4rem; height: 2.4rem; margin: -1.2rem 0 0 -1.7rem;
+      background: var(--maroon); border-radius: 8px; opacity: .85;
+    }
+    .class-videos__frame::after {
+      margin: -.6rem 0 0 -.4rem;
+      border-style: solid; border-width: .6rem 0 .6rem 1rem;
+      border-color: transparent transparent transparent var(--white);
+    }
+    .class-videos__link:hover .class-videos__frame::before { opacity: 1; }
+    .class-videos__title {
+      display: block; margin-top: .6rem;
+      font-family: var(--font-content); font-size: 12pt; line-height: 1.35;
+      color: var(--maroon);
+    }
+    .class-videos__link:hover .class-videos__title { color: var(--maroon-hover); text-decoration: underline; }
+    .band--maroon .class-videos__title,
+    .band--maroon .class-videos__link:hover .class-videos__title { color: var(--white); }
+    .class-videos__empty { font-family: var(--font-content); }
+
+
+    /* Section titles on Serving Others — larger, in the display face, with a
+       short rule beneath so each ministry reads as its own chapter. */
+    .section-title {
+      font-family: var(--font-display);
+      color: var(--maroon);
+      font-size: 22pt; font-weight: 600; font-style: italic;
+      line-height: 1.2; letter-spacing: .5px;
+      margin: 0 0 1.25rem;
+    }
+    .section-title::after {
+      content: ""; display: block;
+      width: 3.5rem; height: 2px; margin: .65rem auto 0;
+      background: var(--maroon);
+    }
+    .band--maroon .section-title { color: var(--white); }
+    .band--maroon .section-title::after { background: var(--white); }
+
+    @media (min-width: 900px) {
+      .section-title { font-size: 28pt; }
+    }
+
+    /* ---------- the weekly bulletin ----------------------------------------
+       5.5 x 8.5 pages in reading order. The printer imposes them -- we never
+       fold anything here -- so this is four sequential pages, not a signature.
+       No bleed and no crop marks: the printer does not want them.
+
+       The sheet is sized in inches because the paper is. Everything inside it
+       stays in the sites own units. */
+
+    .bulletin { background: #f0f0f0; padding: 1rem 0; }
+
+    .sheet {
+      width: 100%; max-width: 5.5in; min-height: 8.5in;
+      margin: 0 auto 1rem; padding: 0.4in;
+      background: #fff; box-sizing: border-box;
+      box-shadow: 0 1px 6px rgba(0,0,0,.18);
+      display: flex; flex-direction: column;
+    }
+    .sheet__inner { flex: 1; display: flex; flex-direction: column; gap: .5rem; }
+    .sheet .b { max-width: none; }
+    .sheet .b-heading { font-size: 15pt; margin: 0 0 .2rem; }
+    .sheet .b-subheading { font-size: 12pt; margin: 0 0 .15rem; }
+    .sheet .b-text { font-size: 11pt; line-height: 1.45; margin: 0 0 .4rem; }
+    .sheet .b-image img { width: 100%; }
+
+    @media print {
+      /* On paper there is no screen chrome, no shadow and no gap: the sheet IS
+         the page. @page carries the size so the printer is told once. */
+      @page { size: 5.5in 8.5in; margin: 0; }
+
+      body { background: #fff; }
+      .site-header, .site-footer, .skip-link { display: none !important; }
+      .bulletin { background: #fff; padding: 0; }
+      .sheet {
+        width: 5.5in; height: 8.5in; margin: 0; box-shadow: none;
+        page-break-after: always; break-after: page;
+      }
+      .sheet:last-child { page-break-after: auto; break-after: auto; }
+    }
+
+
+    /* The list of earlier bulletins reads as a set of links, one per line,
+       so the bullet dots are dropped and each row given a hairline rule. */
+    .b-list.bulletin-index li { padding-left: 0; padding-right: 0; border-bottom: 1px solid var(--rule); }
+    .b-list.bulletin-index li::before { content: none; }
+    .b-list.bulletin-index li:last-child { border-bottom: 0; }
+    .b-list.bulletin-index a { font-weight: 700; }
+
+
+    /* The bulletins page shows one bulletin in a pane on the left while the index
+       of earlier ones sits on the right. The pane holds markup fetched from the
+       bulletin itself — either made sheets or the bands of an older page — so it
+       has to neutralise the grey backdrop and outer padding those carry. */
+    .bulletin-viewer__label {
+      font-family: var(--font-display); font-size: 17pt; font-style: italic;
+      margin: 0 0 .6rem;
+    }
+    .bulletin-viewer__sheets {
+      background: var(--band-light); border: 1px solid var(--rule);
+      padding: .75rem;
+    }
+    .bulletin-viewer__sheets .bulletin { background: none; padding: 0; }
+    .bulletin-viewer__sheets .band { padding: 1rem 0; }
+    .bulletin-viewer__sheets .band__inner { padding-left: 1rem; padding-right: 1rem; }
+    .bulletin-viewer__note {
+      font-family: var(--font-content); font-size: 12pt;
+      margin: 0; padding: 2rem 1rem; text-align: center;
+    }
+    .bulletin-viewer__links {
+      display: flex; flex-wrap: wrap; gap: 1.2rem;
+      font-family: var(--font-content); font-size: 11pt;
+      margin: .7rem 0 0;
+    }
+    .bulletin-viewer__home { font-weight: 700; }
+    .b-list.bulletin-index .bulletin-index__link--current { color: var(--ink); }
+
+    @media (min-width: 900px) {
+      /* Four sheets is taller than a screen; scrolling the pane rather than the
+         page keeps the index in view beside it. */
+      .bulletin-viewer__sheets { max-height: 80vh; overflow-y: auto; }
+      .b-list.bulletin-index { position: sticky; top: 1rem; }
+    }
+
+
+    /* ---- studio ---- */
+
+    /* Studio: black, quiet, and out of the way of the work. */
+    body { background: #FAFAFA; }
+    .band__inner { max-width: 70rem; }
+    .hero { background: #141414; }
+    .hero--tall { min-height: 70vh; }
+    .b-heading, .b-subheading { letter-spacing: .01em; font-weight: 500; }
+    .b-quote { font-style: normal; color: #555; }
+data_sources: []
+pages:
+- slug: home
+  title: Studio
+  nav_title: Home
+  position: 0
+  show_in_nav: true
+  on_website: true
+  layout: page
+  hero_asset_name: home-hero
+  hero_asset_version: 1
+  hero_heading: The work
+  hero_size: tall
+  sections:
+  - position: 0
+    style: plain
+    column_widths: '1,1,1'
+    blocks:
+    - kind: image
+      content: A piece of work
+      align: left
+      row: 0
+      column: 0
+      position: -1
+      asset_name: work-one
+      asset_version: 1
+    - kind: subheading
+      content: One
+      align: left
+      row: 0
+      column: 0
+      position: 0
+    - kind: text
+      content: 'A line about this piece. Add a photograph to each column once you
+        have them — the editor will put them in and crop them for you.
+
+        '
+      align: left
+      row: 0
+      column: 0
+      position: 1
+    - kind: image
+      content: A piece of work
+      align: left
+      row: 0
+      column: 1
+      position: -1
+      asset_name: work-two
+      asset_version: 1
+    - kind: subheading
+      content: Two
+      align: left
+      row: 0
+      column: 1
+      position: 2
+    - kind: text
+      content: What it is, when it was made, and for whom.
+      align: left
+      row: 0
+      column: 1
+      position: 3
+    - kind: image
+      content: A piece of work
+      align: left
+      row: 0
+      column: 2
+      position: -1
+      asset_name: work-three
+      asset_version: 1
+    - kind: subheading
+      content: Three
+      align: left
+      row: 0
+      column: 2
+      position: 4
+    - kind: text
+      content: A third, so the grid reads as a grid rather than an accident.
+      align: left
+      row: 0
+      column: 2
+      position: 5
+- slug: about
+  title: About
+  nav_title: About
+  position: 1
+  show_in_nav: true
+  on_website: true
+  layout: page
+  hero_size: standard
+  sections:
+  - position: 0
+    style: plain
+    blocks:
+    - kind: heading
+      content: About
+      align: left
+      row: 0
+      column: 0
+      position: 0
+    - kind: text
+      content: 'Who works here and what they are interested in. Short. The work above
+        has already made most of the argument.
+
+        '
+      align: left
+      row: 0
+      column: 0
+      position: 1
+    - kind: quote
+      content: A line you would be happy to be quoted on.
+      align: left
+      row: 0
+      column: 0
+      position: 2
+lessons: []
+promises: []

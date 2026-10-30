@@ -8,14 +8,16 @@ module Operator
   # rather than just a true one.
   class OrganizationsController < BaseController
     def index
-      @organizations = Organization.order(:name).to_a
+      # Tenants. The sample sites are organizations too, and they belong in a
+      # chooser rather than in a list of accounts.
+      @organizations = Organization.tenants.order(:name).to_a
       @counts = @organizations.index_with { |org| counts_for(org) }
       @recent = OperatorAction.newest_first.limit(20).includes(:user, :organization)
     end
 
     def new
-      @form = { slug: "", name: "", host: "", owner_email: "", starter: Starter::DEFAULT }
-      @starters = Starter.all
+      @form = { slug: "", name: "", host: "", owner_email: "", starter: Starters::DEFAULT }
+      @starters = Starters.all
     end
 
     def create
@@ -30,7 +32,7 @@ module Operator
                     notice: "#{result.organization.name} created. #{result.owner.email} has been invited."
       else
         @form = params.permit(:name, :slug, :host, :canonical_url, :owner_email, :starter).to_h
-        @starters = Starter.all
+        @starters = Starters.all
         flash.now[:alert] = result.errors.to_sentence
         render :new, status: :unprocessable_content
       end

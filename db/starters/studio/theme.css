@@ -1,7 +1,0 @@
-/* Studio: black, quiet, and out of the way of the work. */
-body { background: #FAFAFA; }
-.band__inner { max-width: 70rem; }
-.hero { background: #141414; }
-.hero--tall { min-height: 70vh; }
-.b-heading, .b-subheading { letter-spacing: .01em; font-weight: 500; }
-.b-quote { font-style: normal; color: #555; }

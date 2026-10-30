@@ -256,30 +256,57 @@ spec now says so.
 
 ---
 
-## Starters
+## Starters are organizations
 
-What a new organization is built from. A folder under `db/starters/<name>/`:
+A starter is **an organization with the `starter` flag**, seeded out of
+`db/seeds/starters/` by `WebsiteArchive`. Creating a customer's website is
+`Revision#copy_into` — a copy of that organization's live revision, photographs
+and all.
+
+They were folders of YAML read by an installer. Three things were wrong with
+that, and all three go away:
+
+- **A look had to be written by a developer** who knew the block kinds and the
+  class names, and could get them wrong twice without anything noticing. Now it
+  is built by using the product: asked for in words, previewed, looked at.
+- **A starter could not hold a photograph.** There is no way to put bytes in a
+  manifest, so `studio` — a starter whose entire premise is showing pictures —
+  had none.
+- **There was nowhere to look at one.** Each is now live on its own hostname,
+  so the chooser links to the real thing and the thumbnail script photographs it
+  where it lives.
+
+Six: `plain`, `gathering`, `noticeboard`, `trade`, `studio`, `journal`. Each has
+its own stylesheet, its own pages and its own pictures, and diverges freely from
+the moment a customer copies it — there is no inheritance and no "update from
+starter", deliberately. Somebody who has been editing their site for six months
+should not have it reshaped by us improving a template.
+
+`Starters.chosen(slug)` falls back to `plain` rather than trusting a form, and
+**raises** if an installation has no starters at all: a blank website looks like
+a bug in the editor rather than a missing seed.
+
+### What a deployment arrives with
 
 ```
-starter.yml        title, summary, settings, pages (with sections and blocks)
-templates/*.liquid optional overrides -- only what this look changes
-theme.css          optional, becomes a theme_asset row it can then edit
+bin/rails db:seed            the six sample sites, and in development two test ones
+bin/rails organization:bootstrap[you@example.com]
 ```
 
-Files rather than Ruby, for the same reason `db/seeds/content.yml` is files: a
-look is reviewable in a pull request, and the no-parish scan already reads
-`db/starters/**`, so a starter carrying somebody's monogram fails the build.
+**A production database gets the looks and nothing else** — no customer, no
+parish, no data anybody has to be trusted with. Organizations arrive afterwards,
+created in the console from a starter, or imported from an archive they brought.
 
-**Every starter begins from `DefaultTemplates` and overlays its own**, so a
-starter cannot forget to provide a template for a block kind and render nothing.
+Seeds deliberately create **no people**: a password in a seed file is a password
+in a repository. `organization:bootstrap` makes the first application
+administrator and prints a link for them to set their own password — the same
+invitation a customer's owner gets.
 
-Three to begin with — `plain`, `gathering`, `noticeboard` — because three proves
-the mechanism and tells you what a starter needs to contain. Twelve is a design
-project, and the first three would be rebuilt after it.
-
-The name arrives from a form and is used to build a path, so `Starter.find`
-checks it against `/\A[a-z0-9][a-z0-9-]{0,40}\z/` and returns nil otherwise.
-`../../etc` is a starter name too, as far as a string is concerned.
+The two test organizations under `db/seeds/test-organizations/` are guarded by
+`Rails.env.production?` rather than by a flag somebody could pass. Smoke testing
+multi-organization behaviour needs more than one organization, and doing it
+against a real customer's site is how a real customer's site gets edited by
+accident.
 
 ### Every new organization gets the house style
 

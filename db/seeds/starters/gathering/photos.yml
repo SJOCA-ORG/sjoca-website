@@ -1,0 +1,8 @@
+- file: home-hero-v1.jpg
+  human_name: home-hero
+  version: 1
+  status: published
+  content_type: image/jpeg
+  sha256: 380e46005b8625ecfcda37f3126351336e3f96a52578efe9c5ffc7d42097bb1a
+  alt_text: A placeholder to replace
+  tags: []

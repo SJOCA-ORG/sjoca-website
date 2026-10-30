@@ -1,0 +1,32 @@
+- file: home-hero-v1.jpg
+  human_name: home-hero
+  version: 1
+  status: published
+  content_type: image/jpeg
+  sha256: 599ccaba7c6d61216d2d482813bd6851737ea41a0597a50ca66c31d6fa9cb871
+  alt_text: A placeholder to replace
+  tags: []
+- file: work-one-v1.jpg
+  human_name: work-one
+  version: 1
+  status: published
+  content_type: image/jpeg
+  sha256: f76f29c174ba9369d5255a5a1f34a873bc051a750905627ca3d1768ffdd7c20b
+  alt_text: A placeholder to replace
+  tags: []
+- file: work-three-v1.jpg
+  human_name: work-three
+  version: 1
+  status: published
+  content_type: image/jpeg
+  sha256: 26ecb2ce30a0e748cc93f01d916413c0f2a2bf79e02d89344fd593a68c2ae177
+  alt_text: A placeholder to replace
+  tags: []
+- file: work-two-v1.jpg
+  human_name: work-two
+  version: 1
+  status: published
+  content_type: image/jpeg
+  sha256: 585bea8c650412803ab3e40b1e41e53c9e76d373c02775888d8214de76bcda93
+  alt_text: A placeholder to replace
+  tags: []

@@ -43,6 +43,33 @@ namespace :organization do
     puts "  It has no hostname yet: organization.add_host(\"...\")"
   end
 
+  # The one thing a fresh deployment cannot do for itself.
+  #
+  # Seeds give an installation its sample sites and no people, which is right:
+  # a password in a seed file is a password in a repository. So the first
+  # person is made here, by somebody with a shell, and sets their own password
+  # through a link -- the same invitation mechanism a customer's owner gets.
+  desc "Create the first application administrator (EMAIL, [NAME])"
+  task :bootstrap, %i[email name] => :environment do |_t, args|
+    email = args[:email] or abort "usage: organization:bootstrap[you@example.com]"
+    abort "#{email} already has an account" if User.exists?(email: email.downcase)
+
+    user = User.create!(email: email, name: args[:name].presence,
+                        application_admin: true, organization: nil,
+                        role: "superadmin",
+                        password: Operator::CreateOrganization.unguessable_password)
+
+    base = Organization.current_url
+    puts "#{user.email} can now act in every organization."
+    puts
+    puts "Set a password with this link. It lasts seven days and works once:"
+    puts "  #{base}/admin/password/edit?token=#{user.generate_token_for(:invite)}"
+    puts
+    puts "Then sign in and create the organization whose website advertises this"
+    puts "tool, from a starter, and mark it as the product:"
+    puts "  Organization.find_by(slug: \"...\").update!(product: true)"
+  end
+
   desc "List the organizations on this installation"
   task list: :environment do
     Organization.order(:starter, :name).each do |org|

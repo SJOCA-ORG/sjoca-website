@@ -1,8 +1,0 @@
-/* Noticeboard: lists are the point, so they get the room and the rhythm.
-   b-list and band-- are what the templates emit; guessing at class names is
-   how a starter ends up looking exactly like the default one. */
-.b-list { line-height: 1.9; }
-.b-list li { border-bottom: 1px solid rgba(0,0,0,.08); padding-block: .45rem; }
-.b-list li:last-child { border-bottom: 0; }
-.band--light { background: #F2F5F3; }
-.hero { background: #1F3A2E; }

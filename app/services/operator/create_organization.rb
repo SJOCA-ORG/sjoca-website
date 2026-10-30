@@ -29,7 +29,7 @@ module Operator
       @host = host.to_s.strip.downcase
       @owner_email = owner_email.to_s.strip.downcase
       @canonical_url = canonical_url.presence || "https://#{@host}"
-      @starter = starter.presence || "blank"
+      @starter = starter.presence
       @by = by
       @ip = ip
     end
@@ -44,28 +44,29 @@ module Operator
         )
         organization.add_host(@host)
 
+        # A starter is an ORGANIZATION, and this is a copy of its website --
+        # pages, templates, stylesheet, photographs and all. Which means a look
+        # is made by using the product rather than by writing YAML, and that a
+        # customer gets exactly what somebody looked at and approved.
+        starter = Starters.chosen(@starter)
+        Organization.acting_as(starter) { Revision.live }
+                    .copy_into(organization, title: "First")
+
         # acting_as for the rest: the moment this organization exists there are
         # two of them, so nothing is implicit any more and every create below
         # would otherwise land nowhere.
         Organization.acting_as(organization) do
-          revision = Revision.create!(state: "published", title: "First")
-
-          # The starter brings the templates with it, so a starter cannot leave
-          # a block kind without a template to render it. find_or_default
-          # because the name comes from a form.
-          Starter.find_or_default(@starter).install!(revision)
-
           # The one setting a brand new site cannot do without: something to
-          # call itself. After the starter, so it wins over the starter's own
-          # placeholder.
-          revision.site_settings.find_or_initialize_by(key: "name").update!(value: @name)
+          # call itself. After the copy, so it wins over the starter's own name.
+          Revision.live.site_settings
+                  .find_or_initialize_by(key: "name").update!(value: @name)
 
           owner = User.create!(email: @owner_email, role: "superadmin",
                                password: self.class.unguessable_password)
         end
 
         OperatorAction.note!(:created, organization: organization, user: @by,
-                             detail: "#{@slug} at #{@host}, from the #{@starter} starter", ip: @ip)
+                             detail: "#{@slug} at #{@host}, from #{starter.name}", ip: @ip)
         OperatorAction.note!(:invited, organization: organization, user: @by,
                              detail: @owner_email, ip: @ip)
 

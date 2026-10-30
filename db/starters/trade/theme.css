@@ -1,7 +1,0 @@
-/* Trade: warm, plain, and legible at arm's length on a phone.
-   Class names are the ones the templates emit -- band, b-list. */
-.band--light  { background: #FBF6F1; }
-.band--maroon { background: #7A3E12; color: #fff; }
-.band--maroon a, .band--maroon .b-quote { color: #FBE6D2; }
-.b-list li { padding-block: .3rem; }
-.hero { background: #7A3E12; }

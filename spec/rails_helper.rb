@@ -53,6 +53,16 @@ RSpec.configure do |config|
     # that needs two must set Current.organization explicitly; see
     # spec/requests/organization_isolation_spec.rb.
     Organization.create!(name: "Spec Organization", slug: "spec")
+
+    # And the sample sites, from the repository, exactly as a real installation
+    # gets them. Creating a customer's website is copying one of these, so a
+    # suite without them is testing a mechanism that cannot run.
+    #
+    # Committed once, after the truncate, so each example's transaction rolls
+    # back around them. They are starters, so Organization.sole_tenant still
+    # finds the one tenant above and nothing else has to know they are here.
+    load Rails.root.join("db/seeds/starters.rb")
+    SeedStarters.run!(quiet: true)
   end
 
   # The enqueued-job list and the deliveries array are process-wide and are NOT

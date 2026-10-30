@@ -1,9 +1,0 @@
-/* Gathering: a quieter, wider take on the default look.
-   A starter's CSS becomes a theme_asset row the moment it is installed, so the
-   organization edits it afterwards like anything else.
-   Class names are the ones the templates actually emit -- band, not section. */
-.band--roomy .band__inner { padding-block: 3.5rem; max-width: 62rem; }
-.band--light  { background: #F4F6F7; }
-.band--maroon { background: #2F4858; color: #fff; }
-.band--maroon a { color: #BFD7EA; }
-.hero--tall { min-height: 62vh; }

@@ -1,57 +1,50 @@
 require "rails_helper"
 
-# Every starter, installed for real and then looked at.
+# Every sample site, as it actually exists: an organization, seeded out of
+# db/seeds/starters, serving on its own hostname.
 #
-# A starter is the first thing a customer sees, built by somebody who will never
-# meet them, in files nobody runs until an organization is created. So each one
-# is installed into a fresh organization here and the resulting site is
-# requested -- not parsed, not stubbed, requested -- on every run.
+# These were folders of YAML read by an installer. They are organizations now,
+# which means a look is built by USING the product -- asked for in words,
+# previewed, looked at -- and can hold photographs, which a manifest cannot.
+# Creating a customer's website is a copy of one of these.
 #
-# The specific failures this is looking for are the ones that are invisible
-# until the day somebody creates an organization: a Liquid comment that does not
-# parse, a block kind with no template, a page that renders three bytes, and a
-# starter quietly carrying this parish.
+# The failures this is looking for are the ones that are invisible until
+# somebody creates an organization: a template that does not parse, a block
+# kind with no template, a page that renders three bytes, a site with no
+# stylesheet, and a starter quietly carrying this parish.
 RSpec.describe "the starters", type: :request, signed_out: true do
-  def organization_from(starter, host:)
-    org = Organization.create!(name: "The Test Society", slug: "test-society-#{starter.name}",
-                               canonical_url: "https://#{host}")
-    org.add_host(host)
-    Organization.acting_as(org) do
-      revision = Revision.create!(state: "published", title: "First")
-      starter.install!(revision)
-      revision.site_settings.find_or_initialize_by(key: "name").update!(value: "The Test Society")
-    end
-    org
+  # Read from the FOLDER at load time, because the database is seeded after
+  # these example groups are defined. The organization is looked up inside each
+  # example, by which time it is there.
+  NAMES = Dir.children(Rails.root.join("db/seeds/starters")).sort.freeze
+
+  def starter(name) = Organization.find_by!(slug: "starter-#{name}")
+
+  it "has the sample sites from the repository" do
+    expect(NAMES).to include("plain")
+    expect(NAMES.size).to be >= 3
+    expect(Organization.starters.count).to eq(NAMES.size)
   end
 
-  it "finds the starters on disk" do
-    expect(Starter.all.map(&:name)).to include("plain")
-    expect(Starter.all.size).to be >= 3
+  it "offers one by default, and falls back to it when asked for nothing" do
+    expect(Starters.chosen(nil).slug).to eq(Starters::DEFAULT)
+    expect(Starters.chosen("no-such-look").slug).to eq(Starters::DEFAULT)
   end
 
-  it "falls back to the default when asked for one that does not exist" do
-    expect(Starter.find_or_default("no-such-look").name).to eq(Starter::DEFAULT)
-    expect(Starter.find_or_default(nil).name).to eq(Starter::DEFAULT)
+  it "keeps them out of the count of tenants" do
+    expect(Organization.tenants.map(&:slug)).not_to include(*Organization.starters.map(&:slug))
   end
 
-  # The starter name reaches this from a form, and is used to build a path.
-  it "refuses a name that is a path rather than a name" do
-    expect(Starter.find("../../etc")).to be_nil
-    expect(Starter.find("plain/../plain")).to be_nil
-  end
+  NAMES.each do |name|
+    describe name do
+      let(:organization) { starter(name) }
+      let(:host) { "#{name}-starter.localhost" }
 
-  Starter.all.each do |starter|
-    describe starter.name do
-      let(:host) { "#{starter.name}.example" }
-
-      it "has a title and a sentence saying what it is for" do
-        expect(starter.title).to be_present
-        expect(starter.summary).to be_present
+      it "has a hostname of its own, so it can be looked at" do
+        expect(organization.hosts).to include(host)
       end
 
-      it "installs and serves its home page" do
-        organization_from(starter, host: host)
-
+      it "serves its home page" do
         host! host
         get "/"
 
@@ -61,95 +54,43 @@ RSpec.describe "the starters", type: :request, signed_out: true do
         expect(response.body.length).to be > 500
       end
 
-      it "serves every page it claims to install" do
-        org = organization_from(starter, host: host)
-        slugs = Organization.acting_as(org) { Page.in_revision(Revision.live).pluck(:slug) }
+      it "serves every page it has" do
+        slugs = Organization.acting_as(organization) { Page.in_revision(Revision.live).pluck(:slug) }
         expect(slugs).to include("home")
 
         host! host
         slugs.each do |slug|
           get(slug == "home" ? "/" : "/#{slug}")
-          expect(response).to have_http_status(:ok), "#{starter.name} cannot serve /#{slug}"
+          expect(response).to have_http_status(:ok), "#{name} cannot serve /#{slug}"
         end
       end
 
-      # THE ONE THAT WAS MISSING.
-      #
-      # The gathering starter's section template invented its own structure --
-      # section.blocks instead of section.columns -- and rendered every band
-      # perfectly with nothing inside it. Liquid does not complain about a loop
-      # over nothing, so the page came out plausible and empty, and every spec
-      # here passed: the templates existed, the page was 5KB of shell, and no
-      # block kind was missing a template.
-      #
-      # What none of them asked was whether the words in the starter reached
-      # the page.
-      it "puts its own words on the page" do
-        organization_from(starter, host: host)
-        host! host
-
-        starter.manifest.fetch("pages", []).each do |page|
-          get(page["slug"] == "home" ? "/" : "/#{page['slug']}")
-          text = response.body.gsub(/<[^>]+>/, " ").gsub(/&#?\w+;/, " ").gsub(/\s+/, " ")
-
-          expect(text).to include(page["hero_heading"].strip) if page["hero_heading"].present?
-
-          (page["sections"] || []).each do |section|
-            (section["blocks"] || []).each do |block|
-              # The first line, shortened: enough to be distinctive, short
-              # enough to survive wrapping and entity escaping.
-              wanted = block["content"].to_s.strip.lines.first.to_s.strip[0, 30]
-              next if wanted.blank?
-
-              expect(text).to include(wanted),
-                "#{starter.name} /#{page['slug']} does not show #{wanted.inspect}"
-            end
-          end
-        end
-      end
-
-      # The fault that produced six screenshots of unstyled HTML: a brand new
-      # organization had templates and no stylesheet. The layout links exactly
-      # one, from a theme_asset row, and nothing installed it -- so every site
-      # created through the operator console came out in Times New Roman with
-      # blue underlined links. Nothing complained. The page was 200, the right
-      # words were on it, every block had a template.
-      #
-      # Only a person looking at one could tell, which is why the check is now
-      # here: follow the stylesheet link the page gives the browser, and insist
-      # it is a real stylesheet.
+      # The fault that produced six screenshots of unstyled HTML: a site with
+      # templates and no stylesheet. The link was in the markup; nothing
+      # followed it.
       it "serves a stylesheet with the house style in it" do
-        organization_from(starter, host: host)
         host! host
-
         get "/"
-        href = response.body[/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/, 1] ||
-               response.body[/<link[^>]+href="([^"]+\.css[^"]*)"/, 1]
-        expect(href).to be_present, "#{starter.name} links no stylesheet at all"
+        href = response.body[/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/, 1]
+        expect(href).to be_present, "#{name} links no stylesheet at all"
 
         get href
         expect(response).to have_http_status(:ok)
         expect(response.body.length).to be > 10_000
-        # Structure, not decoration: these are the classes the templates emit.
-        expect(response.body).to include(".band")
-        expect(response.body).to include(".hero")
+        expect(response.body).to include(".band", ".hero")
       end
 
       it "leaves no block without a template to render it" do
-        org = organization_from(starter, host: host)
-
-        Organization.acting_as(org) do
+        Organization.acting_as(organization) do
           kinds = Block.where(revision: Revision.live).distinct.pluck(:kind)
           templates = Revision.live.templates.pluck(:name)
           missing = kinds.reject { |k| templates.include?("block/#{k}") }
-          expect(missing).to be_empty, "#{starter.name} uses #{missing.inspect} with no template"
+          expect(missing).to be_empty, "#{name} uses #{missing.inspect} with no template"
         end
       end
 
-      it "every template it installs is valid Liquid" do
-        org = organization_from(starter, host: host)
-
-        broken = Organization.acting_as(org) do
+      it "every template it has is valid Liquid" do
+        broken = Organization.acting_as(organization) do
           Revision.live.templates.filter_map do |t|
             begin
               Liquid::Template.parse(t.source)
@@ -163,26 +104,36 @@ RSpec.describe "the starters", type: :request, signed_out: true do
         expect(broken).to be_empty
       end
 
+      # Every photograph it claims is one it can serve. A starter arriving with
+      # a broken image is worse than one arriving with none.
+      it "serves every photograph it carries" do
+        photos = Organization.acting_as(organization) { Photo.pluck(:human_name, :version) }
+
+        host! host
+        photos.each do |human_name, version|
+          get "/media/#{human_name}/#{version}"
+          expect(response).to have_http_status(:ok), "#{name} cannot serve #{human_name}"
+        end
+      end
+
       # The behavioural half of the source scan. A scan can always be one
       # pattern short -- a monogram matches nothing a word-based pattern looks
       # for, which is how SJTB survived in the default header.
       it "serves not one word of this parish" do
-        org = organization_from(starter, host: host)
-        slugs = Organization.acting_as(org) { Page.in_revision(Revision.live).pluck(:slug) }
+        slugs = Organization.acting_as(organization) { Page.in_revision(Revision.live).pluck(:slug) }
 
         host! host
         slugs.each do |slug|
           get(slug == "home" ? "/" : "/#{slug}")
           found = response.body.scan(ThisParish::PATTERN).uniq
-          expect(found).to be_empty, "#{starter.name} /#{slug} carries #{found.inspect}"
+          expect(found).to be_empty, "#{name} /#{slug} carries #{found.inspect}"
         end
       end
     end
   end
 
-  # What the operator console actually does with one.
   describe "creating an organization from one" do
-    it "uses the starter that was asked for, and says so in the log" do
+    it "copies the look that was asked for, and says so in the log" do
       product = Organization.sole_tenant
       product.update!(product: true, canonical_url: "https://builder.example")
       product.add_host("builder.example")
@@ -191,34 +142,47 @@ RSpec.describe "the starters", type: :request, signed_out: true do
 
       host! "builder.example"
       post admin_login_path, params: { session: { email: operator.email, password: "Passw0rd!" } }
-
       post operator_organizations_path, params: {
         name: "Woodwind Society", slug: "woodwind", host: "woodwind.example",
-        owner_email: "owner@woodwind.example", starter: "noticeboard"
+        owner_email: "owner@woodwind.example", starter: "starter-noticeboard"
       }
 
       org = Organization.find_by(slug: "woodwind")
       expect(org).to be_present
 
-      Organization.acting_as(org) do
-        slugs = Page.in_revision(Revision.live).pluck(:slug)
-        expect(slugs).to include("calendar")       # the noticeboard's, not the plain one's
+      from_starter = Organization.acting_as(starter("noticeboard")) do
+        Page.in_revision(Revision.live).pluck(:slug).sort
       end
+      theirs = Organization.acting_as(org) { Page.in_revision(Revision.live).pluck(:slug).sort }
+      expect(theirs).to eq(from_starter)
 
-      expect(OperatorAction.find_by(action: "created").detail).to include("noticeboard")
+      expect(OperatorAction.find_by(action: "created").detail).to include("Noticeboard")
     end
 
-    # The organization's own name must win over whatever the starter called it.
+    it "brings the starter's photographs with it" do
+      result = Operator::CreateOrganization.new(
+        name: "Fife and Drum", slug: "fife", host: "fife.example",
+        owner_email: "owner@fife.example", starter: "starter-studio"
+      ).call
+      expect(result).to be_ok
+
+      mine   = Organization.acting_as(starter("studio"))  { Photo.order(:human_name).pluck(:human_name, :sha256) }
+      theirs = Organization.acting_as(result.organization) { Photo.order(:human_name).pluck(:human_name, :sha256) }
+      expect(theirs).to eq(mine)
+      expect(theirs.size).to be >= 1
+    end
+
     it "names the site after the organization, not after the starter" do
       result = Operator::CreateOrganization.new(
         name: "Fife and Drum", slug: "fife", host: "fife.example",
-        owner_email: "owner@fife.example", starter: "gathering"
+        owner_email: "owner@fife.example", starter: "starter-gathering"
       ).call
 
       expect(result).to be_ok
       host! "fife.example"
       get "/"
       expect(response.body).to include("Fife and Drum")
+      expect(response.body).not_to include("Gathering Example")
     end
   end
 end

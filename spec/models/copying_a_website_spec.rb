@@ -165,11 +165,12 @@ RSpec.describe "copying a website into another organization" do
   # A starter is not a tenant. Seeding six of them must not switch off the
   # single-organization fallback that the console and the seeds rely on.
   describe "starters are not counted as tenants" do
-    it "is still the only tenant with six starters beside it" do
+    it "is still the only tenant with the starters beside it" do
       source.update!(starter: false)
-      6.times { |i| Organization.create!(name: "Look #{i}", slug: "look-#{i}", starter: true) }
+      starters = Organization.starters.count
+      expect(starters).to be >= 6, "the suite should have seeded the sample sites"
 
-      expect(Organization.count).to eq(7)
+      expect(Organization.count).to eq(starters + 1)
       expect(Organization.sole_tenant).to eq(source)
     end
   end
