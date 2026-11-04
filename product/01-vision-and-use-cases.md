@@ -541,15 +541,15 @@ A vibecoding system can provide the generalization required here, but with three
 
 So the solution is to provide a layer above and below the standard AI interface:  
 
-Below lies a set of primitives, constraints limit the AI to use of those primitives and a simple reversion control system.  The server itself is now protected because the AI cannot access anything outside the primitives, and the individual websites are protected via the reversion control system.
+Below lies a set of primitives, and constraints limit the AI to use of those primitives and a simple reversion control system.  The server itself is now protected because the AI cannot access anything outside the primitives, and the individual websites are ultimately protected via the reversion control system
 
-Above is set of rules that the AI understands, a way for the AI to remember how the website was developed, and an understanding of the available primitives.  
+Above is set of rules that the AI understands, a way for the AI to remember how the website was developed, and an understanding of the available primitives.  The AI's own rules give a first layer of protection to the user as well.  The AI's mission is to help the user accomplish their task without doing anything destructive.  However in the worst case, the reversion control system always allows the site to be restored to a previous state.
 
 The AI still can access knowledge about the general world, so that if a user says "I need a website for my flying club"  the AI can access knowledge of what a flying club is, and then translate this request into a the set of primitives provided by the system.
 
-Because the primitives know nothing about any specific organization, whether it be a club, religious organization, charity, or small business, we insure that we can handle any type of organization.
+Because the primitives know nothing about any specific organization, whether it be a club, religious organization, charity, or small business, we insure that we can handle any type of organization.  
 
-Because the AI has access to real-world data, can access server side primitives, and generate and store javascript, as well as HTML, and StyleSheets, it will be able to help the user accomplish any task without the user knowing how those tasks get accomplished.  The AI is thus a bridge between the users real world needs, and the constrained platform.
+Because the AI has access to real-world data, can access server side primitives, and generate and store javascript, as well as HTML, and StyleSheets, it will be able to help the user accomplish any task without the user knowing how those tasks get accomplished (this along with the revision control solves problem 1) The AI is thus a bridge between the users real world needs, and the constrained platform.
 
 Because the AI has a memory, each new interaction has a context, and the AI is bridge across time.  What
 has already been decided for this organization — its words, its conventions,
