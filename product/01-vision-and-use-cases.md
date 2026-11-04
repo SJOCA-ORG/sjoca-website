@@ -506,10 +506,11 @@ the administration panel, and to produce reports from it.
 3. **Break the above into smaller, bite-sized requirements**, once the
    architecture is agreed.
 4. **Map requirements to architecture** — a table showing which architectural
-   elements each requirement touches. *"Every version has an id, a name and a
+   elements each requirement from step 3 touches. *"Every version has an id, a name and a
    description"* touches two: the admin interface and the version table. Others
    touch Liquid drops, or parts of the AI engine.
-5. **Write test specs** from that.
+   Thus each architectural element exists to satisfy at least one requirement, and no requirement is left without an architectural element.
+5. **Write test specs** against each of the requirements generated in step 3.
 6. **Build** — pulling code across from the existing prototype where it fits,
    writing new code where it does not, and dropping everything that belongs to
    the prototype rather than to the product.
@@ -522,8 +523,34 @@ Not requirements. Decisions already taken, and questions deliberately left
 open — written down so they are not argued from scratch again when the detail
 is worked out.
 
-Notes exist for [T1](#t1) and [T2](#t2), [C9](#c9), [P3](#p3), [V6](#v6),
-[K2](#k2), and [E2](#e2).
+---
+
+### General — one mechanism, many use cases
+
+Every use case here should be met by the **most general architectural element
+that can meet it**. The list is a *minimum* set of expectations, not a
+specification of parts.
+
+The mechanism for that generality is that the AI engine works in
+**primitives** — small pieces that know nothing about churches, choirs,
+bulletins or opening hours — and composes them into whatever a particular
+organization actually asked for. The specific thing lives in that
+organization's data; the general thing lives in the code.
+
+**The test, from [T1](#t1) and [T2](#t2): if a named feature needs code of its
+own, the primitive underneath it was not general enough.**
+
+**And its opposite, which matters as much: a primitive that only one use case
+ever exercises is not general, it is speculative.** Generality is demonstrated
+by a second thing built from it, not by an intention to build one. Where only
+one use case uses a primitive, the general path is the only path, and nothing
+proves it is general at all.
+
+Two consequences for the work ahead. **Step 2 has to name the primitives** —
+the word is carrying a great deal of weight here and means nothing until the
+list exists. And **in step 4's mapping, any requirement that lands on code of
+its own is a flag**: either the primitive set is wrong, or that requirement is
+hiding a special case worth looking at.
 
 ---
 
