@@ -528,7 +528,7 @@ is worked out.
 ### General — one mechanism, many use cases
 
 Every use case here should be met by the **most general architectural element
-that can meet it**. The use cases provide a *minimum* set of expectations, not a
+that can meet it**. The use cases provide a *minimum* set of expectations, not an
 exhaustive specification.
 
 A vibecoding system can provide the generalization required here, but with three problems:
@@ -537,26 +537,43 @@ A vibecoding system can provide the generalization required here, but with three
 
 2) Vibecoding is unconstrained, and can easily be led to create a mess, or worse take destructive actions.
 
-3) In a vibecoding world each organization will setup their own platform to run the website.  This is costly for a small organization.
+3) In a vibecoding world each organization will set up their own platform to run the website.  This is costly for a small organization.
 
 So the solution is to provide a layer above and below the standard AI interface:  
 
-Below lies a set of primitives, and constraints limit the AI to use of those primitives and a simple reversion control system.  The server itself is now protected because the AI cannot access anything outside the primitives, and the individual websites are ultimately protected via the reversion control system
+Below lies a set of primitives, and constraints limiting the AI to the use of
+those primitives, and a simple reversion control system. The server itself is
+protected because the AI cannot reach anything outside the primitives; the
+individual websites are ultimately protected by the reversion control system.
 
-Above is set of rules that the AI understands, a way for the AI to remember how the website was developed, and an understanding of the available primitives.  The AI's own rules give a first layer of protection to the user as well.  The AI's mission is to help the user accomplish their task without doing anything destructive.  However in the worst case, the reversion control system always allows the site to be restored to a previous state.
+Above is a set of rules that the AI understands, a way for it to remember how
+the website was developed, and an understanding of the available primitives.
+Those rules are also the first layer of protection for the user: the AI's
+mission is to help somebody accomplish their task without doing anything
+destructive. In the worst case, the reversion control system can always put
+the site back as it was.
 
-The AI still can access knowledge about the general world, so that if a user says "I need a website for my flying club"  the AI can access knowledge of what a flying club is, and then translate this request into a the set of primitives provided by the system.
+The AI can still draw on knowledge of the general world, so that when somebody
+says *"I need a website for my flying club"* it knows what a flying club is,
+and can translate that into the set of primitives the system provides.
 
-Because the primitives know nothing about any specific organization, whether it be a club, religious organization, charity, or small business, we insure that we can handle any type of organization.  
+Because the primitives know nothing about any particular organization —
+whether a club, a religious organization, a charity or a small business — we
+can be sure of handling any kind of organization at all.
 
-Because the AI has access to real-world data, can access server side primitives, and generate and store javascript, as well as HTML, and StyleSheets, it will be able to help the user accomplish any task without the user knowing how those tasks get accomplished (this along with the revision control solves problem 1) The AI is thus a bridge between the users real world needs, and the constrained platform.
+Because the AI has real-world knowledge, can reach the server-side primitives,
+and can generate and store JavaScript as well as HTML and stylesheets, it can
+help somebody accomplish a task without their knowing how it was accomplished
+— which, with the reversion control, answers problem 1. The AI is a bridge
+between a person's real-world needs and the constrained platform.
 
-Because the AI has a memory, each new interaction has a context, and the AI is bridge across time.  What
-has already been decided for this organization — its words, its conventions,
-the judgements made along the way — is carried forward, so the same request
-produces a consistent result in November as it did in March, asked by a
-different volunteer who was not there for the first conversation. A site that
-drifts in style as it grows is the thing every other tool fails to prevent. and build on past interactions to insure consistency across time and users. 
+Because the AI has a memory, every interaction has a context, and the AI is
+also a bridge across time. What has already been decided for this organization
+— its words, its conventions, the judgements made along the way — is carried
+forward, so the same request produces a consistent result in November as it
+did in March, asked by a different volunteer who was not there for the first
+conversation. A site that drifts in style as it grows is the thing every other
+tool fails to prevent.
 
 **The test, from [T1](#t1) and [T2](#t2): if a named feature needs code of its
 own, the primitive underneath it was not general enough.**
