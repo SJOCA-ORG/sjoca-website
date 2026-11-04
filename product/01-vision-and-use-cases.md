@@ -124,6 +124,11 @@ As the owner, I expect SayourSite to help my team follow good practice in
 usability, accessibility and security, without my having to know what good
 practice is.
 
+**G5 - Security.**
+
+As the owner, I expect SayourSite to protect my website from accidental or malicious activity.  I also SayourSite to protect itself.  My team should not be able to anyway harm the SayourSite platform.
+
+
 ---
 
 ## Administration
@@ -547,11 +552,11 @@ protected because the AI cannot reach anything outside the primitives; the
 individual websites are ultimately protected by the reversion control system.
 
 Above is a set of rules that the AI understands, a way for it to remember how
-the website was developed, and an understanding of the available primitives.
-Those rules are also the first layer of protection for the user: the AI's
-mission is to help somebody accomplish their task without doing anything
-destructive. In the worst case, the reversion control system can always put
-the site back as it was.
+the website was developed, and an understanding of the available primitives. The
+rules provide two things:  First is it constrains the generated javascript to insure
+malicious code can not be either accidentally or purposely generated.  The second is 
+it advises the editor if the requested changes may harm the look or functionality of the site.
+
 
 The AI can still draw on knowledge of the general world, so that when somebody
 says *"I need a website for my flying club"* it knows what a flying club is,
