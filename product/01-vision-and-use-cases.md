@@ -548,9 +548,9 @@ A vibecoding system can provide the generalization required here, but with three
 So the solution is to provide a layer above and below the standard AI interface:  
 
 Below lies a set of primitives, and constraints limiting the AI to the use of
-those primitives, and a simple reversion control system. The server itself is
+those primitives, and a simple revision control system. The server itself is
 protected because the AI cannot reach anything outside the primitives; the
-individual websites are ultimately protected by the reversion control system.
+individual websites are ultimately protected by the revision control system.
 
 Above is a set of rules that the AI understands, a way for it to remember how
 the website was developed, and an understanding of the available primitives.
@@ -570,7 +570,7 @@ can be sure of handling any kind of organization at all.
 Because the AI has real-world knowledge, can reach the server-side primitives,
 and can generate and store JavaScript as well as HTML and stylesheets, it can
 help somebody accomplish a task without their knowing how it was accomplished
-— which, with the reversion control, answers problem 1. The AI is a bridge
+— which, with the revision control, answers problem 1. The AI is a bridge
 between a person's real-world needs and the constrained platform.
 
 Because the AI has a memory, every interaction has a context, and the AI is
@@ -600,10 +600,13 @@ hiding a special case worth looking at.
 
 ### [G5](#g5) — what stops generated JavaScript from being dangerous
 
-Generated JavaScript is the most powerful thing SayourSite produces, and the
-one place where *the AI cannot reach outside the primitives* is not by itself
-enough. Primitives constrain what happens on **our** server. Generated script
-runs in a **visitor's** browser, with whatever authority the site has.
+Generated JavaScript is the most powerful thing SayourSite produces. It does
+not let the AI escape the primitives — writing script is one of them. It is the
+one primitive whose **output runs somewhere the primitives do not reach**: a
+visitor's browser, with whatever authority the site has.
+
+So the guarantee that protects the server does not, by itself, protect anybody
+here. That has to be done separately.
 
 It is not the same as typing JavaScript into your own browser console, which
 is harmless and which browsers warn about for exactly that reason. Console
