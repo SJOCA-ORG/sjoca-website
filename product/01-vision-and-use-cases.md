@@ -538,18 +538,17 @@ behave — rather than chosen from a list of features somebody thought of in
 advance.
 
 The shorthand, which we would never put in a specification: SayourSite is a
-**constrained vibecoding platform**. All three words are load-bearing.
+**constrained vibecoding platform**. Both halves are load-bearing.
 
-**Vibecoding**, because what comes out is the real material of a website —
-markup, styles, behaviour — written for this organization and this request,
-not chosen from a list. The AI is a general-purpose engine with genuine
-understanding of clubs, churches, schedules, announcements and bulletins, and
-it also knows which primitives are available to it. That pairing is the whole
-mechanism: world knowledge on one side, the building materials on the other,
-and the translation between them is the product.
+**Generated**, because the output is the real material of a website — markup,
+styles, behaviour — produced for this organization and this request. It
+follows that the code can know nothing about churches, choirs, bulletins or
+opening hours: not as a rule imposed on it, but because what an organization
+*is* lives in that organization's own data, and the code only knows how to
+build websites.
 
-**Constrained**, because the writing is done through a limited set of
-primitives rather than by producing whatever it likes. The constraint protects
+**Constrained**, because the generating is done through a limited set of
+primitives rather than by writing whatever it likes. The constraint protects
 two different things and both matter:
 
 - **The platform.** Nothing one organization's site contains may reach another
@@ -557,19 +556,6 @@ two different things and both matter:
 - **That organization's own website.** An editor who was only trying to help
   must not be able to leave their site broken, unreadable, inaccessible or
   unsafe. The limits are as much for them as for us.
-
-**Platform**, because the same machinery serves every organization. It follows
-that the primitives themselves know nothing about clubs, churches, schedules,
-announcements, bulletins or opening hours — not as a rule imposed on them, but
-because what any one organization *is* lives in that organization's own data.
-
-Three layers, and keeping them apart is the design:
-
-| | Knows about |
-|---|---|
-| **The primitives** | websites |
-| **The AI** | the world — what a choir is, what a service time means |
-| **An organization's data** | that organization |
 
 **And the translation remembers.** It is not performed fresh each time: what
 has already been decided for this organization — its words, its conventions,
