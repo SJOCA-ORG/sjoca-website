@@ -538,14 +538,15 @@ behave — rather than chosen from a list of features somebody thought of in
 advance.
 
 The shorthand, which we would never put in a specification: SayourSite is a
-**constrained vibecoding platform**. Both halves are load-bearing.
+**constrained vibecoding platform**. All three words are load-bearing.
 
 **Generated**, because the output is the real material of a website — markup,
 styles, behaviour — produced for this organization and this request. It
-follows that the code can know nothing about churches, choirs, bulletins or
+follows that the primitives can know nothing about clubs, churches, schedules, announcements, bulletins or
 opening hours: not as a rule imposed on it, but because what an organization
-*is* lives in that organization's own data, and the code only knows how to
-build websites.
+*is* lives in that organization's own data, and the primitive know about websites.  
+
+**vibecoding**, because the AI as a general purpose engine does have real world understanding of clubs, churches, activities, and does know what primitives are available and thus is the vehicle to translate from the users needs to actual code.
 
 **Constrained**, because the generating is done through a limited set of
 primitives rather than by writing whatever it likes. The constraint protects
