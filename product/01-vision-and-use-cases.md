@@ -528,42 +528,35 @@ is worked out.
 ### General — one mechanism, many use cases
 
 Every use case here should be met by the **most general architectural element
-that can meet it**. The list is a *minimum* set of expectations, not a
-specification of parts.
+that can meet it**. The use cases provide a *minimum* set of expectations, not a
+exhaustive specification.
 
-**An editor will ask for things nobody designed for.** That has to be ordinary
-rather than an exception, which means what they ask for is *generated* —
-turned into the pages, styles and small pieces of script that make the site
-behave — rather than chosen from a list of features somebody thought of in
-advance.
+A vibecoding system can provide the generalization required here, but with three problems:
 
-The shorthand, which we would never put in a specification: SayourSite is a
-**constrained vibecoding platform**. All three words are load-bearing.
+1) Vibecoding still requires some level of expertise to ask the right questions, and guide the AI, and verify its output.
 
-**Generated**, because the output is the real material of a website — markup,
-styles, behaviour — produced for this organization and this request. It
-follows that the primitives can know nothing about clubs, churches, schedules, announcements, bulletins or
-opening hours: not as a rule imposed on it, but because what an organization
-*is* lives in that organization's own data, and the primitive know about websites.  
+2) Vibecoding is unconstrained, and can easily be led to create a mess, or worse take destructive actions.
 
-**vibecoding**, because the AI as a general purpose engine does have real world understanding of clubs, churches, activities, and does know what primitives are available and thus is the vehicle to translate from the users needs to actual code.
+3) In a vibecoding world each organization will setup their own platform to run the website.  This is costly for a small organization.
 
-**Constrained**, because the generating is done through a limited set of
-primitives rather than by writing whatever it likes. The constraint protects
-two different things and both matter:
+So the solution is to provide a layer above and below the standard AI interface:  
 
-- **The platform.** Nothing one organization's site contains may reach another
-  organization, or harm SayourSite itself.
-- **That organization's own website.** An editor who was only trying to help
-  must not be able to leave their site broken, unreadable, inaccessible or
-  unsafe. The limits are as much for them as for us.
+Below lies a set of primitives, constraints limit the AI to use of those primitives and a simple reversion control system.  The server itself is now protected because the AI cannot access anything outside the primitives, and the individual websites are protected via the reversion control system.
 
-**And the translation remembers.** It is not performed fresh each time: what
+Above is set of rules that the AI understands, a way for the AI to remember how the website was developed, and an understanding of the available primitives.  
+
+The AI still can access knowledge about the general world, so that if a user says "I need a website for my flying club"  the AI can access knowledge of what a flying club is, and then translate this request into a the set of primitives provided by the system.
+
+Because the primitives know nothing about any specific organization, whether it be a club, religious organization, charity, or small business, we insure that we can handle any type of organization.
+
+Because the AI has access to real-world data, can access server side primitives, and generate and store javascript, as well as HTML, and StyleSheets, it will be able to help the user accomplish any task without the user knowing how those tasks get accomplished.  The AI is thus a bridge between the users real world needs, and the constrained platform.
+
+Because the AI has a memory, each new interaction has a context, and the AI is bridge across time.  What
 has already been decided for this organization — its words, its conventions,
 the judgements made along the way — is carried forward, so the same request
 produces a consistent result in November as it did in March, asked by a
 different volunteer who was not there for the first conversation. A site that
-drifts in style as it grows is the thing every other tool fails to prevent.
+drifts in style as it grows is the thing every other tool fails to prevent. and build on past interactions to insure consistency across time and users. 
 
 **The test, from [T1](#t1) and [T2](#t2): if a named feature needs code of its
 own, the primitive underneath it was not general enough.**
