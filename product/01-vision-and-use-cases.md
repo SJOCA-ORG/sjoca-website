@@ -531,11 +531,38 @@ Every use case here should be met by the **most general architectural element
 that can meet it**. The list is a *minimum* set of expectations, not a
 specification of parts.
 
-The mechanism for that generality is that the AI engine works in
-**primitives** — small pieces that know nothing about churches, choirs,
-bulletins or opening hours — and composes them into whatever a particular
-organization actually asked for. The specific thing lives in that
-organization's data; the general thing lives in the code.
+**An editor will ask for things nobody designed for.** That has to be ordinary
+rather than an exception, which means what they ask for is *generated* —
+turned into the pages, styles and small pieces of script that make the site
+behave — rather than chosen from a list of features somebody thought of in
+advance.
+
+The shorthand, which we would never put in a specification: SayourSite is a
+**constrained vibecoding platform**. Both halves are load-bearing.
+
+**Generated**, because the output is the real material of a website — markup,
+styles, behaviour — produced for this organization and this request. It
+follows that the code can know nothing about churches, choirs, bulletins or
+opening hours: not as a rule imposed on it, but because what an organization
+*is* lives in that organization's own data, and the code only knows how to
+build websites.
+
+**Constrained**, because the generating is done through a limited set of
+primitives rather than by writing whatever it likes. The constraint protects
+two different things and both matter:
+
+- **The platform.** Nothing one organization's site contains may reach another
+  organization, or harm SayourSite itself.
+- **That organization's own website.** An editor who was only trying to help
+  must not be able to leave their site broken, unreadable, inaccessible or
+  unsafe. The limits are as much for them as for us.
+
+**And the translation remembers.** It is not performed fresh each time: what
+has already been decided for this organization — its words, its conventions,
+the judgements made along the way — is carried forward, so the same request
+produces a consistent result in November as it did in March, asked by a
+different volunteer who was not there for the first conversation. A site that
+drifts in style as it grows is the thing every other tool fails to prevent.
 
 **The test, from [T1](#t1) and [T2](#t2): if a named feature needs code of its
 own, the primitive underneath it was not general enough.**
