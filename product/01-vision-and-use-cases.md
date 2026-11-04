@@ -154,7 +154,19 @@ than editing. The administrator's views should look and behave markedly
 differently from an editor's.
 
 <a id="a4"></a>
-**A4 — Billing. (FUTURE)**
+**A4 — Authorize outside code.**
+As an administrator, I want to authorize every external code snippet and
+library before it can be used on our site. Nothing third-party goes in without
+somebody deciding it should.
+
+<a id="a5"></a>
+**A5 — Choose, rather than type.**
+As an administrator, I want a ready-made list of snippets and libraries from
+sources already known to be sound, which I can authorize by choosing from it,
+rather than typing addresses in by hand.
+
+<a id="a6"></a>
+**A6 — Billing. (FUTURE)**
 As an administrator, I want to update payment details and service level. *Say
 Our Site is free during alpha and beta.*
 
@@ -774,6 +786,46 @@ the list rather than reinvent it.
   powers only, a moderator before publishing, and revision control behind
   that. Nobody has solved recognising injected instructions, and a design that
   depends on recognising them is depending on an unsolved problem.
+
+---
+
+### [A4](#a4), [A5](#a5) — two different lists, and only one is the customer's
+
+The worry is reasonable: if every change that wants a library means asking an
+administrator, nobody will use the thing. The answer is that **two separate
+questions have been sharing one word**, and separating them removes most of
+the traffic.
+
+**Most of this needs no library at all.** A carousel is about forty lines of
+plain JavaScript; an accordion is ten; a lightbox is thirty. Libraries exist
+because people writing code by hand want to save an afternoon, and that is not
+a cost the AI is paying. Writing it plainly is also smaller, quicker, has no
+version to drift, and leaves nothing to go stale. **The default should be no
+library**, and that alone removes most of the question.
+
+**The few genuinely hard things are ours to stock, not the customer's to
+approve.** Maps, a rich text editor, date and time-zone arithmetic, sanitizing
+HTML, a full calendar — things where hand-writing is unwise. Those live in a
+set SayourSite holds, pinned and served from our own server. An administrator
+should never be asked to adjudicate whether Leaflet is reputable; that is our
+judgement to make once, on behalf of everybody.
+
+Enumerating that set is a day's work, not a research project: walk the use
+cases, name the handful of needs that genuinely want a library, and pick one
+for each. The risk is not completeness but drift — a need nobody anticipated.
+When the AI wants something the stock does not hold, it says so, and **that is
+a request to us, not to the organization**. Adding to the stock is a
+SayourSite decision.
+
+**So [A4](#a4) and [A5](#a5) are about third-party *services*** — a tracker, a
+chat bubble, a donation widget, an embedded booking form. Things that send
+data to somebody else, which is exactly the decision an organization should
+make deliberately and rarely, and exactly the decision we should not make for
+them.
+
+Which leaves the traffic where it belongs: an administrator is asked perhaps
+twice a year, about something that genuinely concerns their organization, and
+never about a carousel.
 
 ---
 
