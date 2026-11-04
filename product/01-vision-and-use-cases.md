@@ -167,12 +167,6 @@ about us, the more it should be able to build a site that reflects us.
 
 ## The to-do list
 
-> **These two are one mechanism.** T2 is the general case: SayourSite can
-> build tools for managing the site. T1 — the to-do list — is the first
-> instance of it, and the one we know is wanted. To a user it looks like a
-> feature of the product; to the architecture it is one thing the general
-> mechanism produced. Build T2; T1 is what it makes first.
-
 **T1 — A list I share with SayourSite.**
 I want SayourSite to keep a list of suggested improvements, and I want to add
 to it. It should be prioritised to begin with, and I want to be able to
@@ -237,9 +231,6 @@ As an editor, I want to start saying the next thing while the system is still
 working on the last. Requests are queued, so the site is never being changed by
 two things at once.
 
-> This is also how more than one person editing at the same time is handled:
-> everybody's requests go into the same queue and are applied one at a time.
-
 **C10 — Ready to publish.**
 As an editor, when I have finished I want to lock my changes and notify the
 moderators, so they can publish them.
@@ -285,29 +276,15 @@ As an editor, I want to add photographs by dragging a file or a whole folder in
 from my computer, which is how most of them will arrive.
 
 **P2 — Get them in from where they already are.**
-As an editor, I want to import photographs from wherever my organization
+As an editor, I want to import (i.e. copy) photographs from wherever my organization
 already keeps them — Google Photos first, others later — by choosing them from
-that service, rather than downloading a folder and uploading it again. An
-addition to P1, not a replacement for it.
+that service, rather than downloading a folder and uploading it again. 
 
-What comes in becomes SayourSite's own copy. The site must not depend on
-somebody else's account: the volunteer who owns it leaves, or tidies an album,
-and the pictures disappear from the website with nobody to ask.
 
 **P3 — Keep them no bigger than they need to be.**
 However a photograph arrived, I want SayourSite to manage its size for me,
 keeping it at the smallest sensible resolution — so pages stay quick and I am
 not storing something nobody will ever look at in full.
-
-> *Design note; the detail belongs in requirements analysis.* Two things are
-> already decided. The **camera original is not kept** — storing it multiplies
-> storage tenfold for files no visitor downloads, measured at 843MB against
-> 189MB on one site — so a photograph brought in small cannot later be made
-> bigger. And **"sensible" is not one number**: a picture that may go into
-> something printed needs about 3,300 pixels on its longest edge, which is
-> 8½ × 11 at 300 dots per inch, where one that is only ever looked at on a
-> screen needs far less. How and when that choice is offered is the open
-> question.
 
 **P4 — Improve them.**
 I want help making new versions — cleaned up, cropped, or with effects. I will
@@ -388,18 +365,6 @@ knows was lost.
 As an editor, I want forms that are not worth a spammer's time, and I do not
 want my visitors made to prove they are human.
 
-> *Design note, not a requirement.* A CAPTCHA is the obvious answer and it
-> contradicts V2 — they are the single worst thing on the web for somebody
-> using a screen reader, and they turn people away. The cheap measures catch
-> nearly all of it without asking the visitor for anything: a field that is
-> hidden from people and filled in by robots; refusing anything submitted
-> faster than a person could type it; a limit on how often one sender may
-> submit; and never putting the destination address in the page. V5 is the rest
-> of the answer — if something does get through, it lands in a list a moderator
-> can clear rather than in somebody's inbox pretending to be an enquiry. If
-> volume ever demands more, Cloudflare Turnstile asks most visitors for
-> nothing; it is the escalation, not the starting point.
-
 ---
 
 ## Publishing
@@ -447,12 +412,6 @@ it if anything happens.
 I want to download a complete set of files I could use to host the site
 elsewhere, if I ever wanted to leave SayourSite.
 
-> *Design note, not a requirement:* the backup and the portable copy might be
-> the same format — everything needed to restore SayourSite's own state
-> carried alongside, in a manifest or in comments. One download would then do
-> both jobs. The user does not care which way we do it; it looks like the
-> simpler system.
-
 **K3 — Bring an existing site in. (Transition)**
 As the owner of a site already built on an earlier prototype, I want to convert
 it, and what has been learned about it, into the standard format, so its
@@ -476,6 +435,83 @@ notice on every page of the site. That is a consequence worth knowing about
 before switching it on, and is why it is a decision rather than a default.
 
 
+---
+
+---
+
+# Design notes
+
+Not requirements. Decisions already taken, and questions deliberately left
+open — written down so they are not argued from scratch again when the detail
+is worked out.
+
+Notes exist for **T1 and T2**, **C9**, **P3**, **V6** and **K2**.
+
+---
+
+### T1, T2 — one mechanism, not two
+
+T2 is the general case: SayourSite can build tools for managing the site. T1 —
+the to-do list — is the first instance of it, and the one we know is wanted. To
+a user it looks like a feature of the product; to the architecture it is one
+thing the general mechanism produced. **Build T2; T1 is what it makes first.**
+
+If the to-do list needs code of its own, T2 has not really been built.
+
+---
+
+### C9 — more than one person editing
+
+Queueing requests is also how simultaneous editing is handled: everybody's
+requests join the same queue and are applied one at a time. The queue belongs
+to the site, not to the editor, so one person's slow request makes the others
+wait — acceptable at this size, and worth saying out loud.
+
+---
+
+### P3 — how big a photograph is kept
+
+Two things are already decided.
+
+**The camera original is not kept.** Storing it multiplies storage tenfold for
+files no visitor downloads — measured at 843MB against 189MB on one site. The
+consequence is that a photograph brought in small cannot later be made bigger.
+
+**"Sensible" is not one number.** A picture that may go into something printed
+needs about 3,300 pixels on its longest edge — 8½ × 11 at 300 dots per inch —
+where one that is only ever looked at on a screen needs far less.
+
+How and when that choice is offered is the open question.
+
+---
+
+### V6 — keeping spammers out without a CAPTCHA
+
+A CAPTCHA is the obvious answer and it contradicts V2: they are the worst thing
+on the web for somebody using a screen reader, and they turn ordinary people
+away.
+
+The cheap measures catch nearly all of it without asking the visitor for
+anything — a field hidden from people that robots fill in; refusing anything
+submitted faster than a person could type it; a limit on how often one sender
+may submit; and never putting the destination address in the page.
+
+V5 is the rest of the answer: anything that does get through lands in a list a
+moderator can clear, rather than in somebody's inbox pretending to be an
+enquiry.
+
+If volume ever demands more, Cloudflare Turnstile asks most visitors for
+nothing. It is the escalation, not the starting point.
+
+---
+
+### K2 — one format for keeping a copy and for leaving
+
+The backup and the portable copy might be the same format: everything needed to
+restore SayourSite's own state carried alongside the site itself, in a manifest
+or in comments. One download would then do both jobs.
+
+The user does not care which way we do it. It looks like the simpler system.
 
 ---
 
