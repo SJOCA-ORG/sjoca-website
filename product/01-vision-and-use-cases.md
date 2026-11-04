@@ -640,6 +640,20 @@ Note what is not on that list: review by a person. A moderator sees a working
 carousel whether or not it reports home. **Looking at a page is not reading
 its code**, so the protection has to be structural.
 
+**What the separate origin costs, and why it must be decided early.** It
+collides with [C7](#c7) — seeing the site as a visitor will, from inside
+SayourSite. If the administration lives at one address and the published site
+at another, then the editing view is showing a page from somewhere the browser
+treats as a stranger. That is exactly what makes it safe, and it also means the
+editing interface cannot reach into the page to highlight a block, read what
+was clicked, or scroll it, except through a narrow channel built on purpose for
+the two to speak through.
+
+That is ordinary work if it is designed in, and a rewrite if it is discovered
+in month four, because by then the editing interface will be full of places
+that assume it can simply touch the page. The choice belongs in step 2 and the
+cost belongs beside it.
+
 ---
 
 ### [T1](#t1), [T2](#t2) — one mechanism, not two
