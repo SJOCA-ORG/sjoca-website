@@ -614,11 +614,33 @@ yes to, and what arrives is opaque third-party code that loads more code from
 elsewhere and runs on every page for ever. No different from any site builder
 or a hand-built site — but we can do better than they do: vet a snippet before
 it goes in, say what it appears to do, and try it in a sandboxed frame rather
-than on the live site. We cannot stop somebody doing something unwise; we can
-make sure they are not doing it blind.
+than on the live site.
 
-*The model writes it.* A carousel arrives with a reference to a library on
-somebody's CDN because the pattern it learned had one. Nobody asked.
+Better still, **make it an administrator's decision**: a list of third-party
+integrations the organization has deemed acceptable, maintained in the
+administration panel, from which an editor may choose. That turns an open
+question into a closed one, and it has a second effect worth noticing — since
+the AI holds editor powers only, **a prompt-injected request cannot add a
+tracker at all.** It is not a thing an editor may do.
+
+*The model writes it without being asked.* Somebody asks for a photo carousel.
+What the AI writes begins with a `<script>` tag pointing at a library on
+somebody else's server, because that is how carousels are written everywhere
+it has ever seen one. The editor asked for a carousel; what arrived was a
+carousel and a permanent dependency on a stranger. That code is not in our
+database, not in the revision, and **reverting the site does not change what
+that address serves tomorrow** — as the sites embedding `polyfill.io`
+discovered when the domain changed hands and began serving malware to their
+visitors.
+
+Two answers, and they do different jobs. **Flag it**: the moderator reviewing
+a change should see *"this adds a dependency on Swiper"*, with somewhere to
+read what that is, rather than having to find it in the code. And **keep a
+stock of the common ones ourselves**, served from our own server at a pinned
+version, so that the AI reaches for a carousel we already hold instead of
+fetching one. Flagging gives visibility; holding our own copy is what actually
+removes the risk, because an approval granted today says nothing about what
+that address will serve next year.
 
 *Instructions arrive inside content the AI was asked to read.* Importing a
 site, connecting a feed, summarising what came through a contact form. If that
