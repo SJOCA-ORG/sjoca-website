@@ -716,6 +716,67 @@ learned had one, and a model that was told to.*
 
 ---
 
+### [G4](#g4), [G5](#g5) — the protections we can decide now
+
+Each of these is decided once and then holds by itself, rather than being
+something somebody has to remember. Written down here so step 2 can argue with
+the list rather than reinvent it.
+
+**In the visitor's browser**
+
+- Script may be loaded only from our own server, and may talk only to our own
+  server. One setting; it removes third-party code and reporting-on-visitors
+  together.
+- The administration interface lives on a different origin from published
+  sites, so a page's script cannot reach a signed-in administrator's session.
+- Session cookies cannot be read by script at all.
+- Page content carries no inline script and no `onclick`-style attributes.
+  Script is a named file, in the revision, like everything else.
+- A stock of the common libraries, held by us at a pinned version, so the AI
+  reaches for one we already have rather than fetching a stranger's.
+
+**On our server**
+
+- **The list of ways in is short, written down, and each has a named
+  defence.** Reading a published page. Submitting a form. Signing in.
+  Resetting a password. The editing API. That is close to all of it, and a
+  system whose attack surface fits on a postcard can afford to defend every
+  item on it properly.
+- Every query is scoped to one organization at the data layer, so no caller
+  can reach another organization's content by forgetting to.
+- The AI's tools are an editor's powers and no more: no users, no domains, no
+  billing, nothing belonging to another organization.
+- Fetching an outside address is guarded — public addresses only, checked
+  again after every redirect, with limits on size and time. A request to fetch
+  `http://169.254.169.254/` is a request for the server's own credentials.
+- Uploaded files are never trusted and never executed. Images are re-encoded
+  rather than passed through, which also discards whatever metadata came with
+  them.
+- Form submissions are rate-limited, size-limited, and stored **append-only**.
+- Email goes to addresses an administrator set, never to an address that
+  arrived in a request.
+- Nothing the AI produces is written to the server's filesystem or executed
+  there. It is data in a revision.
+- What the AI did is recorded, append-only, and can be read back.
+
+**Around the AI**
+
+- **Instructions come only from a signed-in editor. Everything else is data.**
+  A feed, an imported page, a form submission, an uploaded document — all of
+  it may be read and summarised, and none of it may cause anything to change.
+- The way to mean that is structural, not a rule the model is asked to follow:
+  **the part that reads untrusted content is given no tools that change
+  anything.** It can report what it found; it cannot act on it. A model that
+  can both read a stranger's text and edit the site in the same breath is one
+  sentence away from doing what the stranger asked.
+- Where the editing side must see outside content — importing a site,
+  formatting a feed — the defence is not detection but **consequence**: editor
+  powers only, a moderator before publishing, and revision control behind
+  that. Nobody has solved recognising injected instructions, and a design that
+  depends on recognising them is depending on an unsolved problem.
+
+---
+
 ### [B1](#b1), [B2](#b2) — import how it looks, not how it behaves
 
 When a site is brought in from somewhere else, take the **static** material:
