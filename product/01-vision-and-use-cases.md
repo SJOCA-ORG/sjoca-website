@@ -1,0 +1,497 @@
+# SayourSite — the vision, and what it has to do
+
+The product, the organizations it is for, and the things people need to be able
+to do with it. Written as the first of six steps; the rest are listed at the
+end.
+
+**Names used throughout.** *SayourSite* is the application. *sayoursite.com*
+is the domain name.
+
+---
+
+# Part 1 — What it is
+
+## The mission, in under thirty words
+
+**SayourSite: Say what you want your site to be, in words, and we build it.
+Together we build your site — so you can proudly say: that's our site.**
+
+---
+
+## The elevator speech
+
+A website is a vital tool for any organization, but it is not the purpose of
+the organization.
+
+Every minute spent building a website is a minute not spent building the
+organization. And a website is worse than useless if it is not kept current,
+which means still more time taken away from the mission.
+
+This is hardest on volunteer organizations, clubs and small businesses, where
+the website costs a far greater share of the resources available.
+
+Even the easiest website builders ask you to learn a new tool. They give little
+help keeping the look of a site coherent as it grows, and they always limit you
+to a menu of things somebody else thought of first.
+
+**SayourSite solves this with a natural language interface: you say what you
+want your site to be.** We think of AI not as artificial intelligence but as
+**augmented intelligence** — your knowledge, your needs and your concerns,
+expressed in your own words, augmented by our system into a website you are
+proud of.
+
+Knowing what your organization is actually about is the key to choosing a look
+that reflects it. Hearing you say so, in your words, is how SayourSite gets
+what it needs to build and maintain a web presence you will be glad to call
+ours.
+
+---
+
+## What SayourSite is not
+
+**Not a site builder you learn.** Squarespace and Wix are good tools, but they
+still ask somebody to learn a layout editor — and then to find the time to sit
+down and use it, month after month. The reason small organizations have bad
+websites is not that the tools are bad. It is that people are busy.
+
+**Not a chatbot bolted onto a CMS.** The conversation is the interface. There
+is no second, real admin screen that the chat is a shortcut to.
+
+**Not "AI, make me a website".** That gives you a page. This gives you a site
+that goes on being maintained for years, by different people — with the Site
+Pilot learning about your organization as you build it together.
+
+---
+
+# Part 2 — Who it is for
+
+## Typical organizations
+
+- An existing organization with a website that needs updating.
+- A new organization, or one that has never had a website.
+- A business that wants a web presence but does not run on e-commerce.
+
+**We do not intend to compete with the large e-commerce platforms.** That may
+be worth revisiting later.
+
+---
+
+## The people, and what they may do
+
+The site owner sets up the site, and appoints an administrator.  The site owner provides fallback contact information.
+
+The remaining roles are granted separately and combine freely. One person may hold all of
+them; three people may hold one each.
+
+| Role | May |
+|---|---|
+| **Administrator** | Manage users and roles, domains, DNS and email settings, and connections to outside services |
+| **Moderator** | Review changes, publish a version, revert to an earlier one |
+| **Editor** | Talk to SayourSite and change the site |
+
+**Every user is an editor.** Moderator and administrator are additions.
+
+The administration panel is a **form-based interface with no natural language
+in it**, deliberately: the settings that control who may do what, and where
+mail and domains point, are not things to be changed by conversation.
+
+---
+
+# Part 3 — Use cases
+
+## Getting started
+
+**G1 — Choosing a name.**
+As the owner, I want to choose a unique name for my site. It identifies the
+site when signing in to SayourSite, and it may also become the site's domain
+name, though it does not have to.
+
+**G2 — The first user.**
+As the owner, I want to appoint the first user by email address. They are sent
+a welcome message with instructions to set their own password. That user may
+well be me.
+
+**G3 — Who I am.**
+As the owner, I want to give my own email, telephone and address, so my
+ownership of the account can be verified.
+
+---
+
+## Administration
+
+**A1 — Users and roles.**
+As an administrator, I want to create users, remove users, and change what each
+may do — granting moderator or administrator rights, or taking them away.
+
+**A2 — Domains, mail and connections.**
+As an administrator, I want to set the domain name, the DNS and the email
+settings, and to set up secure connections to other services my site uses, i.e.
+storing any credentials they need. Stored credentials stay visible to
+administrators for now; hiding them once entered is a later refinement and
+would change nothing but the form.
+
+**A3 — The administration panel looks different.**
+As an administrator, I want it to be obvious when I am administering rather
+than editing. The administrator's views should look and behave markedly
+differently from an editor's.
+
+**A4 — Billing. (FUTURE)**
+As an administrator, I want to update payment details and service level. *Say
+Our Site is free during alpha and beta.*
+
+---
+
+## Building a site
+
+**B1 — I have a site, and it is hard to maintain.**
+I want to copy my existing site into SayourSite and maintain it there. During
+the copy I want my photographs saved, and anything obviously worth fixing noted
+on a to-do list.
+
+When I am happy the site is ready, I want to be told how to point my domain at
+it — including the bare domain with no `www`.
+
+**B2 — I need a site, and I know what I like.**
+I want to show SayourSite a few sites whose style I admire, and see what those
+choices would look like carrying my own information. I would like help choosing
+between them. I may have a few photographs to upload for the draft. If anything
+about my organization can be found on the web, it should be used to guide the
+design.
+
+**B3 — I need a site, and I do not know where to start.**
+I want mock-ups in different styles to start from, and reassurance that whatever
+I start with can be changed in any way I want. The more I tell SayourSite
+about us, the more it should be able to build a site that reflects us.
+
+---
+
+## The to-do list
+
+> **These two are one mechanism.** T2 is the general case: SayourSite can
+> build tools for managing the site. T1 — the to-do list — is the first
+> instance of it, and the one we know is wanted. To a user it looks like a
+> feature of the product; to the architecture it is one thing the general
+> mechanism produced. Build T2; T1 is what it makes first.
+
+**T1 — A list I share with SayourSite.**
+I want SayourSite to keep a list of suggested improvements, and I want to add
+to it. It should be prioritised to begin with, and I want to be able to
+re-order it — sometimes with a reason, so SayourSite understands my priorities
+next time.
+
+I want to say things like: *show me the to-do list*; *show me the top five*;
+*let's work on item 2*; *let's get the styles consistent*; *page XYZ is not
+important to us, because ABC*.
+
+**T2 — Tools I have not thought of.**
+I hope SayourSite is capable of building other things that help me manage
+the site. I cannot say what they are yet — but if it is clever, I should be
+able to describe a need and have something made for it.
+
+---
+
+## Changing the site
+
+**C1 — Say what changed.**
+I want to make updates by saying things like: *change the club president to XYZ
+and update her picture*; *take this zip of photographs, pick five, and add a
+section to Recent Events called "Trip to the Bahamas"*; *find a better photo of
+ABC for the home page*.
+
+**C2 — Structure, not just words.**
+I want to add pages, reorganise them, and use different styles of menu — and
+whatever I do, I want help keeping the site consistent, easy to use and good
+looking.
+
+**C3 — Tell me when I am wrong.**
+I may ask for something that is not a good idea; I am not a professional. I want
+SayourSite to say so politely, suggest an alternative, or ask what I am
+trying to achieve, so we can find a good answer together.
+
+**C4 — I cannot break it.**
+I want to be sure that changing the site cannot hurt anything. If I make a mess,
+I want to go back to how it was and start again. For small things I want to be
+able to say *no, that doesn't look right — forget it*.
+
+**C5 — Long text without conversation.**
+I want an easy way to write or replace large blocks of text by typing directly,
+without discussing every sentence. SayourSite is welcome to read
+what I wrote afterwards and suggest corrections.
+
+**C6 — Change the whole look.**
+I want to change the look of the site — *give it autumn colours* — and have the
+underlying styles updated. When I make a change that large, I want the old
+styles kept, so I can go back to them or use them again.
+
+**C7 — See the site as a visitor will.**
+As an editor, I want to view the site easily from within SayourSite. Most of
+what I look at should show me my site as it will appear to somebody visiting
+it.
+
+**C8 — Different devices.**
+As an editor, I want to simulate different screen sizes easily — computer,
+phone and tablet, in landscape and portrait.
+
+**C9 — Typing ahead.**
+As an editor, I want to start saying the next thing while the system is still
+working on the last. Requests are queued, so the site is never being changed by
+two things at once.
+
+> This is also how more than one person editing at the same time is handled:
+> everybody's requests go into the same queue and are applied one at a time.
+
+**C10 — Ready to publish.**
+As an editor, when I have finished I want to lock my changes and notify the
+moderators, so they can publish them.
+
+**C11 — Things that expire.**
+As an editor, I want to say that something is only relevant until a given date
+— an event, a notice, an appeal — and have SayourSite move it out of the way by
+itself when the date passes. I want to choose where it goes: an archive page, a
+list of past events, or simply out of sight.
+
+**C12 — Warn me while I am working.**
+As an editor, I want to be told at the moment I add something risky — a
+photograph with children in it, somebody's home address, a telephone number, a
+list of members — not only when a moderator reviews it later. In a small
+organization the editor and the moderator are often the same person, and that
+person should not be their own only safeguard.
+
+**C13 — Keep the look legible.**
+As an editor, when I change the look — *give it autumn colours* — I want to be
+told if a choice makes the site hard to read, and offered something close that
+is not.
+
+---
+
+## Connecting to other services
+
+**S1 — Bring in outside information.**
+I want automatic connections to other services — YouTube, a weather feed,
+anything with a public page or an API. I may need help setting up an account. If
+a connection needs credentials, I will ask an administrator to set that up.
+
+**S2 — Keep it fresh, at a sensible rate.**
+I want my pages updated intelligently from the data I am connected to, and I
+want to say how often it is fetched — anywhere from every time a page is loaded
+to once a week.
+
+---
+
+## Photographs
+
+**P1 — Get them in from my own computer.**
+As an editor, I want to add photographs by dragging a file or a whole folder in
+from my computer, which is how most of them will arrive.
+
+**P2 — Get them in from where they already are.**
+As an editor, I want to import photographs from wherever my organization
+already keeps them — Google Photos first, others later — by choosing them from
+that service, rather than downloading a folder and uploading it again. An
+addition to P1, not a replacement for it.
+
+What comes in becomes SayourSite's own copy. The site must not depend on
+somebody else's account: the volunteer who owns it leaves, or tidies an album,
+and the pictures disappear from the website with nobody to ask.
+
+**P3 — Keep them no bigger than they need to be.**
+However a photograph arrived, I want SayourSite to manage its size for me,
+keeping it at the smallest sensible resolution — so pages stay quick and I am
+not storing something nobody will ever look at in full.
+
+> *Design note; the detail belongs in requirements analysis.* Two things are
+> already decided. The **camera original is not kept** — storing it multiplies
+> storage tenfold for files no visitor downloads, measured at 843MB against
+> 189MB on one site — so a photograph brought in small cannot later be made
+> bigger. And **"sensible" is not one number**: a picture that may go into
+> something printed needs about 3,300 pixels on its longest edge, which is
+> 8½ × 11 at 300 dots per inch, where one that is only ever looked at on a
+> screen needs far less. How and when that choice is offered is the open
+> question.
+
+**P4 — Improve them.**
+I want help making new versions — cleaned up, cropped, or with effects. I will
+not know how to ask for these things precisely, so SayourSite has to understand
+what I mean and translate it into the actual change.
+
+**P5 — Find them by what is in them.**
+I want the contents of photographs understood, so I can ask for *a photo of XYZ
+enjoying themselves*.
+
+**P6 — Place them well.**
+I want help putting photographs on pages where they have the most effect.
+Sometimes I will know what I want; often I will want advice.
+
+**P7 — Describe every photograph.**
+As an editor, I want every photograph to carry a short description of what is
+in it, written by SayourSite and editable by me. Somebody using a screen reader
+hears it instead of seeing the picture, and search engines read it too.
+
+**P8 — Flag photographs of children.**
+I want photographs containing children tagged as such, so we can take extra care
+over permission before any of them are shown.
+
+---
+
+## Documents and files
+
+**D1 — A page meant for paper, not the web.**
+As an editor, I want to use the same tools to make pages that are intended to
+be printed or emailed, and to say what size and format the paper is.
+
+**D2 — It should still look right on the site.**
+As an editor, I want those pages to display properly on my website as well, not
+only in print.
+
+**D3 — Download it ready to print.**
+As an editor, I want to download such a page as a PDF that is ready to print.
+
+**D4 — Upload a file.**
+As an editor, I want to upload a file that already exists — minutes, accounts,
+a membership form, a programme — and have SayourSite keep track of it in the
+way it keeps track of photographs.
+
+**D5 — Let visitors have it.**
+As an editor, I want to put a link to an uploaded file on a page, so visitors
+can open or download it, and I want to replace it with a newer version later
+without every link to it breaking.
+
+---
+
+## What a visitor can do
+
+**V1 — Read it on whatever they have.**
+As somebody looking at the site, I expect it to look right on a computer, a
+phone or a tablet.
+
+**V2 — Use it with assistive technology.**
+As somebody who uses a screen reader, a keyboard rather than a mouse, or large
+text, I expect the site to work for me: headings in a sensible order, pictures
+described, links that say where they go, and text I can read against its
+background.
+
+**V3 — Find things.**
+As an editor, I want to put a search function on the site so visitors can find
+what they are looking for.
+
+**V4 — Get in touch.**
+As an editor, I want to build a "contact us" form that sends email to somebody
+in my organization. The addresses it sends to are set up by an administrator,
+and are never shown in the page itself.
+
+**V5 — Keep what people send.**
+As a moderator, I want everything submitted through a form kept where I can
+review it, as well as emailed. An email that goes astray is an enquiry nobody
+knows was lost.
+
+**V6 — Keep the spammers out.**
+As an editor, I want forms that are not worth a spammer's time, and I do not
+want my visitors made to prove they are human.
+
+> *Design note, not a requirement.* A CAPTCHA is the obvious answer and it
+> contradicts V2 — they are the single worst thing on the web for somebody
+> using a screen reader, and they turn people away. The cheap measures catch
+> nearly all of it without asking the visitor for anything: a field that is
+> hidden from people and filled in by robots; refusing anything submitted
+> faster than a person could type it; a limit on how often one sender may
+> submit; and never putting the destination address in the page. V5 is the rest
+> of the answer — if something does get through, it lands in a list a moderator
+> can clear rather than in somebody's inbox pretending to be an enquiry. If
+> volume ever demands more, Cloudflare Turnstile asks most visitors for
+> nothing; it is the escalation, not the starting point.
+
+---
+
+## Publishing
+
+**R1 — Review before the world sees it.**
+As a moderator, I want to review the changes editors have made — I may be one of
+those editors — before a new version is published and becomes visible to the
+public.
+
+**R2 — See what changed.**
+As a moderator, I want a table of the changes. Each one summarised, each with an
+easy way to see how it looks on the new site, and a way to open the whole
+conversation that led to it.
+
+**R3 — Warn me about anything risky.**
+As a moderator, I want to be alerted if this version adds photographs of
+children, or personal data that should not be published.
+
+**R4 — Fix or drop a change.**
+As a moderator, I want to edit or remove an individual change before publishing.
+
+**R5 — Go back.**
+As a moderator, I want to revert to an earlier published version without losing
+the newer one, and to see every published version in a table.
+
+**R6 — Name each version.**
+As a moderator, I want to name a version before publishing it. SayourSite
+should draft a short description, which I may edit. Every version therefore has
+an id, a name a person chose, and a description.
+
+**R7 — Show it to somebody first.**
+As a moderator, before publishing I want to create a temporary link to the
+draft, which anybody holding it can view. I want to say how long it stays
+valid.
+
+---
+
+## Backups and leaving
+
+**K1 — Keep a copy.**
+I want to download a file that captures a version of my site, so I can restore
+it if anything happens.
+
+**K2 — Take the whole thing.**
+I want to download a complete set of files I could use to host the site
+elsewhere, if I ever wanted to leave SayourSite.
+
+> *Design note, not a requirement:* the backup and the portable copy might be
+> the same format — everything needed to restore SayourSite's own state
+> carried alongside, in a manifest or in comments. One download would then do
+> both jobs. The user does not care which way we do it; it looks like the
+> simpler system.
+
+**K3 — Bring an existing site in. (Transition)**
+As the owner of a site already built on an earlier prototype, I want to convert
+it, and what has been learned about it, into the standard format, so its
+versions can be loaded into SayourSite.
+
+---
+
+## Being found, and knowing who found us
+
+**E1 — Search engines.**
+I want SayourSite to do whatever is needed to help people find my site. Where
+I have to act, I want a non-technical list of what to do, and help checking my
+progress — a red / amber / green status would be ideal.
+
+**E2 — Who visited.**
+As an administrator, I want to turn collection of site visit data on or off as
+a setting in the administration panel, and to produce reports from it.
+
+If it is on, visitors may have to be asked for their consent, which puts a
+notice on every page of the site. That is a consequence worth knowing about
+before switching it on, and is why it is a decision rather than a default.
+
+
+
+---
+
+# How we build this spec
+
+1. **Proof and clean up this document.** ← *done; this is the result*
+2. **Outline the system architecture** that meets these requirements. Expect
+   discussion — for example, whether a NoSQL database belongs in it from the
+   start.
+3. **Break the above into smaller, bite-sized requirements**, once the
+   architecture is agreed.
+4. **Map requirements to architecture** — a table showing which architectural
+   elements each requirement touches. *"Every version has an id, a name and a
+   description"* touches two: the admin interface and the version table. Others
+   touch Liquid drops, or parts of the AI engine.
+5. **Write test specs** from that.
+6. **Build** — pulling code across from the existing prototype where it fits,
+   writing new code where it does not, and dropping everything that belongs to
+   the prototype rather than to the product.
