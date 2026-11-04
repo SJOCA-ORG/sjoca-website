@@ -124,10 +124,11 @@ As the owner, I expect SayourSite to help my team follow good practice in
 usability, accessibility and security, without my having to know what good
 practice is.
 
-**G5 - Security.**
-
-As the owner, I expect SayourSite to protect my website from accidental or malicious activity.  I also SayourSite to protect itself.  My team should not be able to anyway harm the SayourSite platform.
-
+<a id="g5"></a>
+**G5 — Security.**
+As the owner, I expect SayourSite to protect my website from accidental or
+malicious activity, and to protect itself: nothing my team does should be able
+to harm the SayourSite platform.
 
 ---
 
@@ -552,11 +553,11 @@ protected because the AI cannot reach anything outside the primitives; the
 individual websites are ultimately protected by the reversion control system.
 
 Above is a set of rules that the AI understands, a way for it to remember how
-the website was developed, and an understanding of the available primitives. The
-rules provide two things:  First is it constrains the generated javascript to insure
-malicious code can not be either accidentally or purposely generated.  The second is 
-it advises the editor if the requested changes may harm the look or functionality of the site.
-
+the website was developed, and an understanding of the available primitives.
+The rules do two things. They constrain the JavaScript that may be generated,
+so that malicious code cannot be produced either by accident or on purpose.
+And they advise the editor when a requested change may harm the look or the
+workings of the site.
 
 The AI can still draw on knowledge of the general world, so that when somebody
 says *"I need a website for my flying club"* it knows what a flying club is,
@@ -594,6 +595,50 @@ the word is carrying a great deal of weight here and means nothing until the
 list exists. And **in step 4's mapping, any requirement that lands on code of
 its own is a flag**: either the primitive set is wrong, or that requirement is
 hiding a special case worth looking at.
+
+---
+
+### [G5](#g5) — what stops generated JavaScript from being dangerous
+
+Generated JavaScript is the most powerful thing SayourSite produces, and the
+one place where *the AI cannot reach outside the primitives* is not by itself
+enough. Primitives constrain what happens on **our** server. Generated script
+runs in a **visitor's** browser, with whatever authority the site has.
+
+It is not the same as typing JavaScript into your own browser console, which
+is harmless and which browsers warn about for exactly that reason. Console
+script runs once, in one browser, as the person who typed it. Stored script
+runs in every visitor's browser, every time, as them.
+
+What that makes possible if nothing prevents it:
+
+- **Reporting on visitors.** A line inside a working carousel that posts the
+  page address and the visitor's cookies somewhere else. The carousel works.
+  The page looks right.
+- **Acting as somebody more privileged.** An editor writes a page; an
+  administrator opens it while signed in; the script calls the administration
+  endpoints using the administrator's own session. The lowest privilege in the
+  system has acted as the highest, with nobody doing anything wrong on
+  purpose.
+- **Code nobody will ever review.** A script that loads a library from
+  somewhere else runs whatever that somewhere else serves, for ever.
+
+Three measures answer it, and each is decided once rather than enforced
+repeatedly:
+
+- **A content security policy.** Scripts may talk only to the site's own
+  server, and may be loaded only from it. That one setting removes reporting
+  on visitors and third-party code together.
+- **The administration interface on a different origin from the published
+  sites.** A script on a published page then cannot reach an administrator's
+  session at all, because the browser will not permit it. Cheap to decide now
+  and expensive to retrofit.
+- **Session cookies that a script cannot read**, so even same-origin script
+  cannot carry a session away.
+
+Note what is not on that list: review by a person. A moderator sees a working
+carousel whether or not it reports home. **Looking at a page is not reading
+its code**, so the protection has to be structural.
 
 ---
 
