@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+#
+# Replace the PRODUCTION database with a copy of a local one.
+#
+# This is the dangerous direction, and it has its own script for that reason.
+# bin/pull-production-db copies down and says plainly that it will never copy
+# up; this is the deliberate exception, written so the guards are in the file
+# rather than in somebody's memory at the end of a long evening.
+#
+#   WHEN THIS IS REASONABLE
+#
+# Only when all four are true, and you have checked rather than assumed:
+#
+#   1. The local database genuinely descends from production -- a pull, plus
+#      work done on top. Not a seeded database, not a restore of a stale dump.
+#   2. Production holds nothing the local copy lacks. Compare before you run
+#      this. Rows that exist only on the server die here, silently.
+#   3. Nobody is reading the site. Before the domain is pointed, or with the
+#      web service suspended. A restore with --clean drops tables; a visitor
+#      arriving mid-restore gets an error page or worse.
+#   4. You have a production backup you have actually verified is readable.
+#      This script takes one anyway, but a backup nobody has tested is a
+#      rumour, not a backup.
+#
+#   WHAT IT WILL DESTROY
+#
+# Everything on the server that is not in the local copy. Including the users
+# table: after this runs, the production password is whatever the LOCAL one is.
+# If that locks you out, from a Render shell:
+#
+#   bin/rails admin:user EMAIL=itmanager@sjoca.org
+#
+# The dump it writes contains every parish photograph, children included. It
+# lands in db/dumps/, which is gitignored, and .gitignore also covers *.dump as
+# a backstop. Delete it when you are done.
+#
+# Usage:  bin/push-local-db [source_database]      (default: sjoca_development)
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+cd "$(dirname "$0")/.."
+
+if [ -f .env ]; then
+  set -a; . ./.env; set +a
+fi
+
+SERVICE_ID="dpg-db6kqhrl550s73bd3u9g-a"      # sjoca-db
+SOURCE="${1:-sjoca_development}"
+DUMP_DIR="db/dumps"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+DUMP="${DUMP_DIR}/push-from-${SOURCE}-${STAMP}.dump"
+SAFETY="${DUMP_DIR}/production-before-push-${STAMP}.dump"
+
+die() { echo "error: $*" >&2; exit 1; }
+
+[ "${RAILS_ENV:-development}" = "production" ] && die "refusing to run with RAILS_ENV=production"
+command -v pg_dump >/dev/null || die "pg_dump not on PATH"
+command -v pg_restore >/dev/null || die "pg_restore not on PATH"
+psql -d "$SOURCE" -c 'select 1' >/dev/null 2>&1 || die "cannot read local database ${SOURCE}"
+
+if [ -n "${RENDER_API_KEY:-}" ]; then
+  echo "==> asking Render for the external connection string"
+  URL=$(curl -fsS -H "Authorization: Bearer ${RENDER_API_KEY}" -H "Accept: application/json" \
+          "https://api.render.com/v1/postgres/${SERVICE_ID}/connection-info" \
+        | python3 -c 'import sys,json; print(json.load(sys.stdin).get("externalConnectionString",""))')
+  [ -n "$URL" ] || die "no external connection string returned (is external access enabled?)"
+elif [ -n "${RENDER_DATABASE_URL:-}" ]; then
+  echo "==> using RENDER_DATABASE_URL from .env"
+  URL="$RENDER_DATABASE_URL"
+else
+  die "set RENDER_DATABASE_URL in .env (see .env.example), or RENDER_API_KEY to look it up"
+fi
+
+CLIENT_MAJOR=$(pg_dump --version | sed -E 's/.* ([0-9]+).*/\1/')
+SERVER_MAJOR=$(psql "$URL" -tAc 'show server_version' | sed -E 's/^([0-9]+).*/\1/')
+[ "$CLIENT_MAJOR" -ge "$SERVER_MAJOR" ] || die \
+  "pg_dump is $CLIENT_MAJOR but production is $SERVER_MAJOR; pg_dump cannot read a newer server."
+
+counts() {   # $1 = psql target
+  psql "$1" -tAc \
+    "select 'revisions '||(select count(*) from revisions)
+          ||'  pages '||(select count(*) from pages)
+          ||'  blocks '||(select count(*) from blocks)
+          ||'  photos '||(select count(*) from photos)
+          ||'  accounts '||(select count(*) from users)
+          ||'  live rev '||coalesce((select id::text from revisions where state='published'),'NONE')"
+}
+
+echo
+echo "    PRODUCTION (about to be replaced):"
+counts "$URL"   | sed 's/^/      /'
+echo "    ${SOURCE} (the replacement):"
+counts "$SOURCE" | sed 's/^/      /'
+echo
+
+# Rows that exist only on the server are the ones nobody thinks about.
+echo "==> photographs on production that ${SOURCE} does not have"
+ONLY=$(comm -23 \
+  <(psql "$URL"    -tAc 'select human_name from photos order by 1' | sed 's/ *$//' | sort -u) \
+  <(psql "$SOURCE" -tAc 'select human_name from photos order by 1' | sed 's/ *$//' | sort -u))
+if [ -n "$ONLY" ]; then
+  echo "$ONLY" | sed 's/^/      LOST: /'
+else
+  echo "      none -- nothing is lost"
+fi
+echo
+
+echo "    This REPLACES the parish's live database with your laptop's."
+echo "    Everything above marked LOST goes away. The production password"
+echo "    becomes whatever ${SOURCE} holds."
+echo
+read -r -p "    Type the word REPLACE to continue: " reply
+[ "$reply" = "REPLACE" ] || die "aborted"
+
+mkdir -p "$DUMP_DIR"
+
+echo "==> backing up production first"
+pg_dump -Fc --no-owner --no-privileges "$URL" -f "$SAFETY"
+pg_restore -l "$SAFETY" >/dev/null || die "the safety backup is not readable -- stopping"
+echo "    $SAFETY ($(du -h "$SAFETY" | cut -f1)) -- verified readable"
+
+echo "==> dumping ${SOURCE}"
+pg_dump -Fc --no-owner --no-privileges -d "$SOURCE" -f "$DUMP"
+echo "    $DUMP ($(du -h "$DUMP" | cut -f1))"
+
+echo "==> restoring into production"
+# --clean --if-exists so the restore replaces rather than collides. Errors are
+# shown but not fatal: dropping an object that is not there is normal here.
+pg_restore --clean --if-exists --no-owner --no-privileges -d "$URL" "$DUMP" || true
+
+echo "==> production now holds"
+counts "$URL" | sed 's/^/      /'
+echo
+echo "    Check the site before pointing any domain at it."
+echo "    If it is wrong, put it back with:"
+echo "      pg_restore --clean --if-exists --no-owner --no-privileges -d \"\$RENDER_DATABASE_URL\" ${SAFETY}"
+echo
+echo "    Both dumps contain parish photographs. Delete them when you are done:"
+echo "      rm ${DUMP} ${SAFETY}"

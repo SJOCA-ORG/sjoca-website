@@ -1,6 +1,8 @@
 # Deploying to Render
 
-**Status:** Live at https://sjoca.onrender.com — 2026-10-13
+**Status:** Live at https://sjoca.onrender.com — 2026-10-13.
+Cutover to `www.sjoca.org` planned for the week of 9 November 2026 — see
+[The cutover to sjoca.org](#the-cutover-to-sjocaorg) below.
 
 Everything is defined in [`render.yaml`](../render.yaml): the web service, a
 managed Postgres, and the three sync jobs. Render reads it and builds all four.
@@ -134,17 +136,158 @@ the same name and the newest wins.
 
 ---
 
-## The three cron jobs
+## The three cron jobs are gone
 
-| Job | Runs | Why that often |
+There were three: `churchtrac:sync` every six hours, `lectionary:sync` and
+`classes:sync` daily. They mirrored the ChurchTrac calendar, the daily readings
+from oca.org and Fr David's class recordings into local tables.
+
+All of it has been removed — the models, the importers, the rake tasks, and the
+entries in `render.yaml`. The three Render services were deleted from the
+dashboard on 9 November 2026; a blueprint does not delete a service you take out
+of the file, so they went on firing and failing for a fortnight after the code
+had gone.
+
+**Why they went.** Each importer knew which events mattered and what they were
+called, and that knowledge was invisible to the AI editor — which is how a page
+once shipped missing Vespers and the Divine Liturgy. They are replaced by one
+primitive on the `sayoursite` branch: a data source is a row with a name and a
+URL, the server fetches it behind `Site::OutboundFetch`, and admin-written
+JavaScript formats the JSON. Judgement in Ruby is judgement nobody can review.
+
+## The cutover to sjoca.org
+
+**Planned for the week of 9 November 2026, before the AGM on Sunday 15 November.**
+Fr. David has approved the site as it stands.
+
+The thing that makes this safe, and worth saying first: **`www.sjoca.org` has a
+TTL of 300 seconds**, and Google Sites is left running and untouched throughout.
+If anything goes wrong after the switch, changing the record back puts the old
+site in front of people within five minutes. Nothing here is a one-way door.
+
+Worth knowing before you start: **`sjoca.org` has never resolved.** There is no
+A record on the bare domain today, which is why it has always been "unreliable".
+Only `www` has ever worked.
+
+### What is deliberately NOT being done
+
+**The `sayoursite` branch is not being merged.** It carries the
+multi-organization refactor, the operator console and the product spec — eight
+migrations, one of them irreversible, and a `default_scope` under every query
+that fails closed. The parish needs none of it, and `config.hosts` would become
+`Organization.known_host?`, which means a hostname missing from a table serves
+nothing. That is a new failure mode introduced at exactly the moment the
+hostname changes. Production already runs the approved site; the only thing
+missing is a domain pointed at it.
+
+**No canonical-host redirect is being added.** `main` has none, and
+`enforce_canonical_host` exists only on `sayoursite`, where it is organization-
+based and would not port cleanly. Both hostnames will serve the site, and the
+`<link rel="canonical">` tag says which one counts. Search engines honour that.
+A real 301 is a tidy follow-up *after* the AGM, not a change to make six days
+before it.
+
+### 1. Render, before any DNS changes
+
+Add **both** custom domains to the `sjoca` web service: `sjoca.org` and
+`www.sjoca.org`. Render issues a TLS certificate per domain, and it cannot do
+that until the name points somewhere it controls — but adding the domain first
+means the certificate is waiting rather than being chased. **Do this before the
+DNS edit, or the first visitors get a certificate warning.**
+
+### 2. The database swap, while nobody can reach the site
+
+This is the free window. The domain is not pointed yet, so a restore that drops
+and recreates every table costs no visitor anything.
+
+| | |
+|---|---|
+| Local `sjoca_main_development` | the 26 October production dump, plus the work done on top of it |
+| Production | nothing newer than 21 October, plus three unused photographs added on 27 October |
+
+So local is strictly ahead, except for `interior-icons`,
+`myrrh-bearing-women-closeup` and `st-john-the-baptist-closeup` — none of which
+appears anywhere on the live site. Copy them down first if they are wanted;
+otherwise they are in the backup.
+
+1. **Publish the draft locally** and look at it at `localhost:3000`. Publish
+   state travels in the database, so whatever state the local copy is in is the
+   state production comes up in. You could equally publish on the server
+   afterwards — but publishing locally means you see the finished thing in a
+   place where a mistake costs nothing, and the restore then lands the final
+   state in one shot instead of leaving a step to remember.
+2. **Suspend the web service** in Render, so nothing writes mid-restore.
+3. **Run `bin/push-local-db sjoca_main_development`.** It prints both sides'
+   row counts and every photograph that exists only on the server, takes a
+   verified production backup, and then asks you to type `REPLACE`. Read what it
+   prints. It is the dangerous direction and it is meant to be slow.
+4. **Resume the service** and walk every page on `sjoca.onrender.com`.
+
+Nothing about publishing depends on the hostname: `site.url` is read when a page
+renders, not when it is published, so a locally-published revision picks up
+production's `SITE_URL` as soon as it is there.
+
+### 3. The canonical address
+
+**`www.sjoca.org` is canonical, and `sjoca.org` also works.** That is the
+decision; the reasoning is worth keeping because it is close.
+
+Against the bare domain: the apex cannot hold a CNAME — DNS forbids it, since it
+would collide with the SOA and NS records — so it needs Namecheap's ALIAS, a
+synthetic record their nameservers resolve. It works and BasicDNS supports it,
+but it is a vendor feature rather than a standard, and if Render ever moves
+addresses you are trusting that implementation to follow. A `www` CNAME follows
+by itself. Against it too: everything printed, indexed and listed in the OCA
+directory already says `www.sjoca.org`, so making the apex canonical sends all
+of it through a redirect.
+
+For the bare domain: it is shorter, and it is what people say out loud.
+
+Set `SITE_URL=https://www.sjoca.org` on the web service. Without it, every
+canonical tag, every `og:url` and the whole sitemap keep saying
+`sjoca.onrender.com`, and the parish domain gets indexed as a duplicate of a
+hosting address.
+
+### 4. DNS, in one edit
+
+At Namecheap, BasicDNS, both records in the same save:
+
+| Type | Host | Value |
 |---|---|---|
-| `churchtrac:sync` | every 6 hours | Events change during the day; the feed is light |
-| `lectionary:sync` | daily, 05:40 | Each date is fetched once ever, then skipped |
-| `classes:sync` | daily, 05:55 | Fr David posts about one a week |
+| ALIAS | `@` | `sjoca.onrender.com` |
+| CNAME | `www` | `sjoca.onrender.com` |
 
-All three fail safe: a bad response is refused rather than applied, so a broken
-sync leaves stale data rather than an empty page. Check `lectionary:status` and
-`churchtrac:status` to see what is held and when it last ran.
+Leave the mail records alone. SPF, DKIM and DMARC have nothing to do with where
+the website lives, and the one way to turn a website cutover into a parish-wide
+email outage is to edit them on the same afternoon.
+
+Then watch it arrive:
+
+```bash
+script/zone_compare.sh      # what the nameserver holds vs what resolvers hand out
+```
+
+Those are two different questions, and conflating them once produced a
+false "mail is broken" alarm on a zone that was already correct. See
+[`dns.md`](dns.md).
+
+### 5. Afterwards
+
+- Walk the site on a phone and a laptop. Both hostnames.
+- Add both to Google Search Console and submit `https://www.sjoca.org/sitemap.xml`.
+- **Leave Google Sites running.** It is the rollback, and it costs nothing.
+  Decide what happens to it after the AGM, not before.
+- Confirm you can still sign in at `/admin` — the push replaced the users table,
+  so the password is now whatever the local database held.
+
+### Rolling back
+
+| If it goes wrong | Do this | Takes |
+|---|---|---|
+| The site is wrong after the DNS change | Point `www` back at `ghs.googlehosted.com` | ~5 minutes |
+| The database is wrong | `pg_restore --clean --if-exists -d "$RENDER_DATABASE_URL" db/dumps/production-before-push-*.dump` | minutes |
+| Certificates are not ready | Leave DNS as it is until Render shows both domains verified | — |
+
 
 ---
 
@@ -159,6 +302,9 @@ relying on it.
 **Do not use the free web plan.** It sleeps after inactivity, and a parish site
 that takes thirty seconds to wake up is worse than a slow one.
 
-**Pointing sjoca.org here is a separate job** and should not happen before the
-AGM. See `docs/TODO.md` — the domain sits in an AWS account we are still
-identifying, and the bare domain does not currently resolve at all.
+**Pointing sjoca.org here was a separate job, and it is now done.** The domain
+was never recovered from AWS — Support issued a transfer code after verifying
+the registrant — so it moved to Namecheap on 26 October 2026 and onto Namecheap
+BasicDNS on 27 October. The cutover of the *website* is a different event again,
+and is the section above: moving the domain and moving the site were kept apart
+on purpose, and the parish noticed neither.
