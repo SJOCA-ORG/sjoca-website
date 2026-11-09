@@ -236,14 +236,64 @@ DNS, with mail flowing. Nothing has changed for the parish. Confirm it:
 
 Then stop. Steps 1–3 are the domain move. The website cutover is separate.
 
-### Step 5 — The cutover, later
+### Step 5 — The cutover  *(done, 9 November 2026)*
 
-One record: point `www` at Render, and add an ALIAS on `@` so the bare
-`sjoca.org` finally works — a fault on the current site, not something we
-introduced. Reversed by putting `ghs.googlehosted.com.` back.
+Two records, saved together at about 16:55 EST:
 
-Do not reach this step until the new site is deployed, carrying the right
-content, and has a login on the admin.
+| Type | Host | Value | TTL |
+|---|---|---|---|
+| CNAME | `www` | `sjoca.onrender.com.`  (was `ghs.googlehosted.com.`) | 300 |
+| ALIAS | `@` | `sjoca.onrender.com.`  (the bare domain had never resolved) | 300 |
+
+Mail was not touched. Five MX, SPF, DMARC, DKIM and the Google
+site-verification TXT all survived unchanged, which was checked immediately
+after and again an hour later.
+
+**What it cost: about six minutes.**
+
+```
+16:55  records saved
+       visible at dns1/dns2.registrar-servers.com within seconds
+       Google (8.8.8.8) and Cloudflare (1.1.1.1) serving them inside five minutes
+17:00:37  www.sjoca.org  — certificate issued, site live
+17:03:23  sjoca.org      — certificate issued, redirecting to www
+```
+
+Both certificates run to 7 February 2027.
+
+### Four things worth knowing before anyone does this again
+
+**The dashboard lies, briefly.** Render showed "We weren't able to issue a
+certificate for sjoca.org" at the moment the certificate was in fact being
+issued. The page does not refresh itself. Measure from outside — `curl` against
+the real hostname — before believing an error on a screen.
+
+**Do not hammer Retry.** Let's Encrypt rate-limits *failed* validations at five
+per hour per hostname. Clicking retry at a transient failure is the one action
+that converts a six-minute wait into a locked-out hour. If something looks
+stuck, wait.
+
+**The ALIAS was right, and an A record would not have been better.** Render's
+dialog offers `216.24.57.1` for providers without ALIAS support, and when the
+apex looked broken that was the obvious thing to reach for. It would have
+changed nothing: all three of Render's addresses — `.1`, `.16`, `.18` — answer
+the apex Host header identically, and Render had already *verified* the domain
+through the ALIAS. Verification is a DNS lookup; issuance is a separate step
+that was simply still running.
+
+Namecheap refuses an IP in an ALIAS record (`INVALID_ADDR`), which is what
+stopped the change being made. Correct behaviour, and a useful backstop.
+
+**Render redirects the apex to www by itself.** `https://sjoca.org/` returns a
+301 to `https://www.sjoca.org/` with no application code involved. The Rails app
+on `main` has no canonical-host enforcement — `enforce_canonical_host` lives
+only on the `sayoursite` branch — and it turned out not to need any.
+
+### Rolling back, if it ever matters
+
+Put `ghs.googlehosted.com.` back on the `www` CNAME. The TTL is 300, so Google
+Sites is serving again five minutes later. Leave Google Sites running until
+there is a reason not to.
 
 ---
 

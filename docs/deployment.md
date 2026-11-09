@@ -1,8 +1,10 @@
 # Deploying to Render
 
-**Status:** Live at https://sjoca.onrender.com — 2026-10-13.
-Cutover to `www.sjoca.org` planned for the week of 9 November 2026 — see
-[The cutover to sjoca.org](#the-cutover-to-sjocaorg) below.
+**Status:** Live at **https://www.sjoca.org** since 9 November 2026, and still at
+https://sjoca.onrender.com. `sjoca.org` redirects to `www`. The cutover took
+about six minutes of exposure; what it involved, and what to do if it is ever
+reversed, is in [the cutover section](#the-cutover-to-sjocaorg) below and in
+[dns.md](dns.md).
 
 Everything is defined in [`render.yaml`](../render.yaml): the web service, a
 managed Postgres, and the three sync jobs. Render reads it and builds all four.
@@ -189,8 +191,15 @@ JavaScript formats the JSON. Judgement in Ruby is judgement nobody can review.
 
 ## The cutover to sjoca.org
 
-**Planned for the week of 9 November 2026, before the AGM on Sunday 15 November.**
-Fr. David has approved the site as it stands.
+**Done, 9 November 2026**, six days before the AGM. Fr. David had approved the
+site as it stood; the database was pushed from a laptop that afternoon, the
+deploy rehearsed, and the records changed at about 16:55 EST. Both certificates
+were live by 17:03.
+
+The plan below is kept in the past tense it was written in, because it is the
+record of what was decided and why — including two things decided *against*,
+which is the part that gets forgotten. The DNS detail and the four traps are in
+[dns.md](dns.md).
 
 The thing that makes this safe, and worth saying first: **`www.sjoca.org` has a
 TTL of 300 seconds**, and Google Sites is left running and untouched throughout.
@@ -216,8 +225,10 @@ missing is a domain pointed at it.
 `enforce_canonical_host` exists only on `sayoursite`, where it is organization-
 based and would not port cleanly. Both hostnames will serve the site, and the
 `<link rel="canonical">` tag says which one counts. Search engines honour that.
-A real 301 is a tidy follow-up *after* the AGM, not a change to make six days
-before it.
+
+**This turned out to be unnecessary.** Render redirects the apex to `www` at its
+own edge: `https://sjoca.org/` returns a 301 to `https://www.sjoca.org/` with no
+application code involved. We get the real redirect without writing one.
 
 ### 1. Render, before any DNS changes
 
