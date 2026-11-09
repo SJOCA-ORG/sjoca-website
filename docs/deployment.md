@@ -120,19 +120,45 @@ empty and the already-migrated case, so this should not recur.
 **Deploys happen on push** to `main`. Migrations run in the
 build; seeds do not.
 
-**Content changes** are a push plus a reseed:
+**Content changes need no deploy at all.** The website is not in the code. Pages,
+sections, blocks, photograph bytes, the 171 Liquid templates and the site
+settings are all rows, and the Ruby is a renderer that knows how to turn rows
+into pages without knowing what the pages say. Edit through `/admin`, publish,
+and it is live. The image on Render does not change and does not need to.
+
+That is the Phase 2 premise — a parish volunteer editing the site without a
+developer — and it has been true since the admin shipped.
+
+### Do not reseed production
+
+An earlier version of this page said content changes were "a push plus a
+reseed", and gave this command:
 
 ```bash
-FORCE_CONTENT_RESEED=1 DATABASE_URL="postgres://…" bin/rails db:seed
+FORCE_CONTENT_RESEED=1 ...    # DO NOT run this against production
 ```
 
-Note the flag. Without it, existing pages are left alone — which is deliberate,
-because once the Phase 2 editor exists, a deploy that silently overwrote
-parishioners' edits would be a disaster.
+That belonged to Phase 1, when the site's content lived in `db/seeds/content.yml`
+and git was the source of truth. **It is now the opposite.** The database is the
+source of truth, and the YAML in `db/seeds/` is a snapshot of the old Google
+Sites capture.
 
-**New photographs** need no code change: add the file to the photo library, add
-an entry to `db/seeds/curated.yml`, push, reseed. A new version appears under
-the same name and the newest wins.
+With the flag set, `db/seeds/content.rb` **rebuilds a page's sections and blocks
+from scratch** — its own comment says so, and says why. It touches the pages
+named in that file's `NAV` constant: home, our story, leadership, choir, the
+weekly bulletin, the lectionary, resources, giving, outreach and contact. Not
+every page, which is cold comfort — those are the ones a visitor reads first.
+There is no undo but a dump.
+
+Seeds are for **populating a database that has none**: a fresh clone, a new
+development machine, a restored-from-nothing server. Without the flag they leave
+existing pages alone, which is the behaviour to rely on.
+
+**New photographs** go in through `/admin` as well. Uploading one writes the
+bytes to the `photos` table and queues `DescribePhotoJob` to write its alt text.
+`db/seeds/curated.yml` and the photo library remain how the ORIGINAL set was
+established, and how a fresh database is filled — not how a picture is added to
+a live site.
 
 ---
 
@@ -143,10 +169,16 @@ There were three: `churchtrac:sync` every six hours, `lectionary:sync` and
 from oca.org and Fr David's class recordings into local tables.
 
 All of it has been removed — the models, the importers, the rake tasks, and the
-entries in `render.yaml`. The three Render services were deleted from the
-dashboard on 9 November 2026; a blueprint does not delete a service you take out
-of the file, so they went on firing and failing for a fortnight after the code
-had gone.
+entries in `render.yaml`. The three Render services were **suspended** on 9
+November 2026 and still await deletion.
+
+**A blueprint does not delete a service you take out of the file.** It orphans
+it, so the three went on firing and failing for a fortnight after the code they
+ran had gone. Worse, an orphaned service resists deletion: Render hides or
+blocks per-service delete while a service is still attached to a blueprint,
+which is why suspending was easy to find and deleting was not. The button is
+real — **Service → Settings → the bottom of the page** — and it asks you to type
+the service name.
 
 **Why they went.** Each importer knew which events mattered and what they were
 called, and that knowledge was invisible to the AI editor — which is how a page
