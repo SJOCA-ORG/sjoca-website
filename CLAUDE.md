@@ -271,6 +271,20 @@ for each so they can be remade.
   we decide *how*, later.
 - **Watch for privacy.** Member data, photos of children, home addresses, and the
   ChurchTrac member list stay off the public site and out of this public repo.
+- **`main` is production. Work on a branch.** There is no staging environment:
+  `render.yaml` binds the web service to `branch: main`, so pushing to `main`
+  deploys to the parish and restarts the server. Pushing any other branch does
+  nothing at all — no build, no restart — which makes a branch both safe and
+  properly backed up. Notes, TODO entries, documentation and anything learned
+  from a conversation go on a branch and merge later, deliberately. `main` is
+  edited only for something that genuinely cannot wait.
+
+  This was learned expensively on 10 November 2026: four deploys in one day,
+  three of them documentation-only and each treated as harmless, and two of them
+  killed an editing turn Mitch was in the middle of. A restart takes the Solid
+  Queue worker with it, and a job that dies never marks itself done — see
+  `docs/TODO.md`, "After the AGM". A commit that changes no code still restarts
+  the server.
 
 ---
 
