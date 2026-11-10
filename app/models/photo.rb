@@ -137,6 +137,30 @@ class Photo < ApplicationRecord
     published.find_by(human_name: human_name, version: version)
   end
 
+  # The same two lookups WITHOUT the bytes, for PhotosController.
+  #
+  # Serving a photograph is a conditional GET: the ETag decides whether to send
+  # anything at all. find_version uses find_by, which selects every column -- so
+  # the controller used to load a whole image into Ruby and then frequently
+  # answer 304 Not Modified and throw it away. On a page carrying forty
+  # photographs that is 26MB allocated per view, most of it wasted, and it is
+  # how a 2GB instance ran out of memory on 9 November 2026, the evening the
+  # site went live, while somebody was editing it.
+  #
+  # Metadata first; bytes only once we know we are sending them.
+  def self.metadata_version(human_name, version)
+    return nil if human_name.blank? || version.blank?
+
+    published.listing.find_by(human_name: human_name, version: version)
+  end
+
+  def self.metadata_newest(human_name)
+    published.listing.where(human_name: human_name).order(version: :desc, id: :desc).first
+  end
+
+  # One column of one row, by primary key, once it is needed.
+  def self.bytes_for(id) = where(id: id).pick(:data)
+
   # Only for choosing a version to pin, never for rendering.
   def self.newest(human_name)
     published.where(human_name: human_name).order(version: :desc, id: :desc).first

@@ -181,3 +181,67 @@ RSpec.describe "the order of the photo library", type: :request do
     expect(JSON.parse(response.body)["ok"]).to be(false)
   end
 end
+
+# A page carrying forty photographs pulled 26MB of image bytes through Ruby for
+# one view, and did it again on every revalidation -- because the lookup used
+# find_by, which selects every column, and the bytes were loaded before the ETag
+# had decided whether to send anything. On 9 November 2026 the instance ran out
+# of memory and restarted, hours after the site went live.
+RSpec.describe "Serving photographs without wasting memory", type: :request do
+  # Short bytes on purpose: the "is it really an image" validation skips anything
+  # under 64 bytes outside production (photo.rb), and this file is about the
+  # query and the cache headers, not the pixels.
+  let!(:photo) { build_asset(human_name: "memory-test", bytes: "PNGBYTES") }
+
+  it "does not load the image bytes to answer a 304" do
+    get "/media/memory-test/1"
+    expect(response).to have_http_status(:ok)
+    etag = response.headers["ETag"]
+
+    # The conditional request must not read the bytes.
+    #
+    # Checking the SQL for the word "data" is NOT enough and was the first thing
+    # tried here: the old code used find_by, which emits SELECT "photos".* and
+    # never names the column, so that assertion passed while the bug was still
+    # present. A star select is exactly the thing being forbidden, so look for it.
+    sqls = []
+    sub = ActiveSupport::Notifications.subscribe("sql.active_record") do |*, payload|
+      sqls << payload[:sql] if payload[:sql].to_s.include?("photos")
+    end
+    get "/media/memory-test/1", headers: { "HTTP_IF_NONE_MATCH" => etag }
+    ActiveSupport::Notifications.unsubscribe(sub)
+
+    expect(response).to have_http_status(:not_modified)
+
+    loads_bytes = sqls.select { |s| s.match?(/SELECT\s+"photos"\.\*/i) || s.include?(%q{"photos"."data"}) }
+    expect(loads_bytes).to be_empty,
+      "a 304 loaded the image bytes:\n  #{loads_bytes.join("\n  ")}"
+  end
+
+  # Versioned addresses can never change content -- publishing a replacement
+  # makes version 2 -- so they are safe to cache forever, and that is what keeps
+  # the bytes from coming back through Ruby at all.
+  it "marks a versioned address immutable" do
+    get "/media/memory-test/1"
+
+    expect(response.headers["Cache-Control"]).to include("immutable")
+    expect(response.headers["Cache-Control"]).to match(/max-age=31\d{6}/)
+  end
+
+  # The unversioned address is a pointer that moves when a photograph is
+  # replaced. Caching it for a year would mean an editor approving a swap and
+  # not seeing it.
+  it "keeps the unversioned address short-lived and revalidated" do
+    get "/media/memory-test"
+
+    expect(response.headers["Cache-Control"]).to include("must-revalidate")
+    expect(response.headers["Cache-Control"]).not_to include("immutable")
+  end
+
+  it "still serves the right bytes" do
+    get "/media/memory-test/1"
+
+    expect(response.body).to eq("PNGBYTES")
+    expect(response.media_type).to eq("image/png")
+  end
+end
