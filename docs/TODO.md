@@ -23,6 +23,71 @@ Newest decisions at the top of each section.
 - [ ] **Page-by-page visual comparison** against the old site, desktop and phone.
 - [ ] **Rehearse the AGM demo** against the real deployment.
 
+## After the AGM, before SayourSite resumes
+
+Everything here came out of the 9-10 November cutover. None of it blocked going
+live; all of it was deferred deliberately rather than forgotten, and it should
+be cleared before attention moves to the product.
+
+- [ ] **The chat page calls a healthy turn dead, and tells you to kill it.**
+      `Admin::RevisionsController#status` decides a turn is stalled with a timer:
+      no progress steps after sixty seconds. Its comment states the premise --
+      "A turn with no steps after a minute is not thinking, it is waiting" --
+      and the premise is wrong. On Opus, with a large cached prompt and fifty-odd
+      tool definitions, more than a minute before the first tool call is
+      ordinary. On 10 November a turn running perfectly well was labelled
+      "Nothing has started yet. If this stays here, press Stop" at 128 seconds;
+      pressing Stop would have destroyed it.
+
+      Solid Queue already knows the answer, so stop guessing: a job **claimed by
+      a live process** is running, however quiet -- say "Working". **Ready or
+      blocked** is genuinely queued -- "Waiting its turn". **Claimed by a process
+      with no recent heartbeat** is the only true stranding, and the only case
+      that should ever suggest Stop. Same class of bug as the stranded-message
+      one fixed in `10a7bd6`: the page reporting something inferred instead of
+      something known.
+
+- [ ] **A superseded revision cannot be viewed at all.** `previewable` is
+      `revision&.editable?`, and `editable?` is `state == "draft"`, so there is
+      no way to look at what the site used to be. Wanted on 10 November to check
+      whether particular people had been featured on the original site; the
+      answer was to open the old Google Sites at
+      `https://sites.google.com/sjoca.org/sjtb`, which still works and needs a
+      sjoca.org sign-in. That only helps while Google Sites survives. Previewing
+      a superseded revision is read-only, admin-only and session-scoped, so
+      relaxing the check costs nothing.
+
+- [ ] **Move the admin to `claude-opus-5-5`.** It runs `claude-opus-5` today.
+      Opus 5.5 is newer *and* cheaper -- $4/$20 per MTok against $5/$25, cache
+      reads $0.20. Checked on 10 November: `Anthropic::Client#call` sends only
+      model, max_tokens, system, messages and tools, and `tool_choice` appears
+      nowhere in `app/` or `lib/`, so none of the breaking changes apply. One
+      catch -- Opus 5.5 defaults to **medium** effort where Opus 5 defaults to
+      high, so set `output_config: {effort: "high"}` explicitly or the editor
+      quietly thinks less. Deferred only because the admin is the tool needed to
+      fix anything before the AGM.
+
+      Fable 5.2 (`claude-fable-5-2`) exists and is the tier above. Editing parish
+      pages is not what it is for; its vision improvements might matter to
+      `check_appearance`, which would be a measured experiment, not a swap.
+
+- [ ] **Photographs are not cached at Cloudflare's edge.** After `b7e85db` the
+      versioned addresses are `immutable` with a year's max-age and browsers
+      honour it, but `cf-cache-status` is still `DYNAMIC` on every image:
+      Cloudflare in front of Render does not cache extensionless paths by
+      default, whatever the headers say. Repeat visitors are fine; every first
+      view of the forty-photograph page still comes out of Postgres.
+
+- [ ] **Uploading a zip of photographs.** Asked for on 10 November while placing
+      the last pictures. Genuinely small -- `rubyzip 3.7.0` is already present
+      (via `selenium-webdriver`; promote it to an explicit Gemfile entry),
+      multi-file upload already works, and everything funnels through one seam in
+      `Admin::PhotoIntake.call`. Not done before the AGM because it is a new
+      parser for untrusted input on a 2GB instance that had just run out of
+      memory. Needs: a cap on entry count and total uncompressed size enforced
+      **while** reading, `__MACOSX/` and `.DS_Store` filtered out, and a spec with
+      a real zip bomb proving the cap holds.
+
 ## Leadership page — open questions
 
 Council changed over and the page is updated as far as it can be. Still needed:
