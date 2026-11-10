@@ -53,6 +53,59 @@ in the middle of.
       one fixed in `10a7bd6`: the page reporting something inferred instead of
       something known.
 
+- [ ] **Photographs end up attached to the wrong event, and the cause is that
+      the AI re-derives what it already knows.** Reported 10 November: adding
+      events puts the pictures in an order that looks random, repeatedly. Mitch
+      tried putting each event in its own section to contain it; it happened
+      again anyway.
+
+      **It is not the ordering code.** `Section#blocks` is
+      `order(:column, :position, :id)` -- fully deterministic -- and `add_block`
+      places by `after_block`/`before_block` with `make_room` shifting the rest.
+      Nothing renders in an arbitrary order.
+
+      **It is working memory.** Watch what a turn actually does: 39 photographs,
+      each one opened with `describe_photo` at roughly five seconds a time, three
+      minutes of looking -- and then the mapping from opaque filename
+      (`new-20261108-182312`) to "which event is this" lives only in the model's
+      context, across dozens of rounds, until placement. That mapping is what
+      drifts. Putting each event in its own section cannot help, because the
+      wrong name was already chosen before any section was involved.
+
+      **Every one of those descriptions was already in the database.** All 47
+      photographs uploaded that week carried alt text written at upload by
+      `DescribePhotoJob`: "A bishop in gold vestments, white mitre and omophorion
+      stands...". And both listing tools already return it -- `list_photos` gives
+      `shows:` (the description, truncated to 120 characters) and `find_photos`
+      searches *over* `human_name + alt_text`. So the facts needed to place 39
+      pictures correctly are one tool call away, persisted, and were ignored in
+      favour of three minutes of looking at pictures and remembering.
+
+      So this is a prompting problem, not a missing tool. Three changes, in order
+      of value:
+
+      1. **Read the descriptions; do not re-derive them.** Say so where the
+         editor is told about photographs: the library is already described,
+         `find_photos` searches those descriptions, and `describe_photo` is for
+         when the description is genuinely not enough to choose -- not the
+         default move.
+      2. **Persist the decision at the moment it is made.** Rename each
+         photograph to something meaningful as soon as it is identified, before
+         placing anything. Then placement reads a name from the database instead
+         of recalling one. The project's own rule, applied to the AI's memory:
+         judgement that is not written down is judgement nobody can check.
+      3. **Then verification is cheap.** With real names and alt text, a final
+         pass can compare each placed photograph against the heading it sits
+         under -- which `check_page` cannot do today, because it looks for
+         breakage, and `check_appearance` cannot do either, because a picture
+         cannot tell you that THIS bishop belongs to THAT event.
+
+      Worth noting the existing instruction is good and was not enough: the
+      prompt already says "CHECK YOUR WORK TWO WAYS", explains that a screenshot
+      invites you to see what you expected, and gives the worked example of a
+      paragraph that shared a position number. It catches *broken*. It does not
+      catch *wrong*.
+
 - [ ] **The chat page describes tool calls in the machine's vocabulary.** A step
       reading "looked at describe photo" prompted "what does this mean" on 10
       November, and fairly. `Admin::Editor#run` (`editor.rb:652`) falls back,
