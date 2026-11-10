@@ -28,8 +28,13 @@ class EditingTurnJob < ApplicationJob
   #
   # Stop releases the lock itself now, so this is the backstop rather than the
   # mechanism.
+  # Named, because the chat page needs the same number: a message older than
+  # this cannot still be running, so one left behind by a restart is stranded
+  # rather than slow. See RevisionMessage.stranded.
+  LOCK_DURATION = 12.minutes
+
   limits_concurrency to: 1, key: ->(revision_id, *) { "editing-revision-#{revision_id}" },
-                     duration: 12.minutes
+                     duration: LOCK_DURATION
 
   # A long request does not fit in one turn, and stopping to say so wastes the
   # person's time: they only ever answer "yes, carry on". So it carries on by

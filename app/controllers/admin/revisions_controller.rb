@@ -10,7 +10,16 @@ module Admin
 
     # The chat.
     def show
-      @messages = @revision.messages
+      # Tidy up after a restart. A turn whose process was killed never marked
+      # itself done, and left behind it shows as a spinner that never resolves
+      # and -- before .stranded existed -- poisoned every turn after it.
+      #
+      # Here rather than in #status because status is polled every couple of
+      # seconds and this is a write. Opening the page is the natural moment to
+      # notice that something did not survive the night.
+      @revision.messages.stranded.update_all(state: "done", updated_at: Time.current)
+
+      @messages = @revision.messages.reload
       @working  = @messages.find { |m| m.state == "working" }
     end
 
@@ -18,7 +27,13 @@ module Admin
     # body is not reliably honoured, which left the page looking dead for the
     # eighty seconds a turn can take.
     def status
-      working = @revision.messages.where(state: %w[working stopping]).first
+      # .last, not .first. One message left behind by a restart used to mask
+      # every turn that followed it, for as long as the row existed, because the
+      # OLDEST unfinished row was the one reported -- so the page said
+      # "Stopping..." over a turn running perfectly well. And .stranded is
+      # excluded outright: past the lock duration nothing can still be running,
+      # so a row that old is wreckage, not work.
+      working = @revision.messages.live.where.not(id: @revision.messages.stranded).order(:id).last
 
       # A turn with no steps after a minute is not thinking, it is waiting --
       # usually behind another turn, occasionally behind a lock whose holder
