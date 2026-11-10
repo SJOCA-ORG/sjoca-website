@@ -29,6 +29,12 @@ Everything here came out of the 9-10 November cutover. None of it blocked going
 live; all of it was deferred deliberately rather than forgotten, and it should
 be cleared before attention moves to the product.
 
+**The rule for the rest of the week (Mitch, 10 November):** nothing else is
+deployed before the AGM. Anything found goes on this list, or into the
+SayourSite design notes if it is about the product rather than the parish. Four
+restarts in one day was three too many, and two of them stranded a turn he was
+in the middle of.
+
 - [ ] **The chat page calls a healthy turn dead, and tells you to kill it.**
       `Admin::RevisionsController#status` decides a turn is stalled with a timer:
       no progress steps after sixty seconds. Its comment states the premise --
@@ -46,6 +52,31 @@ be cleared before attention moves to the product.
       that should ever suggest Stop. Same class of bug as the stranded-message
       one fixed in `10a7bd6`: the page reporting something inferred instead of
       something known.
+
+- [ ] **The chat page describes tool calls in the machine's vocabulary.** A step
+      reading "looked at describe photo" prompted "what does this mean" on 10
+      November, and fairly. `Admin::Editor#run` (`editor.rb:652`) falls back,
+      when a tool returns no summary of its own, to the tool's internal name with
+      underscores turned into spaces:
+
+          { "name" => use["name"],
+            "summary" => "looked at #{use['name'].tr('_', ' ')}",
+            "read" => true }
+
+      Two problems. It never says **which** photograph, page or block -- the one
+      detail anybody reading the transcript wants -- although it is sitting right
+      there in `use["input"]`; most of these tools take exactly one argument
+      worth naming (`name`, `slug`, `human_name`, `id`). And the tool names were
+      written for the model, not for a reader: `describe_photo` does not write a
+      description, it loads a photograph and hands the pixels to the model so it
+      can SEE the picture (`tools.rb:1545`). "Looked at the photograph
+      ddb-dinner-2026-tables" is both truer and more useful.
+
+      **The part that is not cosmetic:** that same fallback sets `read: true`,
+      which is what draws the grey "·" meaning "only looked, changed nothing". So
+      any tool returning no summary is reported as a read whether it is one or
+      not -- a tool that CHANGED something could be shown as merely looking.
+      Audit which tools return no summary before touching the wording.
 
 - [ ] **A superseded revision cannot be viewed at all.** `previewable` is
       `revision&.editable?`, and `editable?` is `state == "draft"`, so there is
